@@ -1,9 +1,12 @@
 
+import { useEffect, useState } from 'react';
 import { LOGO_ICON } from '../../assets';
+import { ROUTER } from '../../constants/route.constant';
+import { IChildRoute, IRouter } from '../../constants/route.interface';
 import './Header.css'
 
 const Header = () => {
-
+  const [activeElement, setActiveElement] = useState('');
   const setHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -32,6 +35,50 @@ const Header = () => {
     </div>
   )
 
+  const getListChildMenu = (data: IChildRoute[]) => (
+    data.map((item: IChildRoute, index: number) => (
+      <li key={index}><a className="dropdown-item" href={item.link}>{item.name}</a></li>
+    ))
+  )
+
+  const getMenuItemHasChild = (item: IRouter, index: number) => (
+    <li className="nav-item dropdown" key={index}>
+      <a className="nav-link dropdown-toggle color-not-active" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i className={item.icon}></i>
+        <span className="d-none d-lg-inline-block">{item.name}</span></a>
+      <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+        {getListChildMenu(item.children)}
+      </ul>
+    </li>
+  )
+
+  useEffect(() => {
+    handleActive();
+  }, [])
+
+  const handleActive = () => {
+    const currentUrl = window.location.pathname;
+    setActiveElement(currentUrl);
+  }
+
+  const getMenuItemNoChild = (item: IRouter, index: number) => (
+    <li className="nav-item" key={index}>
+      <a href={item.link} className={activeElement === item.link ? 'nav-link active' : 'nav-link color-not-active'}>
+        <i className={item.icon}></i>
+        <span className="d-none d-lg-inline-block">{item.name}</span>
+      </a>
+    </li>
+  )
+
+  const getMenuItems = () => (
+    ROUTER.map((item: IRouter, index: number) => {
+      if (item.children.length > 0) {
+        return getMenuItemHasChild(item, index)
+      }
+      return getMenuItemNoChild(item, index)
+    })
+  )
+
   const setHeaderMain = () => (
     <div className="header-main">
       <div className="container d-flex align-items-end">
@@ -43,32 +90,7 @@ const Header = () => {
           </h1>
         </div>
         <ul className="nav header-nav">
-          <li className="nav-item item-dashboard"><a href="/" className="nav-link active">
-            <i className="icon bi bi-app-indicator me-1"></i>
-            <span className="d-none d-lg-inline-block">Dashboard</span></a></li>
-          <li className="nav-item item-news">
-            <a href="/" className="nav-link color-not-active">
-            <i className="icon bi bi-card-text me-1"></i>
-            <span className="d-none d-lg-inline-block">News</span></a></li>
-          <li className="nav-item item-order dropdown">
-            <a className="nav-link dropdown-toggle color-not-active" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i className="icon bi bi-clipboard me-1"></i>
-              <span className="d-none d-lg-inline-block">Order</span></a>
-            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li><a className="dropdown-item item-order-Monitoring" href="/orders/monitoring">Order Monitoring</a></li>
-              <li><a className="dropdown-item item-order-history" href="/orders/history">Order History</a></li>
-              <li><a className="dropdown-item item-trade-history" href="trade-history.html">Trade History</a></li>
-              <li><a className="dropdown-item item-order-portfolio" href="order-portfolio.html">Portfolio</a></li>
-              <li><a className="dropdown-item item-order-new" href="new-order.html">New</a></li>
-              <li><a className="dropdown-item item-order-modify-cancel" href="order-modify-cancel.html">Modify - Cancel Order</a></li>
-            </ul>
-          </li>
-          <li className="nav-item item-customer color-not-active"><a href="#" className="nav-link color-not-active">
-            <i className="icon bi bi-person-workspace me-1"></i>
-            <span className="d-none d-lg-inline-block">Customer Infomation</span></a></li>
-          <li className="nav-item item-report color-not-active"><a href="/" className="nav-link color-not-active">
-            <i className="icon bi bi-clipboard-data me-1"></i>
-            <span className="d-none d-lg-inline-block">Report</span></a></li>
+          {getMenuItems()}
         </ul>
       </div>
     </div>
