@@ -1,4 +1,4 @@
 //icons
-export const IC_PHONE_CANCEL = require('./icons/phone_cancel.png');
+export const LOGO_ICON = require('./icons/PI-X.svg');
 //images
 export const IMG_AVATAR_TEST = require('./images/img-girl.jpg');

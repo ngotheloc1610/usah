@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import Header from "../../components/Header";
 import authSaga from "../../redux/sagas/authSaga";
 
 const HomePage = () => {
@@ -9,7 +10,9 @@ const HomePage = () => {
        console.log(t('welcome'))
     }, [])
    return (
-       <div>Home</div>
+       <div>
+           <Header />
+       </div>
    )
 }
 
