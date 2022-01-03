@@ -3,15 +3,13 @@ import {
   Routes,
   Route
 } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import OrdersPage from "../pages/OrdersPage";
+import OrderRouter from "./OrderRouter";
 
 const RouterDom = () => {
   return (
     <BrowserRouter>
       <Routes>
-       <Route path="/" element={<HomePage/>} />
-       <Route path="/orders" element={<OrdersPage/>} />
+       <Route path="/orders/*" element={<OrderRouter/>} />
       </Routes>
     </BrowserRouter>
   )
