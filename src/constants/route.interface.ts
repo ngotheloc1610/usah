@@ -1,12 +1,7 @@
-export interface IRouter {
-    link: string;
+export interface IOrderDropdownModel {
+    navigation: string;
     icon: string;
-    name: string;
-    children: IChildRoute[];
+    title: string;
+    subTab: IOrderDropdownModel[];
 }
 
-export interface IChildRoute {
-    link: string;
-    icon: string;
-    name: string;
-}

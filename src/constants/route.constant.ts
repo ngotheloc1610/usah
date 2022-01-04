@@ -1,71 +1,70 @@
 export const ROUTER = [
     {
-        link: '/',
+        navigation: '/',
         icon: 'icon bi bi-app-indicator me-1',
-        name: 'Dashboard',
-        children: []
+        title: 'Dashboard',
+        subTab: []
     },
     {
-        link: '/news',
+        navigation: '/news',
         icon: 'icon bi bi-card-text me-1',
-        name: 'News',
-        children: []
+        title: 'News',
+        subTab: []
     },
     {
-        link: '/orders',
+        navigation: '/orders',
         icon: 'icon bi bi-clipboard me-1',
-        name: 'Order',
-        children: [
+        title: 'Order',
+        subTab: [
             {
-                link: '/orders/monitoring',
+                navigation: '/orders/monitoring',
                 icon: '',
-                name: 'Order Monitoring'
+                title: 'Order Monitoring',
+                subTab: []
             },
             {
-                link: '/orders/history',
+                navigation: '/orders/history',
                 icon: '',
-                name: 'Order History'
+                title: 'Order History',
+                subTab: []
             },
             {
-                link: '/orders/tradeHistory',
+                navigation: '/orders/tradeHistory',
                 icon: '',
-                name: 'Trade History'
+                title: 'Trade History',
+                subTab: []
             },
             {
-                link: '/orders/porfolio',
+                navigation: '/orders/porfolio',
                 icon: '',
-                name: 'Portfolio'
+                title: 'Portfolio',
+                subTab: []
             },
             {
-                link: '/orders/new',
+                navigation: '/orders/new',
                 icon: '',
-                name: 'New'
+                title: 'New',
+                subTab: []
             },
             {
-                link: '/orders/modify-cancel',
+                navigation: '/orders/modify-cancel',
                 icon: '',
-                name: 'Modify - Cancel Order'
+                title: 'Modify - Cancel Order',
+                subTab: []
             }
         ]
     },
     {
-        link: '/customerInfo',
+        navigation: '/customerInfo',
         icon: 'icon bi bi-person-workspace me-1',
-        name: 'Customer Infomation',
-        children: []
+        title: 'Customer Infomation',
+        subTab: []
     },
     {
-        link: '/report',
+        navigation: '/report',
         icon: 'icon bi bi-clipboard-data me-1',
-        name: 'Report',
-        children: []
+        title: 'Report',
+        subTab: []
     }
 ];
 
-export const ROUTE_NAME = {
-    dashboard: 'dashboard',
-    news: 'news',
-    order: 'orders',
-    custome: 'customerInfo',
-    report: 'report'
-};
