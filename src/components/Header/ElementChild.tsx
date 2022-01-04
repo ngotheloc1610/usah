@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { IChildRoute } from '../../constants/route.interface'
+import { IChildRoute, IPropsChildRoute } from '../../constants/route.interface'
 
-const ElementChild = (props: any) => {
+
+const ElementChild = (props: IPropsChildRoute) => {
     const [data, setData] = useState(props.data)
 
     const _renderListChildMenu = (data: IChildRoute[]) => (
@@ -11,17 +12,21 @@ const ElementChild = (props: any) => {
         ))
     )
 
-    return <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-        {_renderListChildMenu(data)}
-    </ul>
+    return (
+        <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+            {_renderListChildMenu(data)}
+        </ul>
+    )
 }
+
+const defaultProps = {
+    data: []
+};
 
 ElementChild.protoType = {
     data: PropTypes.array,
 }
 
-ElementChild.defaultProps = {
-    data: []
-}
+ElementChild.defaultProps = defaultProps;
 
 export default ElementChild

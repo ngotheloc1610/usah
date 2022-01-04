@@ -8,12 +8,12 @@ import ElementChild from './ElementChild';
 import './Header.css'
 
 const Header = () => {
+  const [activeElement, setActiveElement] = useState('');
 
   useEffect(() => {
     handleActive();
   }, [])
 
-  const [activeElement, setActiveElement] = useState('');
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">

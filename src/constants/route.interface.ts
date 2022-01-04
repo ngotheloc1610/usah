@@ -10,3 +10,7 @@ export interface IChildRoute {
     icon: string;
     name: string;
 }
+
+export interface IPropsChildRoute {
+    data: IChildRoute[];
+}
