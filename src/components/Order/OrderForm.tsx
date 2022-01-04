@@ -94,15 +94,15 @@ const OrderForm = () => {
             <div className="order-btn-group d-flex align-items-stretch mb-2">
 
                 <button type="button" 
-                    className={currentSide === '1' ? 'btn btn-buy text-white flex-grow-1 p-2 text-center selected' : 'btn btn-buy text-white flex-grow-1 p-2 text-center'} 
-                    onClick={() => handleSide('1')}>
-                    <span className="fs-5 text-uppercase">Buy</span>
+                    className={currentSide === '2' ? 'btn btn-buy text-white flex-grow-1 p-2 text-center selected' : 'btn btn-buy text-white flex-grow-1 p-2 text-center'} 
+                    onClick={() => handleSide('2')}>
+                    <span className="fs-5 text-uppercase">Sell</span>
                 </button>
 
                 <button type="button" 
-                    className={currentSide === '1' ? 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center' : 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center selected'}
-                    onClick={() => handleSide('2')}>
-                    <span className="fs-5 text-uppercase">Sell</span>
+                    className={currentSide === '2' ? 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center' : 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center selected'}
+                    onClick={() => handleSide('1')}>
+                    <span className="fs-5 text-uppercase">Buy</span>
                 </button>
 
             </div>

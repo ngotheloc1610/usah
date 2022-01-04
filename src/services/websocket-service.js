@@ -1,4 +1,4 @@
-import rpc from '../model/proto/rpc_pb';
+import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 

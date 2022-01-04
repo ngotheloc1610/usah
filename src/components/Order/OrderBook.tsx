@@ -9,13 +9,13 @@ const OrderBook = () => {
                         <thead>
                             <tr className="align-middle">
                                 <th className="text-uppercase text-center">
-                                    <span className="text-ellipsis">Buy<br />Volume</span>
+                                    <span className="text-ellipsis">Ask<br />Volume</span>
                                 </th>
                                 <th className="text-uppercase text-center">
                                     <span className="text-ellipsis">Price</span>
                                 </th>
                                 <th className="text-uppercase text-center">
-                                    <span className="text-ellipsis">Sell<br />Volume</span>
+                                    <span className="text-ellipsis">Bid<br />Volume</span>
                                 </th>
                             </tr>
                         </thead>

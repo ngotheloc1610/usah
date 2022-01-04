@@ -3,6 +3,7 @@ import '../../pages/Orders/OrderNew/OrderNew.css'
 import PropTypes from 'prop-types'
 import { IParamOrder } from '../../interfaces/order.interface'
 import { useState } from 'react'
+import { wsService } from '../../services/websocket-service'
 
 interface IProps {
     handleClose: any;
@@ -16,7 +17,10 @@ const defaultProps = {
 
 const ConfirmOrder = (props: IProps) => {
     const { handleClose, params } = props;
-    const [currentSide, setCurrentSide] = useState(params.side)
+    const [currentSide, setCurrentSide] = useState(params.side);
+    const sendOrder = () => {
+        let wsConnected = wsService.getWsConnected();
+    }
     const _renderListConfirm = () => (
         <div>
             <table style={{ width: '354px' }}>
@@ -49,7 +53,7 @@ const ConfirmOrder = (props: IProps) => {
                 </tbody>
             </table>
             <div style={{marginTop: '30px'}}>
-                <button className='btn-primary-custom' style={{ width: '100px' }}>Place</button>
+                <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder}>Place</button>
             </div>
         </div>
 
