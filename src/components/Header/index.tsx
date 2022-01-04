@@ -35,11 +35,11 @@ const Header = () => {
     </div>
   )
 
-  const _renderMenuItemHasChild = (item: ITabBarItem) => (
+  const _renderDropDown = (item: ITabBarItem) => (
     <TabBarItem itemDropDown={item.itemDropDown} />
   )
 
-  const _renderMenuItemNoChild = (item: ITabBarItem) => (
+  const _renderTabBar = (item: ITabBarItem) => (
     <TabBarItem itemData={item.itemData} />
   )
 
@@ -48,10 +48,10 @@ const Header = () => {
       const propData: ITabBarItem = {}
       if (item.subTab.length > 0) {
         propData.itemDropDown = item;
-        return _renderMenuItemHasChild(propData)
+        return _renderDropDown(propData)
       }
       propData.itemData = item;
-      return _renderMenuItemNoChild(propData)
+      return _renderTabBar(propData)
     })
   )
 
