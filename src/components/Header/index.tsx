@@ -1,19 +1,12 @@
 
-import { useEffect, useState } from 'react';
 import { LOGO_ICON } from '../../assets';
 import { ROUTER } from '../../constants/route.constant';
-import { IChildRoute, IRouter } from '../../constants/route.interface';
 import { Colors } from '../../themes';
-import ElementChild from './ElementChild';
 import './Header.css'
+import { IOrderDropdownModel } from '../../constants/route.interface';
+import TabBarItem, { ITabBarItem } from './TabBarItem';
 
 const Header = () => {
-  const [activeElement, setActiveElement] = useState('');
-
-  useEffect(() => {
-    handleActive();
-  }, [])
-
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -42,35 +35,23 @@ const Header = () => {
     </div>
   )
 
-  const _renderMenuItemHasChild = (item: IRouter, index: number) => (
-    <li className="nav-item dropdown" key={index}>
-      <a className="nav-link dropdown-toggle color-not-active" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <i className={item.icon}></i>
-        <span className="d-none d-lg-inline-block">{item.name}</span></a>
-        <ElementChild data={item.children} />
-    </li>
+  const _renderMenuItemHasChild = (item: ITabBarItem) => (
+    <TabBarItem itemDropDown={item.itemDropDown} />
   )
 
-  const handleActive = () => {
-    const currentUrl = window.location.pathname;
-    setActiveElement(currentUrl);
-  }
-
-  const _renderMenuItemNoChild = (item: IRouter, index: number) => (
-    <li className="nav-item" key={index}>
-      <a href={item.link} className={activeElement === item.link ? 'nav-link active' : 'nav-link color-not-active'}>
-        <i className={item.icon}></i>
-        <span className="d-none d-lg-inline-block">{item.name}</span>
-      </a>
-    </li>
+  const _renderMenuItemNoChild = (item: ITabBarItem) => (
+    <TabBarItem itemData={item.itemData} />
   )
 
   const _renderMenuItems = () => (
-    ROUTER.map((item: IRouter, index: number) => {
-      if (item.children.length > 0) {
-        return _renderMenuItemHasChild(item, index)
+    ROUTER.map((item: IOrderDropdownModel) => {
+      const propData: ITabBarItem = {}
+      if (item.subTab.length > 0) {
+        propData.itemDropDown = item;
+        return _renderMenuItemHasChild(propData)
       }
-      return _renderMenuItemNoChild(item, index)
+      propData.itemData = item;
+      return _renderMenuItemNoChild(propData)
     })
   )
 
@@ -92,7 +73,7 @@ const Header = () => {
   )
 
   const _renderHeaderTemplate = () => (
-    <div className="site-header" style={{backgroundColor: Colors.lightBlue}}>
+    <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
       {_renderHeaderTop()}
       {_renderHeaderMain()}
     </div>
