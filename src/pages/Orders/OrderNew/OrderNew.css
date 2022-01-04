@@ -1,0 +1,91 @@
+.card .card-header {
+    padding: 0.5rem 0.75rem;
+    background-color: #16365C;
+    color: #fff;
+}
+
+.card .card-body {
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 0;
+}
+
+.bg-gradient-light {
+    background: white;
+    background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8eff8));
+    background: linear-gradient(to bottom, white 0%, #e8eff8 100%);
+}
+
+.btn-primary-custom {
+    color: #fff !important;
+    background-color: #16365C !important;
+    border-color: #16365C !important;
+}
+
+.color-primary {
+    color: #16365C !important;
+}
+
+.border {
+    border: 1px solid #D0D9E3 !important;
+}
+
+.table.table-i tbody tr th {
+    background-color: #DCE7F4;
+    color: #16365C;
+    font-size: 0.75rem;
+}
+
+.table thead tr th {
+    background-color: #DCE7F4;
+    color: #16365C;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.table > :not(:first-child) {
+    border-top: 2px solid #fff !important;
+}
+
+thead, tbody, tfoot, tr, td, th {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+}
+
+.table-sm > :not(caption) > * > * {
+    padding: 0.25rem 0.25rem;
+}
+
+.bg-success-light {
+    background-color: #E5ECE4 !important;
+}
+
+.bg-light {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-light-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.bg-danger-light {
+    background-color: #F8E5E5 !important;
+}
+
+.order-form .order-btn-group .btn-buy.selected {
+    background-color: #66B55D;
+}
+
+.order-form .order-btn-group .btn:first-of-type {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.order-form .order-btn-group .btn {
+    background-color: #ccc;
+    line-height: 1.2;
+}
+
+.order-form .order-btn-group .btn-sell.selected {
+    background-color: #ED1C24;
+}
