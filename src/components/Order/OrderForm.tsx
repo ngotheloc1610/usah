@@ -1,13 +1,28 @@
 import { useState } from 'react'
 import '../../pages/Orders/OrderNew/OrderNew.css'
+import ConfirmOrder from '../Modal/ConfirmOrder';
+
+const defaultData = {
+    tickerCode: '',
+    tickerName: '',
+    orderType: '',
+    volume: 0,
+    price: 0,
+    side: '',
+    confirmationConfig: false
+} 
 
 const OrderForm = () => {
 
-    const [currentSide, setCurrentSide] = useState(1);
+    const [currentSide, setCurrentSide] = useState('1');
     const [price, setPrice] = useState(0);
     const [volume, setVolume] = useState(0);
+    const [isConfirm, setIsConfirm] = useState(false);
+    const [validForm, setValidForm] = useState(false);
 
-    const handleSide = (value: number) => {
+    const [paramOrder, setParamOrder] = useState(defaultData);
+
+    const handleSide = (value: string) => {
         setCurrentSide(value);
     }
 
@@ -21,7 +36,9 @@ const OrderForm = () => {
 
     const handelUpperVolume = () => {
         const currentVol = volume;
-        setVolume(currentVol + 1);
+        const nerwVol = currentVol + 1;
+        setVolume(nerwVol);
+        setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handelLowerVolume = () => {
@@ -30,12 +47,16 @@ const OrderForm = () => {
             setVolume(0);
             return;
         }
-        setVolume(currentVol - 1);
+        const nerwVol = currentVol - 1;
+        setVolume(nerwVol);
+        setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handleUpperPrice = () => {
         const currentPrice = price;
-        setPrice(currentPrice + 1);
+        const newPrice = currentPrice + 1;
+        setPrice(newPrice);
+        setValidForm(newPrice > 0 && volume > 0);
     }
 
     const handleLowerPrice = () => {
@@ -44,7 +65,27 @@ const OrderForm = () => {
             setPrice(0);
             return;
         }
-        setPrice(currentPrice - 1);
+        const newPrice = currentPrice - 1;
+        setPrice(newPrice);
+        setValidForm(newPrice > 0 && volume > 0);
+    }
+
+    const togglePopup = () => {
+        setIsConfirm(false);
+    }
+
+    const handlePlaceOrder = () => {
+        const param = {
+            tickerCode: 'AAPL',
+            tickerName: 'Apple Inc',
+            orderType: 'limit',
+            volume: volume,
+            price: price,
+            side: currentSide,
+            confirmationConfig: false
+        }
+        setParamOrder(param);
+        setIsConfirm(true);
     }
 
     const _renderForm = () => (
@@ -53,14 +94,14 @@ const OrderForm = () => {
             <div className="order-btn-group d-flex align-items-stretch mb-2">
 
                 <button type="button" 
-                    className={currentSide === 1 ? 'btn btn-buy text-white flex-grow-1 p-2 text-center selected' : 'btn btn-buy text-white flex-grow-1 p-2 text-center'} 
-                    onClick={() => handleSide(1)}>
+                    className={currentSide === '1' ? 'btn btn-buy text-white flex-grow-1 p-2 text-center selected' : 'btn btn-buy text-white flex-grow-1 p-2 text-center'} 
+                    onClick={() => handleSide('1')}>
                     <span className="fs-5 text-uppercase">Buy</span>
                 </button>
 
                 <button type="button" 
-                    className={currentSide === 1 ? 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center' : 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center selected'}
-                    onClick={() => handleSide(2)}>
+                    className={currentSide === '1' ? 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center' : 'btn btn-sell text-white flex-grow-1 p-2 px-2 text-center selected'}
+                    onClick={() => handleSide('2')}>
                     <span className="fs-5 text-uppercase">Sell</span>
                 </button>
 
@@ -100,8 +141,12 @@ const OrderForm = () => {
                 <div><strong>10,000</strong></div>
             </div>
             <div className="border-top">
-                <a href="#" className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1" data-bs-toggle="modal" data-bs-target="#confirmModal">Place</a>
+                <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                onClick={handlePlaceOrder} disabled={!validForm} >Place</button>
             </div>
+
+            {isConfirm && <ConfirmOrder handleClose={togglePopup} params={paramOrder} />}
+
         </form>
     )
 

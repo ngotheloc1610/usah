@@ -89,3 +89,7 @@ thead, tbody, tfoot, tr, td, th {
 .order-form .order-btn-group .btn-sell.selected {
     background-color: #ED1C24;
 }
+
+.btn-disabled:disabled {
+    background-color: #ccc;
+}
