@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { IChildRoute, IPropsChildRoute } from '../../constants/route.interface'
+import { IChildRoute } from '../../constants/route.interface'
 
+interface IPropsChildRoute {
+    data: IChildRoute[];
+}
+
+const defaultProps = {
+    data: []
+};
 
 const ElementChild = (props: IPropsChildRoute) => {
     const [data, setData] = useState(props.data)
@@ -18,10 +25,6 @@ const ElementChild = (props: IPropsChildRoute) => {
         </ul>
     )
 }
-
-const defaultProps = {
-    data: []
-};
 
 ElementChild.protoType = {
     data: PropTypes.array,

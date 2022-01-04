@@ -11,6 +11,3 @@ export interface IChildRoute {
     name: string;
 }
 
-export interface IPropsChildRoute {
-    data: IChildRoute[];
-}
