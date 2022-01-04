@@ -5,6 +5,7 @@ const axios: AxiosRequestConfig = {
   responseType: 'json',
   timeout: 30000,
 }
+
 export default {
   axios
 };

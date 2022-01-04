@@ -4,23 +4,57 @@ import PropTypes from 'prop-types'
 import { IParamOrder } from '../../interfaces/order.interface'
 import { useState } from 'react'
 import { wsService } from '../../services/websocket-service'
+import * as tmpb from '../../models/proto/trading_model_pb';
+import * as tspb from '../../models/proto/trading_service_pb';
+import * as rpc from '../../models/proto/rpc_pb';
 
-interface IProps {
-    handleClose: any;
+interface IConfirmOrder {
+    handleCloseConfirmPopup: () => void;
     params: IParamOrder
 }
 
-const defaultProps = {
-    handleClose: null,
-    params: {},
-}
-
-const ConfirmOrder = (props: IProps) => {
-    const { handleClose, params } = props;
+const ConfirmOrder = (props: IConfirmOrder) => {
+    const tradingServicePb: any = tspb;
+    const tradingModelPb: any = tmpb;
+    const rProtoBuff: any = rpc;
+    const { handleCloseConfirmPopup, params } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
-    const sendOrder = () => {
-        let wsConnected = wsService.getWsConnected();
+    const [tradingPin, setTradingPin] = useState('');
+    const [isValidOrder, setIsValidOrder] = useState(false);
+
+    const handleTradingPin = (event: any) => {
+        setTradingPin(event.target.value);
+        setIsValidOrder(event.target.value !== '');
     }
+
+    const sendOrder = () => {
+        const uid = process.env.REACT_APP_TRADING_ID;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let singleOrder = new tradingServicePb.NewOrderSingleRequest();
+            singleOrder.setSecretKey(tradingPin);
+            singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
+            let order = new tradingModelPb.Order();
+
+            order.setAmount(params.volume);
+
+            order.setPrice(params.side);
+            order.setUid(uid);
+
+            singleOrder.setOrder(order);
+            console.log(singleOrder);
+
+            let rpcMsg = new rProtoBuff.RpcMessage();
+            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);
+            rpcMsg.setPayloadData(singleOrder.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+
+            wsService.sendMessage(rpcMsg.serializeBinary());
+            handleCloseConfirmPopup();
+        }
+    }
+
     const _renderListConfirm = () => (
         <div>
             <table style={{ width: '354px' }}>
@@ -48,12 +82,12 @@ const ConfirmOrder = (props: IProps) => {
                     <tr className='h-100'>
                         <td><b>Trading Pin</b></td>
                         <td></td>
-                        <td><input type="password" /></td>
+                        <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
                     </tr>
                 </tbody>
             </table>
             <div style={{marginTop: '30px'}}>
-                <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder}>Place</button>
+                <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>
             </div>
         </div>
 
@@ -65,7 +99,7 @@ const ConfirmOrder = (props: IProps) => {
             <div className="box">
                 <div>
                     Confirm order
-                    <span className="close-icon" onClick={handleClose}>x</span>
+                    <span className="close-icon" onClick={handleCloseConfirmPopup}>x</span>
                 </div>
             </div>
             <div className='content text-center'>
@@ -83,16 +117,8 @@ const ConfirmOrder = (props: IProps) => {
     )
 
     return <div className="popup-box">
-
         {_renderTamplate()}
     </div>
 }
-
-ConfirmOrder.protoType = {
-    handleClose: PropTypes.func,
-    params: PropTypes.object,
-};
-
-ConfirmOrder.defaultProps = defaultProps;
 
 export default ConfirmOrder

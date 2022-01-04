@@ -72,6 +72,8 @@ const OrderForm = () => {
 
     const togglePopup = () => {
         setIsConfirm(false);
+        setPrice(0);
+        setVolume(0);
     }
 
     const handlePlaceOrder = () => {
@@ -145,7 +147,7 @@ const OrderForm = () => {
                 onClick={handlePlaceOrder} disabled={!validForm} >Place</button>
             </div>
 
-            {isConfirm && <ConfirmOrder handleClose={togglePopup} params={paramOrder} />}
+            {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} params={paramOrder} />}
 
         </form>
     )
