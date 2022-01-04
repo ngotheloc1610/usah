@@ -3,11 +3,18 @@ import { useEffect, useState } from 'react';
 import { LOGO_ICON } from '../../assets';
 import { ROUTER } from '../../constants/route.constant';
 import { IChildRoute, IRouter } from '../../constants/route.interface';
+import { Colors } from '../../themes';
+import ElementChild from './ElementChild';
 import './Header.css'
 
 const Header = () => {
+
+  useEffect(() => {
+    handleActive();
+  }, [])
+
   const [activeElement, setActiveElement] = useState('');
-  const setHeaderTop = () => (
+  const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
         <ul className="nav header-top-nav">
@@ -35,33 +42,21 @@ const Header = () => {
     </div>
   )
 
-  const getListChildMenu = (data: IChildRoute[]) => (
-    data.map((item: IChildRoute, index: number) => (
-      <li key={index}><a className="dropdown-item" href={item.link}>{item.name}</a></li>
-    ))
-  )
-
-  const getMenuItemHasChild = (item: IRouter, index: number) => (
+  const _renderMenuItemHasChild = (item: IRouter, index: number) => (
     <li className="nav-item dropdown" key={index}>
       <a className="nav-link dropdown-toggle color-not-active" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         <i className={item.icon}></i>
         <span className="d-none d-lg-inline-block">{item.name}</span></a>
-      <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-        {getListChildMenu(item.children)}
-      </ul>
+        <ElementChild data={item.children} />
     </li>
   )
-
-  useEffect(() => {
-    handleActive();
-  }, [])
 
   const handleActive = () => {
     const currentUrl = window.location.pathname;
     setActiveElement(currentUrl);
   }
 
-  const getMenuItemNoChild = (item: IRouter, index: number) => (
+  const _renderMenuItemNoChild = (item: IRouter, index: number) => (
     <li className="nav-item" key={index}>
       <a href={item.link} className={activeElement === item.link ? 'nav-link active' : 'nav-link color-not-active'}>
         <i className={item.icon}></i>
@@ -70,16 +65,16 @@ const Header = () => {
     </li>
   )
 
-  const getMenuItems = () => (
+  const _renderMenuItems = () => (
     ROUTER.map((item: IRouter, index: number) => {
       if (item.children.length > 0) {
-        return getMenuItemHasChild(item, index)
+        return _renderMenuItemHasChild(item, index)
       }
-      return getMenuItemNoChild(item, index)
+      return _renderMenuItemNoChild(item, index)
     })
   )
 
-  const setHeaderMain = () => (
+  const _renderHeaderMain = () => (
     <div className="header-main">
       <div className="container d-flex align-items-end">
         <div className="site-brand">
@@ -90,18 +85,18 @@ const Header = () => {
           </h1>
         </div>
         <ul className="nav header-nav">
-          {getMenuItems()}
+          {_renderMenuItems()}
         </ul>
       </div>
     </div>
   )
 
-  const setHeaderTemplate = () => (
-    <div className="site-header">
-      {setHeaderTop()}
-      {setHeaderMain()}
+  const _renderHeaderTemplate = () => (
+    <div className="site-header" style={{backgroundColor: Colors.lightBlue}}>
+      {_renderHeaderTop()}
+      {_renderHeaderMain()}
     </div>
   )
-  return <div>{setHeaderTemplate()}</div>
+  return <div>{_renderHeaderTemplate()}</div>
 };
 export default Header;
