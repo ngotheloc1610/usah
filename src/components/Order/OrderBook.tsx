@@ -1,4 +1,27 @@
+import { IOrderBook } from "../../interfaces/order.interface"
+import { DATA_ASK_VOLUME, DATA_BID_PRICE } from "../../mocks"
+
 const OrderBook = () => {
+
+    const _renderAskVol = () => (
+        DATA_ASK_VOLUME.map((item: IOrderBook, index: number) => (
+            <tr key={index}>
+                <td className="text-end bg-success-light">{item.askVol}</td>
+                <td className="fw-bold text-center">{item.price}</td>
+                <td className="text-end">{item.bidPrice}</td>
+            </tr>
+        ))
+    )
+
+    const _renderAskPrice = () => (
+        DATA_BID_PRICE.map((item: IOrderBook, index: number) => (
+            <tr key={index}>
+                <td className="text-end">{item.askVol}</td>
+                <td className="fw-bold text-center">{item.price}</td>
+                <td className="text-end bg-danger-light">{item.bidPrice}</td>
+            </tr>
+        ))
+    )
 
     const _renderTemplate = () => (
         <div>
@@ -20,41 +43,14 @@ const OrderBook = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td className="text-end bg-success-light">2,400</td>
-                                <td className="fw-bold text-center">145.54</td>
-                                <td className="text-end">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td className="text-end bg-success-light">1,500</td>
-                                <td className="fw-bold text-center">145.55</td>
-                                <td className="text-end">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td className="text-end bg-success-light">900</td>
-                                <td className="fw-bold text-center">145.56</td>
-                                <td className="text-end">&nbsp;</td>
-                            </tr>
+
+                            {_renderAskVol()}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
                                     <span className="fs-5 fw-bold text-primary">145.57</span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td className="text-end">&nbsp;</td>
-                                <td className="fw-bold text-center">145.58</td>
-                                <td className="text-end bg-danger-light">2,400</td>
-                            </tr>
-                            <tr>
-                                <td className="text-end">&nbsp;</td>
-                                <td className="fw-bold text-center">145.59</td>
-                                <td className="text-end bg-danger-light">1,700</td>
-                            </tr>
-                            <tr>
-                                <td className="text-end">&nbsp;</td>
-                                <td className="fw-bold text-center">145.60</td>
-                                <td className="text-end bg-danger-light">800</td>
-                            </tr>
+                            {_renderAskPrice()}
                         </tbody>
                     </table>
                 </div>

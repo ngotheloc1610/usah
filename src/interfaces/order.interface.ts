@@ -7,3 +7,9 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
 }
+
+export interface IOrderBook {
+    askVol: string;
+    price: string;
+    bidPrice: string;
+}

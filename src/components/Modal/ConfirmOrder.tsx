@@ -1,12 +1,12 @@
 import './Modal.css'
 import '../../pages/Orders/OrderNew/OrderNew.css'
-import PropTypes from 'prop-types'
 import { IParamOrder } from '../../interfaces/order.interface'
 import { useState } from 'react'
 import { wsService } from '../../services/websocket-service'
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
+import { DATA_ASK_VOLUME } from '../../mocks'
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: () => void;
