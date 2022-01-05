@@ -4,8 +4,9 @@ import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 
 import { Subject } from 'rxjs';
-
-const socket_url = "ws://10.1.11.36:8769/api/v1/websocket?token=355d13f7f64b0d34888bbc9f5f942cd0b39dc57482850519ff6392da95afffe8";
+const url = process.env.REACT_APP_BASE_URL;
+const token = process.env.REACT_APP_TOKEN;
+const socket_url = `${url}?token=${token}`;
 var socket = null;
 var wsConnected = false;
 

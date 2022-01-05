@@ -2,7 +2,7 @@
 import { LOGO_ICON } from '../../assets';
 import { ROUTER } from '../../constants/route.constant';
 import { Colors } from '../../themes';
-import './Header.css'
+import './Header.scss'
 import { IOrderDropdownModel } from '../../constants/route.interface';
 import TabBarItem, { ITabBarItem } from './TabBarItem';
 

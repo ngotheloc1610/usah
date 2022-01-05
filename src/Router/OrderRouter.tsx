@@ -6,6 +6,7 @@ import {
 import HomePage from "../pages/HomePage";
 import OrderHistory from "../pages/Orders/OrderHistory";
 import OrderMonitoring from "../pages/Orders/OrderMonitoring";
+import OrderNew from "../pages/Orders/OrderNew";
 
 const OrderRouter = () => {
     return (
@@ -13,6 +14,7 @@ const OrderRouter = () => {
         <Routes>
           <Route path="/monitoring" element={<OrderMonitoring />} />
           <Route path="/history" element={<OrderHistory />} />
+          <Route path="/new" element={<OrderNew />} />
         </Routes>
       </div>
     );
