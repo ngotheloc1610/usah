@@ -13,3 +13,18 @@ export interface IOrderBook {
     price: string;
     bidPrice: string;
 }
+
+export interface TickerInfo {
+    symbolId: number,
+    tickerName: string,
+    ticker: string,
+    stockPrice: string,
+    previousClose: string,
+    open: string,
+    high: string,
+    low: string,
+    lastPrice: string,
+    volume: string,
+    change: string,
+    changePrecent: string,
+}
