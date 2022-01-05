@@ -14,7 +14,7 @@ export interface IOrderBook {
     bidPrice: string;
 }
 
-export interface ListOrder {
+export interface TickerInfo {
     symbolId: number,
     tickerName: string,
     ticker: string,
