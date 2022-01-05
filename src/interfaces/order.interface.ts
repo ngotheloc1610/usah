@@ -1,3 +1,17 @@
+export interface ITickerInfo {
+    symbolId: number,
+    tickerName: string,
+    ticker: string,
+    stockPrice: string,
+    previousClose: string,
+    open: string,
+    high: string,
+    low: string,
+    lastPrice: string,
+    volume: string,
+    change: string,
+    changePrecent: string,
+}
 export interface IParamOrder {
     tickerCode: string;
     tickerName: string;

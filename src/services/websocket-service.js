@@ -43,15 +43,12 @@ const startWs = () =>{
 
         if(payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_SINGLE_RES){
             const singleOrderRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
-            console.log(singleOrderRes.toObject());
             orderSubject.next(singleOrderRes.toObject());
         }
         if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
             const listOrderRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
             listOrderSubject.next(listOrderRes.toObject().orderList);
         }
-    }
-}
 
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
             const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());

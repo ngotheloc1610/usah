@@ -11,8 +11,8 @@ const ListOrder = (props: IPropListOrder) => {
     const tempDate = new Date();
     const date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() ;
     const currDate = date;
-    function getTickerName(sympleId: number) {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId = sympleId)?.ticker;
+    function getTickerName(sympleId: string) {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
     function getSideName(sideId: number) {
         return SIDE.find(item => item.code === sideId)?.title;
@@ -24,7 +24,7 @@ const ListOrder = (props: IPropListOrder) => {
         return listOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td style={{ width: "222.422px" }}>{getTickerName(item.symbolCode)}</td>
+                    <td style={{ width: "222.422px" }}>{getTickerName(item.symbolCode.toString())}</td>
                     <td style={{ width: "89.75px" }}><span className="text-danger">{getSideName(item.orderType)}</span></td>
                     <td style={{ width: "111.703px" }}>Limit</td>
                     <td style={{ width: "144.625px" }} className="text-end">{item.price}</td>
