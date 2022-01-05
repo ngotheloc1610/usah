@@ -2,7 +2,7 @@ import OrderBook from '../../../components/Order/OrderBook'
 import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
-import './OrderNew.css'
+import './OrderNew.scss'
 
 const OrderNew = () => {
     return <div className="site-main mt-3">

@@ -331,3 +331,5 @@ export const DATA_BID_PRICE = [
         bidPrice: '800'
     },
 ];
+
+export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];

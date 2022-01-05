@@ -1,6 +1,17 @@
-import '../../pages/Orders/OrderNew/OrderNew.css'
+import '../../pages/Orders/OrderNew/OrderNew.scss'
 
 const TickerSearch = () => {
+
+    const _renderRecentSearch = () => (
+        <div className="d-md-flex align-items-md-center text-center">
+            <div>Recent Search:</div>
+            <div>
+                <a href="# " className='color-primary'>Apple Inc. [AAPL]</a>
+                <a href="# " className='color-primary'>Adobe Inc. [ADBE]</a>
+                <a className='color-primary' href="# ">Amazon.com, Inc. [AMZN]</a>
+            </div>
+        </div>
+    )
 
     const _renderTemplate = () => (
         <div className="row g-2 align-items-end">
@@ -16,9 +27,7 @@ const TickerSearch = () => {
                 <a href="# " className="btn btn-sm d-block btn-primary-custom "><strong>Search</strong></a>
             </div>
             <div className="col-lg-6">
-                <div className="d-md-flex align-items-md-center text-center">
-                    <div>Recent Search:</div>
-                    <div><a href="# " className='color-primary'>Apple Inc. [AAPL]</a> <a href="# " className='color-primary'>Adobe Inc. [ADBE]</a> <a className='color-primary' href="# ">Amazon.com, Inc. [AMZN]</a></div></div>
+                {_renderRecentSearch()}
             </div>
         </div>
     )

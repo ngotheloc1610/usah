@@ -1,8 +1,7 @@
 import { IOrderBook } from "../../interfaces/order.interface"
-import { DATA_ASK_VOLUME, DATA_BID_PRICE } from "../../mocks"
+import { DATA_ASK_VOLUME, DATA_BID_PRICE, ORDER_BOOK_HEADER } from "../../mocks"
 
 const OrderBook = () => {
-
     const _renderAskVol = () => (
         DATA_ASK_VOLUME.map((item: IOrderBook, index: number) => (
             <tr key={index}>
@@ -23,6 +22,14 @@ const OrderBook = () => {
         ))
     )
 
+    const _renderHeaderOrderBook = () => (
+        ORDER_BOOK_HEADER.map((item: string, index: number) => (
+            <th className="text-uppercase text-center" key={index}>
+                <span className="text-ellipsis">{item.split(' ')[0]}<br />{item.split(' ')[1]}</span>
+            </th>
+        ))
+    )
+
     const _renderTemplate = () => (
         <div>
             <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
@@ -31,19 +38,10 @@ const OrderBook = () => {
                     <table cellPadding="0" cellSpacing="0" className="table border table-sm mb-0">
                         <thead>
                             <tr className="align-middle">
-                                <th className="text-uppercase text-center">
-                                    <span className="text-ellipsis">Ask<br />Volume</span>
-                                </th>
-                                <th className="text-uppercase text-center">
-                                    <span className="text-ellipsis">Price</span>
-                                </th>
-                                <th className="text-uppercase text-center">
-                                    <span className="text-ellipsis">Bid<br />Volume</span>
-                                </th>
+                                {_renderHeaderOrderBook()}
                             </tr>
                         </thead>
                         <tbody>
-
                             {_renderAskVol()}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>

@@ -1,12 +1,11 @@
-import './Modal.css'
-import '../../pages/Orders/OrderNew/OrderNew.css'
+import './Modal.scss'
+import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { IParamOrder } from '../../interfaces/order.interface'
 import { useState } from 'react'
 import { wsService } from '../../services/websocket-service'
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
-import { DATA_ASK_VOLUME } from '../../mocks'
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: () => void;
@@ -36,62 +35,51 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             singleOrder.setSecretKey(tradingPin);
             singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
             let order = new tradingModelPb.Order();
-
             order.setAmount(params.volume);
-
             order.setPrice(params.side);
             order.setUid(uid);
-
             singleOrder.setOrder(order);
             console.log(singleOrder);
-
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-
             wsService.sendMessage(rpcMsg.serializeBinary());
             handleCloseConfirmPopup();
         }
     }
 
+    const _renderTradingPin = () => (
+        <tr className='h-100'>
+            <td><b>Trading Pin</b></td>
+            <td></td>
+            <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
+        </tr>
+    )
+
+    const _renderConfirmOrder = (title: string, value: string) => (
+        <tr>
+            <td className='text-left w-150'><b>{title}</b></td>
+            <td className='text-left w-90'>:</td>
+            <td className='text-left'>{value}</td>
+        </tr>
+    )
+
     const _renderListConfirm = () => (
         <div>
             <table style={{ width: '354px' }}>
                 <tbody>
-                    <tr>
-                        <td className='text-left w-150'><b>Ticker</b></td>
-                        <td className='text-left w-90'>:</td>
-                        <td className='text-left'>{params.tickerCode} - {params.tickerName}</td>
-                    </tr>
-                    <tr>
-                        <td className='text-left w-150'><b>Volume</b></td>
-                        <td className='text-left w-90'>:</td>
-                        <td className='text-left'>{params.volume}</td>
-                    </tr>
-                    <tr>
-                        <td className='text-left w-150'><b>Price</b></td>
-                        <td className='text-left w-90'>:</td>
-                        <td className='text-left'>{params.price}</td>
-                    </tr>
-                    <tr>
-                        <td className='text-left w-150'><b>Value &nbsp;&nbsp; <span>($)</span></b></td>
-                        <td className='text-left w-90'>:</td>
-                        <td className='text-left'>{params.volume * params.price}</td>
-                    </tr>
-                    <tr className='h-100'>
-                        <td><b>Trading Pin</b></td>
-                        <td></td>
-                        <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
-                    </tr>
+                    {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
+                    {_renderConfirmOrder('Volume', `${params.volume}`)}
+                    {_renderConfirmOrder('Price', `${params.price}`)}
+                    {_renderConfirmOrder('Value', `${params.volume * params.price}`)}
+                    {_renderTradingPin()}
                 </tbody>
             </table>
-            <div style={{marginTop: '30px'}}>
+            <div style={{ marginTop: '30px' }}>
                 <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>
             </div>
         </div>
-
-
     )
 
     const _renderTamplate = () => (
@@ -105,7 +93,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <div className='content text-center'>
                 <div>
                     <span className='fs-18'><b>Would you like to place order</b></span> &nbsp; &nbsp; &nbsp;
-                    <span className={currentSide === '1' ? 'order-type text-success' : 'order-type text-danger'}><b>
+                    <span className={currentSide === '1' ? 'order-type text-danger' : 'order-type text-success'}><b>
                         {currentSide === '1' ? 'buy' : 'sell'}
                     </b></span>
                 </div>
