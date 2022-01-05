@@ -41,7 +41,7 @@ export interface IListOrder {
     slippage: string;
     state: string;
     swap: string;
-    symbolCode: string;
+    symbolCode: number;
     time: string;
     tp: string;
     triggerPrice: string;

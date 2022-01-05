@@ -35,7 +35,6 @@ const startWs = () =>{
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-        console.log(38,payloadClass);
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());
             // console.log(quoteEvent.toObject());                
@@ -49,7 +48,6 @@ const startWs = () =>{
         }
         if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
             const listOrderRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
-            console.log('lstOrderRes:', listOrderRes.toObject().orderList)
             listOrderSubject.next(listOrderRes.toObject().orderList);
         }
     }

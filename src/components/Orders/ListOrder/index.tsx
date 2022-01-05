@@ -1,14 +1,22 @@
 import { useState } from "react";
+import { SIDE } from "../../../constants/general.constant";
 import { IPropListOrder, IStateListOrder } from "../../../interfaces/order.interface";
-const ListOrder = (props: IPropListOrder, state: IStateListOrder) => {
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+const defaultProps: IPropListOrder = {
+    listOrder: []
+};
+const ListOrder = (props: IPropListOrder) => {
     const { listOrder } = props;
     const [isShowFullData, setShowFullData] = useState(false);
-    const defaultProps: IPropListOrder = {
-        listOrder: []
-    };
-    var tempDate = new Date();
-    var date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() ;
+    const tempDate = new Date();
+    const date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() ;
     const currDate = date;
+    function getTickerName(sympleId: number) {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId = sympleId)?.ticker;
+    }
+    function getSideName(sideId: number) {
+        return SIDE.find(item => item.code === sideId)?.title;
+    }
     function btnShowFullData() {
         setShowFullData(!isShowFullData);
     }
@@ -16,8 +24,8 @@ const ListOrder = (props: IPropListOrder, state: IStateListOrder) => {
         return listOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td style={{ width: "222.422px" }}>{item.symbolCode}</td>
-                    <td style={{ width: "89.75px" }}><span className="text-danger">{item.orderType}</span></td>
+                    <td style={{ width: "222.422px" }}>{getTickerName(item.symbolCode)}</td>
+                    <td style={{ width: "89.75px" }}><span className="text-danger">{getSideName(item.orderType)}</span></td>
                     <td style={{ width: "111.703px" }}>Limit</td>
                     <td style={{ width: "144.625px" }} className="text-end">{item.price}</td>
                     <td style={{ width: "167.562px" }} className="text-end">{item.amount}</td>
@@ -137,5 +145,5 @@ const ListOrder = (props: IPropListOrder, state: IStateListOrder) => {
         </div>
     )
 }
-
+ListOrder.defaultProps = defaultProps;
 export default ListOrder;
