@@ -8,6 +8,7 @@ const token = process.env.REACT_APP_TOKEN;
 const socket_url = `${url}?token=${token}`;
 var socket = null;
 var wsConnected = false;
+var dataLastQuotes = {quotesList: []};
 
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
@@ -23,7 +24,6 @@ const startWs = () =>{
     
     socket.onerror = () => {
         socket.close();
-        console.log(26, 'error')
         wsConnected = false;
     }
     
@@ -37,8 +37,7 @@ const startWs = () =>{
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
-            const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());
-            // console.log(quoteEvent.toObject());                
+            const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
         }else console.log("payload = " + payloadClass);
 
@@ -49,8 +48,8 @@ const startWs = () =>{
         }
 
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
-            const lastQuoteRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
-            console.log(lastQuoteRes.toObject());
+            const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
+            dataLastQuotes = lastQuoteRes.toObject();
             orderSubject.next(lastQuoteRes.toObject());
         }
         
@@ -63,5 +62,6 @@ export const wsService = {
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     sendMessage: message => socket.send(message),
-    getWsConnected: () => wsConnected
+    getWsConnected: () => wsConnected,
+    getDataLastQuotes: () => dataLastQuotes
 }

@@ -10,11 +10,16 @@ const defaultData: IParamOrder = {
     volume: 0,
     price: 0,
     side: '',
-    confirmationConfig: false
+    confirmationConfig: false,
+    tickerId: ''
 }
 
-const OrderForm = () => {
+const defaultProps = {
+    currentTicker: {}
+}
 
+const OrderForm = (props: any) => {
+    const {currentTicker} = props;
     const [currentSide, setCurrentSide] = useState('1');
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(true);
@@ -23,7 +28,7 @@ const OrderForm = () => {
     const [tickerSize, setTickerSize] = useState(0.01)
     const [price, setPrice] = useState(tickerSize);
     const [volume, setVolume] = useState(tradingUnit);
-
+    console.log(30, currentTicker)
     const handleSide = (value: string) => {
         setCurrentSide(value);
     }
@@ -87,16 +92,18 @@ const OrderForm = () => {
             setValidForm(true);
         }
     }
+    console.log(94, currentTicker)
 
     const handlePlaceOrder = () => {
         const param = {
-            tickerCode: 'AAPL',
-            tickerName: 'Apple Inc',
+            tickerCode: currentTicker.ticker,
+            tickerName: currentTicker.tickerName,
             orderType: 'limit',
             volume: volume,
             price: price,
             side: currentSide,
-            confirmationConfig: false
+            confirmationConfig: false,
+            tickerId: currentTicker.symbolId.toString()
         }
         setParamOrder(param);
         setIsConfirm(true);
@@ -132,7 +139,7 @@ const OrderForm = () => {
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker Name</label>
-                <div className="fs-5">Apple Inc (AAPL)</div>
+                <div className="fs-5">{currentTicker.tickerName} ({currentTicker.ticker})</div>
             </div>
 
             {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
@@ -152,5 +159,7 @@ const OrderForm = () => {
 
     return <div>{_renderForm()}</div>
 }
+
+OrderForm.defaultProps = defaultProps;
 
 export default OrderForm

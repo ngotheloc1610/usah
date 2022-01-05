@@ -2,6 +2,7 @@ import "./orderMonitoring.css";
 import React, { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
+import OrderForm from "../../../components/Order/OrderForm";
 const OrderMonitoring = () => {
     const [isShowBuy, setShowBuy] = useState(true);
     const [isShowSell, setShowSell] = useState(false);
@@ -19,14 +20,6 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <div className="row mb-2">
-                                <div className="col-lg-6">
-                                    <div className="input-group input-group-sm">
-                                        <input type="text" className="form-control form-control-sm border-end-0" value="" placeholder="Add a ticker" />
-                                        <button className="btn btn-primary">Add</button>
-                                    </div>
-                                </div>
-                            </div>
                             <ListTicker />
                         </div>
                         <div className="col-lg-3 d-flex">
@@ -38,7 +31,7 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    {/* new order dùng chung */}
+                                    <OrderForm />
                                 </div>
                             </div>
                         </div>

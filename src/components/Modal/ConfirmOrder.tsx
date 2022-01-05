@@ -47,13 +47,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setAmount(`${params.volume * params.price}`);
             order.setPrice(`${params.price}`);
             order.setUid(uid);
-            order.setSymbolCode(params.tickerCode);
+            order.setSymbolCode(params.tickerId);
             order.setOrderType(getOrderType());
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            // fake symbolCode
-            order.setSymbolCode('1');
 
             singleOrder.setOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
