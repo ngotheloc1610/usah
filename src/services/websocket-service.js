@@ -1,10 +1,11 @@
-import rpc from '../model/proto/rpc_pb';
+import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 
 import { Subject } from 'rxjs';
-
-const socket_url = window.ws_url;
+const url = process.env.REACT_APP_BASE_URL;
+const token = process.env.REACT_APP_TOKEN;
+const socket_url = `${url}?token=${token}`;
 var socket = null;
 var wsConnected = false;
 

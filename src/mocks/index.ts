@@ -294,4 +294,42 @@ export const LIST_DATA_TICKERS = [
         bid3Volume: 5000,
         bid3Number: 6,
     }
-]
+];
+
+export const DATA_ASK_VOLUME = [
+    {
+        askVol: '2,400',
+        price: '145.60',
+        bidPrice: ''
+    },
+    {
+        askVol: '1,500',
+        price: '145.59',
+        bidPrice: ''
+    },
+    {
+        askVol: '900',
+        price: '145.58',
+        bidPrice: ''
+    },
+];
+
+export const DATA_BID_PRICE = [
+    {
+        askVol: '',
+        price: '145.56',
+        bidPrice: '2,400'
+    },
+    {
+        askVol: '',
+        price: '145.55',
+        bidPrice: '1,700'
+    },
+    {
+        askVol: '',
+        price: '145.54',
+        bidPrice: '800'
+    },
+];
+
+export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
