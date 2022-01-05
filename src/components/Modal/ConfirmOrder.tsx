@@ -44,7 +44,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
-            order.setAmount(`${params.volume * params.price}`);
+            order.setAmount(`${params.volume}`);
             order.setPrice(`${params.price}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
