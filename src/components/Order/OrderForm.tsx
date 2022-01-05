@@ -1,7 +1,11 @@
 import { useState } from 'react'
-import { IParamOrder } from '../../interfaces/order.interface';
+import { IParamOrder, ITickerInfo } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
+
+interface IOrderForm {
+    currentTicker: ITickerInfo;
+}
 
 const defaultData: IParamOrder = {
     tickerCode: '',
@@ -18,7 +22,7 @@ const defaultProps = {
     currentTicker: {}
 }
 
-const OrderForm = (props: any) => {
+const OrderForm = (props: IOrderForm) => {
     const {currentTicker} = props;
     const [currentSide, setCurrentSide] = useState('1');
     const [isConfirm, setIsConfirm] = useState(false);

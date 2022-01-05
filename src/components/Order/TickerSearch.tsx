@@ -3,11 +3,15 @@ import { ITickerInfo } from '../../interfaces/order.interface'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../mocks'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 
+interface ITickerSearch {
+    handleTicker: (event: any) => void;
+}
+
 const defaultProps = {
     handleTicker: null
 }
 
-const TickerSearch = (props: any) => {
+const TickerSearch = (props: ITickerSearch) => {
     const {handleTicker} = props;
     const [ticker, setTicker] = useState('1')
     const _renderRecentSearch = () => (
