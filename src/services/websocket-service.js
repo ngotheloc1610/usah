@@ -8,6 +8,7 @@ const token = process.env.REACT_APP_TOKEN;
 const socket_url = `${url}?token=${token}`;
 var socket = null;
 var wsConnected = false;
+var dataLastQuotes = {quotesList: []};
 
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
@@ -36,8 +37,7 @@ const startWs = () =>{
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
-            const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());
-            // console.log(quoteEvent.toObject());                
+            const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
         }
 
@@ -53,6 +53,15 @@ const startWs = () =>{
     }
 }
 
+        if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
+            const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
+            dataLastQuotes = lastQuoteRes.toObject();
+            orderSubject.next(lastQuoteRes.toObject());
+        }
+        
+    }
+}
+
 startWs();
 
 export const wsService = {
@@ -60,6 +69,6 @@ export const wsService = {
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
     sendMessage: message => socket.send(message),
-    getWsConnected: () => wsConnected
-    
+    getWsConnected: () => wsConnected,
+    getDataLastQuotes: () => dataLastQuotes
 }

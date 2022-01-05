@@ -6,6 +6,7 @@ export interface IParamOrder {
     price: number;
     side: string;
     confirmationConfig: boolean;
+    tickerId: string;
 }
 
 export interface IOrderBook {
@@ -61,3 +62,37 @@ export interface TickerInfo {
     change: string,
     changePrecent: string,
 }
+
+export interface IBidPrice {
+    numOrders: number;
+    price: string;
+    tradable: boolean;
+    volume: string;
+}
+
+export interface IAskPrice {
+    price: string;
+    volume: string;
+    tradable: boolean;
+    numOrders: number;
+}
+
+export interface ILastQuote {
+    asksList: IAskPrice[];
+    bidsList: IBidPrice[];
+    close: string;
+    currentPrice: string;
+    high: string;
+    id: number;
+    low: string;
+    netChange: string;
+    open: string;
+    pctChange: string;
+    quoteTime: number;
+    scale: number;
+    symbolCode: string;
+    symbolId: number;
+    tickPerDay: number;
+    volumePerDay: string;
+}
+
