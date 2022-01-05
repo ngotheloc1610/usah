@@ -1,18 +1,35 @@
 import "./orderMonitoring.css";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from "../../../models/proto/query_service_pb"
+// import { error } from "../../../models/notify";
+import * as rspb from "../../../models/proto/rpc_pb";
 const OrderMonitoring = () => {
-    const [isShowBuy, setShowBuy] = useState(true);
-    const [isShowSell, setShowSell] = useState(false);
-    function btnSell() {
-        setShowBuy(false);
-        setShowSell(true);
+
+    const sendListOrder = () => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        console.log(14, wsConnected);
+        debugger;
+        let currentDate = new Date();
+        let orderRequest = new queryServicePb.GetOrderRequest();
+        orderRequest.setAccountId('1090231905');
+        orderRequest.setSymbolCode('1');
+        console.log(22, orderRequest);
+        const rpcModel: any = rspb;
+        let rpcMsg = new rpcModel.RpcMessage();
+        rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+        rpcMsg.setPayloadData(orderRequest.serializeBinary());
+        rpcMsg.setContextId(currentDate.getTime());
+        console.log(30, rpcMsg);
+        wsService.sendMessage(rpcMsg.serializeBinary());
+        // } else error(i18n.t("response.wsError"));
     }
-    function btnBuy() {
-        setShowBuy(true);
-        setShowSell(false);
-    }
+    useEffect(() => {
+        sendListOrder()
+    }, []);
     return (
         <div className="site">
             <div className="site-main">
@@ -31,7 +48,9 @@ const OrderMonitoring = () => {
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="me-2 h-100 d-flex align-items-center">
-                                <a href="javascript:;" className="btn btn-sm btn-outline-secondary px-1 py-3"><i className="bi bi-chevron-double-right"></i></a>
+                                <button className="btn btn-sm btn-outline-secondary px-1 py-3">
+                                    <i className="bi bi-chevron-double-right" />
+                                </button>
                             </div>
                             <div className="card flex-grow-1 card-order-form mb-2">
                                 <div className="card-header">
@@ -49,4 +68,6 @@ const OrderMonitoring = () => {
         </div>
     )
 }
+
+
 export default OrderMonitoring

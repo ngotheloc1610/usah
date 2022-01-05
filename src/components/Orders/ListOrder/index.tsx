@@ -8,9 +8,9 @@ const ListOrder = () => {
         setShowFullData(!isShowFullData);
     }
     function getListDataOrder() {
-        return LIST_DATA_ORDER.map(item => {
+        return LIST_DATA_ORDER.map((item, index) => {
             return (
-                <tr className="odd">
+                <tr key={index} className="odd">
                     <td style={{ width: "222.422px" }}>{item.ticker}</td>
                     <td style={{ width: "89.75px" }}><span className="text-danger">{item.sideName}</span></td>
                     <td style={{ width: "111.703px" }}>{item.typeName}</td>
