@@ -6,7 +6,7 @@ const TickerDetail = () => {
         <tr className="align-middle">
             <th >
                 <div>Last Price</div>
-                <div>Change</div>
+                <div className='mt-10'>Change</div>
             </th>
             <td className="text-end">
                 <div className="text-success fs-6 fw-bold"><i className="bi bi-arrow-up"></i> 145.57</div>
@@ -31,7 +31,7 @@ const TickerDetail = () => {
             <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
             <div className="table-responsive">
                 <table cellPadding="0" cellSpacing="0" className="table border table-i table-sm">
-                    <tbody>
+                    <tbody className='fs-17'>
                         {_renderLastPrice()}
                         {_renderGeneralTemplate('Lot Size', '100', 'High', '145.75')}
                         {_renderGeneralTemplate('Minimum Bid Size', '0.01', 'Low', '140.00')}

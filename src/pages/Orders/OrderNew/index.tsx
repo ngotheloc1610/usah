@@ -17,7 +17,7 @@ const OrderNew = () => {
                         <div className="col-lg-9 col-md-8 border-end">
                             <TickerDetail />
                             <div className="row justify-content-center">
-                                <div className="col-xl-4 col-lg-6">
+                                <div className="col-xl-5 col-lg-6">
                                     <OrderForm />
                                 </div>
                             </div>

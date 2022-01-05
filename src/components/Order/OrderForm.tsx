@@ -16,12 +16,13 @@ const defaultData: IParamOrder = {
 const OrderForm = () => {
 
     const [currentSide, setCurrentSide] = useState('1');
-    const [price, setPrice] = useState(0);
-    const [volume, setVolume] = useState(0);
     const [isConfirm, setIsConfirm] = useState(false);
-    const [validForm, setValidForm] = useState(false);
-
+    const [validForm, setValidForm] = useState(true);
     const [paramOrder, setParamOrder] = useState(defaultData);
+    const [tradingUnit, setTradingUnit] = useState(100);
+    const [tickerSize, setTickerSize] = useState(0.01)
+    const [price, setPrice] = useState(tickerSize);
+    const [volume, setVolume] = useState(tradingUnit);
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
@@ -29,53 +30,62 @@ const OrderForm = () => {
 
     const handlePrice = (event: any) => {
         setPrice(event.target.value);
+        setValidForm(Number(event.target.value) > 0 && volume > 0);
     }
 
     const handleVolume = (event: any) => {
         setVolume(event.target.value);
+        setValidForm(price > 0 && Number(event.target.value) > 0);
     }
 
     const handelUpperVolume = () => {
-        const currentVol = volume;
-        const nerwVol = currentVol + 1;
+        const currentVol = Number(volume);
+        const nerwVol = currentVol + tradingUnit;
         setVolume(nerwVol);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handelLowerVolume = () => {
-        const currentVol = volume;
-        if (currentVol === 0) {
-            setVolume(0);
+        const currentVol = Number(volume);
+        if (currentVol <= tradingUnit) {
+            setVolume(tradingUnit);
             return;
         }
-        const nerwVol = currentVol - 1;
+        const nerwVol = currentVol - tradingUnit;
         setVolume(nerwVol);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handleUpperPrice = () => {
-        const currentPrice = price;
-        const newPrice = currentPrice + 1;
+        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
+        const currentPrice = Number(price);
+        const newPrice = Math.round((currentPrice + tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
     }
 
     const handleLowerPrice = () => {
-        const currentPrice = price;
-        if (currentPrice === 0) {
-            setPrice(0);
+        const currentPrice = Number(price);
+        if (currentPrice <= tickerSize) {
+            setPrice(tickerSize);
+            setValidForm(volume > 0);
             return;
         }
-        const newPrice = currentPrice - 1;
+        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
+        const newPrice = Math.round((currentPrice - tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
     }
 
     const togglePopup = () => {
         setIsConfirm(false);
-        setPrice(0);
-        setVolume(0);
-        setValidForm(false);
+        setPrice(tickerSize);
+        setVolume(tradingUnit);
+        if (tickerSize <= 0 || tradingUnit <= 0) {
+            setValidForm(false);
+        } else {
+            setValidForm(true);
+        }
     }
 
     const handlePlaceOrder = () => {
@@ -121,14 +131,14 @@ const OrderForm = () => {
                 {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', '1', '', 'selected')}
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                <label className="text text-secondary">Ticker</label>
-                <div className="fs-5">AAPL</div>
+                <label className="text text-secondary">Ticker Name</label>
+                <div className="fs-5">Apple Inc (AAPL)</div>
             </div>
 
             {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
             {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
 
-            <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex justify-content-between align-items-center mb-2 fs-17">
                 <div className="text-secondary">Owned Volume</div>
                 <div><strong>10,000</strong></div>
             </div>

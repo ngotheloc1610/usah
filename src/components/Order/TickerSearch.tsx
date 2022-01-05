@@ -4,10 +4,10 @@ const TickerSearch = () => {
 
     const _renderRecentSearch = () => (
         <div className="d-md-flex align-items-md-center text-center">
-            <div>Recent Search:</div>
+            <div>Recent Search:</div> &nbsp; &nbsp;
             <div>
-                <a href="# " className='color-primary'>Apple Inc. [AAPL]</a>
-                <a href="# " className='color-primary'>Adobe Inc. [ADBE]</a>
+                <a href="# " className='color-primary'>Apple Inc. [AAPL]</a> &nbsp; &nbsp;
+                <a href="# " className='color-primary'>Adobe Inc. [ADBE]</a>&nbsp; &nbsp;
                 <a className='color-primary' href="# ">Amazon.com, Inc. [AMZN]</a>
             </div>
         </div>

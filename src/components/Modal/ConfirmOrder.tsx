@@ -26,20 +26,36 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsValidOrder(event.target.value !== '');
     }
 
+    const getOrderType = () => {
+        if (params.side === '1') {
+            return tradingModelPb.OrderType.OP_BUY;
+        }
+        return tradingModelPb.OrderType.OP_SELL;
+    }
+
     const sendOrder = () => {
         const uid = process.env.REACT_APP_TRADING_ID;
         let wsConnected = wsService.getWsConnected();
+
         if (wsConnected) {
             let currentDate = new Date();
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
             singleOrder.setSecretKey(tradingPin);
             singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
+
             let order = new tradingModelPb.Order();
-            order.setAmount(params.volume);
-            order.setPrice(params.side);
+            order.setAmount(`${params.volume * params.price}`);
+            order.setPrice(`${params.price}`);
             order.setUid(uid);
+            order.setSymbolCode(params.tickerCode);
+            order.setOrderType(getOrderType());
+            order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
+            order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
+            order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+            // fake symbolCode
+            order.setSymbolCode('1');
+
             singleOrder.setOrder(order);
-            console.log(singleOrder);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
@@ -51,7 +67,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderTradingPin = () => (
         <tr className='h-100'>
-            <td><b>Trading Pin</b></td>
+            <td className='text-left '><b>Trading PIN</b></td>
             <td></td>
             <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
         </tr>
@@ -72,7 +88,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${params.volume}`)}
                     {_renderConfirmOrder('Price', `${params.price}`)}
-                    {_renderConfirmOrder('Value', `${params.volume * params.price}`)}
+                    {_renderConfirmOrder('Value ($)', `${params.volume * params.price}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
@@ -84,10 +100,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderHeaderFormConfirm = () => (
         <div>
-            <span className='fs-18'><b>Would you like to place order</b></span> &nbsp; &nbsp; &nbsp;
+            <span className='fs-18'><b>Would you like to place order</b></span> &nbsp;
             <span className={currentSide === '1' ? 'order-type text-danger' : 'order-type text-success'}><b>
                 {currentSide === '1' ? 'buy' : 'sell'}
-            </b></span>
+            </b></span> &nbsp;
+            <span className='fs-18'><b>?</b></span>
         </div>
     )
 
@@ -95,7 +112,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <div>
             <div className="box">
                 <div>
-                    Confirm order
+                    New order confirmation
                     <span className="close-icon" onClick={handleCloseConfirmPopup}>x</span>
                 </div>
             </div>

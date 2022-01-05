@@ -323,7 +323,7 @@ export const DATA_BID_PRICE = [
     {
         askVol: '',
         price: '145.55',
-        bidPrice: '1.700'
+        bidPrice: '1,700'
     },
     {
         askVol: '',

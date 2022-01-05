@@ -33,7 +33,8 @@
 .table.table-i tbody tr th {
     background-color: #DCE7F4;
     color: #16365C;
-    font-size: 0.75rem;
+    font-size: 0.8em;
+    width: 160px;
 }
 
 .table thead tr th {
@@ -92,4 +93,12 @@ thead, tbody, tfoot, tr, td, th {
 
 .btn-disabled:disabled {
     background-color: #ccc;
+}
+
+.fs-17 {
+    font-size: 17px;
+}
+
+.mt-10 {
+    margin-top: 10px;
 }
