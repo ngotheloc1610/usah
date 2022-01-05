@@ -23,6 +23,7 @@ const startWs = () =>{
     
     socket.onerror = () => {
         socket.close();
+        console.log(26, 'error')
         wsConnected = false;
     }
     
@@ -46,6 +47,13 @@ const startWs = () =>{
             console.log(singleOrderRes.toObject());
             orderSubject.next(singleOrderRes.toObject());
         }
+
+        if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
+            const lastQuoteRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
+            console.log(lastQuoteRes.toObject());
+            orderSubject.next(lastQuoteRes.toObject());
+        }
+        
     }
 }
 

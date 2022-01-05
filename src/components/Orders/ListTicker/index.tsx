@@ -1,6 +1,37 @@
+import { useEffect, useState } from "react";
 import { LIST_DATA_TICKERS } from "../../../mocks";
+import * as pspb from "../../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../../models/proto/rpc_pb';
+import { wsService } from "../../../services/websocket-service";
 
 const ListTicker = () => {
+    const [wsConnected, setWsConnected] = useState(false)
+    useEffect(() => {
+        setTimeout(() => {
+            getOrderBooks();
+        }, 1000)
+    }, []);
+
+    const connectWs = () => {
+        
+        setWsConnected(wsConnected)
+    }
+
+    const getOrderBooks = () => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        console.log(19, wsConnected)
+        if (wsConnected) {
+            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
+            lastQoutes.addSymbolCode("1");
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
     const listDataTicker = LIST_DATA_TICKERS;
     const renderListDataTicker = listDataTicker.map(item => {
         return <div className="col-6 col-md-3 col-xl-2">
@@ -12,7 +43,7 @@ const ListTicker = () => {
                     <th colSpan={3} className="text-center">
                         <div className="position-relative">
                             <strong className="px-4">AAPL</strong>
-                            <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
+                            <a href="#" className="position-absolute me-1" onClick={getOrderBooks} style={{ right: 0 }} >
                                 <i className="bi bi-x-lg" />
                             </a>
                         </div>
