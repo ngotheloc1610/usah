@@ -82,6 +82,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </div>
     )
 
+    const _renderHeaderFormConfirm = () => (
+        <div>
+            <span className='fs-18'><b>Would you like to place order</b></span> &nbsp; &nbsp; &nbsp;
+            <span className={currentSide === '1' ? 'order-type text-danger' : 'order-type text-success'}><b>
+                {currentSide === '1' ? 'buy' : 'sell'}
+            </b></span>
+        </div>
+    )
+
     const _renderTamplate = () => (
         <div>
             <div className="box">
@@ -91,12 +100,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 </div>
             </div>
             <div className='content text-center'>
-                <div>
-                    <span className='fs-18'><b>Would you like to place order</b></span> &nbsp; &nbsp; &nbsp;
-                    <span className={currentSide === '1' ? 'order-type text-danger' : 'order-type text-success'}><b>
-                        {currentSide === '1' ? 'buy' : 'sell'}
-                    </b></span>
-                </div>
+                {_renderHeaderFormConfirm()}
                 <div className='table-content'>
                     {_renderListConfirm()}
                 </div>
