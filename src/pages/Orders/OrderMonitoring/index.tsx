@@ -1,35 +1,45 @@
 import "./orderMonitoring.css";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
-// import { error } from "../../../models/notify";
 import * as rspb from "../../../models/proto/rpc_pb";
 const OrderMonitoring = () => {
+    const [getDataOrder, setGetDataOrder] = useState([]);
+    useEffect(() => {
+        setInterval(() => {
+            getListData();
+            callWs();
+        }, 500)
+    }, []);
+
+    const callWs = () => {
+        setTimeout(() => {
+            sendListOrder();
+        }, 500)
+    }
 
     const sendListOrder = () => {
+        const uid = process.env.REACT_APP_TRADING_ID;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
-        console.log(14, wsConnected);
-        debugger;
-        let currentDate = new Date();
-        let orderRequest = new queryServicePb.GetOrderRequest();
-        orderRequest.setAccountId('1090231905');
-        orderRequest.setSymbolCode('1');
-        console.log(22, orderRequest);
-        const rpcModel: any = rspb;
-        let rpcMsg = new rpcModel.RpcMessage();
-        rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-        rpcMsg.setPayloadData(orderRequest.serializeBinary());
-        rpcMsg.setContextId(currentDate.getTime());
-        console.log(30, rpcMsg);
-        wsService.sendMessage(rpcMsg.serializeBinary());
-        // } else error(i18n.t("response.wsError"));
+        if (wsConnected) {
+            let currentDate = new Date();
+            let orderRequest = new queryServicePb.GetOrderRequest();
+            orderRequest.setAccountId(uid);
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+            rpcMsg.setPayloadData(orderRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
-    useEffect(() => {
-        sendListOrder()
-    }, []);
+    const getListData = () => {
+        wsService.getListOrder().subscribe(setGetDataOrder);
+    }
+
     return (
         <div className="site">
             <div className="site-main">
@@ -62,7 +72,7 @@ const OrderMonitoring = () => {
                             </div>
                         </div>
                     </div>
-                    <ListOrder />
+                    <ListOrder listOrder={getDataOrder} />
                 </div>
             </div>
         </div>

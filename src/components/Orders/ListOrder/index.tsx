@@ -1,23 +1,34 @@
 import { useState } from "react";
-import { LIST_DATA_ORDER } from "../../../mocks";
-
-const ListOrder = () => {
+import { IPropListOrder, IStateListOrder } from "../../../interfaces/order.interface";
+const ListOrder = (props: IPropListOrder, state: IStateListOrder) => {
+    const { listOrder } = props;
     const [isShowFullData, setShowFullData] = useState(false);
-
+    const defaultProps: IPropListOrder = {
+        listOrder: []
+    };
+    var tempDate = new Date();
+    var date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() ;
+    const currDate = date;
     function btnShowFullData() {
         setShowFullData(!isShowFullData);
     }
     function getListDataOrder() {
-        return LIST_DATA_ORDER.map((item, index) => {
+        return listOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td style={{ width: "222.422px" }}>{item.ticker}</td>
-                    <td style={{ width: "89.75px" }}><span className="text-danger">{item.sideName}</span></td>
-                    <td style={{ width: "111.703px" }}>{item.typeName}</td>
+                    <td style={{ width: "222.422px" }}>{item.symbolCode}</td>
+                    <td style={{ width: "89.75px" }}><span className="text-danger">{item.orderType}</span></td>
+                    <td style={{ width: "111.703px" }}>Limit</td>
                     <td style={{ width: "144.625px" }} className="text-end">{item.price}</td>
-                    <td style={{ width: "167.562px" }} className="text-end">{item.volume}</td>
-                    <td style={{ width: "167.562px" }} className="text-end">{item.pending}</td>
-                    <td style={{ width: "412.688px" }} className="text-end">{item.date}</td>
+                    <td style={{ width: "167.562px" }} className="text-end">{item.amount}</td>
+                    <td style={{ width: "167.562px" }} className="text-end">{item.amount}</td>
+                    <td style={{ width: "412.688px" }} className="text-end">
+                        <div className="row">
+                            <div className="col-4"></div>
+                            <div className="col-8 text-center">{currDate}</div>
+                        </div>
+
+                    </td>
                     <td style={{ width: "96.688px" }} className="text-end">
                         <a href="#" className="btn-edit-order">
                             <i className="bi bi-pencil-fill"></i>
@@ -35,7 +46,7 @@ const ListOrder = () => {
             <table className="table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}><thead>
                 <tr>
                     <th className="sorting_disabled" style={{ width: "197.325px" }}>
-                        <span className="text-ellipsis">Ticker name</span>
+                        <span className="text-ellipsis">Ticker</span>
                     </th>
                     <th className="sorting_disabled" style={{ width: "79.7125px" }}>
                         <span className="text-ellipsis">Side</span>
@@ -49,11 +60,15 @@ const ListOrder = () => {
                     <th className="text-end sorting_disabled" style={{ width: "149.488px" }}>
                         <span className="text-ellipsis">Volume</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "149.488px" }}>
-                        <span className="text-ellipsis">Pending</span>
+                    <th className="text-end sorting_disabled" style={{ width: "169.488px" }}>
+                        <span className="text-ellipsis">Pending Volume</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "367.4px" }}>
-                        <span className="text-ellipsis">Date</span>
+                    <th className="text-end sorting_disabled" style={{ width: "277.4px" }}>
+                        <div className="row">
+                            <div className="col-4"></div>
+                            <div className="col-4" style={{ fontSize: "16px" }}>Date</div>
+                            <div className="col-4"></div>
+                        </div>
                     </th>
                     <th className="text-end sorting_disabled" style={{ width: "103.588px" }}>&nbsp;
                     </th>
@@ -63,7 +78,7 @@ const ListOrder = () => {
         );
     }
     function handleScrollData() {
-       return (
+        return (
             <div id="table-order-list_wrapper" className="dataTables_wrapper dt-bootstrap5 no-footer">
                 <div className="row">
                     <div className="col-sm-12 col-md-6">
