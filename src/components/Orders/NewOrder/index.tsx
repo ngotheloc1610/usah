@@ -64,8 +64,8 @@ const MewOrder = () => {
                                 </div>
                             </div>
                             <div className="border-top">
-                                <a href="#" className="btn btn-placeholder btn-primary d-block fw-bold text-white mb-1">Place</a>
-                                <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
+                                <button className="btn btn-placeholder btn-primary d-block fw-bold text-white mb-1">Place</button>
+                                <button className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</button>
                             </div>
                         </div>
                     </div>

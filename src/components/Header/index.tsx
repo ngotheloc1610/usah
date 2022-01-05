@@ -35,23 +35,24 @@ const Header = () => {
     </div>
   )
 
-  const _renderDropDown = (item: ITabBarItem) => (
-    <TabBarItem itemDropDown={item.itemDropDown} />
+  const _renderDropDown = (item: ITabBarItem, indexKey: number) => (
+    <TabBarItem key={indexKey} itemDropDown={item.itemDropDown} />
   )
 
-  const _renderTabBar = (item: ITabBarItem) => (
-    <TabBarItem itemData={item.itemData} />
+  const _renderTabBar = (item: ITabBarItem, indexKey: number) => (
+    <TabBarItem key={indexKey} itemData={item.itemData} />
   )
 
   const _renderMenuItems = () => (
-    ROUTER.map((item: IOrderDropdownModel) => {
-      const propData: ITabBarItem = {}
+    ROUTER.map((item: IOrderDropdownModel, index) => {
+      const propData: ITabBarItem = {};
+      const indexKey: number = index;
       if (item.subTab.length > 0) {
         propData.itemDropDown = item;
-        return _renderDropDown(propData)
+        return _renderDropDown(propData, indexKey)
       }
       propData.itemData = item;
-      return _renderTabBar(propData)
+      return _renderTabBar(propData, indexKey)
     })
   )
 
