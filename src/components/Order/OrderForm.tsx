@@ -28,7 +28,6 @@ const OrderForm = (props: any) => {
     const [tickerSize, setTickerSize] = useState(0.01)
     const [price, setPrice] = useState(tickerSize);
     const [volume, setVolume] = useState(tradingUnit);
-    console.log(30, currentTicker)
     const handleSide = (value: string) => {
         setCurrentSide(value);
     }
@@ -92,7 +91,6 @@ const OrderForm = (props: any) => {
             setValidForm(true);
         }
     }
-    console.log(94, currentTicker)
 
     const handlePlaceOrder = () => {
         const param = {
