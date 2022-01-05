@@ -1,11 +1,11 @@
-import { TickerInfo } from "../interfaces/order.interface";
+import { ITickerInfo } from "../interfaces/order.interface";
 
 const test = ''
 export default {
 test
 }
 
-export const LIST_TICKER_INFOR_MOCK_DATA: TickerInfo[] = [
+export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
         symbolId: 1,
         tickerName: 'Apple Inc.',

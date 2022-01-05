@@ -1,7 +1,19 @@
+import { useState } from 'react'
+import { ITickerInfo } from '../../interfaces/order.interface'
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../mocks'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 
-const TickerSearch = () => {
+interface ITickerSearch {
+    handleTicker: (event: any) => void;
+}
 
+const defaultProps = {
+    handleTicker: null
+}
+
+const TickerSearch = (props: ITickerSearch) => {
+    const {handleTicker} = props;
+    const [ticker, setTicker] = useState('1')
     const _renderRecentSearch = () => (
         <div className="d-md-flex align-items-md-center text-center">
             <div>Recent Search:</div> &nbsp; &nbsp;
@@ -13,14 +25,25 @@ const TickerSearch = () => {
         </div>
     )
 
+    const renderOptionTicker = () => (
+        LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo, index: number) => (
+            <option key={index} value={item.symbolId}>{item.tickerName} ({item.ticker})</option>
+        ))
+    )
+
+    const handleSelectTicker = (event: any) => {
+        setTicker(event.target.value);
+        handleTicker(event.target.value);
+    }
+
     const _renderTemplate = () => (
         <div className="row g-2 align-items-end">
             <div className="col-lg-2 col-md-3 mb-1 mb-md-0">
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
             <div className="col-lg-3 col-md-6">
-                <select className="form-select form-select-sm ">
-                    <option value="0 ">Apple Inc (AAPL)</option>
+                <select className="form-select form-select-sm" value={ticker} onChange={handleSelectTicker}>
+                    {renderOptionTicker()}
                 </select>
             </div>
             <div className="col-lg-1 col-md-3 mb-2 mb-md-0 ">
@@ -36,5 +59,7 @@ const TickerSearch = () => {
         {_renderTemplate()}
     </div>
 }
+
+TickerSearch.defaultProps = defaultProps;
 
 export default TickerSearch

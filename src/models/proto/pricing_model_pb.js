@@ -115,7 +115,8 @@ proto.Band.toObject = function(includeInstance, msg) {
   var f, obj = {
     price: jspb.Message.getFieldWithDefault(msg, 1, ""),
     volume: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    tradable: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    tradable: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+    numOrders: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -164,6 +165,10 @@ proto.Band.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setTradable(value);
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setNumOrders(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -211,6 +216,13 @@ proto.Band.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       3,
+      f
+    );
+  }
+  f = message.getNumOrders();
+  if (f !== 0) {
+    writer.writeInt64(
+      4,
       f
     );
   }
@@ -268,6 +280,24 @@ proto.Band.prototype.getTradable = function() {
  */
 proto.Band.prototype.setTradable = function(value) {
   return jspb.Message.setProto3BooleanField(this, 3, value);
+};
+
+
+/**
+ * optional int64 num_orders = 4;
+ * @return {number}
+ */
+proto.Band.prototype.getNumOrders = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Band} returns this
+ */
+proto.Band.prototype.setNumOrders = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
