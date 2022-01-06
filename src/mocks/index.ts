@@ -22,7 +22,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     },
     {
         symbolId: 2,
-        tickerName: 'Apple Inc.',
+        tickerName: 'Adobe Inc.',
         ticker: 'ADBE',
         stockPrice: '577.70',
         previousClose: '606.54',

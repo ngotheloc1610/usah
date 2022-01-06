@@ -10,17 +10,17 @@ const OrderTradeHistory = () => {
     
     const _renderOrderHistoryTableHeader = () =>
     (<tr>
-            <th className="text-left center fz-14">Order ID</th>
-            <th className="text-center center fz-14">Ticker Code</th >
-            <th className="text-center center fz-14" >Ticker Name</th>
-            <th className="text-center center fz-14" > Order Side </th>
-            <th className="text-center center fz-14" >Order Type </th>
-            <th className="text-center center fz-14"> Order </th>
-            <th className="text-center center fz-14" >Order Price  </th>
-            <th className="text-center center fz-14" > Executed Volume</th>
-            <th className="text-center center fz-14">Executed Price</th>
-            <th className="text-center center fz-14"> Matched Value</th>
-            <th className="text-center center fz-14"> Executed Datetime</th>
+            <th className="text-left fz-14">Order ID</th>
+            <th className="text-center fz-14">Ticker Code</th >
+            <th className="text-center fz-14" >Ticker Name</th>
+            <th className="text-center fz-14" > Order Side </th>
+            <th className="text-center fz-14" >Order Type </th>
+            <th className="text-center fz-14"> Order Volume </th>
+            <th className="text-center fz-14" >Order Price  </th>
+            <th className="text-center fz-14" > Executed Volume</th>
+            <th className="text-center fz-14">Executed Price</th>
+            <th className="text-center fz-14"> Matched Value</th>
+            <th className="text-center fz-14"> Executed Datetime</th>
         </tr>)
 
 

@@ -9,7 +9,7 @@
 tbody>tr:last-child{
     border-bottom: 1px solid #dee2e6 ;
 }
-thead{
+/* thead{
     width: 100%;
     display: table;
     width: calc(100% - 17px)
@@ -37,4 +37,4 @@ tbody tr{
 .hiden{
     height: 0px; 
     overflow: hidden;
-}
+} */
