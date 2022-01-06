@@ -12,27 +12,27 @@ const OrderHistory = () => {
             <tr>
                 <th><span className="text-ellipsis center center-sp fz-14">Order ID</span></th>
                 <th style={{ width: 200 }}>
-                    <div className="text-ellipsis text-center fz-14">Ticker Code</div>
-                    <div className="text-ellipsis text-center fz-14">Ticker Name</div>
+                    <div className="text-ellipsis text-start fz-14">Ticker Code</div>
+                    <div className="text-ellipsis text-start fz-14">Ticker Name</div>
                 </th >
                 <th className="text-center center fz-14" style={{ width: 120 }}>Order Side</th>
                 <th className="text-center center fz-14" style={{ width: 120 }}> Order Status</th>
                 <th className="text-center center fz-14" style={{ width: 120 }}>Order Type</th>
                 <th style={{ width: 120 }}>
-                    <div className="text-ellipsis text-center fz-14">Order Volume</div>
-                    <div className="text-ellipsis text-center fz-14">Remaining Volume</div>
+                    <div className="text-ellipsis text-end fz-14">Order Volume</div>
+                    <div className="text-ellipsis text-end fz-14">Remaining Volume</div>
                 </th>
-                <th className="text-center center cennter-min fz-14" style={{ width: 120 }}> Executed Volume
+                <th className="text-end  center cennter-min fz-14" style={{ width: 140 }}> Executed Volume
                 </th>
                 <th style={{ width: 120 }}>
-                    <div className="text-ellipsis text-center fz-14">Order Price</div>
-                    <div className="text-ellipsis text-center fz-14">Last Price</div>
+                    <div className="text-ellipsis text-end fz-14">Order Price</div>
+                    <div className="text-ellipsis text-end fz-14">Last Price</div>
                 </th>
-                <th>
-                    <div className="text-ellipsis text-center fz-14">
+                <th style={{ width: 180 }}>
+                    <div className="text-ellipsis text-end fz-14">
                         Order Datetime
                     </div>
-                    <div className="text-ellipsis text-center fz-14">
+                    <div className="text-ellipsis text-end fz-14">
                         Executed Datetime
                     </div>
                 </th>
@@ -71,9 +71,9 @@ const OrderHistory = () => {
                     </td>
 
                     <td>
-                        <div className="text-ellipsis  text-center">{item.orderDatetime}</div>
-                        {item.excutedDatetime && <div className="text-ellipsis  text-center">{item.excutedDatetime}</div>}
-                        {item.excutedDatetime==='' && <div className="text-ellipsis  text-center">&nbsp;</div>}
+                        <div className="text-ellipsis  text-end">{item.orderDatetime}</div>
+                        {item.excutedDatetime && <div className="text-ellipsis  text-end">{item.excutedDatetime}</div>}
+                        {item.excutedDatetime==='' && <div className="text-ellipsis  text-end">&nbsp;</div>}
                     </td>
                 </tr>
             ))
