@@ -1,5 +1,4 @@
-import { ITickerInfo } from "../interfaces/order.interface";
-import { IOrderHistory } from "../interfaces/order.interface";
+import { ITickerInfo,IOrderHistory,IOrderTradeHistory } from "../interfaces/order.interface";
 
 const test = ''
 export default {
@@ -802,7 +801,7 @@ export const DATA_BID_PRICE = [
 
 export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
 
-export const ORDER_HISTORY:IOrderHistory[] = [
+export const ORDER_HISTORY: IOrderHistory[] = [
     {
         oderId: '00133',
         ticker: 'ADBE',
@@ -1014,7 +1013,7 @@ export const ORDER_HISTORY:IOrderHistory[] = [
         excutedDatetime: ''
     },
 ]
-export const ORDER_TRADE_HISTORY = [
+export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     {
         oderId:'001333',
         tickerCode:'ADBE',

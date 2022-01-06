@@ -16,7 +16,7 @@ const OrderTradeHistory = () => {
             <th className="text-center fz-14" > Order Side </th>
             <th className="text-center fz-14" >Order Type </th>
             <th className="text-end fz-14 "> Order Volume	 </th>
-            <th className="text-end fz-14 w-120" >Order Price  </th>
+            <th className="text-end fz-14 " >Order Price  </th>
             <th className="text-end fz-14" > Executed Volume</th>
             <th className="text-end fz-14">Executed Price</th>
             <th className="text-end fz-14"> Matched Value</th>
