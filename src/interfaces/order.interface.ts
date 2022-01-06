@@ -139,3 +139,16 @@ export interface IOrderTradeHistory{
     matchedValue:string,
     excutedDatetime: string
 }
+
+export interface IOrderPortfolio{
+    companyName:string,
+    ticker:string,
+    ownedVolume:number,
+    orderPendingVolume:number,
+    AVGPrice:number,
+    investedValue:string,
+    marketPrice:number,
+    curentValue:string,
+    PL:string,
+    PL_Percent:number		
+}
