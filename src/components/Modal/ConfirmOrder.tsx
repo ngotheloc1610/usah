@@ -8,6 +8,8 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
+import * as smpb from '../../models/proto/system_model_pb';
+import { RESPONSE_RESULT } from '../../constants/general.constant'
 interface IConfirmOrder {
     handleCloseConfirmPopup: () => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -37,7 +39,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const prepareMessagee = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
-
+        const systemModelPb: any = smpb;
         if (wsConnected) {
             let currentDate = new Date();
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
@@ -62,10 +64,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getOrderSubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp['msgCode'] === 1) {
-                    tmp = 1;
+                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
                 } else {
-                    tmp = 2;
+                    tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp['msgText']);
             })

@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
 const url = process.env.REACT_APP_BASE_URL;
-let token = process.env.REACT_APP_TOKEN;
+let token = '';
 var socket = null;
 var wsConnected = false;
 var dataLastQuotes = {quotesList: []};
@@ -16,17 +16,16 @@ const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const paramStr = window.location.search;
 const objAuthen = queryString.parse(paramStr);
-const startWs = () =>{
+const startWs = async () => {
     if (objAuthen.access_token) {
         token = objAuthen.access_token;
         ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
     } else {
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                token = obj.access_token;
-            }
-        })
+        const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
+        if (objAuthen) {
+            const obj = JSON.parse(objAuthen);
+            token = obj.access_token;
+        }
     }
     const socket_url = `${url}?token=${token}`;
     socket = new WebSocket(socket_url);

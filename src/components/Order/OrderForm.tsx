@@ -4,6 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
+import { RESPONSE_RESULT } from '../../constants/general.constant';
 toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
@@ -121,8 +122,8 @@ const OrderForm = (props: IOrderForm) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
             return <>
-                {(value === 1 && content !== '') && _rendetMessageSuccess(content)}
-                {(value === 2 && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
             </>
         }
         return <></>;
