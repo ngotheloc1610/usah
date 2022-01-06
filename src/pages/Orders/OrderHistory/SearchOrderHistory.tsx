@@ -17,15 +17,17 @@ function SearchOrderHistory() {
                             <option value="0">All</option>
                         </select>
                     </div>
-                    <div className="col-xl-2">
+                    <div className="col-xl-2 pl-30">
                         <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
-                        <div className="form-check form-check-inline">
-                            <input className="form-check-input" type="checkbox" id="buy" />
-                            <label className="form-check-label" htmlFor="buy">Sell</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input className="form-check-input" type="checkbox" id="sell" />
-                            <label className="form-check-label" htmlFor="sell">Buy</label>
+                        <div className="padding-top-5">
+                            <div className="form-check form-check-inline">
+                                <input className="form-check-input" type="checkbox" id="buy" />
+                                <label className="form-check-label" htmlFor="buy">Sell</label>
+                            </div>
+                            <div className="form-check form-check-inline">
+                                <input className="form-check-input" type="checkbox" id="sell" />
+                                <label className="form-check-label" htmlFor="sell">Buy</label>
+                            </div>
                         </div>
                     </div>
                     <div className="col-xl-4">

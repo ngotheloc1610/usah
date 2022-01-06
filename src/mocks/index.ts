@@ -1025,7 +1025,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'30,000',
         executedPrice:'158.35'	,
         matchedValue:'4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
         oderId:'002333',
@@ -1038,7 +1038,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'10,000',
         executedPrice:'158.45'	,
         matchedValue:'1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
         oderId:'001333',
@@ -1051,7 +1051,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'30,000',
         executedPrice:'158.35'	,
         matchedValue:'4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
         oderId:'002333',
@@ -1064,7 +1064,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'10,000',
         executedPrice:'158.45'	,
         matchedValue:'1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
         oderId:'001333',
@@ -1077,7 +1077,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'30,000',
         executedPrice:'158.35'	,
         matchedValue:'4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
         oderId:'002333',
@@ -1090,7 +1090,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'10,000',
         executedPrice:'158.45'	,
         matchedValue:'1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
         oderId:'001333',
@@ -1103,7 +1103,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'30,000',
         executedPrice:'158.35'	,
         matchedValue:'4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
         oderId:'002333',
@@ -1116,7 +1116,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'10,000',
         executedPrice:'158.45'	,
         matchedValue:'1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
         oderId:'001333',
@@ -1129,7 +1129,7 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'30,000',
         executedPrice:'158.35'	,
         matchedValue:'4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
         oderId:'002333',
@@ -1142,6 +1142,6 @@ export const ORDER_TRADE_HISTORY = [
         executedVolume:'10,000',
         executedPrice:'158.45'	,
         matchedValue:'1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
 ]

@@ -503,7 +503,7 @@ SITE FOOTER
 }
 
 ul {
-    margin: 0;
+    margin: 0 !important;
 }
 
 
@@ -528,4 +528,18 @@ a{
 }
 .ml_-2{
     margin-left: -2px;
+}
+.padding-top-5{
+    padding-top: 5px;
+}
+.pl-30{
+    padding-left: 34px !important;
+}
+@media (max-width: 1199px) {
+    .pl-30{
+        padding-left: 4px !important;
+    }
+}
+.dataTables_length{
+    margin-right: 50px;
 }
