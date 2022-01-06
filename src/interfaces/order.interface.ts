@@ -111,7 +111,7 @@ export interface ILastQuote {
 }
 
 export interface IOrderHistory{
-    oderId: string,
+    orderId: string,
     ticker: string,
     companyName: string,
     side: string,
