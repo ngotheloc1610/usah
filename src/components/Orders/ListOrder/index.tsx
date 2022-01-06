@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { SIDE } from "../../../constants/general.constant";
-import { IPropListOrder, IStateListOrder } from "../../../interfaces/order.interface";
+import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
+import { IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import * as tspb from '../../../models/proto/trading_model_pb';
+import './ListOrder.css';
 const defaultProps: IPropListOrder = {
     listOrder: []
 };
 const ListOrder = (props: IPropListOrder) => {
     const { listOrder } = props;
+    const tradingModelPb: any = tspb;
     const [isShowFullData, setShowFullData] = useState(false);
-    const tempDate = new Date();
-    const date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear() ;
-    const currDate = date;
     function getTickerName(sympleId: string) {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
@@ -20,28 +21,23 @@ const ListOrder = (props: IPropListOrder) => {
     function btnShowFullData() {
         setShowFullData(!isShowFullData);
     }
+    
     function getListDataOrder() {
         return listOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td style={{ width: "222.422px" }}>{getTickerName(item.symbolCode.toString())}</td>
-                    <td style={{ width: "89.75px" }}><span className="text-danger">{getSideName(item.orderType)}</span></td>
-                    <td style={{ width: "111.703px" }}>Limit</td>
-                    <td style={{ width: "144.625px" }} className="text-end">{item.price}</td>
-                    <td style={{ width: "167.562px" }} className="text-end">{item.amount}</td>
-                    <td style={{ width: "167.562px" }} className="text-end">{item.amount}</td>
-                    <td style={{ width: "412.688px" }} className="text-end">
-                        <div className="row">
-                            <div className="col-4"></div>
-                            <div className="col-8 text-center">{currDate}</div>
-                        </div>
-
-                    </td>
-                    <td style={{ width: "96.688px" }} className="text-end">
-                        <a href="#" className="btn-edit-order">
+                    <td>{getTickerName(item.symbolCode.toString())}</td>
+                    <td className="text-center"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                    <td className="text-center">Limit</td>
+                    <td className="text-end">{item.price}</td>
+                    <td className="text-end">{item.amount}</td>
+                    <td className="text-end">{calcPendingVolume(item.amount, item.filledAmount)}</td>
+                    <td className="text-end">{formatOrderTime(item.time)}</td>
+                    <td className="text-end">
+                        <a className="btn-edit-order mr-10">
                             <i className="bi bi-pencil-fill"></i>
                         </a>
-                        <a href="#">
+                        <a >
                             <i className="bi bi-x-lg"></i>
                         </a>
                     </td>
@@ -51,85 +47,41 @@ const ListOrder = (props: IPropListOrder) => {
     }
     function getListTitleOrder() {
         return (
-            <table className="table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}><thead>
+            <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
+                <thead>
                 <tr>
-                    <th className="sorting_disabled" style={{ width: "197.325px" }}>
+                    <th className="sorting_disabled">
                         <span className="text-ellipsis">Ticker</span>
                     </th>
-                    <th className="sorting_disabled" style={{ width: "79.7125px" }}>
+                    <th className="sorting_disabled text-center">
                         <span className="text-ellipsis">Side</span>
                     </th>
-                    <th className="sorting_disabled" style={{ width: "98.65px" }}>
+                    <th className="sorting_disabled text-center">
                         <span className="text-ellipsis">Type</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "127.55px" }}>
+                    <th className="text-end sorting_disabled">
                         <span className="text-ellipsis">Price</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "149.488px" }}>
+                    <th className="text-end sorting_disabled">
                         <span className="text-ellipsis">Volume</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "169.488px" }}>
+                    <th className="text-end sorting_disabled">
                         <span className="text-ellipsis">Pending Volume</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "277.4px" }}>
-                        <div className="row">
-                            <div className="col-4"></div>
-                            <div className="col-4" style={{ fontSize: "16px" }}>Date</div>
-                            <div className="col-4"></div>
-                        </div>
+                    <th className="text-end sorting_disabled">
+                        <span className="text-ellipsis">Date</span>
                     </th>
-                    <th className="text-end sorting_disabled" style={{ width: "103.588px" }}>&nbsp;
+                    <th className="text-end sorting_disabled">&nbsp;
                     </th>
                 </tr>
             </thead>
+            <tbody>
+            {getListDataOrder()}
+            </tbody>
             </table>
         );
     }
-    function handleScrollData() {
-        return (
-            <div id="table-order-list_wrapper" className="dataTables_wrapper dt-bootstrap5 no-footer">
-                <div className="row">
-                    <div className="col-sm-12 col-md-6">
-                    </div>
-                    <div className="col-sm-12 col-md-6">
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="dataTables_scroll">
-                            <div className="dataTables_scrollBody"
-                                style={{
-                                    position: "relative",
-                                    overflow: "auto",
-                                    maxHeight: 180,
-                                    width: "100%"
-                                }}>
-                                {tableListData}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-12 col-md-5">
-                    </div>
-                    <div className="col-sm-12 col-md-7">
-                    </div>
-                </div>
-            </div>
-        )
-    }
-    const tableListData = (
-        <div>
-            <table id="table-order-list"
-                className="table table-sm table-hover mb-0 dataTable no-footer"
-                style={{ width: "100%" }}>
-                <tbody>
-                    {getListDataOrder()}
-                </tbody>
-            </table>
-        </div>
-    );
-    const scrollListData = isShowFullData ? tableListData : handleScrollData()
+
     return (
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
@@ -137,9 +89,8 @@ const ListOrder = (props: IPropListOrder) => {
                 <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
             </div>
             <div className="card-body p-0">
-                <div className="table-responsive">
+                <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
                     {getListTitleOrder()}
-                    {scrollListData}
                 </div>
             </div>
         </div>

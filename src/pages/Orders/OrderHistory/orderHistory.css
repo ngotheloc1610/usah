@@ -529,3 +529,20 @@ a{
 .ml_-2{
     margin-left: -2px;
 }
+@media (max-width: 1399px){
+    
+    .cennter-min{
+        line-height: 2.6;
+    }
+}
+@media (max-width: 1199px){
+    .cennter-min{
+        line-height: 1.4;
+    }
+    .center {
+        line-height: 1.4;
+    }
+    .center-sp{
+        line-height: 2.7;
+    }
+}

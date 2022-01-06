@@ -3,9 +3,10 @@ import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 import { Subject } from 'rxjs';
+import ReduxPersist from '../config/ReduxPersist';
+import queryString from 'query-string';
 const url = process.env.REACT_APP_BASE_URL;
-const token = process.env.REACT_APP_TOKEN;
-const socket_url = `${url}?token=${token}`;
+let token = process.env.REACT_APP_TOKEN;
 var socket = null;
 var wsConnected = false;
 var dataLastQuotes = {quotesList: []};
@@ -13,8 +14,20 @@ var dataLastQuotes = {quotesList: []};
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
-
-const startWs = () =>{
+const paramStr = window.location.search;
+const objAuthen = queryString.parse(paramStr);
+const startWs = async () => {
+    if (objAuthen.access_token) {
+        token = objAuthen.access_token;
+        ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+    } else {
+        const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
+        if (objAuthen) {
+            const obj = JSON.parse(objAuthen);
+            token = obj.access_token;
+        }
+    }
+    const socket_url = `${url}?token=${token}`;
     socket = new WebSocket(socket_url);
     socket.binaryType = "arraybuffer";
     socket.onopen = () =>{

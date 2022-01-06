@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderPortfolio } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderPortfolio } from "../interfaces/order.interface";
 
 const test = ''
 export default {
@@ -801,9 +801,9 @@ export const DATA_BID_PRICE = [
 
 export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
 
-export const ORDER_HISTORY = [
+export const ORDER_HISTORY: IOrderHistory[] = [
     {
-        oderId: '00133',
+        orderId: '00133',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Sell',
@@ -818,7 +818,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:02:10'
     },
     {
-        oderId: '00233',
+        orderId: '00233',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Buy',
@@ -833,7 +833,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:17:55'
     },
     {
-        oderId: '00333',
+        orderId: '00333',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Sell',
@@ -848,7 +848,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:02:43'
     },
     {
-        oderId: '00433',
+        orderId: '00433',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Buy',
@@ -863,7 +863,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:17:55'
     },
     {
-        oderId: '00533',
+        orderId: '00533',
         ticker: 'AMD',
         companyName: 'Advanced Micro Devices, Inc.',
         side: 'Buy',
@@ -878,7 +878,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 11:11:24'
     },
     {
-        oderId: '00633',
+        orderId: '00633',
         ticker: 'AMZN',
         companyName: 'Amazon.com, Inc.',
         side: 'Buy',
@@ -893,7 +893,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 13:43:10'
     },
     {
-        oderId: '00733',
+        orderId: '00733',
         ticker: 'ABE',
         companyName: 'Adobe Inc.',
         side: 'Buy',
@@ -908,7 +908,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: ''
     },
     {
-        oderId: '00133',
+        orderId: '00133',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Sell',
@@ -923,7 +923,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:02:10'
     },
     {
-        oderId: '00233',
+        orderId: '00233',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Buy',
@@ -938,7 +938,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:17:55'
     },
     {
-        oderId: '00333',
+        orderId: '00333',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Sell',
@@ -953,7 +953,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:02:43'
     },
     {
-        oderId: '00433',
+        orderId: '00433',
         ticker: 'AAPL',
         companyName: 'Apple Inc.',
         side: 'Buy',
@@ -968,7 +968,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 10:17:55'
     },
     {
-        oderId: '00533',
+        orderId: '00533',
         ticker: 'AMD',
         companyName: 'Advanced Micro Devices, Inc.',
         side: 'Buy',
@@ -983,7 +983,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 11:11:24'
     },
     {
-        oderId: '00633',
+        orderId: '00633',
         ticker: 'AMZN',
         companyName: 'Amazon.com, Inc.',
         side: 'Buy',
@@ -998,7 +998,7 @@ export const ORDER_HISTORY = [
         excutedDatetime: 'Dec 2 2021 13:43:10'
     },
     {
-        oderId: '00733',
+        orderId: '00733',
         ticker: 'ABE',
         companyName: 'Adobe Inc.',
         side: 'Buy',
