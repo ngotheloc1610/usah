@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { FORMAT_DATE, INVALID_DATE, SIDE } from "../../../constants/general.constant";
+import { SIDE } from "../../../constants/general.constant";
+import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import { IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-import moment from 'moment';
+import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
 const defaultProps: IPropListOrder = {
     listOrder: []
 };
 const ListOrder = (props: IPropListOrder) => {
     const { listOrder } = props;
+    const tradingModelPb: any = tspb;
     const [isShowFullData, setShowFullData] = useState(false);
-    const tempDate = new Date();
-    const date = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear();
     function getTickerName(sympleId: string) {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
@@ -21,27 +21,18 @@ const ListOrder = (props: IPropListOrder) => {
     function btnShowFullData() {
         setShowFullData(!isShowFullData);
     }
-    function getDateTime(date: string) {
-        const dateTime = moment(Number(date)).format(FORMAT_DATE);
-        if (dateTime !== INVALID_DATE) {
-            return dateTime;
-        }
-        return '';
-    }
-    function getPendingVolume(volume: string, filledAmount: string) {
-        return Number(volume) - Number(filledAmount);
-    }
+    
     function getListDataOrder() {
         return listOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
                     <td>{getTickerName(item.symbolCode.toString())}</td>
-                    <td className="text-center"><span className={`${item.orderType === 100 ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                    <td className="text-center"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center">Limit</td>
                     <td className="text-end">{item.price}</td>
                     <td className="text-end">{item.amount}</td>
-                    <td className="text-end">{getPendingVolume(item.amount, item.filledAmount)}</td>
-                    <td className="text-end">{getDateTime(item.time)}</td>
+                    <td className="text-end">{calcPendingVolume(item.amount, item.filledAmount)}</td>
+                    <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">
                         <a className="btn-edit-order mr-10">
                             <i className="bi bi-pencil-fill"></i>

@@ -9,4 +9,4 @@ export const SIDE = [
     }
 ]
 export const INVALID_DATE = 'Invalid date';
-export const FORMAT_DATE = 'MMM DD YYYY h:mm:ss A';
+export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY h:mm:ss A';
