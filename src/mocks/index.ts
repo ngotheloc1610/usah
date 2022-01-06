@@ -1,4 +1,4 @@
-import { ITickerInfo } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderPortfolio } from "../interfaces/order.interface";
 
 const test = ''
 export default {
@@ -1146,15 +1146,15 @@ export const ORDER_TRADE_HISTORY = [
     },
 ]
 
-export const ORDER_PORTFOLIO = [
+export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
     {
         companyName: 'Apple inc',
         ticker: 'AAPL',
-        ownedVolume: 300,
+        ownedVolume: '300',
         orderPendingVolume: 0,
-        AVGPrice: 142.8,
+        AVGPrice: '142.80',
         investedValue: '42,840.00',
-        marketPrice: 152.6,
+        marketPrice: '152.60',
         curentValue: '45,780.00',
         PL: '2940.00	',
         PL_Percent: 6.86
@@ -1162,11 +1162,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Visa Inc	',
         ticker: 'V',
-        ownedVolume: 2000,
+        ownedVolume: '2,000',
         orderPendingVolume: 0,
-        AVGPrice: 226.65	,
+        AVGPrice: '226.65'	,
         investedValue: '453,340.00',
-        marketPrice: 230.75,
+        marketPrice: '230.75',
         curentValue: '461,500.00',
         PL: '8200.00',
         PL_Percent: 1.81
@@ -1174,11 +1174,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Exxon',
         ticker: 'XOM',
-        ownedVolume: 1000,
+        ownedVolume: '1,000',
         orderPendingVolume: 0,
-        AVGPrice: 56.3,
+        AVGPrice: '56.30',
         investedValue: '56,300.00',
-        marketPrice: 53.2,
+        marketPrice: '53.20',
         curentValue: '53,200.00	',
         PL: '-3100.00',
         PL_Percent: -5.86
@@ -1186,11 +1186,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Tesla Inc	',
         ticker: 'TSLA',
-        ownedVolume: 0,
+        ownedVolume: '0',
         orderPendingVolume: 200,
-        AVGPrice: 760.5,
+        AVGPrice: '760.50',
         investedValue: '578,360.25',
-        marketPrice: 781.2,
+        marketPrice: '781.20',
         curentValue: '594,102.60',
         PL: '15742.35',
         PL_Percent: 2.72
@@ -1198,11 +1198,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Netflix Inc',
         ticker: 'NFLX',
-        ownedVolume: 0,
+        ownedVolume: '0',
         orderPendingVolume: 400,
-        AVGPrice: 568.1,
+        AVGPrice: '568.10',
         investedValue: '322,737.61',
-        marketPrice: 575,
+        marketPrice: '575.00',
         curentValue: '326,657.50',
         PL: '3919.89',
         PL_Percent: 1.21
@@ -1210,11 +1210,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Exxon',
         ticker: 'XOM',
-        ownedVolume: 1000,
+        ownedVolume: '1,000',
         orderPendingVolume: 0,
-        AVGPrice: 56.3,
+        AVGPrice: '56.30',
         investedValue: '56,300.00',
-        marketPrice: 53.2,
+        marketPrice: '53.20',
         curentValue: '53,200.00	',
         PL: '-3100.00',
         PL_Percent: -5.86
@@ -1222,11 +1222,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Tesla Inc	',
         ticker: 'TSLA',
-        ownedVolume: 0,
+        ownedVolume: '0',
         orderPendingVolume: 200,
-        AVGPrice: 760.5,
+        AVGPrice: '760.50',
         investedValue: '578,360.25',
-        marketPrice: 781.2,
+        marketPrice: '781.20',
         curentValue: '594,102.60',
         PL: '15742.35',
         PL_Percent: 2.72
@@ -1234,11 +1234,11 @@ export const ORDER_PORTFOLIO = [
     {
         companyName: 'Netflix Inc',
         ticker: 'NFLX',
-        ownedVolume: 0,
+        ownedVolume: '0',
         orderPendingVolume: 400,
-        AVGPrice: 568.1,
+        AVGPrice: '568.10',
         investedValue: '322,737.61',
-        marketPrice: 575,
+        marketPrice: '575.00',
         curentValue: '326,657.50',
         PL: '3919.89',
         PL_Percent: 1.21

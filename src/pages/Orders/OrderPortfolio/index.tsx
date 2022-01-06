@@ -1,5 +1,6 @@
 import { ORDER_PORTFOLIO } from '../../../mocks'
 import { IOrderPortfolio } from '../../../interfaces/order.interface'
+import './orderPortfolio.css'
 function OrderPortfolio() {
 
     const _rederPortfolioInvest = () => (
@@ -27,25 +28,25 @@ function OrderPortfolio() {
     )
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-left center fz-14">Company Name	</th>
-            <th className="text-center center fz-14">Ticker </th >
-            <th className="text-center center fz-14" >Owned Volume	</th>
-            <th className="text-center center fz-14" > Order Pending Volume</th>
-            <th className="text-center center fz-14" >AVG Price</th>
-            <th className="text-center center fz-14"> Invested Valu</th>
-            <th className="text-center center fz-14" >Market Price</th>
-            <th className="text-center center fz-14" > Curent Value	</th>
-            <th className="text-center center fz-14"> P&amp;L</th>
-            <th className="text-center center fz-14"> % P&amp;L</th>
+            <th className="text-left fz-14">Ticker Name	</th>
+            <th className="text-start fz-14">Ticker Code</th >
+            <th className="text-end fz-14" >Owned Volume	</th>
+            <th className="text-end fz-14" > Order Pending Volume</th>
+            <th className="text-end fz-14" >AVG Price</th>
+            <th className="text-end fz-14"> Invested Value</th>
+            <th className="text-end fz-14" >Market Price</th>
+            <th className="text-end fz-14" > Current Value</th>
+            <th className="text-end fz-14"> P&amp;L</th>
+            <th className="text-end fz-14"> % P&amp;L</th>
         </tr>
     )
     const _renderPortfolioTableBody = () => (
         ORDER_PORTFOLIO.map((item: IOrderPortfolio, index: number) => (
-            <tr className="odd" key={index}>
+            <tr className="odd " key={index}>
                 <td>{item.companyName}</td>
                 <td>{item.ticker}</td>
                 {
-                    item.ownedVolume===0 ? <td className="text-end">&nbsp;</td> : <td className="text-end">{item.ownedVolume}</td>
+                    parseInt(item.ownedVolume)===0 ? <td className="text-end">&nbsp;</td> : <td className="text-end">{item.ownedVolume}</td>
                 } 
                 
                 {
@@ -56,8 +57,8 @@ function OrderPortfolio() {
                 <td className="text-end">{item.investedValue}</td>
                 <td className="text-end">{item.marketPrice}</td>
                 <td className="text-end">{item.curentValue}</td>
-                <td className="text-end"><span className="text-success">{item.PL}</span></td>
-                <td className="text-end"><span className="text-success">{item.PL_Percent + "%"}</span></td>
+                <td className="text-end"><span className={parseInt(item.PL)>0?"text-success":"text-danger"}>{item.PL}</span></td>
+                <td className="text-end"><span className={item.PL_Percent>0?"text-success":"text-danger"}>{item.PL_Percent + "%"}</span></td>
             </tr>
         ))
 
@@ -70,7 +71,7 @@ function OrderPortfolio() {
                         <thead>
                             {_renderPortfolioTableHeader()}
                         </thead>
-                        <tbody>
+                        <tbody className='scroll'>
                             {_renderPortfolioTableBody()}
                         </tbody>
                     </table>
