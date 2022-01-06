@@ -100,7 +100,6 @@ const ListOrder = (props: IPropListOrder) => {
             <div className="card-body p-0">
                 <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
                     {getListTitleOrder()}
-                    {/* {scrollListData} */}
                 </div>
             </div>
         </div>
