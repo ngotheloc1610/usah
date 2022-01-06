@@ -6,8 +6,27 @@ import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import OrderForm from "../../../components/Order/OrderForm";
+import { ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+
+const defaultCurrentTicker: ITickerInfo | any = {
+    symbolId: 0,
+        tickerName: '',
+        ticker: '',
+        stockPrice: '',
+        previousClose: '',
+        open: '',
+        high: '',
+        low: '',
+        lastPrice: '',
+        volume: '',
+        change: '',
+        changePrecent: '',
+}
+
 const OrderMonitoring = () => {
     const [getDataOrder, setGetDataOrder] = useState([]);
+    const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     useEffect(() => {
         setInterval(() => {
             getListData();
@@ -41,13 +60,18 @@ const OrderMonitoring = () => {
         wsService.getListOrder().subscribe(setGetDataOrder);
     }
 
+    const handleTicker = (ticker: ILastQuote) => {
+        const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === ticker.symbolCode);
+        setCurrentTicker(item);
+    }
+
     return (
         <div className="site">
             <div className="site-main">
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker />
+                            <ListTicker getTicerLastQuote={handleTicker} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="me-2 h-100 d-flex align-items-center">
@@ -60,7 +84,7 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    <OrderForm />
+                                    <OrderForm currentTicker={currentTicker} />
                                 </div>
                             </div>
                         </div>
