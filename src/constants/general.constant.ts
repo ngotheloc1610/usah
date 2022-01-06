@@ -8,3 +8,5 @@ export const SIDE = [
         code: 101
     }
 ]
+export const INVALID_DATE = 'Invalid date';
+export const FORMAT_DATE = 'MMM DD YYYY h:mm:ss A';

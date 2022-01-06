@@ -61,6 +61,7 @@ export interface IListOrder {
     tp: string;
     triggerPrice: string;
     uid: string;
+    filledAmount: string;
 }
 export interface TickerInfo {
     symbolId: number,
