@@ -81,18 +81,18 @@ const ListTicker = (props: IListTickerProps) => {
         <>
             <tr>
                 <td className="text-end w-33" >&nbsp;</td>
-                <td className="text-center">{askItems[0] ? askItems[0].price : 0}</td>
-                <td className="text-danger w-33">{askItems[0] ? `${askItems[0].volume}(${askItems[0].numOrders})` : 0}</td>
+                <td className="text-center">{askItems[0] ? askItems[0].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[0] ? `${askItems[0].volume}(${askItems[0].numOrders})` : '-'}</td>
             </tr>
             <tr>
                 <td className="text-end w-33">&nbsp;</td>
-                <td className="text-center">{askItems[1] ? askItems[1].price : 0}</td>
-                <td className="text-danger w-33">{askItems[1] ? `${askItems[1].volume}(${askItems[1].numOrders})` : 0}</td>
+                <td className="text-center">{askItems[1] ? askItems[1].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[1] ? `${askItems[1].volume}(${askItems[1].numOrders})` : '-'}</td>
             </tr>
             <tr>
                 <td className="text-end w-33">&nbsp;</td>
-                <td className="text-center">{askItems[2] ? askItems[2].price : 0}</td>
-                <td className="text-danger w-33">{askItems[2] ? `${askItems[2].volume}(${askItems[2].numOrders})` : 0}</td>
+                <td className="text-center">{askItems[2] ? askItems[2].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[2] ? `${askItems[2].volume}(${askItems[2].numOrders})` : '-'}</td>
             </tr>
         </>
 
@@ -102,9 +102,9 @@ const ListTicker = (props: IListTickerProps) => {
         let arr: IBidPrice[] = [];
         const defaultBidPrice: IBidPrice = {
             numOrders: 0,
-            price: '0',
+            price: '-',
             tradable: false,
-            volume: '0'
+            volume: '-'
         }
         if (bidItems.length === 1) {
             arr = [defaultBidPrice, defaultBidPrice, bidItems[0]];
@@ -116,18 +116,18 @@ const ListTicker = (props: IListTickerProps) => {
         return (
             <>
                 <tr>
-                    <td className="text-end text-success w-33">{arr[0] ? `${arr[0].volume} (${arr[0].numOrders})` : 0}</td>
-                    <td className="text-center">{arr[0] ? arr[0].price : 0}</td>
+                    <td className="text-end text-success w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
                     <td className="text-end w-33">&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end text-success w-33">{arr[1] ? `${arr[1].volume} (${arr[1].numOrders})` : 0}</td>
-                    <td className="text-center">{arr[1] ? arr[1].price : 0}</td>
+                    <td className="text-end text-success w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
                     <td className="text-end w-33">&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end text-success w-33">{arr[2] ? `${arr[2].volume} (${arr[2].numOrders})` : 0}</td>
-                    <td className="text-center">{arr[2] ? arr[2].price : 0}</td>
+                    <td className="text-end text-success w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
                     <td className="text-end w-33">&nbsp;</td>
                 </tr>
             </>

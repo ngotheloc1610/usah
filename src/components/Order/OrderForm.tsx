@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { IParamOrder, ITickerInfo } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
-
+import { toast } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
+toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
 }
@@ -32,6 +34,7 @@ const OrderForm = (props: IOrderForm) => {
     const [tickerSize, setTickerSize] = useState(0.01)
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replace(',', '')));
     const [volume, setVolume] = useState(tradingUnit);
+    const [statusOrder, setStatusOrder] = useState(0);
 
     useEffect(() => {
         handleSetPrice()
@@ -41,6 +44,14 @@ const OrderForm = (props: IOrderForm) => {
         setPrice(Number(currentTicker.lastPrice?.replace(',', '')));
         setValidForm(currentTicker.lastPrice !== undefined);
     }
+
+    const _rendetMessageSuccess = (message: string) => (
+        <div>{toast.success(message)}</div>
+    )
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
@@ -104,6 +115,17 @@ const OrderForm = (props: IOrderForm) => {
         } else {
             setValidForm(true);
         }
+    }
+
+    const getStatusOrderResponse = (value: number, content: string) => {
+        if (statusOrder === 0) {
+            setStatusOrder(value);
+            return <>
+                {(value === 1 && content !== '') && _rendetMessageSuccess(content)}
+                {(value === 2 && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        return <></>;
     }
 
     const handlePlaceOrder = () => {
@@ -178,11 +200,13 @@ const OrderForm = (props: IOrderForm) => {
                 {validForm && _renderPlaceButtonEnable()}
                 {!validForm && _renderPlaceButtonDisable()}
             </div>
-            {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} params={paramOrder} />}
+            {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
         </form>
     )
 
-    return <div>{_renderForm()}</div>
+    return <div>
+        {_renderForm()}
+    </div>
 }
 
 OrderForm.defaultProps = defaultProps;
