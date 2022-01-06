@@ -29,9 +29,9 @@ const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     useEffect(() => {
         setInterval(() => {
-            getListData();
             callWs();
-        }, 500)
+            getListData();
+        }, 5000)
     }, []);
 
     const callWs = () => {
