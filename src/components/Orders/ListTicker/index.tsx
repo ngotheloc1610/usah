@@ -150,7 +150,7 @@ const ListTicker = (props: IListTickerProps) => {
                         <tr>
                             <th colSpan={3} className="text-center">
                                 <div className="position-relative">
-                                    <strong className="px-4">{symbol?.ticker}</strong>
+                                    <strong className="px-4 pointer">{symbol?.ticker}</strong>
                                     <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                         <i className="bi bi-x-lg" />
                                     </a>

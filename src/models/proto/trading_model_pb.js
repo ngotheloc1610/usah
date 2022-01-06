@@ -148,7 +148,8 @@ proto.Order.toObject = function(includeInstance, msg) {
     route: jspb.Message.getFieldWithDefault(msg, 21, 0),
     orderMode: jspb.Message.getFieldWithDefault(msg, 22, 0),
     uid: jspb.Message.getFieldWithDefault(msg, 23, 0),
-    triggerPrice: jspb.Message.getFieldWithDefault(msg, 24, "")
+    triggerPrice: jspb.Message.getFieldWithDefault(msg, 24, ""),
+    filledAmount: jspb.Message.getFieldWithDefault(msg, 25, "")
   };
 
   if (includeInstance) {
@@ -280,6 +281,10 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 24:
       var value = /** @type {string} */ (reader.readString());
       msg.setTriggerPrice(value);
+      break;
+    case 25:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFilledAmount(value);
       break;
     default:
       reader.skipField();
@@ -475,6 +480,13 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       24,
+      f
+    );
+  }
+  f = message.getFilledAmount();
+  if (f.length > 0) {
+    writer.writeString(
+      25,
       f
     );
   }
@@ -910,6 +922,24 @@ proto.Order.prototype.getTriggerPrice = function() {
  */
 proto.Order.prototype.setTriggerPrice = function(value) {
   return jspb.Message.setProto3StringField(this, 24, value);
+};
+
+
+/**
+ * optional string filled_amount = 25;
+ * @return {string}
+ */
+proto.Order.prototype.getFilledAmount = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 25, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setFilledAmount = function(value) {
+  return jspb.Message.setProto3StringField(this, 25, value);
 };
 
 

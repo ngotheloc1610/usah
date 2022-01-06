@@ -161,9 +161,8 @@ const OrderForm = (props: IOrderForm) => {
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
-                <div className="fs-18">
-                    <div>{currentTicker.tickerName ? `${currentTicker.tickerName}` : ''}</div>
-                    <div>{currentTicker.tickerName ? `(${currentTicker.ticker})` : ''}</div>
+                <div className="fs-18 mr-3">
+                    <b>{currentTicker.tickerName ? `${currentTicker.ticker}` : ''}</b>
                 </div>
             </div>
 
