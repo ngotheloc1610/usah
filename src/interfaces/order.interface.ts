@@ -127,3 +127,16 @@ export interface IOrderHistory{
     excutedDatetime: string
 }
 
+export interface IOrderTradeHistory{
+    oderId:string,
+    tickerCode:string,
+    tickerName: string,
+    side: string,
+    orderType: string,
+    orderVolume: string,
+    orderPrice: string,
+    executedVolume:string,
+    executedPrice:string,
+    matchedValue:string,
+    excutedDatetime: string
+}
