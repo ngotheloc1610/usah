@@ -47,7 +47,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const _rendetMessageSuccess = (message: string) => (
-        <div>{toast.success(message)}</div>
+        <div>{toast.success('Place order successfully')}</div>
     )
 
     const _rendetMessageError = (message: string) => (
@@ -107,17 +107,6 @@ const OrderForm = (props: IOrderForm) => {
         setValidForm(newPrice > 0 && volume > 0);
     }
 
-    const togglePopup = () => {
-        setIsConfirm(false);
-        setPrice(Number(currentTicker.lastPrice?.replace(',', '')));
-        setVolume(tradingUnit);
-        if (Number(currentTicker.lastPrice) <= 0 || tradingUnit <= 0) {
-            setValidForm(false);
-        } else {
-            setValidForm(true);
-        }
-    }
-
     const getStatusOrderResponse = (value: number, content: string) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
@@ -127,6 +116,21 @@ const OrderForm = (props: IOrderForm) => {
             </>
         }
         return <></>;
+    }
+
+    const togglePopup = (isOrder: boolean) => {
+        if (isOrder) {
+            setPrice(0);
+            setVolume(0);
+            setValidForm(false);
+        } else {
+            if (Number(currentTicker.lastPrice) <= 0 || tradingUnit <= 0) {
+                setValidForm(false);
+            } else {
+                setValidForm(true);
+            }
+        }
+        setIsConfirm(false);
     }
 
     const handlePlaceOrder = () => {

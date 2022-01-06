@@ -11,7 +11,7 @@ import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
 import { RESPONSE_RESULT } from '../../constants/general.constant'
 interface IConfirmOrder {
-    handleCloseConfirmPopup: () => void;
+    handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
     params: IParamOrder
 }
@@ -71,7 +71,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
                 handleOrderResponse(tmp, resp['msgText']);
             })
-            handleCloseConfirmPopup();
+            handleCloseConfirmPopup(true);
         }
     }
 
@@ -122,7 +122,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${params.volume}`)}
                     {_renderConfirmOrder('Price', `${params.price}`)}
-                    {_renderConfirmOrder('Value ($)', `${params.volume * params.price}`)}
+                    {_renderConfirmOrder('Value ($)', `${(params.volume * params.price).toFixed(3)}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
@@ -147,7 +147,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <div className="box">
                 <div>
                     New order confirmation
-                    <span className="close-icon" onClick={handleCloseConfirmPopup}>x</span>
+                    <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
                 </div>
             </div>
             <div className='content text-center'>
