@@ -139,10 +139,10 @@ const ListTicker = (props: IListTickerProps) => {
         )
     }
 
-    const renderListDataTicker = lastQoutes.map((item: ILastQuote) => {
+    const renderListDataTicker = lastQoutes.map((item: ILastQuote, index: number) => {
         const symbol = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         if (item.asksList.length > 0 || item.bidsList.length > 0) {
-            return <div className="col-xl-3">
+            return <div className="col-xl-3" key={index}>
                 <table onClick={() => handleTicker(item)}
                     className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
                 >
