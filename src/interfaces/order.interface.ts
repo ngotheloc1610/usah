@@ -57,10 +57,11 @@ export interface IListOrder {
     state: string;
     swap: string;
     symbolCode: number;
-    time: string;
+    time: number;
     tp: string;
     triggerPrice: string;
     uid: string;
+    filledAmount: string;
 }
 export interface TickerInfo {
     symbolId: number,
