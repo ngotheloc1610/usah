@@ -32,6 +32,7 @@ const startWs = () =>{
     socket = new WebSocket(socket_url);
     socket.binaryType = "arraybuffer";
     socket.onopen = () =>{
+        console.log("websocket connected");
         wsConnected = true;
     }
     
