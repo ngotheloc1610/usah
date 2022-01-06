@@ -111,3 +111,19 @@ export interface ILastQuote {
     volumePerDay: string;
 }
 
+export interface IOrderHistory{
+    orderId: string,
+    ticker: string,
+    companyName: string,
+    side: string,
+    orderStatus: string,
+    orderType: string,
+    orderVolume: string,
+    remainVolume: string,
+    executedVolume: string,
+    orderPrice: string,
+    lastPrice: string,
+    orderDatetime: string,
+    excutedDatetime: string
+}
+
