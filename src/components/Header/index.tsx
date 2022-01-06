@@ -5,8 +5,40 @@ import { Colors } from '../../themes';
 import './Header.scss'
 import { IOrderDropdownModel } from '../../constants/route.interface';
 import TabBarItem, { ITabBarItem } from './TabBarItem';
+import { useEffect, useState } from 'react';
+import queryString from 'query-string';
+import ReduxPersist from '../../config/ReduxPersist';
 
 const Header = () => {
+  const [accountId, setAccountId] = useState('');
+  useEffect(() => {
+    _renderAccountId()
+  }, [])
+
+  const _renderAccountId = () => {
+    const paramStr = window.location.search;
+    const objAuthen = queryString.parse(paramStr);
+    let accountId: string | any = '';
+    if (objAuthen.access_token) {
+      accountId = objAuthen.account_id;
+      ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+      setAccountId(accountId);
+      return;
+    }
+    ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+      if (resp) {
+        const obj = JSON.parse(resp);
+        accountId = obj.account_id;
+        setAccountId(accountId);
+        return;
+      } else {
+        accountId = process.env.REACT_APP_TRADING_ID;
+        setAccountId(accountId);
+        return;
+      }
+    });
+  }
+
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -24,7 +56,7 @@ const Header = () => {
             <i className="bi bi-bell-fill"></i>
             <sup className="count">04</sup></a></li>
           <li className="nav-item dropdown">
-            <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">C123466</a>
+            <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" href="#">Sub Menu</a></li>
               <li><a className="dropdown-item" href="#">Logout</a></li>

@@ -1,18 +1,38 @@
 import "./orderMonitoring.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import OrderForm from "../../../components/Order/OrderForm";
+import { ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import ReduxPersist from "../../../config/ReduxPersist";
+import queryString from 'query-string';
+const defaultCurrentTicker: ITickerInfo | any = {
+    symbolId: 0,
+        tickerName: '',
+        ticker: '',
+        stockPrice: '',
+        previousClose: '',
+        open: '',
+        high: '',
+        low: '',
+        lastPrice: '',
+        volume: '',
+        change: '',
+        changePrecent: '',
+}
+
 const OrderMonitoring = () => {
     const [getDataOrder, setGetDataOrder] = useState([]);
+    const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     useEffect(() => {
         setInterval(() => {
-            getListData();
             callWs();
-        }, 500)
+            getListData();
+        }, 5000)
     }, []);
 
     const callWs = () => {
@@ -21,8 +41,8 @@ const OrderMonitoring = () => {
         }, 500)
     }
 
-    const sendListOrder = () => {
-        const uid = process.env.REACT_APP_TRADING_ID;
+    const prepareMessagee = (accountId: string) => {
+        const uid = accountId;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -37,8 +57,38 @@ const OrderMonitoring = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
+
+    const sendListOrder = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string | any = '';
+        if (objAuthen.access_token) {
+            accountId = objAuthen.account_id;
+            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            prepareMessagee(accountId);
+            return;
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID;
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+
     const getListData = () => {
         wsService.getListOrder().subscribe(setGetDataOrder);
+    }
+
+    const handleTicker = (ticker: ILastQuote) => {
+        const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === ticker.symbolCode);
+        setCurrentTicker(item);
     }
 
     return (
@@ -47,7 +97,7 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker />
+                            <ListTicker getTicerLastQuote={handleTicker} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="me-2 h-100 d-flex align-items-center">
@@ -60,7 +110,7 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    <OrderForm />
+                                    <OrderForm currentTicker={currentTicker} />
                                 </div>
                             </div>
                         </div>
