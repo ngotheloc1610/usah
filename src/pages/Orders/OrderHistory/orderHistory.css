@@ -530,14 +530,15 @@ a{
     margin-left: -2px;
 }
 @media (max-width: 1399px){
-    /* .center {
-        line-height: 1.4;
-    } */
+    
     .cennter-min{
-        line-height: 1.4;
+        line-height: 2.6;
     }
 }
 @media (max-width: 1199px){
+    .cennter-min{
+        line-height: 1.4;
+    }
     .center {
         line-height: 1.4;
     }
