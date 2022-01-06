@@ -28,37 +28,37 @@ function OrderPortfolio() {
     )
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-left fz-14" >Ticker Name	</th>
-            <th className="text-start fz-14" >Ticker Code</th >
-            <th className="text-end fz-14" >Owned Volume	</th>
-            <th className="text-end fz-14" > Order Pending Volume</th>
-            <th className="text-end fz-14" >AVG Price</th>
-            <th className="text-end fz-14" > Invested Value</th>
-            <th className="text-end fz-14" >Market Price</th>
-            <th className="text-end fz-14" > Current Value</th>
-            <th className="text-end fz-14" > P&amp;L</th>
-            <th className="text-end fz-14" > % P&amp;L</th>
+            <th className="text-start fz-14 w-s" >Ticker Name	</th>
+            <th className="text-start fz-14 w-s" >Ticker Code</th >
+            <th className="text-end fz-14 w-s" >Owned Volume	</th>
+            <th className="text-end fz-14 w-s" > Pending Volume</th>
+            <th className="text-end fz-14 w-s" >AVG Price</th>
+            <th className="text-end fz-14 w-s" > Invested Value</th>
+            <th className="text-end fz-14 w-s" >Market Price</th>
+            <th className="text-end fz-14 w-s" > Current Value</th>
+            <th className="text-end fz-14 w-s" > P&amp;L</th>
+            <th className="text-end fz-14 w-s" > % P&amp;L</th>
         </tr>
     )
     const _renderPortfolioTableBody = () => (
         ORDER_PORTFOLIO.map((item: IOrderPortfolio, index: number) => (
             <tr className="odd " key={index}>
-                <td>{item.companyName}</td>
-                <td>{item.ticker}</td>
+                <td className="text-start w-s" >{item.companyName}</td>
+                <td className="text-start w-s">{item.ticker}</td>
                 {
-                    parseInt(item.ownedVolume)===0 ? <td className="text-end">&nbsp;</td> : <td className="text-end">{item.ownedVolume}</td>
+                    parseInt(item.ownedVolume)===0 ? <td className="text-end w-s" >&nbsp;</td> : <td className="text-end w-s" >{item.ownedVolume}</td>
                 } 
                 
                 {
-                    item.orderPendingVolume===0 ? <td className="text-end">&nbsp;</td> : <td className="text-end">{item.orderPendingVolume}</td>
+                    item.orderPendingVolume===0 ? <td className="text-end w-s">&nbsp;</td> : <td className="text-end w-s">{item.orderPendingVolume}</td>
                 }                
                 
-                <td className="text-end">{item.AVGPrice}</td>
-                <td className="text-end">{item.investedValue}</td>
-                <td className="text-end">{item.marketPrice}</td>
-                <td className="text-end">{item.curentValue}</td>
-                <td className="text-end"><span className={parseInt(item.PL)>0?"text-success":"text-danger"}>{item.PL}</span></td>
-                <td className="text-end"><span className={item.PL_Percent>0?"text-success":"text-danger"}>{item.PL_Percent + "%"}</span></td>
+                <td className="text-end w-s" >{item.AVGPrice}</td>
+                <td className="text-end w-s" >{item.investedValue}</td>
+                <td className="text-end w-s" >{item.marketPrice}</td>
+                <td className="text-end w-s"  >{item.curentValue}</td>
+                <td className="text-end w-s" ><span className={parseInt(item.PL)>0?"text-success":"text-danger"}>{item.PL}</span></td>
+                <td className="text-end w-s"><span className={item.PL_Percent>0?"text-success":"text-danger"}>{item.PL_Percent + "%"}</span></td>
             </tr>
         ))
 
