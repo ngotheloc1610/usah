@@ -8,7 +8,8 @@ import * as rspb from "../../../models/proto/rpc_pb";
 import OrderForm from "../../../components/Order/OrderForm";
 import { ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-
+import ReduxPersist from "../../../config/ReduxPersist";
+import queryString from 'query-string';
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
         tickerName: '',
@@ -40,8 +41,8 @@ const OrderMonitoring = () => {
         }, 500)
     }
 
-    const sendListOrder = () => {
-        const uid = process.env.REACT_APP_TRADING_ID;
+    const prepareMessagee = (accountId: string) => {
+        const uid = accountId;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -56,6 +57,31 @@ const OrderMonitoring = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
+
+    const sendListOrder = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string | any = '';
+        if (objAuthen.access_token) {
+            accountId = objAuthen.account_id;
+            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            prepareMessagee(accountId);
+            return;
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID;
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+
     const getListData = () => {
         wsService.getListOrder().subscribe(setGetDataOrder);
     }
