@@ -10,20 +10,19 @@ const OrderHistory = () => {
     const _renderOrderHistoryTableHeader = () => 
         (
             <tr>
-                <th><span className="text-ellipsis center fz-14">Order ID</span></th>
+                <th><span className="text-ellipsis center center-sp fz-14">Order ID</span></th>
                 <th style={{ width: 200 }}>
                     <div className="text-ellipsis text-center fz-14">Ticker Code</div>
                     <div className="text-ellipsis text-center fz-14">Ticker Name</div>
                 </th >
                 <th className="text-center center fz-14" style={{ width: 120 }}>Order Side</th>
-                <th className="text-center center fz-14" style={{ width: 120 }}><span className="text-ellipsis"> Order Status</span></th>
-                <th className="text-center center fz-14" style={{ width: 120 }}><span className="text-ellipsis">Order Type</span></th>
+                <th className="text-center center fz-14" style={{ width: 120 }}> Order Status</th>
+                <th className="text-center center fz-14" style={{ width: 120 }}>Order Type</th>
                 <th style={{ width: 120 }}>
                     <div className="text-ellipsis text-center fz-14">Order Volume</div>
                     <div className="text-ellipsis text-center fz-14">Remaining Volume</div>
                 </th>
-                <th className="text-center center fz-14" style={{ width: 120 }}>
-                    <span className="text-ellipsis"> Executed Volume</span>
+                <th className="text-center center cennter-min fz-14" style={{ width: 120 }}> Executed Volume
                 </th>
                 <th style={{ width: 120 }}>
                     <div className="text-ellipsis text-center fz-14">Order Price</div>
