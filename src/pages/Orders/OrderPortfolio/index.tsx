@@ -28,16 +28,16 @@ function OrderPortfolio() {
     )
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-left fz-14">Ticker Name	</th>
-            <th className="text-start fz-14">Ticker Code</th >
-            <th className="text-end fz-14" >Owned Volume	</th>
-            <th className="text-end fz-14" > Order Pending Volume</th>
-            <th className="text-end fz-14" >AVG Price</th>
-            <th className="text-end fz-14"> Invested Value</th>
-            <th className="text-end fz-14" >Market Price</th>
-            <th className="text-end fz-14" > Current Value</th>
-            <th className="text-end fz-14"> P&amp;L</th>
-            <th className="text-end fz-14"> % P&amp;L</th>
+            <th className="text-left fz-14" style={{width: 131.578}}>Ticker Name	</th>
+            <th className="text-start fz-14" style={{width: 51.8125}}>Ticker Code</th >
+            <th className="text-end fz-14" style={{width: 125.203}}>Owned Volume	</th>
+            <th className="text-end fz-14" style={{width: 184.688}}> Order Pending Volume</th>
+            <th className="text-end fz-14" style={{width: 81.6094}}>AVG Price</th>
+            <th className="text-end fz-14" style={{width: 118.5}}> Invested Value</th>
+            <th className="text-end fz-14" style={{width: 104.391}}>Market Price</th>
+            <th className="text-end fz-14" style={{width: 105.625}}> Current Value</th>
+            <th className="text-end fz-14" style={{width: 82.7344}}> P&amp;L</th>
+            <th className="text-end fz-14" style={{width: 66.8594}}> % P&amp;L</th>
         </tr>
     )
     const _renderPortfolioTableBody = () => (

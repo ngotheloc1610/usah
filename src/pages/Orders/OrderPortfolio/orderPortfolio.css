@@ -13,7 +13,6 @@ thead{
     width: 100%;
     display: table;
     width: calc(100% - 17px)
-    /* padding-right: 18px; */
 }
 tbody{
     overflow: auto;
@@ -24,4 +23,18 @@ tbody tr{
     display: table;
     width: 100%;
     table-layout: fixed;
+}
+.head-scroll{
+    box-sizing: content-box;
+    width: 1133px;
+    padding-right: 17px;
+}
+.dataTables_scrollBody{
+   position: relative;
+   overflow: auto;
+   max-height: 180px;width: 100%;
+}
+.hiden{
+    height: 0px; 
+    overflow: hidden;
 }
