@@ -1,5 +1,5 @@
 import { ITickerInfo } from "../interfaces/order.interface";
-
+import { IOrderHistory } from "../interfaces/order.interface";
 const test = ''
 export default {
 test
@@ -801,7 +801,7 @@ export const DATA_BID_PRICE = [
 
 export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
 
-export const ORDER_HISTORY = [
+export const ORDER_HISTORY:IOrderHistory[] = [
     {
         orderId: '00133',
         ticker: 'AAPL',
