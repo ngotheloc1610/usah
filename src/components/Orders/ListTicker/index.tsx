@@ -36,11 +36,6 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const getOrderBooks = () => {
-        const symbplId = LIST_TICKER_INFOR_MOCK_DATA.find((item: ITickerInfo) =>
-            item.ticker.toLocaleLowerCase() === itemSearch.toLocaleLowerCase()
-            || item.tickerName.toLocaleLowerCase() === itemSearch.toLocaleLowerCase())?.symbolId.toString();
-        const data = [];
-
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
@@ -139,10 +134,50 @@ const ListTicker = (props: IListTickerProps) => {
         )
     }
 
-    const renderListDataTicker = lastQoutes.map((item: ILastQuote, index: number) => {
+    const getLastQouteDisplay = () => {
+        const listArr: ITickerInfo[] = [];
+        let counter = 0;
+        LIST_TICKER_INFOR_MOCK_DATA.forEach(item => {
+            if (counter < 12) {
+                listArr.push(item);
+                counter ++;
+            }
+        });
+        const output: ILastQuote[] = [];
+        listArr.forEach(element => {
+            const obj: ILastQuote = {
+                asksList: [],
+                bidsList: [],
+                close: element.previousClose,
+                currentPrice: element.lastPrice,
+                high: element.high,
+                id: element.symbolId,
+                low: element.low,
+                netChange: element.change,
+                open: element.open,
+                pctChange: element.changePrecent,
+                quoteTime: 0,
+                scale: 0,
+                symbolCode: element.symbolId.toString(),
+                symbolId: element.symbolId,
+                tickPerDay: 0,
+                volumePerDay: '0'
+            };
+            output.push(obj);
+        })
+        lastQoutes.forEach((o: ILastQuote) => {
+            const index = output.findIndex(e => e.symbolCode === o.symbolCode);
+            if (index >= 0) {
+                output[index] = o;
+            }
+        })
+        
+        return output;
+    }
+
+    const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
         const symbol = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
-        if (item.asksList.length > 0 || item.bidsList.length > 0) {
-            return <div className="col-xl-3" key={index}>
+        return <div className="col-xl-3" key={index}>
                 <table onClick={() => handleTicker(item)}
                     className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
                 >
@@ -165,8 +200,6 @@ const ListTicker = (props: IListTickerProps) => {
                 </table>
 
             </div>
-        }
-        return ''
     })
 
     const _renderTemplateMonitoring = () => (

@@ -6,6 +6,8 @@ import { wsService } from '../../services/websocket-service'
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
+import ReduxPersist from '../../config/ReduxPersist';
+import queryString from 'query-string';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: () => void;
@@ -33,8 +35,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return tradingModelPb.OrderType.OP_SELL;
     }
 
-    const sendOrder = () => {
-        const uid = process.env.REACT_APP_TRADING_ID;
+    const prepareMessagee = (accountId: string) => {
+        const uid = accountId;
         let wsConnected = wsService.getWsConnected();
 
         if (wsConnected) {
@@ -61,6 +63,30 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             handleCloseConfirmPopup();
         }
+    }
+
+    const sendOrder = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string | any = '';
+        if (objAuthen.access_token) {
+            accountId = objAuthen.account_id;
+            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            prepareMessagee(accountId);
+            return;
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID;
+                prepareMessagee(accountId);
+                return;
+            }
+        });
     }
 
     const _renderTradingPin = () => (
