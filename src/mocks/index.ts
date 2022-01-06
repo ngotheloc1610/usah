@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderPortfolio } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio } from "../interfaces/order.interface";
 
 const test = ''
 export default {
@@ -472,7 +472,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
 
 export const LIST_DATA_ORDER = [
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -481,7 +481,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -490,7 +490,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -499,7 +499,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -508,7 +508,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -517,7 +517,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -526,7 +526,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -535,7 +535,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -544,7 +544,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -553,7 +553,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -562,7 +562,7 @@ export const LIST_DATA_ORDER = [
         date: 'Dec 13, 2021  10:50:21'
     },
     {
-        ticker: 'AAPL',
+        ticker: 'ADBE',
         sideName: 'Buy',
         typeName: 'Limit',
         price: 145.6,
@@ -573,7 +573,7 @@ export const LIST_DATA_ORDER = [
 ]
 export const LIST_DATA_TICKERS = [
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -594,7 +594,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 22,
         price3Order: 145.46,
@@ -615,7 +615,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -636,7 +636,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -657,7 +657,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -678,7 +678,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -699,7 +699,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -720,7 +720,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -741,7 +741,7 @@ export const LIST_DATA_TICKERS = [
         bid3Number: 6,
     },
     {
-        tickerName: 'AAPL',
+        tickerName: 'ADBE',
         volume3Order: '2,000',
         number3Order: 24,
         price3Order: 145.46,
@@ -1013,136 +1013,136 @@ export const ORDER_HISTORY: IOrderHistory[] = [
         excutedDatetime: ''
     },
 ]
-export const ORDER_TRADE_HISTORY = [
+export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     {
-        oderId: '001333',
-        tickerCode: 'AAPL',
+        oderId:'001333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume: '30,000',
-        executedPrice: '158.35',
-        matchedValue: '4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        executedVolume:'30,000',
+        executedPrice:'158.35'	,
+        matchedValue:'4,750,500',
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId: '002333',
-        tickerCode: 'AAPL',
+        oderId:'002333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume: '10,000',
-        executedPrice: '158.45',
-        matchedValue: '1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        executedVolume:'10,000',
+        executedPrice:'158.45'	,
+        matchedValue:'1,584,500	',
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId: '001333',
-        tickerCode: 'AAPL',
+        oderId:'001333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume: '30,000',
-        executedPrice: '158.35',
-        matchedValue: '4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        executedVolume:'30,000',
+        executedPrice:'158.35'	,
+        matchedValue:'4,750,500',
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId: '002333',
-        tickerCode: 'AAPL',
+        oderId:'002333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume: '10,000',
-        executedPrice: '158.45',
-        matchedValue: '1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        executedVolume:'10,000',
+        executedPrice:'158.45'	,
+        matchedValue:'1,584,500	',
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId: '001333',
-        tickerCode: 'AAPL',
+        oderId:'001333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume: '30,000',
-        executedPrice: '158.35',
-        matchedValue: '4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        executedVolume:'30,000',
+        executedPrice:'158.35'	,
+        matchedValue:'4,750,500',
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId: '002333',
-        tickerCode: 'AAPL',
+        oderId:'002333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume: '10,000',
-        executedPrice: '158.45',
-        matchedValue: '1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        executedVolume:'10,000',
+        executedPrice:'158.45'	,
+        matchedValue:'1,584,500	',
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId: '001333',
-        tickerCode: 'AAPL',
+        oderId:'001333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume: '30,000',
-        executedPrice: '158.35',
-        matchedValue: '4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        executedVolume:'30,000',
+        executedPrice:'158.35'	,
+        matchedValue:'4,750,500',
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId: '002333',
-        tickerCode: 'AAPL',
+        oderId:'002333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume: '10,000',
-        executedPrice: '158.45',
-        matchedValue: '1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        executedVolume:'10,000',
+        executedPrice:'158.45'	,
+        matchedValue:'1,584,500	',
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId: '001333',
-        tickerCode: 'AAPL',
+        oderId:'001333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume: '30,000',
-        executedPrice: '158.35',
-        matchedValue: '4,750,500',
-        excutedDatetime: 'Dec 2, 2021 10:01:25'
+        executedVolume:'30,000',
+        executedPrice:'158.35'	,
+        matchedValue:'4,750,500',
+        excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId: '002333',
-        tickerCode: 'AAPL',
+        oderId:'002333',
+        tickerCode:'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume: '10,000',
-        executedPrice: '158.45',
-        matchedValue: '1,584,500	',
-        excutedDatetime: 'Dec 2, 2021 10:01:50'
+        executedVolume:'10,000',
+        executedPrice:'158.45'	,
+        matchedValue:'1,584,500	',
+        excutedDatetime: 'Dec 2 2021 10:01:50'
     },
 ]
 
