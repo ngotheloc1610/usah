@@ -1,5 +1,5 @@
 import "./orderMonitoring.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import { wsService } from "../../../services/websocket-service";
