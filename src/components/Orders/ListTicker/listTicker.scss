@@ -1,3 +1,11 @@
 .w-33 {
     width: 33%;
 }
+
+.pointer {
+    cursor: pointer;
+}
+
+.pointer:hover {
+    text-decoration: underline;
+}
