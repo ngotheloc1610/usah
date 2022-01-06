@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
 const url = process.env.REACT_APP_BASE_URL;
-let token = '';
+let token = process.env.REACT_APP_TOKEN;
 var socket = null;
 var wsConnected = false;
 var dataLastQuotes = {quotesList: []};
