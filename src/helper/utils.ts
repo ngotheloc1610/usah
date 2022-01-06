@@ -3,8 +3,7 @@ import { FORMAT_DATE_TIME_MILLI, INVALID_DATE } from '../constants/general.const
 
 export function formatOrderTime(date: number): string {
     // time in miliseconds
-    const dateMillisecond = moment(date).millisecond();
-    const dateTime = moment(dateMillisecond).format(FORMAT_DATE_TIME_MILLI);
+    const dateTime = moment(date).format(FORMAT_DATE_TIME_MILLI);
     if (dateTime !== INVALID_DATE) {
         return dateTime;
     }
