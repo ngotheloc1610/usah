@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
-import { IPropListOrder } from "../../../interfaces/order.interface";
+import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
@@ -12,6 +12,7 @@ const ListOrder = (props: IPropListOrder) => {
     const { listOrder } = props;
     const tradingModelPb: any = tspb;
     const [isShowFullData, setShowFullData] = useState(false);
+    const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => b.time - a.time);
     function getTickerName(sympleId: string) {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
@@ -23,7 +24,7 @@ const ListOrder = (props: IPropListOrder) => {
     }
     
     function getListDataOrder() {
-        return listOrder.map((item, index) => {
+        return listOrderSortDate.map((item, index) => {
             return (
                 <tr key={index} className="odd">
                     <td>{getTickerName(item.symbolCode.toString())}</td>
