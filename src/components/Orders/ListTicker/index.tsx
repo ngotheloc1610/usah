@@ -77,26 +77,44 @@ const ListTicker = (props: IListTickerProps) => {
         </div>
     )
 
-    const _renderAskPrice = (askItems: IAskPrice[]) => (
-        <>
+    const _renderAskPrice = (askItems: IAskPrice[]) => {
+        let arr: IAskPrice[] = [];
+        const defaultAskPrice: IAskPrice = {
+            numOrders: 0,
+            price: '-',
+            tradable: false,
+            volume: '-'
+        }
+        if (askItems.length === 1) {
+            arr = [defaultAskPrice, defaultAskPrice, askItems[0]];
+        } else if (askItems.length === 2) {
+            arr = [defaultAskPrice, askItems[0], askItems[1]];
+        } else {
+            arr = askItems;
+        }
+
+
+        return <>
             <tr>
-                <td className="text-end w-33" >&nbsp;</td>
-                <td className="text-center">{askItems[0] ? askItems[0].price : '-'}</td>
-                <td className="text-danger w-33">{askItems[0] ? `${askItems[0].volume}(${askItems[0].numOrders})` : '-'}</td>
+                <td className="text-danger text-end  w-33">{(arr[0] && arr[0].numOrders) ? `${arr[0].volume}(${arr[0].numOrders})` : '-'}</td>
+                <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
+                <td className="w-33" >&nbsp;</td>
+
             </tr>
             <tr>
-                <td className="text-end w-33">&nbsp;</td>
-                <td className="text-center">{askItems[1] ? askItems[1].price : '-'}</td>
-                <td className="text-danger w-33">{askItems[1] ? `${askItems[1].volume}(${askItems[1].numOrders})` : '-'}</td>
+                <td className="text-danger text-end  w-33">{(arr[1] && arr[1].numOrders) ? `${arr[1].volume}(${arr[1].numOrders})` : '-'}</td>
+                <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
+                <td className="w-33">&nbsp;</td>
+
             </tr>
             <tr>
-                <td className="text-end w-33">&nbsp;</td>
-                <td className="text-center">{askItems[2] ? askItems[2].price : '-'}</td>
-                <td className="text-danger w-33">{askItems[2] ? `${askItems[2].volume}(${askItems[2].numOrders})` : '-'}</td>
+                <td className="text-danger text-end  w-33">{(arr[2] && arr[2].numOrders) ? `${arr[2].volume}(${arr[2].numOrders})` : '-'}</td>
+                <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
+                <td className="w-33">&nbsp;</td>
             </tr>
         </>
 
-    )
+    }
 
     const _renderBidPrice = (bidItems: IBidPrice[]) => {
         let arr: IBidPrice[] = [];
@@ -107,28 +125,30 @@ const ListTicker = (props: IListTickerProps) => {
             volume: '-'
         }
         if (bidItems.length === 1) {
-            arr = [defaultBidPrice, defaultBidPrice, bidItems[0]];
+            arr = [bidItems[0], defaultBidPrice, defaultBidPrice];
         } else if (bidItems.length === 2) {
-            arr = [defaultBidPrice, bidItems[1], bidItems[0]];
+            arr = [bidItems[0], bidItems[1], defaultBidPrice];
         } else {
-            arr = bidItems.reverse();
+            arr = bidItems;
         }
         return (
             <>
                 <tr>
-                    <td className="text-end text-success w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                    <td className="w-33">&nbsp;</td>
                     <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
-                    <td className="text-end w-33">&nbsp;</td>
+                    <td className="text-success w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
                 </tr>
                 <tr>
-                    <td className="text-end text-success w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                    <td className="w-33">&nbsp;</td>
                     <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
-                    <td className="text-end w-33">&nbsp;</td>
+                    <td className="text-success w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+
                 </tr>
                 <tr>
-                    <td className="text-end text-success w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                    <td className="w-33">&nbsp;</td>
                     <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
-                    <td className="text-end w-33">&nbsp;</td>
+
+                    <td className="text-success w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
                 </tr>
             </>
         )
@@ -140,7 +160,7 @@ const ListTicker = (props: IListTickerProps) => {
         LIST_TICKER_INFOR_MOCK_DATA.forEach(item => {
             if (counter < 12) {
                 listArr.push(item);
-                counter ++;
+                counter++;
             }
         });
         const output: ILastQuote[] = [];
@@ -171,35 +191,36 @@ const ListTicker = (props: IListTickerProps) => {
                 output[index] = o;
             }
         })
-        
+
         return output;
     }
 
     const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
         const symbol = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         return <div className="col-xl-3" key={index}>
-                <table onClick={() => handleTicker(item)}
-                    className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
-                >
-                    <thead>
-                        <tr>
-                            <th colSpan={3} className="text-center">
-                                <div className="position-relative">
-                                    <strong className="px-4 pointer">{symbol?.ticker}</strong>
-                                    <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
-                                        <i className="bi bi-x-lg" />
-                                    </a>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {_renderBidPrice(item.bidsList)}
-                        {_renderAskPrice(item.asksList)}
-                    </tbody>
-                </table>
+            <table onClick={() => handleTicker(item)}
+                className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
+            >
+                <thead>
+                    <tr>
+                        <th colSpan={3} className="text-center">
+                            <div className="position-relative">
+                                <strong className="px-4 pointer">{symbol?.ticker}</strong>
+                                <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
+                                    <i className="bi bi-x-lg" />
+                                </a>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {_renderAskPrice(item.asksList)}
+                    {_renderBidPrice(item.bidsList)}
 
-            </div>
+                </tbody>
+            </table>
+
+        </div>
     })
 
     const _renderTemplateMonitoring = () => (
