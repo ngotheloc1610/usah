@@ -79,6 +79,9 @@ const ListTicker = (props: IListTickerProps) => {
 
     const _renderAskPrice = (askItems: IAskPrice[]) => {
         let arr: IAskPrice[] = [];
+        for (let i = askItems.length - 1; i >= 0; i--) {
+            arr.push(askItems[i]);
+        }
         const defaultAskPrice: IAskPrice = {
             numOrders: 0,
             price: '-',
@@ -89,27 +92,25 @@ const ListTicker = (props: IListTickerProps) => {
             arr = [defaultAskPrice, defaultAskPrice, askItems[0]];
         } else if (askItems.length === 2) {
             arr = [defaultAskPrice, askItems[0], askItems[1]];
-        } else {
-            arr = askItems;
         }
 
 
         return <>
             <tr>
-                <td className="text-danger text-end  w-33">{(arr[0] && arr[0].numOrders) ? `${arr[0].volume}(${arr[0].numOrders})` : '-'}</td>
-                <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
+                <td className="text-success text-end  w-33">{(arr[0] && arr[0].numOrders) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                <td className="text-center">{!isNaN(Number(arr[0]?.price)) ? Number(arr[0].price).toFixed(2) : '-'}</td>
                 <td className="w-33" >&nbsp;</td>
 
             </tr>
             <tr>
-                <td className="text-danger text-end  w-33">{(arr[1] && arr[1].numOrders) ? `${arr[1].volume}(${arr[1].numOrders})` : '-'}</td>
-                <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
+                <td className="text-success text-end  w-33">{(arr[1] && arr[1].numOrders) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? Number(arr[1].price).toFixed(2) : '-'}</td>
                 <td className="w-33">&nbsp;</td>
 
             </tr>
             <tr>
-                <td className="text-danger text-end  w-33">{(arr[2] && arr[2].numOrders) ? `${arr[2].volume}(${arr[2].numOrders})` : '-'}</td>
-                <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
+                <td className="text-success text-end  w-33">{(arr[2] && arr[2].numOrders) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? Number(arr[2].price).toFixed(2) : '-'}</td>
                 <td className="w-33">&nbsp;</td>
             </tr>
         </>
@@ -135,20 +136,19 @@ const ListTicker = (props: IListTickerProps) => {
             <>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
-                    <td className="text-success w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                    <td className="text-center">{!isNaN(Number(arr[0]?.price)) ? Number(arr[0].price).toFixed(2) : '-'}</td>
+                    <td className="text-danger w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
                 </tr>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
-                    <td className="text-success w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                    <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? Number(arr[1].price).toFixed(2) : '-'}</td>
+                    <td className="text-danger w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
 
                 </tr>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
-
-                    <td className="text-success w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                    <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? Number(arr[2].price).toFixed(2) : '-'}</td>
+                    <td className="text-danger w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
                 </tr>
             </>
         )
