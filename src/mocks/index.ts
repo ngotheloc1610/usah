@@ -1,8 +1,8 @@
-import { ITickerInfo,IOrderHistory,IOrderTradeHistory } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio } from "../interfaces/order.interface";
 
 const test = ''
 export default {
-test
+    test
 }
 
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
@@ -589,7 +589,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -610,7 +610,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -631,7 +631,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -652,7 +652,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -673,7 +673,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -694,7 +694,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -715,7 +715,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -736,7 +736,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     },
@@ -757,7 +757,7 @@ export const LIST_DATA_TICKERS = [
         bid2Price: 145.2,
         bid2Volume: 2200,
         bid2Number: 5,
-        bid3Price:  154.41,
+        bid3Price: 154.41,
         bid3Volume: 5000,
         bid3Number: 6,
     }
@@ -1144,4 +1144,104 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         matchedValue:'1,584,500	',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
+]
+
+export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
+    {
+        companyName: 'Apple inc',
+        ticker: 'AAPL',
+        ownedVolume: '300',
+        orderPendingVolume: 0,
+        avgPrice: '142.80',
+        investedValue: '42,840.00',
+        marketPrice: '152.60',
+        curentValue: '45,780.00',
+        pl: '2940.00	',
+        plPercent: 6.86
+    },
+    {
+        companyName: 'Visa Inc	',
+        ticker: 'V',
+        ownedVolume: '2,000',
+        orderPendingVolume: 0,
+        avgPrice: '226.65'	,
+        investedValue: '453,340.00',
+        marketPrice: '230.75',
+        curentValue: '461,500.00',
+        pl: '8200.00',
+        plPercent: 1.81
+    },
+    {
+        companyName: 'Exxon',
+        ticker: 'XOM',
+        ownedVolume: '1,000',
+        orderPendingVolume: 0,
+        avgPrice: '56.30',
+        investedValue: '56,300.00',
+        marketPrice: '53.20',
+        curentValue: '53,200.00	',
+        pl: '-3100.00',
+        plPercent: -5.86
+    },
+    {
+        companyName: 'Tesla Inc	',
+        ticker: 'TSLA',
+        ownedVolume: '0',
+        orderPendingVolume: 200,
+        avgPrice: '760.50',
+        investedValue: '578,360.25',
+        marketPrice: '781.20',
+        curentValue: '594,102.60',
+        pl: '15742.35',
+        plPercent: 2.72
+    },
+    {
+        companyName: 'Netflix Inc',
+        ticker: 'NFLX',
+        ownedVolume: '0',
+        orderPendingVolume: 400,
+        avgPrice: '568.10',
+        investedValue: '322,737.61',
+        marketPrice: '575.00',
+        curentValue: '326,657.50',
+        pl: '3919.89',
+        plPercent: 1.21
+    },
+    {
+        companyName: 'Exxon',
+        ticker: 'XOM',
+        ownedVolume: '1,000',
+        orderPendingVolume: 0,
+        avgPrice: '56.30',
+        investedValue: '56,300.00',
+        marketPrice: '53.20',
+        curentValue: '53,200.00	',
+        pl: '-3100.00',
+        plPercent: -5.86
+    },
+    {
+        companyName: 'Tesla Inc	',
+        ticker: 'TSLA',
+        ownedVolume: '0',
+        orderPendingVolume: 200,
+        avgPrice: '760.50',
+        investedValue: '578,360.25',
+        marketPrice: '781.20',
+        curentValue: '594,102.60',
+        pl: '15742.35',
+        plPercent: 2.72
+    },
+    {
+        companyName: 'Netflix Inc',
+        ticker: 'NFLX',
+        ownedVolume: '0',
+        orderPendingVolume: 400,
+        avgPrice: '568.10',
+        investedValue: '322,737.61',
+        marketPrice: '575.00',
+        curentValue: '326,657.50',
+        pl: '3919.89',
+        plPercent: 1.21
+    },
+    
 ]

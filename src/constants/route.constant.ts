@@ -35,7 +35,7 @@ export const ROUTER = [
                 subTab: []
             },
             {
-                navigation: '/orders/porfolio',
+                navigation: '/orders/portfolio',
                 icon: '',
                 title: 'Portfolio',
                 subTab: []
