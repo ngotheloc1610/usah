@@ -13,7 +13,7 @@ const defaultProps = {
 
 const TickerSearch = (props: ITickerSearch) => {
     const {handleTicker} = props;
-    const [ticker, setTicker] = useState('1')
+    const [ticker, setTicker] = useState('')
     const _renderRecentSearch = () => (
         <div className="d-md-flex align-items-md-center text-center">
             <div>Recent Search:</div> &nbsp; &nbsp;
@@ -43,6 +43,7 @@ const TickerSearch = (props: ITickerSearch) => {
             </div>
             <div className="col-lg-3 col-md-6">
                 <select className="form-select form-select-sm" value={ticker} onChange={handleSelectTicker}>
+                    <option value=''></option>
                     {renderOptionTicker()}
                 </select>
             </div>

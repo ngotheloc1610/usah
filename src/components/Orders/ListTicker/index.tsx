@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
 import { IAskPrice, IBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
-import { LIST_DATA_TICKERS, LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
+import './listTicker.scss';
+
+interface IListTickerProps {
+    getTicerLastQuote: (item: ILastQuote) => void;
+}
+
+const defaultProps = {
+    getTicerLastQuote: null
+}
 
 const dafaultLastQuotesData: ILastQuote[] = [];
 
-const ListTicker = () => {
+const ListTicker = (props: IListTickerProps) => {
+    const { getTicerLastQuote } = props;
     const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
 
@@ -26,11 +36,6 @@ const ListTicker = () => {
     }
 
     const getOrderBooks = () => {
-        const symbplId = LIST_TICKER_INFOR_MOCK_DATA.find((item: ITickerInfo) =>
-            item.ticker.toLocaleLowerCase() === itemSearch.toLocaleLowerCase()
-            || item.tickerName.toLocaleLowerCase() === itemSearch.toLocaleLowerCase())?.symbolId.toString();
-        const data = [];
-
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
@@ -44,6 +49,7 @@ const ListTicker = () => {
             rpcMsg.setPayloadData(lastQoutes.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
+
     }
 
     const handleItemSearch = (event: any) => {
@@ -55,56 +61,131 @@ const ListTicker = () => {
         setLastQoutes(data.quotesList);
     }
 
+    const handleTicker = (item: ILastQuote) => {
+        getTicerLastQuote(item);
+    }
+
     const _renderSearchForm = () => (
         <div className="row mb-2">
             <div className="col-lg-6">
                 <div className="input-group input-group-sm">
                     <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
                         onChange={handleItemSearch} placeholder="Add a ticker" />
-                    <button className="btn btn-primary" onClick={getOrderBooks}>Add</button>
+                    <button className="btn btn-primary">Add</button>
                 </div>
             </div>
         </div>
     )
 
-    const _renderAskPrice = (askItems: IAskPrice[]) => {
-        return askItems.map((item: IAskPrice, index: number) => (
-            <tr key={index}>
-                <td className="text-end">&nbsp;</td>
-                <td className="text-center">{item.price}</td>
-                <td className="text-danger">{item.volume} ({item.numOrders})</td>
+    const _renderAskPrice = (askItems: IAskPrice[]) => (
+        <>
+            <tr>
+                <td className="text-end w-33" >&nbsp;</td>
+                <td className="text-center">{askItems[0] ? askItems[0].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[0] ? `${askItems[0].volume}(${askItems[0].numOrders})` : '-'}</td>
             </tr>
-        ))
+            <tr>
+                <td className="text-end w-33">&nbsp;</td>
+                <td className="text-center">{askItems[1] ? askItems[1].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[1] ? `${askItems[1].volume}(${askItems[1].numOrders})` : '-'}</td>
+            </tr>
+            <tr>
+                <td className="text-end w-33">&nbsp;</td>
+                <td className="text-center">{askItems[2] ? askItems[2].price : '-'}</td>
+                <td className="text-danger w-33">{askItems[2] ? `${askItems[2].volume}(${askItems[2].numOrders})` : '-'}</td>
+            </tr>
+        </>
 
-    }
+    )
 
     const _renderBidPrice = (bidItems: IBidPrice[]) => {
-        const arr = [];
-        for (let i = bidItems.length - 1; i >= 0; i--) {
-            arr.push(bidItems[i]);
+        let arr: IBidPrice[] = [];
+        const defaultBidPrice: IBidPrice = {
+            numOrders: 0,
+            price: '-',
+            tradable: false,
+            volume: '-'
         }
-        return arr.map((item: IBidPrice, index: number) => (
-            <tr key={index}>
-                <td className="text-end text-success">{item.volume} ({item.numOrders})</td>
-                <td className="text-center">{item.price}</td>
-                <td className="text-end">&nbsp;</td>
-            </tr>
-        ))
-
+        if (bidItems.length === 1) {
+            arr = [defaultBidPrice, defaultBidPrice, bidItems[0]];
+        } else if (bidItems.length === 2) {
+            arr = [defaultBidPrice, bidItems[1], bidItems[0]];
+        } else {
+            arr = bidItems.reverse();
+        }
+        return (
+            <>
+                <tr>
+                    <td className="text-end text-success w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[0] ? arr[0].price : '-'}</td>
+                    <td className="text-end w-33">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td className="text-end text-success w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[1] ? arr[1].price : '-'}</td>
+                    <td className="text-end w-33">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td className="text-end text-success w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                    <td className="text-center">{arr[2] ? arr[2].price : '-'}</td>
+                    <td className="text-end w-33">&nbsp;</td>
+                </tr>
+            </>
+        )
     }
 
-    const renderListDataTicker = lastQoutes.map((item: ILastQuote) => {
+    const getLastQouteDisplay = () => {
+        const listArr: ITickerInfo[] = [];
+        let counter = 0;
+        LIST_TICKER_INFOR_MOCK_DATA.forEach(item => {
+            if (counter < 12) {
+                listArr.push(item);
+                counter ++;
+            }
+        });
+        const output: ILastQuote[] = [];
+        listArr.forEach(element => {
+            const obj: ILastQuote = {
+                asksList: [],
+                bidsList: [],
+                close: element.previousClose,
+                currentPrice: element.lastPrice,
+                high: element.high,
+                id: element.symbolId,
+                low: element.low,
+                netChange: element.change,
+                open: element.open,
+                pctChange: element.changePrecent,
+                quoteTime: 0,
+                scale: 0,
+                symbolCode: element.symbolId.toString(),
+                symbolId: element.symbolId,
+                tickPerDay: 0,
+                volumePerDay: '0'
+            };
+            output.push(obj);
+        })
+        lastQoutes.forEach((o: ILastQuote) => {
+            const index = output.findIndex(e => e.symbolCode === o.symbolCode);
+            if (index >= 0) {
+                output[index] = o;
+            }
+        })
+        
+        return output;
+    }
+
+    const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
         const symbol = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
-        if (item.asksList.length > 0 || item.bidsList.length > 0) {
-            return <div className="col-xl-3">
-                <table
+        return <div className="col-xl-3" key={index}>
+                <table onClick={() => handleTicker(item)}
                     className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
                 >
                     <thead>
                         <tr>
                             <th colSpan={3} className="text-center">
                                 <div className="position-relative">
-                                    <strong className="px-4">{symbol?.ticker}</strong>
+                                    <strong className="px-4 pointer">{symbol?.ticker}</strong>
                                     <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                         <i className="bi bi-x-lg" />
                                     </a>
@@ -119,8 +200,6 @@ const ListTicker = () => {
                 </table>
 
             </div>
-        }
-        return ''
     })
 
     const _renderTemplateMonitoring = () => (
@@ -137,4 +216,7 @@ const ListTicker = () => {
 
     )
 }
+
+ListTicker.defaultProps = defaultProps;
+
 export default ListTicker;

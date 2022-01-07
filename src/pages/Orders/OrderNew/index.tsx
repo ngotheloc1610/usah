@@ -41,7 +41,7 @@ const OrderNew = () => {
                 <div className="card-body">
                     <div className="row align-items-stretch">
                         <div className="col-lg-9 col-md-8 border-end">
-                            <TickerDetail />
+                            <TickerDetail currentTicker={currentTicker} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
                                     <OrderForm currentTicker={currentTicker} />

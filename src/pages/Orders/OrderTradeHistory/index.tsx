@@ -1,6 +1,6 @@
 import { ORDER_TRADE_HISTORY } from '../../../mocks'
 import { IOrderTradeHistory } from '../../../interfaces/order.interface'
-import SearchOrderHistory from '../OrderHistory/SearchOrderHistory'
+import SearchTradeHistory from './SearchTradeHistory'
 import Pagination from "../OrderHistory/Pagination"
 import '../OrderHistory/custom.css'
 import '../OrderHistory/orderHistory.css'
@@ -8,23 +8,23 @@ import '../OrderHistory/orderHistory.css'
 
 const OrderTradeHistory = () => {
     
-    const _renderOrderHistoryTableHeader = () =>
+    const _renderTradeHistoryTableHeader = () =>
     (<tr>
             <th className="text-left fz-14">Order ID</th>
-            <th className="text-center fz-14">Ticker Code</th >
-            <th className="text-center fz-14" >Ticker Name</th>
+            <th className="text-start fz-14">Ticker Code</th >
+            <th className="text-start fz-14" >Ticker Name</th>
             <th className="text-center fz-14" > Order Side </th>
             <th className="text-center fz-14" >Order Type </th>
-            <th className="text-center fz-14"> Order Volume </th>
-            <th className="text-center fz-14" >Order Price  </th>
-            <th className="text-center fz-14" > Executed Volume</th>
-            <th className="text-center fz-14">Executed Price</th>
-            <th className="text-center fz-14"> Matched Value</th>
-            <th className="text-center fz-14"> Executed Datetime</th>
+            <th className="text-end fz-14 "> Order Volume	 </th>
+            <th className="text-end fz-14 " >Order Price  </th>
+            <th className="text-end fz-14" > Executed Volume</th>
+            <th className="text-end fz-14">Executed Price</th>
+            <th className="text-end fz-14"> Matched Value</th>
+            <th className="text-end fz-14"> Executed Datetime</th>
         </tr>)
 
 
-    const _renderOrderHistoryTableBody = () => (
+    const _renderTradeHistoryTableBody = () => (
         ORDER_TRADE_HISTORY.map((item: IOrderTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td><span className="text-ellipsis"><a href="#">{item.oderId}</a></span></td>
@@ -51,7 +51,7 @@ const OrderTradeHistory = () => {
                     <div className="text-ellipsis text-end">{item.orderPrice}</div>
                 </td>
 
-                <td className="text-end">{item.executedVolume}</td>
+                <td className="text-end" >{item.executedVolume}</td>
 
                 <td>
                     <div className="text-ellipsis text-end">{item.executedPrice}</div>
@@ -61,23 +61,23 @@ const OrderTradeHistory = () => {
                     <div className="text-ellipsis text-end">{item.matchedValue}</div>
                 </td>
                 <td>
-                    <div className="text-ellipsis  text-center">{item.excutedDatetime}</div>
+                    <div className="text-ellipsis  text-end">{item.excutedDatetime}</div>
                 </td>
             </tr>
         ))
     )
 
 
-    const _renderOrderHistoryTable = () => {
+    const _renderTradeHistoryTable = () => {
         return (
             <div className="card-body">
                 <div className="table-responsive mb-3">
                     <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
                         <thead>
-                            {_renderOrderHistoryTableHeader()}
+                            {_renderTradeHistoryTableHeader()}
                         </thead>
                         <tbody>
-                            {_renderOrderHistoryTableBody()}
+                            {_renderTradeHistoryTableBody()}
                         </tbody>
                     </table>
                     <Pagination />
@@ -88,14 +88,14 @@ const OrderTradeHistory = () => {
             </div>
         )
     }
-    const _renderOrderHistory = () => {
+    const _renderTradeHistory = () => {
         return (
             <div className='site'>
                 <div className="site-main">
                     <div className="container">
                         <div className="card shadow-sm mb-3">
-                            <SearchOrderHistory />
-                            {_renderOrderHistoryTable()}
+                            <SearchTradeHistory />
+                            {_renderTradeHistoryTable()}
                         </div>
                     </div>
                 </div>
@@ -106,7 +106,7 @@ const OrderTradeHistory = () => {
 
     return (
         <div>
-            {_renderOrderHistory()}
+            {_renderTradeHistory()}
         </div>
     )
 }

@@ -68,10 +68,10 @@ function OrderPortfolio() {
             <>
                 <div className="table-responsive mb-3">
                     <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
-                        <thead>
+                        <thead className="thead">
                             {_renderPortfolioTableHeader()}
                         </thead>
-                        <tbody className='scroll'>
+                        <tbody className='scroll tbody'>
                             {_renderPortfolioTableBody()}
                         </tbody>
                     </table>

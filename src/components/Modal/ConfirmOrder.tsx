@@ -6,9 +6,13 @@ import { wsService } from '../../services/websocket-service'
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
-
+import ReduxPersist from '../../config/ReduxPersist';
+import queryString from 'query-string';
+import * as smpb from '../../models/proto/system_model_pb';
+import { RESPONSE_RESULT } from '../../constants/general.constant'
 interface IConfirmOrder {
     handleCloseConfirmPopup: () => void;
+    handleOrderResponse: (value: number, content: string) => void;
     params: IParamOrder
 }
 
@@ -16,11 +20,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
-
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
         setIsValidOrder(event.target.value !== '');
@@ -33,10 +36,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return tradingModelPb.OrderType.OP_SELL;
     }
 
-    const sendOrder = () => {
-        const uid = process.env.REACT_APP_TRADING_ID;
+    const prepareMessagee = (accountId: string) => {
+        const uid = accountId;
         let wsConnected = wsService.getWsConnected();
-
+        const systemModelPb: any = smpb;
         if (wsConnected) {
             let currentDate = new Date();
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
@@ -59,8 +62,41 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            wsService.getOrderSubject().subscribe(resp => {
+                let tmp = 0;
+                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                handleOrderResponse(tmp, resp['msgText']);
+            })
             handleCloseConfirmPopup();
         }
+    }
+
+    const sendOrder = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string | any = '';
+        if (objAuthen.access_token) {
+            accountId = objAuthen.account_id;
+            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            prepareMessagee(accountId);
+            return;
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID;
+                prepareMessagee(accountId);
+                return;
+            }
+        });
     }
 
     const _renderTradingPin = () => (
