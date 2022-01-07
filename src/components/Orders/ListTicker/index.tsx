@@ -91,7 +91,7 @@ const ListTicker = (props: IListTickerProps) => {
         if (askItems.length === 1) {
             arr = [defaultAskPrice, defaultAskPrice, askItems[0]];
         } else if (askItems.length === 2) {
-            arr = [defaultAskPrice, askItems[0], askItems[1]];
+            arr = [defaultAskPrice, askItems[1], askItems[0]];
         }
 
 
