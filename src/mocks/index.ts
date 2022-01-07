@@ -1152,96 +1152,96 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         ticker: 'AAPL',
         ownedVolume: '300',
         orderPendingVolume: 0,
-        AVGPrice: '142.80',
+        avgPrice: '142.80',
         investedValue: '42,840.00',
         marketPrice: '152.60',
         curentValue: '45,780.00',
-        PL: '2940.00	',
-        PL_Percent: 6.86
+        pl: '2940.00	',
+        plPercent: 6.86
     },
     {
         companyName: 'Visa Inc	',
         ticker: 'V',
         ownedVolume: '2,000',
         orderPendingVolume: 0,
-        AVGPrice: '226.65'	,
+        avgPrice: '226.65'	,
         investedValue: '453,340.00',
         marketPrice: '230.75',
         curentValue: '461,500.00',
-        PL: '8200.00',
-        PL_Percent: 1.81
+        pl: '8200.00',
+        plPercent: 1.81
     },
     {
         companyName: 'Exxon',
         ticker: 'XOM',
         ownedVolume: '1,000',
         orderPendingVolume: 0,
-        AVGPrice: '56.30',
+        avgPrice: '56.30',
         investedValue: '56,300.00',
         marketPrice: '53.20',
         curentValue: '53,200.00	',
-        PL: '-3100.00',
-        PL_Percent: -5.86
+        pl: '-3100.00',
+        plPercent: -5.86
     },
     {
         companyName: 'Tesla Inc	',
         ticker: 'TSLA',
         ownedVolume: '0',
         orderPendingVolume: 200,
-        AVGPrice: '760.50',
+        avgPrice: '760.50',
         investedValue: '578,360.25',
         marketPrice: '781.20',
         curentValue: '594,102.60',
-        PL: '15742.35',
-        PL_Percent: 2.72
+        pl: '15742.35',
+        plPercent: 2.72
     },
     {
         companyName: 'Netflix Inc',
         ticker: 'NFLX',
         ownedVolume: '0',
         orderPendingVolume: 400,
-        AVGPrice: '568.10',
+        avgPrice: '568.10',
         investedValue: '322,737.61',
         marketPrice: '575.00',
         curentValue: '326,657.50',
-        PL: '3919.89',
-        PL_Percent: 1.21
+        pl: '3919.89',
+        plPercent: 1.21
     },
     {
         companyName: 'Exxon',
         ticker: 'XOM',
         ownedVolume: '1,000',
         orderPendingVolume: 0,
-        AVGPrice: '56.30',
+        avgPrice: '56.30',
         investedValue: '56,300.00',
         marketPrice: '53.20',
         curentValue: '53,200.00	',
-        PL: '-3100.00',
-        PL_Percent: -5.86
+        pl: '-3100.00',
+        plPercent: -5.86
     },
     {
         companyName: 'Tesla Inc	',
         ticker: 'TSLA',
         ownedVolume: '0',
         orderPendingVolume: 200,
-        AVGPrice: '760.50',
+        avgPrice: '760.50',
         investedValue: '578,360.25',
         marketPrice: '781.20',
         curentValue: '594,102.60',
-        PL: '15742.35',
-        PL_Percent: 2.72
+        pl: '15742.35',
+        plPercent: 2.72
     },
     {
         companyName: 'Netflix Inc',
         ticker: 'NFLX',
         ownedVolume: '0',
         orderPendingVolume: 400,
-        AVGPrice: '568.10',
+        avgPrice: '568.10',
         investedValue: '322,737.61',
         marketPrice: '575.00',
         curentValue: '326,657.50',
-        PL: '3919.89',
-        PL_Percent: 1.21
+        pl: '3919.89',
+        plPercent: 1.21
     },
     
 ]

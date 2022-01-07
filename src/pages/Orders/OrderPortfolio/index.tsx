@@ -56,12 +56,12 @@ function OrderPortfolio() {
                     item.orderPendingVolume===0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{item.orderPendingVolume}</td>
                 }                
                 
-                <td className="text-end w-s td" >{item.AVGPrice}</td>
+                <td className="text-end w-s td" >{item.avgPrice}</td>
                 <td className="text-end w-s td" >{item.investedValue}</td>
                 <td className="text-end w-s td" >{item.marketPrice}</td>
                 <td className="text-end w-s td"  >{item.curentValue}</td>
-                <td className="text-end w-s td" ><span className={parseInt(item.PL)>0?"text-success":"text-danger"}>{item.PL}</span></td>
-                <td className="text-end w-s td"><span className={item.PL_Percent>0?"text-success":"text-danger"}>{item.PL_Percent + "%"}</span></td>
+                <td className="text-end w-s td" ><span className={parseInt(item.pl)>0?"text-success":"text-danger"}>{item.pl}</span></td>
+                <td className="text-end w-s td"><span className={item.plPercent>0?"text-success":"text-danger"}>{item.plPercent + "%"}</span></td>
             </tr>
         ))
 

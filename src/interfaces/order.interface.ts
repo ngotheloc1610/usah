@@ -146,10 +146,10 @@ export interface IOrderPortfolio{
     ticker: string,
     ownedVolume: string,
     orderPendingVolume: number,
-    AVGPrice: string,
+    avgPrice: string,
     investedValue: string,
     marketPrice: string,
     curentValue: string,
-    PL: string,
-    PL_Percent: number		
+    pl: string,
+    plPercent: number		
 }
