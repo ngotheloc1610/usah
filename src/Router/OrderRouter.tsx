@@ -17,7 +17,7 @@ const OrderRouter = () => {
           <Route path="/history" element={<OrderHistory />} />
           <Route path="/new" element={<OrderNew />} />
           <Route path="/tradeHistory" element={<OrderTradeHistory />} />
-          <Route path="/porfolio" element={<OrderPortfolio />} />
+          <Route path="/portfolio" element={<OrderPortfolio />} />
         </Routes>
       </div>
     );

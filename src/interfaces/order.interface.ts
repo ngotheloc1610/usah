@@ -141,14 +141,14 @@ export interface IOrderTradeHistory{
 }
 
 export interface IOrderPortfolio{
-    companyName:string,
-    ticker:string,
-    ownedVolume:string,
-    orderPendingVolume:number,
-    AVGPrice:string,
-    investedValue:string,
-    marketPrice:string,
-    curentValue:string,
-    PL:string,
-    PL_Percent:number		
+    companyName: string,
+    ticker: string,
+    ownedVolume: string,
+    orderPendingVolume: number,
+    AVGPrice: string,
+    investedValue: string,
+    marketPrice: string,
+    curentValue: string,
+    PL: string,
+    PL_Percent: number		
 }
