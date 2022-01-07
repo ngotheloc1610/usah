@@ -54,7 +54,8 @@ const OrderMonitoring = () => {
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
+            // Note
+            // wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 

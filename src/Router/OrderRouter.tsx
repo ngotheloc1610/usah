@@ -9,6 +9,7 @@ import OrderMonitoring from "../pages/Orders/OrderMonitoring";
 import OrderNew from "../pages/Orders/OrderNew";
 import OrderTradeHistory from "../pages/Orders/OrderTradeHistory"
 import OrderPortfolio from "../pages/Orders/OrderPortfolio"
+import OrderModifyCancel from "../pages/Orders/OrderModifyCancel";
 const OrderRouter = () => {
     return (
       <div>
@@ -18,6 +19,7 @@ const OrderRouter = () => {
           <Route path="/new" element={<OrderNew />} />
           <Route path="/tradeHistory" element={<OrderTradeHistory />} />
           <Route path="/portfolio" element={<OrderPortfolio />} />
+          <Route path="/modify-cancel" element={<OrderModifyCancel />} />
         </Routes>
       </div>
     );

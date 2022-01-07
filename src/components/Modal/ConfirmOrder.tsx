@@ -61,7 +61,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
+            // note
+            // wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getOrderSubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
