@@ -122,7 +122,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${params.volume}`)}
                     {_renderConfirmOrder('Price', `${params.price}`)}
-                    {_renderConfirmOrder('Value ($)', `${(params.volume * params.price).toFixed(3)}`)}
+                    {_renderConfirmOrder('Value ($)', `${(params.volume * params.price).toFixed(2)}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
