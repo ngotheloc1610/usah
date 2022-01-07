@@ -1,8 +1,8 @@
-.scroll{
-    height: 182px;
-    overflow-y: auto;
+.head-scroll{
+    box-sizing: content-box;
+    width: 1133px;
+    padding-right: 17px;
 }
-
 .fw-bold {
     padding: 0;
 }
@@ -12,35 +12,31 @@ tbody>tr:last-child{
 .thead{
     width: 100%;
     display: table;
-    /* width: calc(100% - 17px) */
-    padding-right: 17px !important;
 }
 .tbody{
-    overflow: auto;
+    overflow-y: auto;
     display: block;
     width: 100%;
+    height: 182px;
 }
-.thead tr th:last-child{
-    padding-right: 18px !important;
-}
+
 .tbody tr{
     display: table;
     width: 100%;
     table-layout: fixed;
 }
-.head-scroll{
-    box-sizing: content-box;
-    width: 1133px;
-    padding-right: 17px;
-}
 
-.hiden{
-    height: 0px; 
+.td{
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: clip;
 }
-
 .w-s{
     width: 124px;
+    vertical-align: middle;
+}
+.w-17{
+    width: 17px;
 }
 @media (max-width: 1399px) {
     .w-s{
@@ -50,5 +46,10 @@ tbody>tr:last-child{
 @media (max-width: 1199px) {
     .w-s{
         width: 70px;
+    }
+}
+@media (max-width: 999px) {
+    .w-17{
+        width: 0;
     }
 }
