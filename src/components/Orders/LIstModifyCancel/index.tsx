@@ -1,6 +1,7 @@
 import { INDEX_ALIGN_CENTER, INDEX_ALIGN_RIGHT, TITLE_MODIFY_CANCEL } from "../../../constants/header.constant"
 import { LIST_DATA_ORDER } from "../../../mocks";
 import Pagination from "../../../pages/Orders/OrderHistory/Pagination";
+import "./ListModifyCancel.css"
 function styleAlignText(index: number) {
     if (INDEX_ALIGN_RIGHT.indexOf(index) !== -1) {
         return 'text-end';
@@ -40,7 +41,7 @@ function getListModifyCancelData() {
     });
 }
 const ListModifyCancel = () => {
-    return <div className="card">
+    return <div className="card-modify">
         <div className="card-body p-0 mb-3">
             <div className="table">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
