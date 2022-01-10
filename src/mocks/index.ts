@@ -1,6 +1,7 @@
 import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 
+import { INewsNav, INotificationList, INotificationDetail } from "../interfaces/news.interface"
 const test = ''
 export default {
     test
@@ -1016,8 +1017,8 @@ export const ORDER_HISTORY: IOrderHistory[] = [
 ]
 export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     {
-        oderId:'001333',
-        tickerCode:'ADBE',
+        oderId: '001333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
@@ -1029,8 +1030,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId:'002333',
-        tickerCode:'ADBE',
+        oderId: '002333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
@@ -1042,8 +1043,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId:'001333',
-        tickerCode:'ADBE',
+        oderId: '001333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
@@ -1051,12 +1052,12 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.35',
         executedVolume:'30,000',
         executedPrice:'158.35',
-        matchedValue:'4,750,500',
+        matchedValue:'4,750,500',       
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId:'002333',
-        tickerCode:'ADBE',
+        oderId: '002333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
@@ -1068,8 +1069,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId:'001333',
-        tickerCode:'ADBE',
+        oderId: '001333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
@@ -1081,8 +1082,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId:'002333',
-        tickerCode:'ADBE',
+        oderId: '002333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
@@ -1094,8 +1095,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId:'001333',
-        tickerCode:'ADBE',
+        oderId: '001333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
@@ -1107,8 +1108,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId:'002333',
-        tickerCode:'ADBE',
+        oderId: '002333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
@@ -1120,8 +1121,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
-        oderId:'001333',
-        tickerCode:'ADBE',
+        oderId: '001333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Sell',
         orderType: 'Limit',
@@ -1133,8 +1134,8 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
-        oderId:'002333',
-        tickerCode:'ADBE',
+        oderId: '002333',
+        tickerCode: 'ADBE',
         tickerName: 'Adobe Inc.',
         side: 'Buy',
         orderType: 'Limit',
@@ -1157,7 +1158,7 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         investedValue: '42,840.00',
         marketPrice: '152.60',
         curentValue: '45,780.00',
-        pl: '2940.00	',
+        pl: '2940.00',
         plPercent: 6.86
     },
     {
@@ -1165,7 +1166,7 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         ticker: 'V',
         ownedVolume: '2,000',
         orderPendingVolume: 0,
-        avgPrice: '226.65'	,
+        avgPrice: '226.65',
         investedValue: '453,340.00',
         marketPrice: '230.75',
         curentValue: '461,500.00',
@@ -1275,4 +1276,89 @@ export const REPORT_LIST: IReportList[] = [
         date: ' Dec 5 2021	',
         status:'Not Yet'
     },
+
+]
+
+export const LIST_NEWS_NAV: INewsNav[] = [
+    {
+        title: 'Admin News',
+        unRead: '02',
+        active:true
+    },
+    {
+        title: 'Trading Results',
+        unRead: '0',
+        active:false
+    },
+]
+
+export const NOTIFICATION_LIST: INotificationList[] = [
+    {
+        unRead: true,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8:00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: true,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X would like to send you guideline for the system'
+    },
+    {
+        unRead: false,
+        state: true,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X would like to send you new password in email'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Welcome customer, sign in successful'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    },
+    {
+        unRead: false,
+        state: false,
+        title: 'PI-X News',
+        content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
+    }
+]
+
+export const NOTIFICATION_DETAIL: INotificationDetail[] = [
+    {
+        title: 'PIX News',
+        date: 'Dec 25 2021  12:40:22',
+        content: ' Inceptos suspendisse fringilla ultricies ut nam orci dictum commodo sociosqu netus efficitur facilisi aptent, platea lacus mus aliquam potenti ad eu turpis vitae quisque gravida eleifend.'
+    }
 ]

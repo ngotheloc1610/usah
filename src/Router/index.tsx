@@ -8,6 +8,7 @@ import OrderRouter from "./OrderRouter";
 import Report from "../pages/Report";
 
 
+import News from "../pages/News"
 const RouterDom = () => {
   return (
     <BrowserRouter>
@@ -15,6 +16,8 @@ const RouterDom = () => {
         <Route path="*" element={<Dashboard />} />
         <Route path="/orders/*" element={<OrderRouter />} />
         <Route path="/report/*" element={<Report />} />
+       <Route path="/orders/*" element={<OrderRouter/>} />
+       <Route path="/news" element={<News />} />
       </Routes>
     </BrowserRouter>
   )
