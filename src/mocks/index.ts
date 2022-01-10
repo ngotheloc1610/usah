@@ -1252,28 +1252,28 @@ export const REPORT_THEAH = ['Name', 'Report Date', 'File Type', 'Status']
 
 export const REPORT_LIST: IReportList[] = [
     {
-        name:'Daily_Report_20211201',
+        name: 'Daily_Report_20211201',
         date: ' Dec 1 2021	',
         status:'Done'
     },
     {
-        name:'Daily_Report_20211202',
-        date: ' Dec 2 2021	',
+        name: 'Daily_Report_20211202',
+        date: 'Dec 2 2021',
         status:'Done'
     },
     {
-        name:'Daily_Report_20211203',
-        date: ' Dec 3 2021	',
+        name: 'Daily_Report_20211203',
+        date: 'Dec 3 2021',
         status:'Not Yet'
     },
     {
-        name:'Daily_Report_20211204',
-        date: ' Dec 4 2021	',
+        name: 'Daily_Report_20211204',
+        date: 'Dec 4 2021',
         status:'Done'
     },
     {
-        name:'Daily_Report_20211205',
-        date: ' Dec 5 2021	',
+        name: 'Daily_Report_20211205',
+        date: 'Dec 5 2021',
         status:'Not Yet'
     },
 
