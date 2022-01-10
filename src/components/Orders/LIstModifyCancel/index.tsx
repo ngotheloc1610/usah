@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { INDEX_ALIGN_CENTER, INDEX_ALIGN_RIGHT, TITLE_MODIFY_CANCEL } from "../../../constants/header.constant"
 import { LIST_DATA_ORDER } from "../../../mocks";
 import Pagination from "../../../pages/Orders/OrderHistory/Pagination";
+import ConfirmOrder from "../../Modal/ConfirmOrder";
 import "./ListModifyCancel.css"
 function styleAlignText(index: number) {
     if (INDEX_ALIGN_RIGHT.indexOf(index) !== -1) {
@@ -18,6 +20,10 @@ function titleName() {
         </th>
     });
 }
+function handleModyfyCancel(item: any) {
+    debugger;
+    console.log(24, item);
+}
 function getListModifyCancelData() {
     return LIST_DATA_ORDER.map((item, index) => {
         return <tr key={index}>
@@ -30,7 +36,7 @@ function getListModifyCancelData() {
             <td className="text-end">{item.pending}</td>
             <td className="text-center">{item.date}</td>
             <td className="text-end">
-                <a className="btn-edit-order mr-10">
+                <a className="btn-edit-order mr-10" onClick={(item) => handleModyfyCancel}>
                     <i className="bi bi-pencil-fill"></i>
                 </a>
                 <a >
@@ -41,6 +47,7 @@ function getListModifyCancelData() {
     });
 }
 const ListModifyCancel = () => {
+    const [isModifyCancel, setIsModifyCancel] = useState(false);
     return <div className="card-modify">
         <div className="card-body p-0 mb-3">
             <div className="table">
@@ -57,6 +64,7 @@ const ListModifyCancel = () => {
             </div>
         </div>
         <Pagination />
+        {/* {isModifyCancel && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />} */}
     </div>
 }
 export default ListModifyCancel;

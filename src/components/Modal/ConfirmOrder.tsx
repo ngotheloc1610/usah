@@ -111,7 +111,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-left w-90'>:</td>
+            <td className='text-left w-90'></td>
             <td className='text-left'>{value}</td>
         </tr>
     )
