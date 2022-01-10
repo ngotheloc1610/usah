@@ -1,4 +1,6 @@
 import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio } from "../interfaces/order.interface";
+import { IReportList } from "../interfaces/report.interface"
+
 import { INewsNav, INotificationList, INotificationDetail } from "../interfaces/news.interface"
 const test = ''
 export default {
@@ -1050,7 +1052,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.35',
         executedVolume: '30,000',
         executedPrice: '158.35',
-        matchedValue: '4,750,500',
+        matchedValue: '4,750,500',       
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1215,12 +1217,12 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         avgPrice: '56.30',
         investedValue: '56,300.00',
         marketPrice: '53.20',
-        curentValue: '53,200.00	',
+        curentValue: '53,200.00',
         pl: '-3100.00',
         plPercent: -5.86
     },
     {
-        companyName: 'Tesla Inc	',
+        companyName: 'Tesla Inc',
         ticker: 'TSLA',
         ownedVolume: '0',
         orderPendingVolume: 200,
@@ -1242,6 +1244,37 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         curentValue: '326,657.50',
         pl: '3919.89',
         plPercent: 1.21
+    },
+    
+]
+
+export const REPORT_THEAH = ['Name', 'Report Date', 'File Type', 'Status']
+
+export const REPORT_LIST: IReportList[] = [
+    {
+        name: 'Daily_Report_20211201',
+        date: ' Dec 1 2021	',
+        status:'Done'
+    },
+    {
+        name: 'Daily_Report_20211202',
+        date: 'Dec 2 2021',
+        status:'Done'
+    },
+    {
+        name: 'Daily_Report_20211203',
+        date: 'Dec 3 2021',
+        status:'Not Yet'
+    },
+    {
+        name: 'Daily_Report_20211204',
+        date: 'Dec 4 2021',
+        status:'Done'
+    },
+    {
+        name: 'Daily_Report_20211205',
+        date: 'Dec 5 2021',
+        status:'Not Yet'
     },
 
 ]
