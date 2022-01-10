@@ -813,7 +813,7 @@ export const ORDER_HISTORY: IOrderHistory[] = [
         orderType: 'Limit',
         orderVolume: '300',
         remainVolume: '0',
-        executedVolume: '300',
+        executedVolume:  '300',
         orderPrice: '158.35',
         lastPrice: '158.35',
         orderDatetime: 'Dec 2 2021 10:01:25',
@@ -1024,9 +1024,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume:'30,000',
-        executedPrice:'158.35',
-        matchedValue:'4,750,500',
+        executedVolume: '30,000',
+        executedPrice: '158.35',
+        matchedValue: '4,750,500',
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1037,9 +1037,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume:'10,000',
-        executedPrice:'158.45',
-        matchedValue:'1,584,500',
+        executedVolume: '10,000',
+        executedPrice: '158.45',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1050,9 +1050,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume:'30,000',
-        executedPrice:'158.35',
-        matchedValue:'4,750,500',       
+        executedVolume: '30,000',
+        executedPrice: '158.35',
+        matchedValue: '4,750,500',       
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1063,9 +1063,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume:'10,000',
-        executedPrice:'158.45',
-        matchedValue:'1,584,500',
+        executedVolume: '10,000',
+        executedPrice: '158.45',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1076,9 +1076,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume:'30,000',
-        executedPrice:'158.35',
-        matchedValue:'4,750,500',
+        executedVolume: '30,000',
+        executedPrice: '158.35',
+        matchedValue: '4,750,500',
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1089,9 +1089,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume:'10,000',
-        executedPrice:'158.45',
-        matchedValue:'1,584,500',
+        executedVolume: '10,000',
+        executedPrice: '158.45',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1102,9 +1102,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume:'30,000',
-        executedPrice:'158.35',
-        matchedValue:'4,750,500',
+        executedVolume: '30,000',
+        executedPrice: '158.35',
+        matchedValue: '4,750,500',
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1115,9 +1115,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume:'10,000',
-        executedPrice:'158.45',
-        matchedValue:'1,584,500',
+        executedVolume: '10,000',
+        executedPrice: '158.45',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1128,9 +1128,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '30,000',
         orderPrice: '158.35',
-        executedVolume:'30,000',
-        executedPrice:'158.35',
-        matchedValue:'4,750,500',
+        executedVolume: '30,000',
+        executedPrice: '158.35',
+        matchedValue: '4,750,500',
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1141,9 +1141,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderType: 'Limit',
         orderVolume: '10,000',
         orderPrice: '158.45',
-        executedVolume:'10,000',
-        executedPrice:'158.45',
-        matchedValue:'1,584,500',
+        executedVolume: '10,000',
+        executedPrice: '158.45',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
 ]
