@@ -813,7 +813,7 @@ export const ORDER_HISTORY: IOrderHistory[] = [
         orderType: 'Limit',
         orderVolume: '300',
         remainVolume: '0',
-        executedVolume:  '300',
+        executedVolume: '300',
         orderPrice: '158.35',
         lastPrice: '158.35',
         orderDatetime: 'Dec 2 2021 10:01:25',
