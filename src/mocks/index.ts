@@ -1037,7 +1037,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.45',
         executedVolume: '10,000',
         executedPrice: '158.45',
-        matchedValue: '1,584,500	',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1063,7 +1063,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.45',
         executedVolume: '10,000',
         executedPrice: '158.45',
-        matchedValue: '1,584,500	',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1089,7 +1089,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.45',
         executedVolume: '10,000',
         executedPrice: '158.45',
-        matchedValue: '1,584,500	',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1115,7 +1115,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.45',
         executedVolume: '10,000',
         executedPrice: '158.45',
-        matchedValue: '1,584,500	',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
     {
@@ -1141,7 +1141,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.45',
         executedVolume: '10,000',
         executedPrice: '158.45',
-        matchedValue: '1,584,500	',
+        matchedValue: '1,584,500',
         excutedDatetime: 'Dec 2 2021 10:01:50'
     },
 ]
@@ -1156,11 +1156,11 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         investedValue: '42,840.00',
         marketPrice: '152.60',
         curentValue: '45,780.00',
-        pl: '2940.00	',
+        pl: '2940.00',
         plPercent: 6.86
     },
     {
-        companyName: 'Visa Inc	',
+        companyName: 'Visa Inc',
         ticker: 'V',
         ownedVolume: '2,000',
         orderPendingVolume: 0,
@@ -1179,7 +1179,7 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         avgPrice: '56.30',
         investedValue: '56,300.00',
         marketPrice: '53.20',
-        curentValue: '53,200.00	',
+        curentValue: '53,200.00',
         pl: '-3100.00',
         plPercent: -5.86
     },
