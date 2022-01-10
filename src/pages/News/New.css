@@ -1,0 +1,11 @@
+.w-4{
+    width: 4rem;
+}
+
+.notification-list{
+    height: 19rem;
+    overflow-y: auto;
+}
+.ml-4{
+    margin-left: 4px;
+}
