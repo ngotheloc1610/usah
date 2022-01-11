@@ -23,7 +23,9 @@ const ListOrder = () => {
     }, []);
 
     useEffect(() => {
-        const listOrder = wsService.getListOrder().subscribe(setGetDataOrder);
+        const listOrder = wsService.getListOrder().subscribe(response => {
+            setGetDataOrder(response.orderList);
+        });
         return () => listOrder.unsubscribe();
     });
 
