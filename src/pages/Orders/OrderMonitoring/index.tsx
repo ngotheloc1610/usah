@@ -1,15 +1,10 @@
 import "./orderMonitoring.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
-import { wsService } from "../../../services/websocket-service";
-import * as qspb from "../../../models/proto/query_service_pb"
-import * as rspb from "../../../models/proto/rpc_pb";
 import OrderForm from "../../../components/Order/OrderForm";
 import { ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-import ReduxPersist from "../../../config/ReduxPersist";
-import queryString from 'query-string';
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
         tickerName: '',
@@ -26,65 +21,7 @@ const defaultCurrentTicker: ITickerInfo | any = {
 }
 
 const OrderMonitoring = () => {
-    const [getDataOrder, setGetDataOrder] = useState([]);
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
-    useEffect(() => {
-        setInterval(() => {
-            callWs();
-            getListData();
-        }, 5000)
-    }, []);
-
-    const callWs = () => {
-        setTimeout(() => {
-            sendListOrder();
-        }, 500)
-    }
-
-    const prepareMessagee = (accountId: string) => {
-        const uid = accountId;
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let orderRequest = new queryServicePb.GetOrderRequest();
-            orderRequest.setAccountId(uid);
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-            rpcMsg.setPayloadData(orderRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendListOrder = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
-            prepareMessagee(accountId);
-            return;
-        }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessagee(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessagee(accountId);
-                return;
-            }
-        });
-    }
-
-    const getListData = () => {
-        wsService.getListOrder().subscribe(setGetDataOrder);
-    }
 
     const handleTicker = (ticker: ILastQuote) => {
         const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === ticker.symbolCode);
@@ -115,7 +52,7 @@ const OrderMonitoring = () => {
                             </div>
                         </div>
                     </div>
-                    <ListOrder listOrder={getDataOrder} />
+                    <ListOrder />
                 </div>
             </div>
         </div>

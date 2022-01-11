@@ -15,3 +15,4 @@ export const RESPONSE_RESULT = {
     success: 1,
     error: 2
 }
+export const TITLE_ORDER_LIST = ['Ticker', 'Side', 'Type', 'Price', 'Volume', 'Pending Volume', 'Date', ''];
