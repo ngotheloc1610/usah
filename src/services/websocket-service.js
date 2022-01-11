@@ -14,6 +14,7 @@ var dataLastQuotes = {quotesList: []};
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
+const orderHistorySubject = new Subject();
 const paramStr = window.location.search;
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
@@ -69,6 +70,10 @@ const startWs = async () => {
             orderSubject.next(lastQuoteRes.toObject());
         }
         
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
+            const listOrderHistoryRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
+            orderHistorySubject.next(listOrderHistoryRes.toObject().orderList);
+        }
     }
 }
 
@@ -78,7 +83,8 @@ export const wsService = {
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
+    getListOrderHistory: () => orderHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes
+    getDataLastQuotes: () => dataLastQuotes,
 }

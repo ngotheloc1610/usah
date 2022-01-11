@@ -32,6 +32,9 @@ export interface IOrderBook {
 export interface IPropListOrder {
     listOrder: IListOrder[];
 }
+export interface IPropListOrderHistory {
+    listOrderHistory: IListOrder[]
+}
 export interface IStateListOrder {
     dateCurrent: string;
     setDateCurrent: string;

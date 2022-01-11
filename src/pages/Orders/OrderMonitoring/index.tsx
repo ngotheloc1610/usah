@@ -83,7 +83,11 @@ const OrderMonitoring = () => {
     }
 
     const getListData = () => {
-        wsService.getListOrder().subscribe(setGetDataOrder);
+        wsService.getListOrder().subscribe(res => {
+            console.log(87, res);
+            setGetDataOrder(res)
+            
+        });
     }
 
     const handleTicker = (ticker: ILastQuote) => {

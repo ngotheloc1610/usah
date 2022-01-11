@@ -1,7 +1,8 @@
 import { ORDER_TRADE_HISTORY } from '../../../mocks'
 import { IOrderTradeHistory } from '../../../interfaces/order.interface'
+// import SearchTradeHistory from './SearchTradeHistory'
 import SearchTradeHistory from './SearchTradeHistory'
-import Pagination from "../OrderHistory/Pagination"
+import Pagination from "../../../components/Orders/Pagination"
 import '../OrderHistory/custom.css'
 import '../OrderHistory/orderHistory.css'
 
@@ -88,6 +89,7 @@ const OrderTradeHistory = () => {
             </div>
         )
     }
+
     const _renderTradeHistory = () => {
         return (
             <div className='site'>
@@ -102,7 +104,6 @@ const OrderTradeHistory = () => {
             </div>
         )
     }
-
 
     return (
         <div>

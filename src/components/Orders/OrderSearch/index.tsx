@@ -1,4 +1,6 @@
-function SearchOrderHistory() {
+import { useState, useEffect } from 'react'
+
+function OrderSearch() {
 
     return (
         <>
@@ -11,12 +13,14 @@ function SearchOrderHistory() {
                         <label className="d-block text-secondary mb-1">Ticker</label>
                         <input type="text" className="form-control form-control-sm" placeholder="" />
                     </div>
+
                     <div className="col-xl-2">
                         <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
                         <select className="form-select form-select-sm">
                             <option value="0">All</option>
                         </select>
                     </div>
+
                     <div className="col-xl-2 pl-30">
                         <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
                         <div className="padding-top-5">
@@ -56,4 +60,4 @@ function SearchOrderHistory() {
     )
 }
 
-export default SearchOrderHistory
+export default OrderSearch
