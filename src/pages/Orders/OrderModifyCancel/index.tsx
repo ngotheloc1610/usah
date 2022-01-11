@@ -1,5 +1,5 @@
 import ContentSearch from '../../../Common/ContentSearch'
-import ListModifyCancel from '../../../components/Orders/LIstModifyCancel'
+import ListModifyCancel from '../../../components/Orders/ListModifyCancel'
 import './OrderModifyCancel.scss'
 const OrderModifyCancel = () => {
     return <div className="site-main mt-3">

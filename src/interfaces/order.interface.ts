@@ -21,6 +21,7 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
+    
 }
 
 export interface IOrderBook {
