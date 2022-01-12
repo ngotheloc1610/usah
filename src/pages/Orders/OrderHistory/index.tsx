@@ -13,74 +13,84 @@ import { useEffect, useState } from "react";
 const OrderHistory = () => {
 
     const [getDataOrderHistory, setgetDataOrderHistory] = useState([]);
-    const [HistorySearch, setHistorySearch] = useState({})
 
-    console.log(16, HistorySearch);
+    const [HistorySearch, setHistorySearch] = useState({
+            ticker: '',
+            orderStatus: '',
+            orderSideSell: false,
+            orderSideBuy: false,
+            dateTimeFrom: '',
+            dateTimeTo: '',
+        })
+
+    const {ticker, orderStatus, orderSideSell, orderSideBuy, dateTimeFrom, dateTimeTo} = HistorySearch
+
+    
     
 
     const getDataFromOrderHistorySearch = (dataFromOrderHistorySearch: IParamHistorySearch) => {
         setHistorySearch(dataFromOrderHistorySearch)
     }
 
+    const getParamOrderSide = () => {
+        if (orderSideSell === true && orderSideBuy === false) {
+            return 1
+        }
+        else if (orderSideSell === false && orderSideBuy === true) {
+            return 2
+        }
+        else{
+            return 0
+        }
+    }
+    console.log(16, HistorySearch);
     useEffect(() => {
-        const xxx = wsService.getListOrderHistory().subscribe(res => {
-            setgetDataOrderHistory(res)
+        const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
+            console.log(49, res);
+            
+            // setgetDataOrderHistory(res)
         });
 
-        return () => xxx.unsubscribe();  
-    }, [HistorySearch])
+        return () => renderDataToScreen.unsubscribe();  
+    }, [HistorySearch] )
 
-    useEffect(() => {
-        callWs();
-    }, []);
+    useEffect(() => callWs(), []);
 
     const callWs = () => {
         setTimeout(() => {
-            sendListOrder();
+            prepareMessagee();
         }, 500)
     }
 
-    const prepareMessagee = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessagee = () => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
-            // orderHistoryRequest.setTicker(ticker)
-            // orderHistoryRequest.setOrderType(orderType)
-            // orderHistoryRequest.setFromDatetime()
-            // orderHistoryRequest.setToDatetime()
-            // orderHistoryRequest.setOrderState()
+            orderHistoryRequest.setTicker(ticker)
+            orderHistoryRequest.setOrderType(orderStatus)
+            orderHistoryRequest.setFromDatetime(dateTimeFrom)
+            orderHistoryRequest.setToDatetime(dateTimeTo)
+            orderHistoryRequest.setOrderState(getParamOrderSide())
 
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());            
+            wsService.sendMessage(rpcMsg.serializeBinary());               
         }
     }
-
-    const sendListOrder = () => {
-        
-    }
  
-    // const getListData = () => {
-    //     wsService.getListOrderHistory().subscribe(res => {
-    //         setgetDataOrderHistory(res)
-    //     });
-    // }
-
-
     const _renderOrderHistory = () => {
         return (
             <div className='site'>
                 <div className="site-main">
                     <div className="container">
                         <div className="card shadow-sm mb-3">
-                            <OrderSearch getData = {getDataFromOrderHistorySearch} />
-                            <OrderTable listOrderHistory = {getDataOrderHistory} />
+                            <OrderSearch getDataFromOrderHistorySearch = { getDataFromOrderHistorySearch } />
+                            <OrderTable listOrderHistory = { getDataOrderHistory } />
                         </div>
                     </div>
                 </div>

@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { IParamHistorySearch } from '../../../interfaces/order.interface'
 
-interface Iprops{
-    getData: any
-}
 
-function OrderSearch(props: Iprops) {
-    const {getData} = props
+
+function OrderSearch(props: any) {
+    const { getDataFromOrderHistorySearch } = props
 
     const [ticker, setTicker] = useState('')
     const [orderStatus, setOrderStatus] = useState('')
@@ -14,14 +12,6 @@ function OrderSearch(props: Iprops) {
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [dateTimeFrom, setDateTimeFrom] = useState('')
     const [dateTimeTo, setDateTimeTo] = useState('')
-    // const [paramHistorySearch, setParamHistorySearch] = useState({
-    //     ticker: '',
-    //     orderStatus: '',
-    //     orderSideSell: false,
-    //     orderSideBuy: false,
-    //     dateTimeFrom: '',
-    //     dateTimeTo: '',
-    // })
 
     const dataParam: IParamHistorySearch = {
         ticker,
@@ -33,8 +23,7 @@ function OrderSearch(props: Iprops) {
     }
 
     const handleSearch = () => {
-        // setParamHistorySearch(dataParam)
-        getData(dataParam)
+        getDataFromOrderHistorySearch(dataParam)
     }
 
     const _renderTicker = () => (
@@ -71,7 +60,7 @@ function OrderSearch(props: Iprops) {
         <div className="col-xl-2 pl-30">
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
-                
+
                 <div className="form-check form-check-inline">
                     <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={handleChangeSell} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
@@ -89,7 +78,7 @@ function OrderSearch(props: Iprops) {
             <div className="row g-2">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY" 
+                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
                             value={dateTimeFrom}
                             onChange={(event) => setDateTimeFrom(event.target.value)}
                         />
@@ -98,7 +87,7 @@ function OrderSearch(props: Iprops) {
                 </div>
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY" 
+                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
                             value={dateTimeTo}
                             onChange={(event) => setDateTimeTo(event.target.value)}
                         />

@@ -36,6 +36,16 @@ console.log(listOrderHistory);
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED 
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 
+    // const _render_renderOrderHistoryTableHeaderTh = (list) => {
+    //     if (list.length > 1) {
+    //         <th className='w-120'>
+    //             <div className="text-ellipsis text-start fz-14">Ticker Code</div>
+    //             <div className="text-ellipsis text-start fz-14">Ticker Name</div>
+    //         </th >
+    //     }else{
+    //         <th className="text-center fz-14 w-120" >Order Type</th>
+    //     }
+    // }
 
     const _renderOrderHistoryTableHeader = () =>
     (
@@ -77,16 +87,14 @@ console.log(listOrderHistory);
                     <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span>
                 </td>
 
-
                 <td className="text-center">
                     <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : '' }`}>{getStateName(item.state)}</span>
                 </td>
 
-
                 <td className="text-center">Limit</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{Number(item.amount)}</div>
+                    <div className="text-ellipsis text-end">{item.amount}</div>
                     <div className="text-ellipsis text-end">{calcPendingVolume(item.amount, item.filledAmount)}</div>
                 </td>
 
