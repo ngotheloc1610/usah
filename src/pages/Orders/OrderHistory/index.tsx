@@ -46,9 +46,8 @@ const OrderHistory = () => {
     console.log(16, HistorySearch);
     useEffect(() => {
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
-            console.log(49, res);
-            
-            // setgetDataOrderHistory(res)
+            console.log(49, res);            
+            setgetDataOrderHistory(res)
         });
 
         return () => renderDataToScreen.unsubscribe();  

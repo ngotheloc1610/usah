@@ -36,17 +36,6 @@ console.log(listOrderHistory);
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED 
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 
-    // const _render_renderOrderHistoryTableHeaderTh = (list) => {
-    //     if (list.length > 1) {
-    //         <th className='w-120'>
-    //             <div className="text-ellipsis text-start fz-14">Ticker Code</div>
-    //             <div className="text-ellipsis text-start fz-14">Ticker Name</div>
-    //         </th >
-    //     }else{
-    //         <th className="text-center fz-14 w-120" >Order Type</th>
-    //     }
-    // }
-
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
