@@ -1,0 +1,67 @@
+syntax = "proto3";
+import "trading_model.proto";
+import "system_model.proto";
+
+//New Order Single
+message NewOrderSingleRequest {
+  Order order = 1;
+  string secret_key	= 2;	//trading pin
+  bool hidden_confirm_flg = 3; //True -> hide confirm screen
+}
+
+message NewOrderSingleResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+  	Order order = 3;
+}
+
+//New Order Multi
+message NewOrderMultiRequest {
+  	repeated Order order = 1;
+	string secret_key	= 2;	//trading pin
+}
+
+message NewOrderMultiResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+  	repeated Order order = 3;
+}
+
+//Close Order
+message CloseOrderRequest {
+  	repeated Order order = 1;
+	string secret_key	= 2;		//trading pin
+	bool hidden_confirm_flg = 3; 	//True -> hide confirm screen
+}
+
+message CloseOrderResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	repeated Order order = 3;
+}
+
+//Modify Order
+message ModifyOrderRequest {
+  repeated Order order = 1;
+  string secret_key	= 2;			//trading pin
+  bool hidden_confirm_flg = 3; 		//True -> hide confirm screen
+}
+
+message ModifyOrderResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+  	repeated Order order = 3;
+}
+
+//Cancel Order
+message CancelOrderRequest {
+  repeated Order order = 1;
+  string secret_key	= 2;			//trading pin
+  bool hidden_confirm_flg = 3; 		//True -> hide confirm screen
+}
+
+message CancelOrderResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+  	repeated Order order = 3;
+}

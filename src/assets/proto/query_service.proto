@@ -1,0 +1,86 @@
+syntax = "proto3";
+import "trading_model.proto";
+import "system_model.proto";
+import "query_model.proto";
+
+//Get Order List
+message GetOrderRequest {
+  string symbol_code = 1;
+  int64 account_id = 2;
+}
+
+message GetOrderResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+  	repeated Order order = 3;
+  	int64 account_id = 4;
+}
+
+//Get Contract List
+message GetContractRequest {
+  string symbol_code = 1;
+  int64 account_id = 2;
+}
+
+message GetContractResponse {
+	MsgCode msg_code = 1;
+	string msg_text	= 2;
+	repeated Contract contract = 3;
+	int64 account_id = 4;
+}
+
+//Get Position List
+message GetPositionRequest {
+  int64 account_id = 1;
+  string symbol_code = 2;
+}
+
+message GetPositionResponse {
+	MsgCode msg_code = 1;
+	string msg_text	= 2;
+	repeated Position contract = 3;
+	string symbol_code = 4;
+	int64 account_id = 5;
+}
+
+//Get Symbol List
+message SymbolListRequest {
+  int64 account_id = 1;
+}
+
+message SymbolListResponse {
+	MsgCode msg_code = 1;
+	string msg_text	= 2;
+	repeated Symbol symbol = 3;
+	int64 account_id = 4;
+}
+
+//Get Trade History
+message GetTradeHistoryRequest {
+	string ticker = 1;
+	OrderType order_type = 2;
+	string from_datetime = 3;
+	string to_datetime = 4;
+}
+message GetTradeHistoryResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	repeated Trade trade = 3;
+	int64 accound_id =4;
+}
+
+//Get Order History
+message GetOrderHistoryRequest {
+	string ticker = 1;
+	OrderType order_type = 2;
+	string from_datetime = 3;
+	string to_datetime = 4;
+	OrderState order_state = 5;
+}
+message GetOrderHistoryResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	repeated Order order = 3;
+	int64 accound_id =4;
+}
+

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+message Symbol {
+  int32 symbol_id = 1;
+  string symbol_code = 2;
+  string symbol_name = 3;
+  CalculationMode calculation_mode = 4;
+  int64 contract_size = 5;
+  int64 digits = 6;
+  string exchange					= 7;
+  string currency_code			= 8;
+  string description				= 9;
+}
+
+enum CalculationMode {
+	CAL_NONE = 0;
+	CAL_CFD = 4;
+	CAL_SPAN = 90;
+	CAL_FOREX = 100;
+}
