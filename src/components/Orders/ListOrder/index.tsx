@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SIDE, TITLE_ORDER_LIST } from "../../../constants/general.constant";
+import { SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -32,7 +32,7 @@ const ListOrder = () => {
     const callWs = () => {
         setTimeout(() => {
             sendListOrder();
-        }, 500)
+        }, 200);
     }
 
     const sendListOrder = () => {
@@ -92,7 +92,29 @@ const ListOrder = () => {
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
                 <thead>
                     <tr>
-                        {_renderTitleListOrder()}
+                        <th className="sorting_disabled">
+                            <span className="text-ellipsis">Ticker</span>
+                        </th>
+                        <th className="sorting_disabled text-center">
+                            <span className="text-ellipsis">Side</span>
+                        </th>
+                        <th className="sorting_disabled text-center">
+                            <span className="text-ellipsis">Type</span>
+                        </th>
+                        <th className="text-end sorting_disabled">
+                            <span className="text-ellipsis">Price</span>
+                        </th>
+                        <th className="text-end sorting_disabled">
+                            <span className="text-ellipsis">Volume</span>
+                        </th>
+                        <th className="text-end sorting_disabled">
+                            <span className="text-ellipsis">Pending Volume</span>
+                        </th>
+                        <th className="text-end sorting_disabled">
+                            <span className="text-ellipsis">Date</span>
+                        </th>
+                        <th className="text-end sorting_disabled">&nbsp;
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,13 +122,6 @@ const ListOrder = () => {
                 </tbody>
             </table>
         );
-    }
-    const _renderTitleListOrder = () => {
-        return TITLE_ORDER_LIST.map((item, index) => {
-            return <th className={`sorting_disabled ${index > 2 ? 'text-end' : index > 0 ? 'text-center' : ''}`}>
-                <span>{item}</span>
-            </th>
-        });
     }
     const getListDataOrder = () => (
         listOrderSortDate.map((item, index) => {
