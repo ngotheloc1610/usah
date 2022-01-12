@@ -12,3 +12,6 @@ export function formatOrderTime(date: number): string {
 export function calcPendingVolume(volume: string, filledAmount: string) {
     return Number(volume) - Number(filledAmount);
 }
+export function formatNumber(item: string): string {
+    return new Intl.NumberFormat().format(Number(item))
+}
