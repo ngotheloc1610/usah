@@ -1,3 +1,4 @@
+import '../../pages/CustomerInfo/CustomerInfo.scss';
 const CustomerInfomation = () => {
 
     const _renderNomalContent = (title: string, content: string) => (
@@ -11,25 +12,38 @@ const CustomerInfomation = () => {
         </div>
     )
 
+    const _renderLinkContent = (title: string, content: string, link: string) => (
+        <div className="row mb-2 mb-md-0">
+            <div className="col-md-3">
+                <label className="text-secondary">{title}</label>
+            </div>
+            <div className="col-md-8">
+                <strong><a href={link}>{content}</a></strong>
+            </div>
+        </div>
+    )
+
     const _renderContactUs = () => (
         <>
+            {_renderNomalContent('Person in charge', 'Mark Twain')}
+            {_renderLinkContent('Email', 'markt@phillip.com.sg', 'mailto:markt@phillip.com.sg')}
+            {_renderLinkContent('Phone', '(+65) 349 723 34', 'tel:+6534972334')}
+        </>
+    )
+
+    const _renderCustomerInfor = () => (
+        <>
             {_renderNomalContent('Account holder', 'Deng Ming')}
-            <div className="row mb-2 mb-md-0">
-                <div className="col-md-3">
-                    <label className="text-secondary">Email</label>
-                </div>
-                <div className="col-md-8">
-                    <strong><a href="mailto:markt@phillip.com.sg">markt@phillip.com.sg</a></strong>
-                </div>
-            </div>
-            <div className="row mb-2 mb-md-0">
-                <div className="col-md-3">
-                    <label className="text-secondary">Phone</label>
-                </div>
-                <div className="col-md-8">
-                    <strong><a href="tel:+6534972334">(+65) 349 723 34</a></strong>
-                </div>
-            </div>
+            {_renderLinkContent('Email', 'dengmi@amir.broker', 'mailto:dengmi@amir.broker')}
+            {_renderLinkContent('Phone', '(+65) 955 599 52', 'tel:+6595559952')}
+        </>
+    )
+
+    const _renderMaintenanceCenter = () => (
+        <>
+            {_renderNomalContent('Account holder', 'TDT Asia')}
+            {_renderLinkContent('Email', 'maintenace@tdt.asia', 'mailto:maintenace@tdt.asia')}
+            {_renderLinkContent('Phone', '(+84) 24 7734 8572', 'tel:+842477348572')}
         </>
     )
 
@@ -38,57 +52,11 @@ const CustomerInfomation = () => {
             <div className="card-body border-top shadow-sm">
                 <div className="mb-4">
                     <h6 className="c-title text-primary bg-light px-2 py-1">Customer Infomation</h6>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Account holder</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong>Deng Ming</strong>
-                        </div>
-                    </div>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Email</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong><a href="mailto:dengmi@amir.broker">dengmi@amir.broker</a></strong>
-                        </div>
-                    </div>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Phone</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong><a href="tel:+6595559952">(+65) 955 599 52</a></strong>
-                        </div>
-                    </div>
+                    {_renderCustomerInfor()}
                 </div>
                 <div className="mb-4">
                     <h6 className="c-title text-primary bg-light px-2 py-1">Maintenance Center</h6>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Account holder</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong>TDT Asia</strong>
-                        </div>
-                    </div>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Email</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong><a href="mailto:maintenace@tdt.asia">maintenace@tdt.asia</a></strong>
-                        </div>
-                    </div>
-                    <div className="row mb-2 mb-md-0">
-                        <div className="col-md-3">
-                            <label className="text-secondary">Phone</label>
-                        </div>
-                        <div className="col-md-8">
-                            <strong><a href="tel:+942477348572">(+84) 24 7734 8572</a></strong>
-                        </div>
-                    </div>
+                    {_renderMaintenanceCenter()}
                 </div>
                 <div className="mb-4">
                     <h6 className="c-title text-primary bg-light px-2 py-1">Contact Us</h6>
