@@ -37,11 +37,7 @@ const OrderHistory = () => {
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-            // wsService.getListOrderHistory().subscribe(res => {
-            //     console.log(42, res);
-                
-            // })
+            wsService.sendMessage(rpcMsg.serializeBinary());            
         }
     }
 
@@ -71,7 +67,6 @@ const OrderHistory = () => {
  
     const getListData = () => {
         wsService.getListOrderHistory().subscribe(res => {
-            // console.log(74, res);
             setgetDataOrderHistory(res)
         });
     }

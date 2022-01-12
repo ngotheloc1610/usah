@@ -1,8 +1,7 @@
-import { SIDE } from "../../../constants/general.constant";
+import { SIDE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ORDER_HISTORY, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
-import { IOrderHistory } from '../../../interfaces/order.interface'
 import Pagination from '../Pagination'
 import { IPropListOrderHistory, IListOrder } from "../../../interfaces/order.interface";
 
@@ -12,16 +11,25 @@ const defaultProps: IPropListOrderHistory = {
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
+
     const tradingModelPb: any = tspb;
 
-    // console.log(13, listOrderHistory);
     const listOrderHistorySortDate: IListOrder[] = listOrderHistory.sort((a, b) => b.time - a.time);
 
-    function getTickerName(sympleId: string) {
+    function getTickerCode(sympleId: string) {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
+
+    function getTickerName(sympleId: string) {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
+    }
+
     function getSideName(sideId: number) {
         return SIDE.find(item => item.code === sideId)?.title;
+    }
+
+    function getStateName(state: number) {
+        return STATE.find(item => item.code === state)?.title;
     }
 
 
@@ -52,21 +60,25 @@ function OrderTable(props: IPropListOrderHistory) {
         </tr>
     )
 
-    
+
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index}>
                 <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
+                    <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>
                     <div className="text-ellipsis text-start">{getTickerName(item.symbolCode.toString())}</div>
-                    <div className="text-ellipsis text-start">chua lam duoc</div>
                 </td>
-                <td className="text-center"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                <td className="text-center">
+                    <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span>
+                </td>
 
-                <td >
-                    Chua lam duoc
+
+                <td className="text-center">
+                    <span className={`${item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
                 </td>
+
 
                 <td className="text-center">Limit</td>
 
@@ -84,10 +96,10 @@ function OrderTable(props: IPropListOrderHistory) {
                 </td>
 
                 <td>
-                    <div className="text-ellipsis  text-end">{item.time}</div>
-                    {item.time && <div className="text-ellipsis  text-end">{item.time}</div>}
+                    <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>
+                    {item.time && <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>}
                     {item.time.toString() === '' && <div className="text-ellipsis  text-end">&nbsp;</div>}
-                </td> 
+                </td>
 
             </tr>
         ))

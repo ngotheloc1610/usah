@@ -57,7 +57,7 @@ export interface IListOrder {
     route: string;
     sl: string;
     slippage: string;
-    state: string;
+    state: number;
     swap: string;
     symbolCode: number;
     time: number;
