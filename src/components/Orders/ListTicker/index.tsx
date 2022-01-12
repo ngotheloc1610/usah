@@ -97,20 +97,29 @@ const ListTicker = (props: IListTickerProps) => {
 
         return <>
             <tr>
-                <td className="text-success text-end  w-33">{(arr[0] && arr[0].numOrders) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
-                <td className="text-center">{!isNaN(Number(arr[0]?.price)) ? Number(arr[0].price).toFixed(2) : '-'}</td>
+                <td className="text-success d-flex justify-content-between">
+                    <div>{(arr[0] && arr[0].numOrders) ? `(${arr[0].numOrders})` : ''}</div>
+                    <div>{(arr[0] && arr[0].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[0].volume))}` : '-'}</div>
+                </td>
+                <td className="text-center">
+                    {!isNaN(Number(arr[0]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[0].price).toFixed(2))) : '-'}</td>
                 <td className="w-33" >&nbsp;</td>
-
             </tr>
             <tr>
-                <td className="text-success text-end  w-33">{(arr[1] && arr[1].numOrders) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
-                <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? Number(arr[1].price).toFixed(2) : '-'}</td>
+                <td className="text-success d-flex justify-content-between">
+                    <div>{(arr[1] && arr[1].numOrders) ? `(${arr[1].numOrders})` : ''}</div>
+                    <div>{(arr[1] && arr[1].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[1].volume))}` : '-'}</div>
+                </td>
+                <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[1].price).toFixed(2))) : '-'}</td>
                 <td className="w-33">&nbsp;</td>
 
             </tr>
             <tr>
-                <td className="text-success text-end  w-33">{(arr[2] && arr[2].numOrders) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
-                <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? Number(arr[2].price).toFixed(2) : '-'}</td>
+                <td className="text-success d-flex justify-content-between">
+                    <div>{(arr[2] && arr[2].numOrders) ? `(${arr[2].numOrders})` : ''}</div>
+                    <div>{(arr[2] && arr[2].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[2].volume))}` : '-'}</div>
+                </td>
+                <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[2].price).toFixed(2))) : '-'}</td>
                 <td className="w-33">&nbsp;</td>
             </tr>
         </>
@@ -136,19 +145,29 @@ const ListTicker = (props: IListTickerProps) => {
             <>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{!isNaN(Number(arr[0]?.price)) ? Number(arr[0].price).toFixed(2) : '-'}</td>
-                    <td className="text-danger w-33">{(arr[0] && arr[0]?.numOrders > 0) ? `${arr[0].volume} (${arr[0].numOrders})` : '-'}</td>
+                    <td className="text-center">
+                        {!isNaN(Number(arr[0]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[0].price).toFixed(2))) : '-'}</td>
+                    <td className="text-danger d-flex justify-content-between">
+                        <div>{(arr[0] && arr[0]?.numOrders > 0) ? `(${arr[0].numOrders})` : ''}</div>
+                        <div className={ arr[0] && arr[0]?.numOrders > 0 ? "text-end" : "text-center"}>{(arr[0] && arr[0]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[0].volume))}` : '-'}</div>
+                    </td>
                 </tr>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? Number(arr[1].price).toFixed(2) : '-'}</td>
-                    <td className="text-danger w-33">{(arr[1] && arr[1]?.numOrders > 0) ? `${arr[1].volume} (${arr[1].numOrders})` : '-'}</td>
+                    <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[1].price).toFixed(2))) : '-'}</td>
+                    <td className="text-danger d-flex justify-content-between">
+                        <div>{(arr[1] && arr[1]?.numOrders > 0) ? `(${arr[1].numOrders})` : ''}</div>
+                        <div>{(arr[1] && arr[1]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[1].volume))}` : '-'}</div>
+                    </td>
 
                 </tr>
                 <tr>
                     <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? Number(arr[2].price).toFixed(2) : '-'}</td>
-                    <td className="text-danger w-33">{(arr[2] && arr[2]?.numOrders > 0) ? `${arr[2].volume} (${arr[2].numOrders})` : '-'}</td>
+                    <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[2].price).toFixed(2))) : '-'}</td>
+                    <td className="text-danger d-flex justify-content-between">
+                        <div>{(arr[2] && arr[2]?.numOrders > 0) ? `(${arr[2].numOrders})` : ''}</div>
+                        <div>{(arr[2] && arr[2]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[2].volume))}` : '-'}</div>
+                    </td>
                 </tr>
             </>
         )

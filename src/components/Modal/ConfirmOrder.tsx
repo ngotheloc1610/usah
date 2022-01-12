@@ -111,7 +111,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'>:</td>
-            <td className='text-left'>{value}</td>
+            <td className='text-end'>{value}</td>
         </tr>
     )
 
@@ -120,9 +120,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <table style={{ width: '354px' }}>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderConfirmOrder('Volume', `${params.volume}`)}
-                    {_renderConfirmOrder('Price', `${params.price}`)}
-                    {_renderConfirmOrder('Value ($)', `${(params.volume * params.price).toFixed(2)}`)}
+                    {_renderConfirmOrder('Volume', `${new Intl.NumberFormat().format(Number(params.volume))}`)}
+                    {_renderConfirmOrder('Price', `${new Intl.NumberFormat().format(Number(params.price))}`)}
+                    {_renderConfirmOrder('Value ($)', `${new Intl.NumberFormat().format(Number((params.volume * params.price).toFixed(2)))}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>

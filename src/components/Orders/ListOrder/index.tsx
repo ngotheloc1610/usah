@@ -92,7 +92,10 @@ const ListOrder = () => {
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
                 <thead>
                     <tr>
-                        <th className="sorting_disabled">
+                        <th className="text-end sorting_disabled">
+                            <span className="text-ellipsis">Order ID</span>
+                        </th>
+                        <th className="sorting_disabled text-center">
                             <span className="text-ellipsis">Ticker</span>
                         </th>
                         <th className="sorting_disabled text-center">
@@ -111,7 +114,7 @@ const ListOrder = () => {
                             <span className="text-ellipsis">Pending Volume</span>
                         </th>
                         <th className="text-end sorting_disabled">
-                            <span className="text-ellipsis">Date</span>
+                            <span className="text-ellipsis">Datetime</span>
                         </th>
                         <th className="text-end sorting_disabled">&nbsp;
                         </th>
@@ -127,12 +130,13 @@ const ListOrder = () => {
         listOrderSortDate.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td>{getTickerName(item.symbolCode.toString())}</td>
-                    <td className="text-center"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                    <td className="text-center">Limit</td>
-                    <td className="text-end">{item.price}</td>
-                    <td className="text-end">{item.amount}</td>
-                    <td className="text-end">{calcPendingVolume(item.amount, item.filledAmount)}</td>
+                    <td className="text-end w-10">{item.orderId}</td>
+                    <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
+                    <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                    <td className="text-center w-10">Limit</td>
+                    <td className="text-end w-10">{new Intl.NumberFormat().format(Number(item.price))}</td>
+                    <td className="text-end w-10">{new Intl.NumberFormat().format(Number(item.amount))}</td>
+                    <td className="text-end">{new Intl.NumberFormat().format(Number(calcPendingVolume(item.amount, item.filledAmount)))}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">
                         <a className="btn-edit-order mr-10">
