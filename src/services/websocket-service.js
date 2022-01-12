@@ -15,6 +15,7 @@ const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const paramStr = window.location.search;
+const modifySubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     if (objAuthen.access_token) {
@@ -49,6 +50,7 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
+        console.log(53, payloadClass);
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
@@ -68,6 +70,10 @@ const startWs = async () => {
             dataLastQuotes = lastQuoteRes.toObject();
             orderSubject.next(lastQuoteRes.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.MODIFY_ORDER_RES) {
+            const modifyRes = tradingService.ModifyOrderResponse.deserializeBinary(msg.getPayloadData());
+            modifySubject.next(modifyRes.toObject());
+        }
         
     }
 }
@@ -78,6 +84,7 @@ export const wsService = {
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
+    getModifySubject: () => modifySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes

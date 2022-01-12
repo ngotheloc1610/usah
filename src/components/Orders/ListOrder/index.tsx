@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SIDE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -10,6 +10,7 @@ import queryString from 'query-string';
 import ReduxPersist from "../../../config/ReduxPersist";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
+import { formatNumber } from "../../../helper/utils";
 
 
 const defaultProps: IPropListOrder = {
