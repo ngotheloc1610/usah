@@ -15,3 +15,5 @@ export const RESPONSE_RESULT = {
     success: 1,
     error: 2
 }
+
+export const MARKET_DEPTH_LENGTH = 3;

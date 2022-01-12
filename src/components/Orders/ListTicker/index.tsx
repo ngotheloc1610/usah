@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
 import { IAskPrice, IBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -79,98 +80,76 @@ const ListTicker = (props: IListTickerProps) => {
 
     const _renderAskPrice = (askItems: IAskPrice[]) => {
         let arr: IAskPrice[] = [];
-        for (let i = askItems.length - 1; i >= 0; i--) {
-            arr.push(askItems[i]);
+        let counter = MARKET_DEPTH_LENGTH - 1;
+        while (counter >= 0) {
+            if (askItems[counter]) {
+                arr.push({
+                    numOrders: askItems[counter].numOrders,
+                    price: askItems[counter].price,
+                    tradable: askItems[counter].tradable,
+                    volume: askItems[counter].volume
+                });
+            } else {
+                arr.push({
+                    numOrders: 0,
+                    price: '-',
+                    tradable: false,
+                    volume: '-'
+                });
+            }
+            counter--;
         }
-        const defaultAskPrice: IAskPrice = {
-            numOrders: 0,
-            price: '-',
-            tradable: false,
-            volume: '-'
-        }
-        if (askItems.length === 1) {
-            arr = [defaultAskPrice, defaultAskPrice, askItems[0]];
-        } else if (askItems.length === 2) {
-            arr = [defaultAskPrice, askItems[1], askItems[0]];
-        }
-
-
-        return <>
-            <tr>
+        return arr.map((item: IAskPrice, index: number) => (
+            <tr key={index}>
                 <td className="text-success d-flex justify-content-between">
-                    <div>{(arr[0] && arr[0].numOrders) ? `(${arr[0].numOrders})` : ''}</div>
-                    <div>{(arr[0] && arr[0].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[0].volume))}` : '-'}</div>
+                    <div>({item.numOrders})</div>
+                    <div>{item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
                 </td>
                 <td className="text-center">
-                    {!isNaN(Number(arr[0]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[0].price).toFixed(2))) : '-'}</td>
+                    {item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
                 <td className="w-33" >&nbsp;</td>
             </tr>
-            <tr>
-                <td className="text-success d-flex justify-content-between">
-                    <div>{(arr[1] && arr[1].numOrders) ? `(${arr[1].numOrders})` : ''}</div>
-                    <div>{(arr[1] && arr[1].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[1].volume))}` : '-'}</div>
-                </td>
-                <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[1].price).toFixed(2))) : '-'}</td>
-                <td className="w-33">&nbsp;</td>
-
-            </tr>
-            <tr>
-                <td className="text-success d-flex justify-content-between">
-                    <div>{(arr[2] && arr[2].numOrders) ? `(${arr[2].numOrders})` : ''}</div>
-                    <div>{(arr[2] && arr[2].numOrders) ? `${new Intl.NumberFormat().format(Number(arr[2].volume))}` : '-'}</div>
-                </td>
-                <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[2].price).toFixed(2))) : '-'}</td>
-                <td className="w-33">&nbsp;</td>
-            </tr>
-        </>
-
+        ));
     }
 
     const _renderBidPrice = (bidItems: IBidPrice[]) => {
         let arr: IBidPrice[] = [];
+        let counter = 0;
+        while (counter <= MARKET_DEPTH_LENGTH) {
+            if (bidItems[counter]) {
+                arr.push({
+                    numOrders: bidItems[counter].numOrders,
+                    price: bidItems[counter].price,
+                    tradable: bidItems[counter].tradable,
+                    volume: bidItems[counter].volume
+                });
+            } else {
+                arr.push({
+                    numOrders: 0,
+                    price: '-',
+                    tradable: false,
+                    volume: '-'
+                });
+            }
+            counter++;
+        }
         const defaultBidPrice: IBidPrice = {
             numOrders: 0,
             price: '-',
             tradable: false,
             volume: '-'
         }
-        if (bidItems.length === 1) {
-            arr = [bidItems[0], defaultBidPrice, defaultBidPrice];
-        } else if (bidItems.length === 2) {
-            arr = [bidItems[0], bidItems[1], defaultBidPrice];
-        } else {
-            arr = bidItems;
-        }
-        return (
-            <>
-                <tr>
-                    <td className="w-33">&nbsp;</td>
-                    <td className="text-center">
-                        {!isNaN(Number(arr[0]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[0].price).toFixed(2))) : '-'}</td>
-                    <td className="text-danger d-flex justify-content-between">
-                        <div>{(arr[0] && arr[0]?.numOrders > 0) ? `(${arr[0].numOrders})` : ''}</div>
-                        <div className={ arr[0] && arr[0]?.numOrders > 0 ? "text-end" : "text-center"}>{(arr[0] && arr[0]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[0].volume))}` : '-'}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{!isNaN(Number(arr[1]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[1].price).toFixed(2))) : '-'}</td>
-                    <td className="text-danger d-flex justify-content-between">
-                        <div>{(arr[1] && arr[1]?.numOrders > 0) ? `(${arr[1].numOrders})` : ''}</div>
-                        <div>{(arr[1] && arr[1]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[1].volume))}` : '-'}</div>
-                    </td>
-
-                </tr>
-                <tr>
-                    <td className="w-33">&nbsp;</td>
-                    <td className="text-center">{!isNaN(Number(arr[2]?.price)) ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(Number(arr[2].price).toFixed(2))) : '-'}</td>
-                    <td className="text-danger d-flex justify-content-between">
-                        <div>{(arr[2] && arr[2]?.numOrders > 0) ? `(${arr[2].numOrders})` : ''}</div>
-                        <div>{(arr[2] && arr[2]?.numOrders > 0) ? `${new Intl.NumberFormat().format(Number(arr[2].volume))}` : '-'}</div>
-                    </td>
-                </tr>
-            </>
-        )
+        return arr.map((item: IBidPrice) => (
+            <tr>
+                <td className="w-33">&nbsp;</td>
+                <td className="text-center">
+                    { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
+                <td className="text-danger d-flex justify-content-between">
+                    <div>{`(${item.numOrders})`}</div>
+                    <div>{ item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
+                </td>
+            </tr>
+        ));
     }
 
     const getLastQouteDisplay = () => {
