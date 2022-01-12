@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SIDE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -134,9 +134,9 @@ const ListOrder = () => {
                     <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center w-10">Limit</td>
-                    <td className="text-end w-10">{new Intl.NumberFormat().format(Number(item.price))}</td>
-                    <td className="text-end w-10">{new Intl.NumberFormat().format(Number(item.amount))}</td>
-                    <td className="text-end">{new Intl.NumberFormat().format(Number(calcPendingVolume(item.amount, item.filledAmount)))}</td>
+                    <td className="text-end w-10">{formatNumber(item.price.toString())}</td>
+                    <td className="text-end w-10">{formatNumber(item.amount.toString())}</td>
+                    <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">
                         <a className="btn-edit-order mr-10">

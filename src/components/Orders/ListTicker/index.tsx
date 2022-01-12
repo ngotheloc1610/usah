@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { formatNumber } from "../../../helper/utils";
 import { IAskPrice, IBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -103,7 +104,7 @@ const ListTicker = (props: IListTickerProps) => {
             <tr key={index}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
-                    <div>{item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
+                    <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
                 <td className="text-center">
                     {item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
@@ -146,7 +147,7 @@ const ListTicker = (props: IListTickerProps) => {
                     { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
-                    <div>{ item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
+                    <div>{ item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
             </tr>
         ));
