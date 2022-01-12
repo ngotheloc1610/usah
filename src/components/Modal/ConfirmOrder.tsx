@@ -10,6 +10,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
 import { RESPONSE_RESULT } from '../../constants/general.constant'
+import { formatNumber } from '../../helper/utils'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -111,8 +112,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-left w-90'></td>
-            <td className='text-left'>{value}</td>
+            <td className='text-left w-90'>:</td>
+            <td className='text-end'>{value}</td>
         </tr>
     )
 
@@ -121,9 +122,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <table style={{ width: '354px' }}>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderConfirmOrder('Volume', `${params.volume}`)}
-                    {_renderConfirmOrder('Price', `${params.price}`)}
-                    {_renderConfirmOrder('Value ($)', `${(params.volume * params.price).toFixed(2)}`)}
+                    {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
+                    {_renderConfirmOrder('Price', `${formatNumber(params.price.toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatNumber((params.volume * params.price).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
