@@ -11,6 +11,7 @@ const defaultProps: IPropListOrderHistory = {
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
+console.log(listOrderHistory);
 
     const tradingModelPb: any = tspb;
 
@@ -31,6 +32,9 @@ function OrderTable(props: IPropListOrderHistory) {
     function getStateName(state: number) {
         return STATE.find(item => item.code === state)?.title;
     }
+    
+    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED 
+    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 
 
     const _renderOrderHistoryTableHeader = () =>
@@ -60,7 +64,6 @@ function OrderTable(props: IPropListOrderHistory) {
         </tr>
     )
 
-
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index}>
@@ -76,14 +79,14 @@ function OrderTable(props: IPropListOrderHistory) {
 
 
                 <td className="text-center">
-                    <span className={`${item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
+                    <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : '' }`}>{getStateName(item.state)}</span>
                 </td>
 
 
                 <td className="text-center">Limit</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.amount}</div>
+                    <div className="text-ellipsis text-end">{Number(item.amount)}</div>
                     <div className="text-ellipsis text-end">{calcPendingVolume(item.amount, item.filledAmount)}</div>
                 </td>
 

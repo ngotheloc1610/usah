@@ -24,7 +24,7 @@ const startWs = async () => {
     } else {
         const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
         if (objAuthen) {
-            const obj = JSON.parse(objAuthen);
+            const obj = JSON.parse(objAuthen);            
             token = obj.access_token;
         }
     }
@@ -70,8 +70,8 @@ const startWs = async () => {
             orderSubject.next(lastQuoteRes.toObject());
         }
         
-        if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
-            const listOrderHistoryRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
+            const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
             orderHistorySubject.next(listOrderHistoryRes.toObject().orderList);
         }
     }

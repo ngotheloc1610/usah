@@ -5,17 +5,33 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
+import { IParamHistorySearch } from '../../../interfaces/order.interface'
+
 import { useEffect, useState } from "react";
 
 
 const OrderHistory = () => {
+
     const [getDataOrderHistory, setgetDataOrderHistory] = useState([]);
+    const [HistorySearch, setHistorySearch] = useState({})
+
+    console.log(16, HistorySearch);
+    
+
+    const getDataFromOrderHistorySearch = (dataFromOrderHistorySearch: IParamHistorySearch) => {
+        setHistorySearch(dataFromOrderHistorySearch)
+    }
 
     useEffect(() => {
-        setInterval(() => {
-            callWs();
-            getListData();
-        }, 5000)
+        const xxx = wsService.getListOrderHistory().subscribe(res => {
+            setgetDataOrderHistory(res)
+        });
+
+        return () => xxx.unsubscribe();  
+    }, [HistorySearch])
+
+    useEffect(() => {
+        callWs();
     }, []);
 
     const callWs = () => {
@@ -30,46 +46,31 @@ const OrderHistory = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let orderRequest = new queryServicePb.GetOrderRequest();
-            orderRequest.setAccountId(uid);
+            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
+            // orderHistoryRequest.setTicker(ticker)
+            // orderHistoryRequest.setOrderType(orderType)
+            // orderHistoryRequest.setFromDatetime()
+            // orderHistoryRequest.setToDatetime()
+            // orderHistoryRequest.setOrderState()
+
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-            rpcMsg.setPayloadData(orderRequest.serializeBinary());
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
+            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());            
         }
     }
 
     const sendListOrder = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen2', JSON.stringify(objAuthen));
-            prepareMessagee(accountId);
-            return;
-        }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen2').then(resp => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessagee(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessagee(accountId);
-                return;
-            }
-        });
+        
     }
  
-    const getListData = () => {
-        wsService.getListOrderHistory().subscribe(res => {
-            setgetDataOrderHistory(res)
-        });
-    }
+    // const getListData = () => {
+    //     wsService.getListOrderHistory().subscribe(res => {
+    //         setgetDataOrderHistory(res)
+    //     });
+    // }
 
 
     const _renderOrderHistory = () => {
@@ -78,8 +79,8 @@ const OrderHistory = () => {
                 <div className="site-main">
                     <div className="container">
                         <div className="card shadow-sm mb-3">
-                            <OrderSearch />
-                            <OrderTable listOrderHistory = {getDataOrderHistory}/>
+                            <OrderSearch getData = {getDataFromOrderHistorySearch} />
+                            <OrderTable listOrderHistory = {getDataOrderHistory} />
                         </div>
                     </div>
                 </div>

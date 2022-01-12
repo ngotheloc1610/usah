@@ -22,6 +22,10 @@ export const STATE = [
         code: 2
     },
     {
+        title: 'Working',
+        code: 3
+    },
+    {
         title: 'Filled',
         code: 4
     },

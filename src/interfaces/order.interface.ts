@@ -156,3 +156,12 @@ export interface IOrderPortfolio{
     pl: string,
     plPercent: number		
 }
+
+export interface IParamHistorySearch {
+    ticker: string;
+    orderStatus: string;
+    orderSideSell: boolean;
+    orderSideBuy: boolean;
+    dateTimeFrom: string;
+    dateTimeTo: string;
+}
