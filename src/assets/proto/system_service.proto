@@ -1,0 +1,116 @@
+syntax = "proto3";
+import "system_model.proto";
+import "pricing_model.proto";
+import "trading_model.proto";
+
+//using for single application such as Pi-X
+message LoginRequest {
+	string login		= 1;
+	string password		= 2;
+	string mac_address 	= 3;
+	string local_ip 	= 4;
+}
+
+//using for single application such as Pi-X
+message LoginResponse {
+	MsgCode returnCode								= 1;
+  	string returnMsg 						= 2;
+	int64 partner_id						= 3;
+	string token									= 4;
+
+	//return data
+}
+
+//Heartbeat request
+message HeartbeatRequest {
+	int64 sending_time = 1;
+}
+
+message HeartbeatResponse {
+	int64 sending_time = 1;
+}
+
+//Balance update
+message BalanceUpdateRequest {
+	int64 account_id 	= 1;
+	DealAction type		= 2;
+	string amount		= 3;	//minus -> withdraw
+	string comment		= 4;
+}
+
+message BalanceUpdateResponse {
+	MsgCode msg_code				= 1;
+	string msg_text		= 2;
+	int64 ticket			= 3;	//transaction id
+}
+
+//Account create
+message AccountCreateRequest {
+	Account account = 1;
+}
+
+message AccountCreateResponse {
+	MsgCode msg_code				= 1;
+	string msg_text		= 2;
+	Account account 				= 3;
+}
+
+//Account update
+message AccountUpdateRequest {
+	int64 account_id 					= 1;
+	string name 				= 2;
+	int64 group_id 			= 3;
+	bool enable_flg 			= 4;
+	TradingRights trading_rights			= 5;
+	bool api_flg				= 6;
+	string password			= 7;
+	string comment 			= 8;
+	string api_key 			= 9;
+	string secret_key			= 10;	//trading pin
+	enum TradingRights { TRADING_RIGHTS_NONE = 0; TRADING_OPEN_ONLY = 1; TRADING_CLOSE_ONLY = 2; TRADING_NORMAL = 10; }
+}
+
+message AccountUpdateResponse {
+	MsgCode msg_code					= 1;
+	string msg_text			= 2;
+	Account account 					= 3;
+}
+
+//Multiple Account create
+message AccountCreateMultiRequest {
+	repeated Account account = 1;
+}
+message AccountCreateMultiResponse {
+	MsgCode msg_code				= 1;
+	string msg_text		= 2;
+	repeated Account account 				= 3;
+}
+
+
+//Get detail information of Account
+message AccountDetailRequest {
+	int64 account_id 					= 1;
+}
+
+message AccountDetailResponse {
+	MsgCode msg_code					= 1;
+	string msg_text			= 2;
+	int64 account_id 					= 3;
+	string name 				= 4;
+	int64 group_id 			= 5;
+	bool enable_flg 			= 6;
+	bool trading_flg 			= 7;
+	bool api_flg				= 8;
+	string comment 			= 9;
+}
+
+//Get account balance info 
+message AccountBalanceRequest {
+	int64 account_id 					= 1;
+}
+
+message AccountBalanceResponse {
+	MsgCode msg_code 					= 1;
+	string  msg_text					= 2;
+	AccountBalance account_balance		= 3;
+}
