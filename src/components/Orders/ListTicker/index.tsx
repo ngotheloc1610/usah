@@ -102,7 +102,7 @@ const ListTicker = (props: IListTickerProps) => {
         return arr.map((item: IAskPrice, index: number) => (
             <tr key={index}>
                 <td className="text-success d-flex justify-content-between">
-                    <div>({item.numOrders})</div>
+                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
                 </td>
                 <td className="text-center">
@@ -145,7 +145,7 @@ const ListTicker = (props: IListTickerProps) => {
                 <td className="text-center">
                     { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
-                    <div>{`(${item.numOrders})`}</div>
+                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{ item.volume !== '-' ? new Intl.NumberFormat().format(Number(item.volume)) : '-'}</div>
                 </td>
             </tr>
