@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+message Order {
+  string order_id 		= 1;
+  string symbol_code 			= 2;
+  OrderType order_type 			= 3;
+  OrderState state 				= 4;
+  string amount 				= 5;
+  string price 		= 6;
+  string slippage 		= 7;
+  OrderFilling order_filling 	= 8;
+  ExecutionMode execute_mode 	= 9;
+  OrderReason reason 			= 10;
+  OrderTime order_time 			= 11;
+  int64 expire_time 	= 12; // Timestamp in milliseconds
+  string tp 			= 13;
+  string sl 			= 14;
+  string pl 			= 15;
+  string swap 			= 16;
+  string fee 			= 17;
+  int64 time 			= 18; // Timestamp in milliseconds
+  string note 			= 19;
+  OrderEntry entry 				= 20;
+  OrderRoute route 				= 21;
+  OrderMode	order_mode			= 22;
+  int64 uid = 23;
+  string trigger_price   = 24;
+  string filled_amount = 25;
+  string last_price = 26;
+  string executed_datetime = 27;
+}
+
+message Trade {
+	string order_id				= 1;
+	string ticker_code			= 2;
+	string ticker_name			= 3;
+	OrderType order_type 		= 4;
+	string amount				= 5;
+	string price 				= 6;
+	string executed_volume 		= 7;
+	string executed_price		= 8;
+	string matched_value 		= 9;
+	string executed_datetime	= 10;
+}
+
+message Contract {
+  string order_id 		= 1;
+  string symbol_code 			= 2;	//stock code
+  ExchangeCode exchange_code 	= 3;
+  OrderType order_type 			= 4;
+  OrderState state 				= 5;
+  string qty	 				= 6;
+  string settle_qty 			= 7;
+  OrderMode	order_mode			= 8;
+  CallPut cp					= 9;
+  string strike_price  = 10;
+  string limit_price  	= 11;
+  string settle_price  = 12;
+  string position_price= 13;
+  int64 expire_time 	= 14; // Timestamp in milliseconds
+
+}
+
+message Position {
+  string id = 1;
+  string symbol = 2;
+  string vwap_price = 3;
+  string amount = 4;
+  string margin_require = 5;
+  string swap_pl = 6;
+  string mam_code = 7;
+}
+
+enum ExchangeCode {
+	EXCHANGE_CODE_NONE = 0;
+	EXCHANGE_TSE  = 1; 		//Tokyo Stock Exchange
+	EXCHANGE_NSE  = 3; 		//Nagoya Stock Exchange
+	EXCHANGE_FSE  = 6; 		//Fukuoka Stock Exchange
+	EXCHANGE_SSE  = 8; 		//Fukuoka Stock Exchange
+	EXCHANGE_OSE  = 10; 	//Osaka Stock Exchange
+	EXCHANGE_TOCOM  = 11; 	//Tokyo Commodity Exchange
+}
+
+enum OrderType {
+ 	ORDER_TYPE_NONE = 0;
+ 	OP_BUY_LIMIT = 2;
+ 	OP_SELL_LIMIT = 3;
+ 	OP_BUY_STOP = 4;
+ 	OP_SELL_STOP = 5;
+ 	OP_BUY_STOP_LIMIT = 6;
+	OP_SELL_STOP_LIMIT = 7;
+	OP_SELL_MTL        = 8;
+	OP_BUY_MTL		   = 9;
+	OP_SELL_STM		   = 10;
+	OP_BUY_STM         = 11;
+	OP_BUY			   = 100;
+	OP_SELL            = 101;
+}
+enum ExecutionMode {
+ 	EXECUTION_MODE_NONE = 0;
+ 	MARKET = 1;
+	INSTANT = 2;
+}
+ enum OrderMode {
+	ORDER_MODE_NONE= 0;
+ 	OCO = 10;
+ 	IFD = 20;
+ 	IFO = 30;
+	REGULAR = 40;
+ }
+ enum OrderFilling {
+	ORDER_FILL_NONE = 0;
+ 	ORDER_FILL_FAK = 5;
+ 	ORDER_FILL_FAS = 6;
+	ORDER_FILL_FOK = 7;
+ }
+ enum OrderTime {
+ 	ORDER_TIME_NONE = 0;
+ 	ORDER_TIME_DAY = 1;
+ 	ORDER_TIME_SPECIFIED = 2;
+ 	ORDER_TIME_SPECIFIED_DAY = 3;
+	ORDER_TIME_GTC = 11;
+ }
+ enum OrderState {
+ 	ORDER_STATE_NONE = 0;
+ 	ORDER_STATE_PLACED = 1; 	//Placed — for pending orders, this state means that the order has been accepted and placed.
+ 	ORDER_STATE_CANCELED = 2;	//Canceled — the order has been canceled by the client.
+ 	ORDER_STATE_PARTIAL = 3;	//Partially filled — the order has been partially filled, so the market operation has been executed for part of the initially requested volume.
+ 	ORDER_STATE_FILLED = 4;		//Filled — the order has been filled in full.
+ 	ORDER_STATE_REJECTED = 5;	//Rejected — the order has been rejected by the broker.
+ 	ORDER_STATE_EXPIRED = 6;	//Expired — the order has been canceled upon expiration.
+	ORDER_STATE_MATCHED = 10;	//Matched by ME system
+	ORDER_STATE_STARTED = 11; 	//Started — the order correctness has been checked, and now the order is awaiting processing.
+ }
+
+ enum OrderEntry {
+	ENTRY_NONE = 0;
+ 	ENTRY_OUT = 1;	//Close Order
+	ENTRY_IN = 2;	//New order
+ }
+
+ enum OrderReason {
+ 	REASON_NONE = 0;
+ 	REASON_API = 1;
+ 	REASON_DEALER = 2;
+ 	REASON_SL = 3;
+ 	REASON_TP = 4;
+ 	REASON_SO = 5;
+ 	REASON_ROLLOVER = 6;
+	REASON_CLIENT = 10;
+ }
+
+enum OrderRoute {
+	ROUTE_NONE = 0;
+	ROUTE_IOS = 1;
+	ROUTE_ANDROID = 2;
+	ROUTE_BACK = 3;
+	ROUTE_API = 4;
+	ROUTE_WEB = 5;
+}
+
+enum CallPut {
+	CALL_PUT_NONE = 0;
+	PUT = 1;
+	CALL = 2;
+}
+
+enum ModifyType {
+	MODIFY_TYPE_NONE = 0;
+ 	CANCEL = 2;
+	UPDATE = 3;
+}

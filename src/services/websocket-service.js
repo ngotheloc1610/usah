@@ -61,7 +61,7 @@ const startWs = async () => {
         }
         if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
             const listOrderRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
-            listOrderSubject.next(listOrderRes.toObject().orderList);
+            listOrderSubject.next(listOrderRes.toObject());
         }
 
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {

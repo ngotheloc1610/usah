@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+message RpcMessage {
+  //
+  int64 id = 1;
+  Result result = 2;
+  string version = 3;
+  string service = 4;
+  Source source = 5;
+  int64 context_id = 6;
+  bytes payload_data = 7;
+  Payload payload_class = 8;
+  bool compress = 10;
+  int64 paging = 11;
+  int64 limit = 12;
+
+  //Enum
+  enum Result {
+  	RESULT_NONE = 0;
+  	INVALID_VERSION = 2;
+  	INVALID_SERVICE = 3;
+  	INVALID_PAYLOAD = 4;
+  	NOT_AUTHENTICATED = 5;
+  	SERVICE_TIMEOUT = 6;  
+  	SERVICE_REJECTED = 7;
+  	SERVICE_UNAVAILABLE = 8;
+  	REQUIRE_VPN = 9;
+  	MAINTAINANCE = 10;
+  	INTERNAL_ERROR = 99;
+	SUCCESS = 100;
+  }
+  enum Source {
+  	SOURCE_NONE = 0;
+  	IOS = 1;
+  	ANDROID = 2;
+  	External = 9;
+	WEB = 10;
+  }
+  enum Payload {
+
+	//Common message (0~19)
+    PAYLOAD_NONE                               	= 0;
+    AUTHEN_REQ		                           	= 1;
+    HEARTBEAT_REQ								= 2;
+
+    AUTHEN_RES		                            = 11;
+    HEARTBEAT_RES								= 12;
+	
+	//Pricing message (20~59)
+    LAST_QUOTE_REQ                              = 20;
+    SUBSCRIBE_QUOTE_REQ							= 21;
+    UNSUBSCRIBE_QUOTE_REQ						= 22;
+    CHART_REQ									= 23;
+
+    QUOTE_EVENT		                           	= 29;	//notify new quote to client
+
+    LAST_QUOTE_RES                              = 30;
+    SUBSCRIBE_QUOTE_RES							= 31;
+    UNSUBSCRIBE_QUOTE_RES						= 32;
+    CHART_RES									= 33;
+
+	//Trading messasge (60~99)
+	NEW_ORDER_SINGLE_REQ                        = 60;
+	NEW_ORDER_MULTI_REQ                         = 61;
+	CLOSE_ORDER_REQ 	                        = 62;
+	MODIFY_ORDER_REQ 	                        = 63;
+	CANCEL_ORDER_REQ 	                        = 64;
+
+	ORDER_EVENT		 	                        = 68;	//notify position changed
+
+	NEW_ORDER_SINGLE_RES                        = 70;
+	NEW_ORDER_MULTI_RES                         = 71;
+	CLOSE_ORDER_RES 	                        = 72;
+	MODIFY_ORDER_RES 	                        = 73;
+	CANCEL_ORDER_RES 	                        = 74;
+
+	//Account
+	BALANCE_UPDATE_REQ							= 80;
+	ACCOUNT_CREATE_REQ							= 81;
+	ACCOUNT_UPDATE_REQ							= 82;
+	ACCOUNT_DETAIL_REQ							= 83;
+	ACCOUNT_CREATE_MULTI_REQ					= 84;
+	ACCOUNT_BALANCE_REQ							= 85;
+	
+	BALANCE_UPDATE_RES							= 90;
+	ACCOUNT_CREATE_RES							= 91;
+	ACCOUNT_UPDATE_RES							= 92;
+	ACCOUNT_DETAIL_RES							= 93;
+	ACCOUNT_CREATE_MULTI_RES					= 94;
+	ACCOUNT_BALANCE_RES							= 95;
+
+	//Querry message
+	POSITION_REQ                        		= 100;
+	ORDER_LIST_REQ                         		= 101;
+	CONTRACT_LIST_REQ 	                        = 102;
+	SYMBOL_LIST_REQ								= 103;
+	TRADE_HISTORY_REQ							= 104;
+	ORDER_HISTORY_REQ							= 105;
+
+	POSITION_RES                        		= 110;
+	ORDER_LIST_RES                         		= 111;
+	CONTRACT_LIST_RES 	                        = 112;
+	SYMBOL_LIST_RES								= 113;
+	TRADE_HISTORY_RES							= 114;
+	ORDER_HISTORY_RES							= 115;
+	
+	
+	//SPAN message
+	SPAN_SIMULATE_REQ                      		= 120;
+
+	SPAN_SIMULATE_RES                      		= 130;
+  }
+}

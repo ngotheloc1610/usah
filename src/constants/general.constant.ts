@@ -35,9 +35,11 @@ export const STATE = [
     }
 ]
 export const INVALID_DATE = 'Invalid date';
-export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY h:mm:ss.SSS A';
+export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
     error: 2
 }
+
+export const MARKET_DEPTH_LENGTH = 3;
