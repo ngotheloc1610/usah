@@ -57,11 +57,13 @@ message SymbolListResponse {
 
 //Get Trade History
 message GetTradeHistoryRequest {
-	string ticker = 1;
+	string symbol_code = 1;
 	OrderType order_type = 2;
-	string from_datetime = 3;
-	string to_datetime = 4;
+    int64 from_datetime = 3; // Timestamp in milliseconds
+    int64 to_datetime = 4; // Timestamp in milliseconds
+    int64 account_id = 5;
 }
+
 message GetTradeHistoryResponse {
 	MsgCode msg_code = 1;
 	string msg_text = 2;
@@ -71,12 +73,14 @@ message GetTradeHistoryResponse {
 
 //Get Order History
 message GetOrderHistoryRequest {
-	string ticker = 1;
+	string symbol_code = 1;
 	OrderType order_type = 2;
-	string from_datetime = 3;
-	string to_datetime = 4;
+    int64 from_datetime = 3; // Timestamp in milliseconds
+    int64 to_datetime = 4; // Timestamp in milliseconds
 	OrderState order_state = 5;
+	int64 accound_id = 6;
 }
+
 message GetOrderHistoryResponse {
 	MsgCode msg_code = 1;
 	string msg_text = 2;

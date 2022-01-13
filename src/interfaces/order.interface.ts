@@ -153,5 +153,5 @@ export interface IOrderPortfolio {
     marketPrice: string,
     curentValue: string,
     pl: string,
-    plPercent: number
+    plPercent: number		
 }
