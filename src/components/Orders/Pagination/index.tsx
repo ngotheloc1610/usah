@@ -1,4 +1,3 @@
-import '../../../pages/Orders/OrderHistory/custom.scss'
 import '../../../pages/Orders/OrderHistory/orderHistory.scss'
 
 
