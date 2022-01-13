@@ -120,9 +120,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log(123);
             wsService.getOrderSubject().subscribe(resp => {
-                console.log(125, resp);
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
@@ -131,7 +129,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
                 handleOrderResponse(tmp, resp['msgText']);
             });
-            
+
             handleCloseConfirmPopup(true);
         }
     }
@@ -186,9 +184,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 prepareMessageeCancel(accountId);
             }
             else if (isModify) {
-                if (params.volume !== volumeModify || params.price !== priceModify) {
-                    prepareMessageeModify(accountId);
-                }
+                prepareMessageeModify(accountId);
             } else {
                 prepareMessagee(accountId);
             }
@@ -202,9 +198,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     prepareMessageeCancel(accountId);
                 }
                 else if (isModify) {
-                    if (params.volume !== volumeModify || params.price !== priceModify) {
-                        prepareMessageeModify(accountId);
-                    }
+                    prepareMessageeModify(accountId);
                 } else {
                     prepareMessagee(accountId);
                 }
@@ -215,9 +209,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     prepareMessageeCancel(accountId);
                 }
                 else if (isModify) {
-                    if (params.volume !== volumeModify || params.price !== priceModify) {
-                        prepareMessageeModify(accountId);
-                    }
+                    prepareMessageeModify(accountId);
                 } else {
                     prepareMessagee(accountId);
                 }

@@ -38,7 +38,6 @@ const ListModifyCancel = () => {
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
-            console.log(39, response.orderList);
         });
         return () => listOrder.unsubscribe();
     });
