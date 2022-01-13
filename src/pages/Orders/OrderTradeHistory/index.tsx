@@ -3,8 +3,8 @@ import { IOrderTradeHistory } from '../../../interfaces/order.interface'
 // import SearchTradeHistory from './SearchTradeHistory'
 import SearchTradeHistory from './SearchTradeHistory'
 import Pagination from "../../../components/Orders/Pagination"
-import '../OrderHistory/custom.css'
-import '../OrderHistory/orderHistory.css'
+import '../OrderHistory/custom.scss'
+import '../OrderHistory/orderHistory.scss'
 
 
 const OrderTradeHistory = () => {

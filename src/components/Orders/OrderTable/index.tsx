@@ -1,5 +1,5 @@
 import { SIDE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ORDER_HISTORY, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../Pagination'
@@ -11,27 +11,31 @@ const defaultProps: IPropListOrderHistory = {
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
-    console.log(listOrderHistory);
 
     const tradingModelPb: any = tspb;
 
     const listOrderHistorySortDate: IListOrder[] = listOrderHistory.sort((a, b) => b.time - a.time);
 
-    function getTickerCode(sympleId: string) {
+    const getTickerCode = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
 
-    function getTickerName(sympleId: string) {
+    const getTickerName = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
     }
 
-    function getSideName(sideId: number) {
+    const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
 
-    function getStateName(state: number) {
+    const getStateName = (state: number) => {
         return STATE.find(item => item.code === state)?.title;
     }
+
+    const formatPrice = (item: string) => {
+        return (Math.round(parseInt(item) * 100) / 100).toFixed(2);
+    }
+
 
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
@@ -90,8 +94,8 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-end">{item.filledAmount}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.price}</div>
-                    {item.price && <div className="text-ellipsis text-end">{item.price}</div>}
+                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
+                    {item.price && <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>}
                     {item.price === '' && <div className="text-ellipsis text-end">&nbsp;</div>}
                 </td>
 

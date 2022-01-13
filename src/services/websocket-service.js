@@ -86,5 +86,5 @@ export const wsService = {
     getListOrderHistory: () => orderHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes,
+    getDataLastQuotes: () => dataLastQuotes
 }

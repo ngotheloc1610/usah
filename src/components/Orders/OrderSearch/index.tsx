@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { IParamHistorySearch } from '../../../interfaces/order.interface'
+import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
 
 
 
-function OrderSearch(props: any) {
+function OrderHistorySearch(props: any) {
     const { getDataFromOrderHistorySearch } = props
 
     const [ticker, setTicker] = useState('')
@@ -40,11 +41,7 @@ function OrderSearch(props: any) {
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
             <select className="form-select form-select-sm" onChange={(event) => setOrderStatus(event.target.value)}>
-                <option value="All">All</option>
-                <option value="Filled">Filled</option>
-                <option value="Rejected">Rejected</option>
-                <option value="Cancel">Cancel</option>
-                <option value="Working">Working</option>
+                {ORDER_HISTORY_SEARCH_STATUS.map((item: string, index: number) => <option value={item} key={index}>{item}</option>)}
             </select>
         </div>
     )
@@ -125,4 +122,4 @@ function OrderSearch(props: any) {
     )
 }
 
-export default OrderSearch
+export default OrderHistorySearch

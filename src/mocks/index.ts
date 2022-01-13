@@ -1015,6 +1015,9 @@ export const ORDER_HISTORY: IOrderHistory[] = [
         excutedDatetime: ''
     },
 ]
+
+export const ORDER_HISTORY_SEARCH_STATUS = ['All', 'Filled', 'Rejected', 'Cancel', 'Working']
+
 export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     {
         oderId: '001333',

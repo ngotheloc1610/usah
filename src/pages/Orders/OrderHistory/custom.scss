@@ -1,0 +1,36 @@
+$body-bg: #fff !default;
+$body-color: #111 !default;
+$blue: #2F80ED !default;
+$indigo: #5115B1 !default;
+$purple: #9B51E0 !default;
+$pink: #E77494 !default;
+$red: #ED1C24 !default;
+$orange: #F08122 !default;
+$yellow: #F2C94C !default;
+$green: #66B55D !default;
+$teal: #4EC5A1 !default;
+$cyan: #5C9BCA !default;
+$link-color: #16365C !default;
+$primary: #16365C !default;
+//Font Size
+$font-size-base: 0.875rem !default;
+//Heading
+$h1-font-size: 3.5rem !default;
+$h2-font-size: 3rem !default;
+$h3-font-size: 2rem !default;
+$h4-font-size: 1.5rem !default;
+$h5-font-size: 1.25rem !default;
+$h6-font-size: 1.125rem !default;
+$lead-font-size: 1.125rem !default;
+$display1-size: 3.25rem !default;
+$display2-size: 2.75rem !default;
+$display3-size: 2.5rem !default;
+$display4-size: 2.25rem !default;
+$border-color : #D0D9E3 !default;
+//Type
+$line-height-base: 1.5 !default;
+$headings-line-height: 1.2 !default;
+$table-hover-bg: #F2F6FB !default;
+$grid-breakpoints: ( xs: 0, sm: 576px, md: 768px, lg: 1280px, xl: 1440px, xxl: 1600px) !default;
+$container-max-widths: ( sm: 540px, md: 720px, lg: 1200px, xl: 1380px, xxl: 1540px) !default;
+@import"../../../../node_modules/bootstrap/scss/bootstrap";
