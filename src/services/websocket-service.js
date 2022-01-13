@@ -16,6 +16,7 @@ const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
+const cancelSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     if (objAuthen.access_token) {
@@ -74,7 +75,10 @@ const startWs = async () => {
             const modifyRes = tradingService.ModifyOrderResponse.deserializeBinary(msg.getPayloadData());
             modifySubject.next(modifyRes.toObject());
         }
-        
+        if (payloadClass === rpc.RpcMessage.Payload.CANCEL_ORDER_RES) {
+            const cancelRes = tradingService.CancelOrderResponse.deserializeBinary(msg.getPayloadData());
+            cancelSubject.next(cancelRes.toObject());
+        }
     }
 }
 
@@ -85,6 +89,7 @@ export const wsService = {
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
+    getCancelSubject: () => cancelSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes

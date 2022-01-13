@@ -16,7 +16,8 @@ import ConfirmOrder from "../../Modal/ConfirmOrder";
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
     const tradingModelPb: any = tspb;
-    const [isModify, setModify] = useState<boolean>(false);
+    const [isModify, setIsModify] = useState<boolean>(false);
+    const [isCancel, setIsCancel] = useState<boolean>(false);
     const defaultData: IParamOrder = {
         tickerCode: '',
         tickerName: '',
@@ -35,6 +36,7 @@ const ListModifyCancel = () => {
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
+            console.log(39, response.orderList);
         });
         return () => listOrder.unsubscribe();
     });
@@ -91,8 +93,9 @@ const ListModifyCancel = () => {
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
-    function handleModify(item: IListOrder) {
+    function handleModifyCancel(item: IListOrder, value: string) {
         const param: IParamOrder = {
+            orderId: item.orderId.toString(),
             tickerCode: item.symbolCode.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: 'limit',
@@ -103,10 +106,15 @@ const ListModifyCancel = () => {
             tickerId: item.symbolCode.toString(),
         }
         setParamModify(param);
-        setModify(true);
+        if (value === 'modify') {
+            setIsModify(true);
+            return;
+        }
+        setIsCancel(true);
     }
-    function togglePopup(isCloseModify: boolean) {
-        setModify(isCloseModify);
+    function togglePopup(isCloseModifyCancel: boolean) {
+        setIsModify(isCloseModifyCancel);
+        setIsCancel(isCloseModifyCancel);
     }
     const getStatusOrderResponse = (value: number, content: string) => {
         // if (statusOrder === 0) {
@@ -130,10 +138,10 @@ const ListModifyCancel = () => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-center">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    <a className="btn-edit-order mr-10" onClick={() => handleModify(item)}>
+                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, 'modify')}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
-                    <a>
+                    <a onClick={() => handleModifyCancel(item, 'cancel')}>
                         <i className="bi bi-x-lg"></i>
                     </a>
                 </td>
@@ -164,6 +172,7 @@ const ListModifyCancel = () => {
             </div>
         </div>
         <Pagination />
+        {isCancel && <ConfirmOrder isCancel={isCancel} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModify} />}
         {isModify && <ConfirmOrder isModify={isModify} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModify} />}
     </div>
 }

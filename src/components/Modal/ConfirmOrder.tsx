@@ -16,15 +16,15 @@ interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
     params: IParamOrder,
-    isModify?: boolean
+    isModify?: boolean,
+    isCancel?: boolean,
 }
 
 const ConfirmOrder = (props: IConfirmOrder) => {
-    console.log(23, props)
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
@@ -54,7 +54,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
-        console.log(45, wsConnected, volumeModify, priceModify);
+        console.log(57, params.orderId);
         if (wsConnected) {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
@@ -62,7 +62,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             modifyOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
-            order.setAmount(`${volumeModify}`);
+            order.setOrderId(params.orderId);
+            order.setAmount(`${params.volume - volumeModify}`);
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
@@ -70,8 +71,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-
-            modifyOrder.setOrderList(order);
+            console.log(73, order);
+            modifyOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
             rpcMsg.setPayloadData(modifyOrder.serializeBinary());
@@ -79,15 +80,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getModifySubject().subscribe(resp => {
+                console.log(83, resp);
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp['msgText']);
+                // handleOrderResponse(tmp, resp['msgText']);
             })
-            handleCloseConfirmPopup(true);
+            // handleCloseConfirmPopup(true);
         }
     }
 
@@ -130,6 +132,51 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
+    const prepareMessageeCancel = (accountId: string) => {
+        const uid = accountId;
+        let wsConnected = wsService.getWsConnected();
+        const systemModelPb: any = smpb;
+        console.log(138, wsConnected);
+        if (wsConnected) {
+            let currentDate = new Date();
+            let cancelOrder = new tradingServicePb.CancelOrderRequest();
+            cancelOrder.setSecretKey(tradingPin);
+            cancelOrder.setHiddenConfirmFlg(params.confirmationConfig);
+
+            let order = new tradingModelPb.Order();
+            order.setOrderId(params.orderId);
+            order.setAmount(`${volumeModify}`);
+            order.setPrice(`${priceModify}`);
+            order.setUid(uid);
+            order.setSymbolCode(params.tickerId);
+            order.setOrderType(getOrderType());
+            order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
+            order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
+            order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+            console.log(153, order);
+            cancelOrder.addOrder(order);
+            let rpcMsg = new rProtoBuff.RpcMessage();
+            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
+            rpcMsg.setPayloadData(cancelOrder.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+
+            console.log('send cancel to ws')
+            wsService.getCancelSubject().subscribe(resp => {
+                console.log(162, resp);
+                let tmp = 0;
+                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                // handleOrderResponse(tmp, resp['msgText']);
+            })
+            // handleCloseConfirmPopup(true);
+        }
+    }
+
+
     const sendOrder = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
@@ -137,11 +184,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
             ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
-            if (!isModify)  {
-                prepareMessagee(accountId);
+            if (isCancel) {
+                prepareMessageeCancel(accountId);
+                return;
             }
-            else {
-                prepareMessageeModify(accountId)
+            else if (isModify) {
+                // if (volumeModify !== par)
+                prepareMessageeModify(accountId);
+                return;
+            } else {
+                prepareMessagee(accountId);
+                return;
             }
             return;
         }
@@ -149,20 +202,30 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                if (!isModify)  {
-                    prepareMessagee(accountId);
+                if (isCancel) {
+                    prepareMessageeCancel(accountId);
+                    return;
                 }
-                else {
-                    prepareMessageeModify(accountId)
+                else if (isModify) {
+                    prepareMessageeModify(accountId);
+                    return;
+                } else {
+                    prepareMessagee(accountId);
+                    return;
                 }
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID;
-                if (!isModify)  {
-                    prepareMessagee(accountId);
+                if (isCancel) {
+                    prepareMessageeCancel(accountId);
+                    return;
                 }
-                else {
-                    prepareMessageeModify(accountId)
+                else if (isModify) {
+                    prepareMessageeModify(accountId);
+                    return;
+                } else {
+                    prepareMessagee(accountId);
+                    return;
                 }
                 return;
             }
@@ -177,16 +240,19 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
+    // const _checkChangeVolumeOrPrice = () {
+
+    // }
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'></td>
             <td className='text-end'>
-                {(title === 'Volume' && isModify) ? 
-                <input type="number" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={volumeModify} />
-                : (title === 'Price' && isModify) ?
-                <input type="number" className="m-100" width={"100%"} onChange={handlePriceModify} min={0} value={priceModify}/>
-                : value }</td>
+                {(title === 'Volume' && isModify) ?
+                    <input type="number" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={volumeModify} />
+                    : (title === 'Price' && isModify) ?
+                        <input type="number" className="m-100" width={"100%"} onChange={handlePriceModify} min={0} value={priceModify} />
+                        : value}</td>
         </tr>
     )
 
@@ -202,17 +268,27 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 </tbody>
             </table>
             <div style={{ marginTop: '30px' }}>
-                <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>
+                {!isModify && !isCancel && <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>}
+                {(isModify || isCancel) &&
+                    <div className="d-flex justify-content-around">
+                        <div className="btn btn-primary" onClick={sendOrder}>CONFIRM</div>
+                        <div className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</div>
+                    </div>
+                }
             </div>
         </div>
     )
 
     const _renderHeaderFormConfirm = () => (
         <div>
-            <span className='fs-18'><b>Would you like to place order</b></span> &nbsp;
-            <span className={Number(currentSide) === tradingModelPb.OrderType.OP_BUY ? 'order-type text-danger' : 'order-type text-success'}><b>
+            <span className='fs-18'>
+                {!isModify && !isCancel && <b>Would you like to place order&nbsp;</b>}
+                {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
+                {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
+            </span>
+            {!isModify && !isCancel && <span className={Number(currentSide) === tradingModelPb.OrderType.OP_BUY ? 'order-type text-danger' : 'order-type text-success'}><b>
                 {Number(currentSide) === tradingModelPb.OrderType.OP_BUY ? 'buy' : 'sell'}
-            </b></span> &nbsp;
+            </b></span>} &nbsp;
             <span className='fs-18'><b>?</b></span>
         </div>
     )
@@ -221,7 +297,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <div>
             <div className="box">
                 <div>
-                    {isModify ? 'Modify' : 'New order confirmation' }
+                    {isModify ? 'Modify' : isCancel ? 'Cancel' : 'New order confirmation'}
                     <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
                 </div>
             </div>

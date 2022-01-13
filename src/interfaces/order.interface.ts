@@ -13,6 +13,7 @@ export interface ITickerInfo {
     changePrecent: string,
 }
 export interface IParamOrder {
+    orderId?: string;
     tickerCode: string;
     tickerName: string;
     orderType: string;
