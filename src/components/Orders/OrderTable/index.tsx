@@ -11,7 +11,7 @@ const defaultProps: IPropListOrderHistory = {
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
-console.log(listOrderHistory);
+    console.log(listOrderHistory);
 
     const tradingModelPb: any = tspb;
 
@@ -32,8 +32,8 @@ console.log(listOrderHistory);
     function getStateName(state: number) {
         return STATE.find(item => item.code === state)?.title;
     }
-    
-    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED 
+
+    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 
     const _renderOrderHistoryTableHeader = () =>
@@ -77,7 +77,7 @@ console.log(listOrderHistory);
                 </td>
 
                 <td className="text-center">
-                    <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : '' }`}>{getStateName(item.state)}</span>
+                    <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
                 </td>
 
                 <td className="text-center">Limit</td>
