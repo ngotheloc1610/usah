@@ -1,10 +1,8 @@
-import { ORDER_HEADER_DASHBOARD } from "../../constants/dashboard.constant"
 import { IOrderInfomation, ITickerInfo } from "../../interfaces/order.interface"
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../mocks"
-import { LIST_DATA_COMPANY } from "../../mocks/general.mock"
-import './OrderDashboard.scss'
+import './TickerDashboard.scss'
 
-const OrderDashboard = () => {
+const TickerDashboard = () => {
 
     const headerTable = () => (
         <>
@@ -95,4 +93,4 @@ const OrderDashboard = () => {
     </div>
 }
 
-export default OrderDashboard
+export default TickerDashboard

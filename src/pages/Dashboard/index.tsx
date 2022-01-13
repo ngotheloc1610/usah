@@ -2,7 +2,7 @@ import { useState } from "react"
 import OrderBook from "../../components/Order/OrderBook"
 import OrderForm from "../../components/Order/OrderForm"
 import StockInfo from "../../components/Order/StockInfo"
-import OrderDashboard from "../../components/OrderDashboard"
+import TickerDashboard from "../../components/TickerDashboard"
 
 const Dashboard = () => {
     const [isDashboard, setIsDashboard] = useState(true)
@@ -42,7 +42,7 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-lg-7">
-                        <OrderDashboard />
+                        <TickerDashboard />
                     </div>
                     <div className="col-lg-2">
                         <div>

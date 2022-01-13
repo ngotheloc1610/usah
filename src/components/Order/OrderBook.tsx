@@ -1,6 +1,6 @@
 import { IOrderBook } from "../../interfaces/order.interface"
 import { DATA_ASK_VOLUME, DATA_BID_PRICE, ORDER_BOOK_HEADER } from "../../mocks"
-import '../OrderDashboard/OrderDashboard.scss'
+import '../TickerDashboard/TickerDashboard.scss'
 
 interface IOrderBookProps {
     isDashboard: boolean;
