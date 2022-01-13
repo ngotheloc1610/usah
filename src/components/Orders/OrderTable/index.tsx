@@ -87,11 +87,11 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-center">Limit</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.amount}</div>
-                    <div className="text-ellipsis text-end">{calcPendingVolume(item.amount, item.filledAmount)}</div>
+                    <div className="text-ellipsis text-end">{formatNumber(item.amount)}</div>
+                    <div className="text-ellipsis text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</div>
                 </td>
 
-                <td className="text-end">{item.filledAmount}</td>
+                <td className="text-end">{formatNumber(item.filledAmount)}</td>
 
                 <td>
                     <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
