@@ -8,9 +8,6 @@ import queryString from 'query-string';
 import { IParamHistorySearch } from '../../../interfaces/order.interface'
 import { useEffect, useState } from 'react';
 
-interface IParam {
-    accountId: string
-}
 const OrderHistory = () => {
 
     const [getDataOrderHistory, setgetDataOrderHistory] = useState([]);
@@ -31,7 +28,7 @@ const OrderHistory = () => {
         }, 500)
     }
 
-    const prepareMessagee = (accountId: string | string[] | null) => {
+    const prepareMessagee = (accountId: string ) => {
         const uid = accountId;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -55,12 +52,12 @@ const OrderHistory = () => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
                 prepareMessagee(accountId);
                 return;
             }
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then((resp) => {
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then((resp: string | null) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;

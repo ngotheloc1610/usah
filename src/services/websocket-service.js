@@ -24,7 +24,7 @@ const startWs = async () => {
     } else {
         const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
         if (objAuthen) {
-            const obj = JSON.parse(objAuthen);            
+            const obj = JSON.parse(objAuthen);         
             token = obj.access_token;
         }
     }

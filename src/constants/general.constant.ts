@@ -10,10 +10,6 @@ export const SIDE = [
 ]
 export const STATE = [
     {
-        title: 'None',
-        code: 0
-    },
-    {
         title: 'Working',
         code: 1
     },

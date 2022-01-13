@@ -3,7 +3,6 @@ import { IParamHistorySearch } from '../../../interfaces/order.interface'
 import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
 
 
-
 function OrderHistorySearch(props: any) {
     const { getDataFromOrderHistorySearch } = props
 
@@ -13,7 +12,7 @@ function OrderHistorySearch(props: any) {
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [dateTimeFrom, setDateTimeFrom] = useState('')
     const [dateTimeTo, setDateTimeTo] = useState('')
-
+    
     const dataParam: IParamHistorySearch = {
         ticker,
         orderStatus,
@@ -41,7 +40,7 @@ function OrderHistorySearch(props: any) {
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
             <select className="form-select form-select-sm" onChange={(event) => setOrderStatus(event.target.value)}>
-                {ORDER_HISTORY_SEARCH_STATUS.map((item: string, index: number) => <option value={item} key={index}>{item}</option>)}
+                {ORDER_HISTORY_SEARCH_STATUS.map((item: any) =>( <option value={item.code} key={item.code}>{item.name}</option>))}
             </select>
         </div>
     )

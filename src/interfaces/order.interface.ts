@@ -165,3 +165,8 @@ export interface IParamHistorySearch {
     dateTimeFrom: string;
     dateTimeTo: string;
 }
+
+export interface IHistorySearchStatus {
+    code: number, 
+    name: string
+}

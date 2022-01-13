@@ -1,11 +1,21 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio, IHistorySearchStatus } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
+import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
+import * as tdpb from '../models/proto/trading_model_pb';
 
-import { INewsNav, INotificationList, INotificationDetail } from "../interfaces/news.interface"
+export const TradingModel: any = tdpb;
+export const PLACED: number = TradingModel.OrderState.ORDER_STATE_PLACED;
+export const CANCELED: number = TradingModel.OrderState.ORDER_STATE_CANCELED;
+export const PARTIAL: number = TradingModel.OrderState.ORDER_STATE_PARTIAL;
+export const FILLED: number = TradingModel.OrderState.ORDER_STATE_FILLED;
+export const REJECTED: number = TradingModel.OrderState.ORDER_STATE_REJECTED;
+
+
 const test = ''
 export default {
     test
 }
+
 
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
@@ -1016,7 +1026,28 @@ export const ORDER_HISTORY: IOrderHistory[] = [
     },
 ]
 
-export const ORDER_HISTORY_SEARCH_STATUS = ['All', 'Filled', 'Rejected', 'Cancel', 'Working']
+export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
+    {
+        code: PLACED,
+        name: "Placed"
+    },
+    {
+        code: CANCELED,
+        name: "Canceled"
+    },
+    {
+        code: PARTIAL,
+        name: "Partial"
+    },
+    {
+        code: FILLED,
+        name: "Filled"
+    },
+    {
+        code: REJECTED,
+        name: "Rejected"
+    },
+]
 
 export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     {
@@ -1055,7 +1086,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
         orderPrice: '158.35',
         executedVolume: '30,000',
         executedPrice: '158.35',
-        matchedValue: '4,750,500',       
+        matchedValue: '4,750,500',
         excutedDatetime: 'Dec 2 2021 10:01:25'
     },
     {
@@ -1248,7 +1279,7 @@ export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
         pl: '3919.89',
         plPercent: 1.21
     },
-    
+
 ]
 
 export const REPORT_THEAH = ['Name', 'Report Date', 'File Type', 'Status']
@@ -1257,27 +1288,27 @@ export const REPORT_LIST: IReportList[] = [
     {
         name: 'Daily_Report_20211201',
         date: ' Dec 1 2021	',
-        status:'Done'
+        status: 'Done'
     },
     {
         name: 'Daily_Report_20211202',
         date: 'Dec 2 2021',
-        status:'Done'
+        status: 'Done'
     },
     {
         name: 'Daily_Report_20211203',
         date: 'Dec 3 2021',
-        status:'Not Yet'
+        status: 'Not Yet'
     },
     {
         name: 'Daily_Report_20211204',
         date: 'Dec 4 2021',
-        status:'Done'
+        status: 'Done'
     },
     {
         name: 'Daily_Report_20211205',
         date: 'Dec 5 2021',
-        status:'Not Yet'
+        status: 'Not Yet'
     },
 
 ]
@@ -1286,12 +1317,12 @@ export const LIST_NEWS_NAV: INewsNav[] = [
     {
         title: 'Admin News',
         unRead: '02',
-        active:true
+        active: true
     },
     {
         title: 'Trading Results',
         unRead: '0',
-        active:false
+        active: false
     },
 ]
 
