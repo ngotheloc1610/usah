@@ -11,6 +11,7 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { formatNumber } from "../../../helper/utils";
+import { IAuthen } from "../../../interfaces";
 
 
 const defaultProps: IPropListOrder = {
@@ -48,7 +49,7 @@ const ListOrder = () => {
         }
         ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
             if (resp) {
-                const obj = JSON.parse(resp);
+                const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
                 prepareMessagee(accountId);
                 return;

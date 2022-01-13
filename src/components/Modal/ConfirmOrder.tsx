@@ -9,9 +9,10 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { RESPONSE_RESULT } from '../../constants/general.constant'
+import { RESPONSE_RESULT, SIDE_NAME } from '../../constants/general.constant'
 import { formatNumber } from '../../helper/utils'
 import { use } from 'i18next'
+import { IAuthen } from '../../interfaces'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -192,7 +193,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
         ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
             if (resp) {
-                const obj = JSON.parse(resp);
+                const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
                 if (isCancel) {
                     prepareMessageeCancel(accountId);
@@ -246,6 +247,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
+    const _renderBtnConfirmModifyCancelOrder = () => (
+        <div className="d-flex justify-content-around">
+            <button className="btn btn-primary" disabled={!_checkChangeVolumeOrPrice()} onClick={sendOrder}>CONFIRM</button>
+            <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
+        </div>
+    );
+    const _renderBtnConfirmOrder = () => (
+        <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>
+    )
     const _renderListConfirm = () => (
         <div>
             <table style={{ width: '354px' }}>
@@ -258,13 +268,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 </tbody>
             </table>
             <div style={{ marginTop: '30px' }}>
-                {!isModify && !isCancel && <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>}
-                {(isModify || isCancel) &&
-                    <div className="d-flex justify-content-around">
-                        <button className="btn btn-primary" disabled={!_checkChangeVolumeOrPrice()} onClick={sendOrder}>CONFIRM</button>
-                        <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
-                    </div>
-                }
+                {!isModify && !isCancel && _renderBtnConfirmOrder()}
+                {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
             </div>
         </div>
     )
@@ -277,7 +282,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
             </span>
             {!isModify && !isCancel && <span className={Number(currentSide) === 1 ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === 1 ? 'buy' : 'sell'}
+                {Number(currentSide) === 1 ? SIDE_NAME.buy : SIDE_NAME.sell}
             </b></span>} &nbsp;
             <span className='fs-18'><b>?</b></span>
         </div>

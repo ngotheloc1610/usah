@@ -13,6 +13,7 @@ import { RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
+import { IAuthen } from "../../../interfaces";
 
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
@@ -30,7 +31,7 @@ const ListModifyCancel = () => {
         confirmationConfig: false,
         tickerId: ''
     }
-    const [paramModify, setParamModify] = useState<IParamOrder>(defaultData);
+    const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
     useEffect(() => {
         callWs();
     }, []);
@@ -60,7 +61,7 @@ const ListModifyCancel = () => {
         }
         ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
             if (resp) {
-                const obj = JSON.parse(resp);
+                const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
                 prepareMessagee(accountId);
                 return;
@@ -109,14 +110,14 @@ const ListModifyCancel = () => {
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
         }
-        setParamModify(param);
+        setParamModifyCancel(param);
         if (value === 'modify') {
             setIsModify(true);
             return;
         }
         setIsCancel(true);
     }
-    function togglePopup(isCloseModifyCancel: boolean) {
+    const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
     }
@@ -183,8 +184,8 @@ const ListModifyCancel = () => {
             </div>
         </div>
         <Pagination />
-        {isCancel && <ConfirmOrder isCancel={isCancel} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModify} />}
-        {isModify && <ConfirmOrder isModify={isModify} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModify} />}
+        {isCancel && <ConfirmOrder isCancel={isCancel} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModifyCancel} />}
+        {isModify && <ConfirmOrder isModify={isModify} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModifyCancel} />}
     </div>
 }
 export default ListModifyCancel;

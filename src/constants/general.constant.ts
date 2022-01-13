@@ -16,4 +16,9 @@ export const RESPONSE_RESULT = {
     error: 2
 }
 
+export const SIDE_NAME = {
+    buy: 'buy',
+    sell: 'sell'
+}
+
 export const MARKET_DEPTH_LENGTH = 3;
