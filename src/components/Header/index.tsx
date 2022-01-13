@@ -26,6 +26,7 @@ const Header = () => {
       return;
     }
     ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+      console.log(29, resp);
       if (resp) {
         const obj = JSON.parse(resp);
         accountId = obj.account_id;
