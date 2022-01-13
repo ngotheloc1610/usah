@@ -1,4 +1,4 @@
-import { LIST_DATA_ORDER, LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import Pagination from "../../../pages/Orders/OrderHistory/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
@@ -9,12 +9,14 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { SIDE } from "../../../constants/general.constant";
+import { RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
+import { toast } from "react-toastify";
 
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
+    const [statusOrder, setStatusOrder] = useState(0);
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
@@ -116,14 +118,21 @@ const ListModifyCancel = () => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
     }
+    const _rendetMessageSuccess = (message: string) => (
+        <div>{toast.success('Place order successfully')}</div>
+    )
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
     const getStatusOrderResponse = (value: number, content: string) => {
-        // if (statusOrder === 0) {
-        //     setStatusOrder(value);
-        //     return <>
-        //         {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
-        //         {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
-        //     </>
-        // }
+        if (statusOrder === 0) {
+            setStatusOrder(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
         return <></>;
     }
     const getListModifyCancelData = () => (

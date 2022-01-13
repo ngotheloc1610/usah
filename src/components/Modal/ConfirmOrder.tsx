@@ -36,6 +36,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const handleVolumeModify = (event: any) => {
+        if (Number(event.target.value) > params.volume) {
+            setVolumeModify(params.volume);
+        }
         setVolumeModify(event.target.value);
     }
 
@@ -87,9 +90,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                // handleOrderResponse(tmp, resp['msgText']);
+                handleOrderResponse(tmp, resp['msgText']);
             })
-            // handleCloseConfirmPopup(true);
+            handleCloseConfirmPopup(true);
         }
     }
 
@@ -170,9 +173,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                // handleOrderResponse(tmp, resp['msgText']);
+                handleOrderResponse(tmp, resp['msgText']);
             })
-            // handleCloseConfirmPopup(true);
+            handleCloseConfirmPopup(true);
         }
     }
 
@@ -189,8 +192,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 return;
             }
             else if (isModify) {
-                // if (volumeModify !== par)
-                prepareMessageeModify(accountId);
+                if (params.volume !== volumeModify || params.price !== priceModify) {
+                    console.log(196)
+                    prepareMessageeModify(accountId);
+                }
                 return;
             } else {
                 prepareMessagee(accountId);
@@ -204,24 +209,27 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 accountId = obj.account_id;
                 if (isCancel) {
                     prepareMessageeCancel(accountId);
-                    return;
                 }
                 else if (isModify) {
-                    prepareMessageeModify(accountId);
+                    if (params.volume !== volumeModify || params.price !== priceModify) {
+                        console.log(196)
+                        prepareMessageeModify(accountId);
+                    }
                     return;
                 } else {
                     prepareMessagee(accountId);
-                    return;
                 }
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID;
                 if (isCancel) {
                     prepareMessageeCancel(accountId);
-                    return;
                 }
                 else if (isModify) {
-                    prepareMessageeModify(accountId);
+                    if (params.volume !== volumeModify || params.price !== priceModify) {
+                        console.log(196)
+                        prepareMessageeModify(accountId);
+                    }
                     return;
                 } else {
                     prepareMessagee(accountId);
