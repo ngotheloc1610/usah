@@ -1,4 +1,4 @@
-import { IOrderInfomation, ITickerInfo } from "../../interfaces/order.interface"
+import { ITickerInfo } from "../../interfaces/order.interface"
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../mocks"
 import './TickerDashboard.scss'
 
