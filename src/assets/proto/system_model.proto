@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+message LoginInfo {
+	string login		= 1;
+	string mac_address	= 3;	//PC mac_address
+	string local_ip		= 4;	//local ip
+} 
+
+message Account {
+	int64 account_id 	= 1;
+	string name 				= 2;
+	int64 group_id 				= 3;
+	bool enable_flg 			= 4;
+	TradingRights trading_rights 			= 5;
+	bool api_flg				= 6;
+	int64 registered_date 		= 7;
+	string comment 				= 8;
+	string api_key 				= 9;
+	string password = 10;
+	string secret_key			= 11;	//trading pin
+	enum TradingRights {TRADING_RIGHTS_NONE = 0; TRADING_OPEN_ONLY = 1; TRADING_CLOSE_ONLY = 2; TRADING_NORMAL = 3; }
+}
+
+message AccountBalance {
+	int64 account_id 			= 1;
+	string balance				= 2;
+	string collateral			= 3;
+	string realized_pl			= 4;
+	string margin_required		= 5;
+	string margin_maintain		= 6;
+	string margin_deficit		= 7;
+	string unrealized_pl = 8;
+	string buying_power = 9;
+	string equity 		= 10;
+	string withdrawable_amount = 11;
+	string currency_code				=	12;
+	string password 					=	13; // login password
+}
+
+enum DealAction {
+	DEAL_NONE		= 0;
+	DEAL_BALANCE	= 2;
+	DEAL_CREDIT		= 3;
+	DEAL_CHARGE		= 4;
+	DEAL_BUY 		= 5;
+	DEAL_SELL		= 6;
+	DEAL_COLLATERAL	= 7;
+}
+
+//return code
+enum MsgCode {
+	MT_RET_OK_NONE					= 0;
+	MT_RET_OK						= 1;
+
+	MT_RET_ERROR					= 2;
+	MT_RET_ERR_PARAMS				= 3;	//invalid parameter
+	MT_RET_ERR_PERMISSIONS			= 8;
+	MT_RET_ERR_TIMEOUT				= 9;
+	MT_RET_ERR_NOTFOUND				= 13;
+
+
+	
+
+	
+	
+	
+	
+	
+	MT_RET_SUBCRIBE_OK				= 310;
+	MT_RET_SUBCRIBE_ALREADY			= 311;
+	MT_RET_SUBCRIBE_ERROR			= 312;
+
+	MT_RET_UNSUBCRIBE_OK			= 320;
+	MT_RET_UNSUBCRIBE_ERROR			= 322;
+
+	MT_RET_AUTH_ACCOUNT_INVALID		= 1001;	//Invalid account
+	MT_RET_AUTH_ACCOUNT_DISABLED	= 1002;	//Account is disabled
+	
+	MT_RET_REQUEST_INVALID_VOLUME	= 10014;
+	MT_RET_ERR_NOT_ENOUGH_MONEY = 10019;
+	MT_RET_REQUEST_INVALID_FILL		= 10030;
+	MT_RET_REQUEST_LIMIT_VOLUME		= 10034;
+	MT_RET_REQUEST_INVALID_ORDER_TYPE	= 10035;
+	MT_RET_REQUEST_INVALID_LIMIT_PRICE		= 10036;
+	MT_RET_REQUEST_INVALID_TRIGGER_PRICE		= 10037;
+	MT_RET_REQUEST_PROHIBITED_OPEN_ORDER = 10038;
+	MT_RET_REQUEST_PROHIBITED_CLOSE_ORDER = 10039;
+	MT_RET_MARKET_CLOSED			= 10040;
+
+
+}
+
+

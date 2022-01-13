@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "pricing_model.proto";
+import "system_model.proto";
+
+//Get Last quotes
+message GetLastQuotesRequest {
+  repeated string symbol_code = 1;
+}
+
+message GetLastQuotesResponse {
+  repeated Quote quotes = 1;
+}
+
+//Notify new quotes
+message QuoteEvent {
+  repeated Quote quote = 1;
+}
+
+//Subscribe Quote
+message SubscribeQuoteEventRequest {
+	repeated string symbol_code = 1;
+}
+message SubscribeQuoteEventResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+}
+
+//Unsubscribe Quote
+message UnsubscribeQuoteEventRequest {
+}
+
+message UnsubscribeQuoteEventResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+}
+
+//Chart history
+message ChartRequest {
+   string symbol_code = 1;
+   Chart chart_data = 2;
+   //TODO
+}
+

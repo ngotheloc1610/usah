@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+message Band {
+  string price = 1;
+  string volume = 2;
+  bool tradable = 3;
+  int64 num_orders = 4;
+}
+
+message Quote {
+  int64 id = 1;
+  int32 symbol_id = 2;
+  string symbol_code = 3;
+  repeated Band asks = 4;
+  repeated Band bids = 5;
+  string low = 6;
+  string high = 7;
+  string open = 8;
+  string close = 9; // Last price
+  string net_change = 10;
+  string pct_change = 11;
+  int32 scale = 12;
+  int64 quote_time = 13; // Timestamp in millisecond
+  int32 tick_per_day = 14;
+  string volume_per_day = 15;
+  string current_price = 16;   
+}
+
+
+message Chart {
+  int64 id = 1;
+  int32 symbol_id = 2;
+  string symbol_code = 3;
+
+  //TODO
+}

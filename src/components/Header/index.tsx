@@ -1,10 +1,45 @@
 
 import { LOGO_ICON } from '../../assets';
-import './Header.css'
+import { ROUTER } from '../../constants/route.constant';
+import { Colors } from '../../themes';
+import './Header.scss'
+import { IOrderDropdownModel } from '../../constants/route.interface';
+import TabBarItem, { ITabBarItem } from './TabBarItem';
+import { useEffect, useState } from 'react';
+import queryString from 'query-string';
+import ReduxPersist from '../../config/ReduxPersist';
 
 const Header = () => {
+  const [accountId, setAccountId] = useState('');
+  useEffect(() => {
+    _renderAccountId()
+  }, [])
 
-  const setHeaderTop = () => (
+  const _renderAccountId = () => {
+    const paramStr = window.location.search;
+    const objAuthen = queryString.parse(paramStr);
+    let accountId: string | any = '';
+    if (objAuthen.access_token) {
+      accountId = objAuthen.account_id;
+      ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+      setAccountId(accountId);
+      return;
+    }
+    ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+      if (resp) {
+        const obj = JSON.parse(resp);
+        accountId = obj.account_id;
+        setAccountId(accountId);
+        return;
+      } else {
+        accountId = process.env.REACT_APP_TRADING_ID;
+        setAccountId(accountId);
+        return;
+      }
+    });
+  }
+
+  const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
         <ul className="nav header-top-nav">
@@ -21,7 +56,7 @@ const Header = () => {
             <i className="bi bi-bell-fill"></i>
             <sup className="count">04</sup></a></li>
           <li className="nav-item dropdown">
-            <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">C123466</a>
+            <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" href="#">Sub Menu</a></li>
               <li><a className="dropdown-item" href="#">Logout</a></li>
@@ -32,7 +67,28 @@ const Header = () => {
     </div>
   )
 
-  const setHeaderMain = () => (
+  const _renderDropDown = (item: ITabBarItem, indexKey: number) => (
+    <TabBarItem key={indexKey} itemDropDown={item.itemDropDown} />
+  )
+
+  const _renderTabBar = (item: ITabBarItem, indexKey: number) => (
+    <TabBarItem key={indexKey} itemData={item.itemData} />
+  )
+
+  const _renderMenuItems = () => (
+    ROUTER.map((item: IOrderDropdownModel, index) => {
+      const propData: ITabBarItem = {};
+      const indexKey: number = index;
+      if (item.subTab.length > 0) {
+        propData.itemDropDown = item;
+        return _renderDropDown(propData, indexKey)
+      }
+      propData.itemData = item;
+      return _renderTabBar(propData, indexKey)
+    })
+  )
+
+  const _renderHeaderMain = () => (
     <div className="header-main">
       <div className="container d-flex align-items-end">
         <div className="site-brand">
@@ -43,43 +99,18 @@ const Header = () => {
           </h1>
         </div>
         <ul className="nav header-nav">
-          <li className="nav-item item-dashboard"><a href="/" className="nav-link active">
-            <i className="icon bi bi-app-indicator me-1"></i>
-            <span className="d-none d-lg-inline-block">Dashboard</span></a></li>
-          <li className="nav-item item-news">
-            <a href="/" className="nav-link color-not-active">
-            <i className="icon bi bi-card-text me-1"></i>
-            <span className="d-none d-lg-inline-block">News</span></a></li>
-          <li className="nav-item item-order dropdown">
-            <a className="nav-link dropdown-toggle color-not-active" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i className="icon bi bi-clipboard me-1"></i>
-              <span className="d-none d-lg-inline-block">Order</span></a>
-            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li><a className="dropdown-item item-order-Monitoring" href="/orders/monitoring">Order Monitoring</a></li>
-              <li><a className="dropdown-item item-order-history" href="/orders/history">Order History</a></li>
-              <li><a className="dropdown-item item-trade-history" href="trade-history.html">Trade History</a></li>
-              <li><a className="dropdown-item item-order-portfolio" href="order-portfolio.html">Portfolio</a></li>
-              <li><a className="dropdown-item item-order-new" href="new-order.html">New</a></li>
-              <li><a className="dropdown-item item-order-modify-cancel" href="order-modify-cancel.html">Modify - Cancel Order</a></li>
-            </ul>
-          </li>
-          <li className="nav-item item-customer color-not-active"><a href="#" className="nav-link color-not-active">
-            <i className="icon bi bi-person-workspace me-1"></i>
-            <span className="d-none d-lg-inline-block">Customer Infomation</span></a></li>
-          <li className="nav-item item-report color-not-active"><a href="/" className="nav-link color-not-active">
-            <i className="icon bi bi-clipboard-data me-1"></i>
-            <span className="d-none d-lg-inline-block">Report</span></a></li>
+          {_renderMenuItems()}
         </ul>
       </div>
     </div>
   )
 
-  const setHeaderTemplate = () => (
-    <div className="site-header">
-      {setHeaderTop()}
-      {setHeaderMain()}
+  const _renderHeaderTemplate = () => (
+    <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
+      {_renderHeaderTop()}
+      {_renderHeaderMain()}
     </div>
   )
-  return <div>{setHeaderTemplate()}</div>
+  return <div>{_renderHeaderTemplate()}</div>
 };
 export default Header;

@@ -1,0 +1,57 @@
+.card {
+    border: 0;
+  }
+  
+  .card .card-header {
+    padding: 0.5rem 0.75rem;
+    background-color: #16365C;
+    color: #fff;
+  }
+  
+  .card .card-header .card-title {
+    font-size: 0.85rem;
+  }
+  
+  .card .card-body {
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 0;
+  }
+  
+  .table thead tr th {
+    background-color: #DCE7F4;
+    color: #16365C;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+  
+  .table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  
+  .table.table-i tbody tr th {
+    background-color: #DCE7F4;
+    color: #16365C;
+    font-size: 0.75rem;
+  }
+  
+  .table > :not(:first-child) {
+    border-top: 2px solid #fff !important;
+  }
+  
+  /* Data Table */
+  .table.dataTable {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .dataTables_scroll .dataTables_scrollHead .dataTables_scrollHeadInner {
+    background-color: #DCE7F4;
+  }
+  
+  .dataTables_info {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }

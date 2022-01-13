@@ -314,7 +314,9 @@ proto.Account.toObject = function(includeInstance, msg) {
     apiFlg: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
     registeredDate: jspb.Message.getFieldWithDefault(msg, 7, 0),
     comment: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    apiKey: jspb.Message.getFieldWithDefault(msg, 9, "")
+    apiKey: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    password: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    secretKey: jspb.Message.getFieldWithDefault(msg, 11, "")
   };
 
   if (includeInstance) {
@@ -386,6 +388,14 @@ proto.Account.deserializeBinaryFromReader = function(msg, reader) {
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setApiKey(value);
+      break;
+    case 10:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPassword(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSecretKey(value);
       break;
     default:
       reader.skipField();
@@ -476,6 +486,20 @@ proto.Account.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       9,
+      f
+    );
+  }
+  f = message.getPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      10,
+      f
+    );
+  }
+  f = message.getSecretKey();
+  if (f.length > 0) {
+    writer.writeString(
+      11,
       f
     );
   }
@@ -654,6 +678,42 @@ proto.Account.prototype.setApiKey = function(value) {
 };
 
 
+/**
+ * optional string password = 10;
+ * @return {string}
+ */
+proto.Account.prototype.getPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 10, value);
+};
+
+
+/**
+ * optional string secret_key = 11;
+ * @return {string}
+ */
+proto.Account.prototype.getSecretKey = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setSecretKey = function(value) {
+  return jspb.Message.setProto3StringField(this, 11, value);
+};
+
+
 
 
 
@@ -697,7 +757,8 @@ proto.AccountBalance.toObject = function(includeInstance, msg) {
     buyingPower: jspb.Message.getFieldWithDefault(msg, 9, ""),
     equity: jspb.Message.getFieldWithDefault(msg, 10, ""),
     withdrawableAmount: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    currencyCode: jspb.Message.getFieldWithDefault(msg, 12, "")
+    currencyCode: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    password: jspb.Message.getFieldWithDefault(msg, 13, "")
   };
 
   if (includeInstance) {
@@ -781,6 +842,10 @@ proto.AccountBalance.deserializeBinaryFromReader = function(msg, reader) {
     case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setCurrencyCode(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPassword(value);
       break;
     default:
       reader.skipField();
@@ -892,6 +957,13 @@ proto.AccountBalance.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       12,
+      f
+    );
+  }
+  f = message.getPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      13,
       f
     );
   }
@@ -1115,6 +1187,24 @@ proto.AccountBalance.prototype.setCurrencyCode = function(value) {
 
 
 /**
+ * optional string password = 13;
+ * @return {string}
+ */
+proto.AccountBalance.prototype.getPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountBalance} returns this
+ */
+proto.AccountBalance.prototype.setPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
+};
+
+
+/**
  * @enum {number}
  */
 proto.DealAction = {
@@ -1123,7 +1213,8 @@ proto.DealAction = {
   DEAL_CREDIT: 3,
   DEAL_CHARGE: 4,
   DEAL_BUY: 5,
-  DEAL_SELL: 6
+  DEAL_SELL: 6,
+  DEAL_COLLATERAL: 7
 };
 
 /**
@@ -1143,7 +1234,17 @@ proto.MsgCode = {
   MT_RET_UNSUBCRIBE_OK: 320,
   MT_RET_UNSUBCRIBE_ERROR: 322,
   MT_RET_AUTH_ACCOUNT_INVALID: 1001,
-  MT_RET_AUTH_ACCOUNT_DISABLED: 1002
+  MT_RET_AUTH_ACCOUNT_DISABLED: 1002,
+  MT_RET_REQUEST_INVALID_VOLUME: 10014,
+  MT_RET_ERR_NOT_ENOUGH_MONEY: 10019,
+  MT_RET_REQUEST_INVALID_FILL: 10030,
+  MT_RET_REQUEST_LIMIT_VOLUME: 10034,
+  MT_RET_REQUEST_INVALID_ORDER_TYPE: 10035,
+  MT_RET_REQUEST_INVALID_LIMIT_PRICE: 10036,
+  MT_RET_REQUEST_INVALID_TRIGGER_PRICE: 10037,
+  MT_RET_REQUEST_PROHIBITED_OPEN_ORDER: 10038,
+  MT_RET_REQUEST_PROHIBITED_CLOSE_ORDER: 10039,
+  MT_RET_MARKET_CLOSED: 10040
 };
 
 goog.object.extend(exports, proto);
