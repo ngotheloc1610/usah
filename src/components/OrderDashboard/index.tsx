@@ -1,33 +1,80 @@
 import { ORDER_HEADER_DASHBOARD } from "../../constants/dashboard.constant"
-import { IOrderInfomation } from "../../interfaces/order.interface"
+import { IOrderInfomation, ITickerInfo } from "../../interfaces/order.interface"
+import { LIST_TICKER_INFOR_MOCK_DATA } from "../../mocks"
 import { LIST_DATA_COMPANY } from "../../mocks/general.mock"
-import './OrderDashboard.css'
+import './OrderDashboard.scss'
 
 const OrderDashboard = () => {
 
     const headerTable = () => (
-        ORDER_HEADER_DASHBOARD.map((item: string, index: number) => (
-            <th className="sorting_disabled header-cell" key={index}>
-                {item}
+        <>
+            <th className="sorting_disabled header-cell w-px-150">
+                Company Name
             </th>
-        ))
+            <th className="sorting_disabled header-cell w-px-80">
+                Ticker
+            </th>
+            <th className="sorting_disabled header-cell w-px-100">
+                Previous Close
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Open
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                High
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Low
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Last price
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Volume
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Change
+            </th>
+            <th className="text-center sorting_disabled header-cell w-px-80">
+                Change%
+            </th>
+        </>
     )
 
     const renderDataListCompany = () => (
-        LIST_DATA_COMPANY.map((item: IOrderInfomation, index: number) => (
+        LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo, index: number) => (
             <tr key={index}>
-                <td>{item.companyName}</td>
-                <td>{item.ticker}</td>
-                <td className="text-end">{item.previousClose}</td>
-                <td className="text-end">{item.open}</td>
-                <td className="text-end">{item.high}</td>
-                <td className="text-end">{item.low}</td>
-                <td className="text-end"><span className={item.lastPrice >= 0 ? 'text-success' : 'text-danger'}>{item.lastPrice}</span></td>
-                <td className="text-end"><span className={item.volume >= 0 ? 'text-success' : 'text-danger'}>{item.volume}</span></td>
-                <td className="text-end"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{item.change}</span></td>
-                <td className="text-end"><span className={item.changePercent >= 0 ? 'text-success' : 'text-danger'}>{item.changePercent}%</span></td>
+                <td className="w-px-150">{item.tickerName}</td>
+                <td className="w-px-80">{item.ticker}</td>
+                <td className="text-center w-px-100">{item.previousClose}</td>
+                <td className="text-center w-px-80">{item.open}</td>
+                <td className="text-center w-px-80">{item.high}</td>
+                <td className="text-center w-px-80">{item.low}</td>
+                <td className="text-center w-px-80"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{item.lastPrice}</span></td>
+                <td className="text-center w-px-80"><span className={Number(item.volume) >= 0 ? 'text-success' : 'text-danger'}>{item.volume}</span></td>
+                <td className="text-center w-px-80"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{item.change}</span></td>
+                <td className="text-center w-px-80"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{item.changePrecent}%</span></td>
             </tr>
         ))
+    )
+
+    const _renderTableData = () => (
+        <div className="dataTables_scroll">
+            <div className="dataTables_scrollHead">
+                <div className="dataTables_scrollHeadInner"></div>
+            </div>
+            <div className="dataTables_scrollBody">
+                <table id="table" className="table table-sm table-hover mb-0 dataTable no-footer fixed_headers" >
+                    <thead>
+                        {headerTable()}
+                    </thead>
+
+                    <tbody className="bt-none fs-14 scroll-tbody">
+                        {renderDataListCompany()}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     )
 
 
@@ -36,22 +83,7 @@ const OrderDashboard = () => {
             <div id="table_wrapper" className="dataTables_wrapper dt-bootstrap5 no-footer">
                 <div className="row">
                     <div className="col-sm-12">
-                        <div className="dataTables_scroll">
-                            <div className="dataTables_scrollHead">
-                                <div className="dataTables_scrollHeadInner"></div>
-                            </div>
-                            <div className="dataTables_scrollBody">
-                                <table id="table" className="table table-sm table-hover mb-0 dataTable no-footer" >
-                                    <thead>
-                                        {headerTable()}
-                                    </thead>
-
-                                    <tbody className="bt-none fs-14">
-                                        {renderDataListCompany()}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        {_renderTableData()}
                     </div>
                 </div>
             </div>

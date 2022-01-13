@@ -1,7 +1,17 @@
 import { IOrderBook } from "../../interfaces/order.interface"
 import { DATA_ASK_VOLUME, DATA_BID_PRICE, ORDER_BOOK_HEADER } from "../../mocks"
+import '../OrderDashboard/OrderDashboard.scss'
 
-const OrderBook = () => {
+interface IOrderBookProps {
+    isDashboard: boolean;
+}
+
+const defaultProps = {
+    isDashboard: false
+}
+
+const OrderBook = (props: IOrderBookProps) => {
+    const { isDashboard } = props;
     const _renderAskVol = () => (
         DATA_ASK_VOLUME.map((item: IOrderBook, index: number) => (
             <tr key={index}>
@@ -30,9 +40,23 @@ const OrderBook = () => {
         ))
     )
 
+    const _renderTilte = () => (
+        <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
+    )
+
+    const _renderSearchBox = () => (
+        <div className="card-header-style">
+            <div className="input-group input-group-sm dark">
+                <span className="input-group-text bg-light text-white"><i className="bi bi-search"></i></span>
+                <input type="text" className="form-control bg-light text-white border-start-0" placeholder="Search" />
+            </div>
+        </div>
+    )
+
     const _renderTemplate = () => (
-        <div>
-            <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
+        <>
+            {!isDashboard && _renderTilte()}
+            {isDashboard && _renderSearchBox()}
             <div className="text-uppercase small text-secondary mb-2">
                 <div className="table-responsive">
                     <table cellPadding="0" cellSpacing="0" className="table border table-sm mb-0">
@@ -53,10 +77,12 @@ const OrderBook = () => {
                     </table>
                 </div>
             </div>
-        </div>
+        </>
     )
 
     return <div>{_renderTemplate()}</div>
 }
+
+OrderBook.defaultProps = defaultProps
 
 export default OrderBook

@@ -8,6 +8,7 @@ import { RESPONSE_RESULT } from '../../constants/general.constant';
 toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
+    isDashboard: boolean;
 }
 
 const defaultData: IParamOrder = {
@@ -22,11 +23,12 @@ const defaultData: IParamOrder = {
 }
 
 const defaultProps = {
-    currentTicker: {}
+    currentTicker: {},
+    isDashboard: false
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker } = props;
+    const { currentTicker, isDashboard } = props;
     const [currentSide, setCurrentSide] = useState('1');
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
@@ -180,6 +182,10 @@ const OrderForm = (props: IOrderForm) => {
             onClick={handlePlaceOrder}>Place</a>
     )
 
+    const _renderResetButton = () => (
+        <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
+    )
+
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
@@ -204,6 +210,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="border-top">
                 {validForm && _renderPlaceButtonEnable()}
                 {!validForm && _renderPlaceButtonDisable()}
+                {isDashboard && _renderResetButton()}
             </div>
             {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
         </form>

@@ -1,5 +1,3 @@
-import { IOrderInfomation } from "../interfaces/order.interface";
-
 export const LIST_DATA_COMPANY = [
     {
         companyName: 'Apple Inc.',

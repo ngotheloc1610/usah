@@ -1,7 +1,11 @@
+import { useState } from "react"
+import OrderBook from "../../components/Order/OrderBook"
+import OrderForm from "../../components/Order/OrderForm"
+import StockInfo from "../../components/Order/StockInfo"
 import OrderDashboard from "../../components/OrderDashboard"
 
 const Dashboard = () => {
-
+    const [isDashboard, setIsDashboard] = useState(true)
     const setGeneralTemplate = () => (
         <div className="mb-3 d-flex justify-content-between">
             <div className="d-flex justify-content-center align-items-center">
@@ -37,8 +41,26 @@ const Dashboard = () => {
             <div className="container">
                 {setGeneralTemplate()}
                 <div className="row">
-                    <div className="col-md-7">
+                    <div className="col-lg-7">
                         <OrderDashboard />
+                    </div>
+                    <div className="col-lg-2">
+                        <div>
+                            <OrderBook isDashboard={isDashboard}/>
+                        </div>
+                        <div>
+                            <StockInfo />
+                        </div>
+                    </div>
+                    <div className="col-lg-3">
+                    <div className="card flex-grow-1">
+                            <div className="card-header">
+                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                            </div>
+                            <div className="card-body" style={{height: '500px'}}>
+                                <OrderForm isDashboard={isDashboard} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
