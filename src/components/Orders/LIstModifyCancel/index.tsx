@@ -89,8 +89,11 @@ const ListModifyCancel = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
-    const getTickerName = (sympleId: string) : string => {
+    const getTickerCode = (sympleId: string) : string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    }
+    const getTickerName = (sympleId: string) : string => {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName || '';
     }
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
@@ -98,7 +101,7 @@ const ListModifyCancel = () => {
     function handleModifyCancel(item: IListOrder, value: string) {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
-            tickerCode: item.symbolCode.toString(),
+            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: 'limit',
             volume: Number(item.amount),
@@ -138,12 +141,12 @@ const ListModifyCancel = () => {
     const getListModifyCancelData = () => (
         getDataOrder.map((item, index) => {
             return <tr key={index}>
-                <td>{getTickerName(item.symbolCode.toString())}</td>
+                <td>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                 <td>Limit</td>
                 <td className="text-end">{formatNumber(item.price.toString())}</td>
                 <td className="text-end">{formatNumber(item.amount.toString())}</td>
-                <td className="text-end"></td>
+                <td className="text-end">{formatNumber(item.filledAmount.toString())}</td>
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-center">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
@@ -170,7 +173,7 @@ const ListModifyCancel = () => {
                             <th className="text-end"><span>Volume</span></th>
                             <th className="text-end"><span>Executed Volume</span></th>
                             <th className="text-end"><span>Pending</span></th>
-                            <th className="text-center"><span>Date Time</span></th>
+                            <th className="text-center"><span>Datetime</span></th>
                             <th>&nbsp;</th>
                         </tr>
                     </thead>

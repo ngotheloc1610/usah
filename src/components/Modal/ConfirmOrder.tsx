@@ -38,6 +38,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const handleVolumeModify = (event: any) => {
         if (Number(event.target.value) > params.volume) {
             setVolumeModify(params.volume);
+            return;
         }
         setVolumeModify(event.target.value);
     }
@@ -57,7 +58,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
-        console.log(57, params.orderId);
         if (wsConnected) {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
@@ -74,7 +74,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            console.log(73, order);
             modifyOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
@@ -83,7 +82,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getModifySubject().subscribe(resp => {
-                console.log(83, resp);
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
@@ -91,8 +89,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp['msgText']);
-            })
-            handleCloseConfirmPopup(true);
+            });
+            handleCloseConfirmPopup(false);
         }
     }
 
@@ -122,7 +120,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log(123);
             wsService.getOrderSubject().subscribe(resp => {
+                console.log(125, resp);
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
@@ -130,16 +130,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp['msgText']);
-            })
+            });
+            
             handleCloseConfirmPopup(true);
         }
     }
-
     const prepareMessageeCancel = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
-        console.log(138, wsConnected);
         if (wsConnected) {
             let currentDate = new Date();
             let cancelOrder = new tradingServicePb.CancelOrderRequest();
@@ -156,17 +155,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            console.log(153, order);
             cancelOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-
-            console.log('send cancel to ws')
             wsService.getCancelSubject().subscribe(resp => {
-                console.log(162, resp);
                 let tmp = 0;
                 if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
@@ -174,8 +169,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp['msgText']);
-            })
-            handleCloseConfirmPopup(true);
+            });
+            handleCloseConfirmPopup(false);
         }
     }
 
@@ -189,17 +184,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
             if (isCancel) {
                 prepareMessageeCancel(accountId);
-                return;
             }
             else if (isModify) {
                 if (params.volume !== volumeModify || params.price !== priceModify) {
-                    console.log(196)
                     prepareMessageeModify(accountId);
                 }
-                return;
             } else {
                 prepareMessagee(accountId);
-                return;
             }
             return;
         }
@@ -212,10 +203,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
                 else if (isModify) {
                     if (params.volume !== volumeModify || params.price !== priceModify) {
-                        console.log(196)
                         prepareMessageeModify(accountId);
                     }
-                    return;
                 } else {
                     prepareMessagee(accountId);
                 }
@@ -227,13 +216,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
                 else if (isModify) {
                     if (params.volume !== volumeModify || params.price !== priceModify) {
-                        console.log(196)
                         prepareMessageeModify(accountId);
                     }
-                    return;
                 } else {
                     prepareMessagee(accountId);
-                    return;
                 }
                 return;
             }
@@ -248,9 +234,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
-    // const _checkChangeVolumeOrPrice = () {
-
-    // }
+    const _checkChangeVolumeOrPrice = () => {
+        let isDisable = true;
+        if (isModify) {
+            isDisable = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+        }
+        return isDisable;
+    }
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
@@ -271,7 +261,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatNumber(params.price.toString())}`)}
-                    {_renderConfirmOrder('Value ($)', `${formatNumber((params.volume * params.price).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatNumber((volumeModify * priceModify).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
@@ -279,8 +269,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {!isModify && !isCancel && <button className='btn-primary-custom' style={{ width: '100px' }} onClick={sendOrder} disabled={!isValidOrder}>Place</button>}
                 {(isModify || isCancel) &&
                     <div className="d-flex justify-content-around">
-                        <div className="btn btn-primary" onClick={sendOrder}>CONFIRM</div>
-                        <div className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</div>
+                        <button className="btn btn-primary" disabled={!_checkChangeVolumeOrPrice()} onClick={sendOrder}>CONFIRM</button>
+                        <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
                     </div>
                 }
             </div>
@@ -294,8 +284,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
                 {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
             </span>
-            {!isModify && !isCancel && <span className={Number(currentSide) === tradingModelPb.OrderType.OP_BUY ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === tradingModelPb.OrderType.OP_BUY ? 'buy' : 'sell'}
+            {!isModify && !isCancel && <span className={Number(currentSide) === 1 ? 'order-type text-danger' : 'order-type text-success'}><b>
+                {Number(currentSide) === 1 ? 'buy' : 'sell'}
             </b></span>} &nbsp;
             <span className='fs-18'><b>?</b></span>
         </div>
