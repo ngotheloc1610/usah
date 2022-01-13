@@ -1957,10 +1957,11 @@ proto.GetTradeHistoryRequest.prototype.toObject = function(opt_includeInstance) 
  */
 proto.GetTradeHistoryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ticker: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    symbolCode: jspb.Message.getFieldWithDefault(msg, 1, ""),
     orderType: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    fromDatetime: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    toDatetime: jspb.Message.getFieldWithDefault(msg, 4, "")
+    fromDatetime: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    toDatetime: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    accountId: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -1999,19 +2000,23 @@ proto.GetTradeHistoryRequest.deserializeBinaryFromReader = function(msg, reader)
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setTicker(value);
+      msg.setSymbolCode(value);
       break;
     case 2:
       var value = /** @type {!proto.OrderType} */ (reader.readEnum());
       msg.setOrderType(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setFromDatetime(value);
       break;
     case 4:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setToDatetime(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setAccountId(value);
       break;
     default:
       reader.skipField();
@@ -2042,7 +2047,7 @@ proto.GetTradeHistoryRequest.prototype.serializeBinary = function() {
  */
 proto.GetTradeHistoryRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getTicker();
+  f = message.getSymbolCode();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -2057,16 +2062,23 @@ proto.GetTradeHistoryRequest.serializeBinaryToWriter = function(message, writer)
     );
   }
   f = message.getFromDatetime();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeInt64(
       3,
       f
     );
   }
   f = message.getToDatetime();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeInt64(
       4,
+      f
+    );
+  }
+  f = message.getAccountId();
+  if (f !== 0) {
+    writer.writeInt64(
+      5,
       f
     );
   }
@@ -2074,10 +2086,10 @@ proto.GetTradeHistoryRequest.serializeBinaryToWriter = function(message, writer)
 
 
 /**
- * optional string ticker = 1;
+ * optional string symbol_code = 1;
  * @return {string}
  */
-proto.GetTradeHistoryRequest.prototype.getTicker = function() {
+proto.GetTradeHistoryRequest.prototype.getSymbolCode = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -2086,7 +2098,7 @@ proto.GetTradeHistoryRequest.prototype.getTicker = function() {
  * @param {string} value
  * @return {!proto.GetTradeHistoryRequest} returns this
  */
-proto.GetTradeHistoryRequest.prototype.setTicker = function(value) {
+proto.GetTradeHistoryRequest.prototype.setSymbolCode = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -2110,38 +2122,56 @@ proto.GetTradeHistoryRequest.prototype.setOrderType = function(value) {
 
 
 /**
- * optional string from_datetime = 3;
- * @return {string}
+ * optional int64 from_datetime = 3;
+ * @return {number}
  */
 proto.GetTradeHistoryRequest.prototype.getFromDatetime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.GetTradeHistoryRequest} returns this
  */
 proto.GetTradeHistoryRequest.prototype.setFromDatetime = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional string to_datetime = 4;
- * @return {string}
+ * optional int64 to_datetime = 4;
+ * @return {number}
  */
 proto.GetTradeHistoryRequest.prototype.getToDatetime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.GetTradeHistoryRequest} returns this
  */
 proto.GetTradeHistoryRequest.prototype.setToDatetime = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional int64 account_id = 5;
+ * @return {number}
+ */
+proto.GetTradeHistoryRequest.prototype.getAccountId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.GetTradeHistoryRequest} returns this
+ */
+proto.GetTradeHistoryRequest.prototype.setAccountId = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
@@ -2427,11 +2457,12 @@ proto.GetOrderHistoryRequest.prototype.toObject = function(opt_includeInstance) 
  */
 proto.GetOrderHistoryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ticker: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    symbolCode: jspb.Message.getFieldWithDefault(msg, 1, ""),
     orderType: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    fromDatetime: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    toDatetime: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    orderState: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    fromDatetime: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    toDatetime: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    orderState: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    accoundId: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -2470,23 +2501,27 @@ proto.GetOrderHistoryRequest.deserializeBinaryFromReader = function(msg, reader)
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setTicker(value);
+      msg.setSymbolCode(value);
       break;
     case 2:
       var value = /** @type {!proto.OrderType} */ (reader.readEnum());
       msg.setOrderType(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setFromDatetime(value);
       break;
     case 4:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setToDatetime(value);
       break;
     case 5:
       var value = /** @type {!proto.OrderState} */ (reader.readEnum());
       msg.setOrderState(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setAccoundId(value);
       break;
     default:
       reader.skipField();
@@ -2517,7 +2552,7 @@ proto.GetOrderHistoryRequest.prototype.serializeBinary = function() {
  */
 proto.GetOrderHistoryRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getTicker();
+  f = message.getSymbolCode();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -2532,15 +2567,15 @@ proto.GetOrderHistoryRequest.serializeBinaryToWriter = function(message, writer)
     );
   }
   f = message.getFromDatetime();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeInt64(
       3,
       f
     );
   }
   f = message.getToDatetime();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeInt64(
       4,
       f
     );
@@ -2552,14 +2587,21 @@ proto.GetOrderHistoryRequest.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
+  f = message.getAccoundId();
+  if (f !== 0) {
+    writer.writeInt64(
+      6,
+      f
+    );
+  }
 };
 
 
 /**
- * optional string ticker = 1;
+ * optional string symbol_code = 1;
  * @return {string}
  */
-proto.GetOrderHistoryRequest.prototype.getTicker = function() {
+proto.GetOrderHistoryRequest.prototype.getSymbolCode = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -2568,7 +2610,7 @@ proto.GetOrderHistoryRequest.prototype.getTicker = function() {
  * @param {string} value
  * @return {!proto.GetOrderHistoryRequest} returns this
  */
-proto.GetOrderHistoryRequest.prototype.setTicker = function(value) {
+proto.GetOrderHistoryRequest.prototype.setSymbolCode = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -2592,38 +2634,38 @@ proto.GetOrderHistoryRequest.prototype.setOrderType = function(value) {
 
 
 /**
- * optional string from_datetime = 3;
- * @return {string}
+ * optional int64 from_datetime = 3;
+ * @return {number}
  */
 proto.GetOrderHistoryRequest.prototype.getFromDatetime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.GetOrderHistoryRequest} returns this
  */
 proto.GetOrderHistoryRequest.prototype.setFromDatetime = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional string to_datetime = 4;
- * @return {string}
+ * optional int64 to_datetime = 4;
+ * @return {number}
  */
 proto.GetOrderHistoryRequest.prototype.getToDatetime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.GetOrderHistoryRequest} returns this
  */
 proto.GetOrderHistoryRequest.prototype.setToDatetime = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
@@ -2642,6 +2684,24 @@ proto.GetOrderHistoryRequest.prototype.getOrderState = function() {
  */
 proto.GetOrderHistoryRequest.prototype.setOrderState = function(value) {
   return jspb.Message.setProto3EnumField(this, 5, value);
+};
+
+
+/**
+ * optional int64 accound_id = 6;
+ * @return {number}
+ */
+proto.GetOrderHistoryRequest.prototype.getAccoundId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.GetOrderHistoryRequest} returns this
+ */
+proto.GetOrderHistoryRequest.prototype.setAccoundId = function(value) {
+  return jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
