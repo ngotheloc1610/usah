@@ -50,7 +50,6 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-        console.log(53, payloadClass);
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
@@ -71,10 +70,9 @@ const startWs = async () => {
             orderSubject.next(lastQuoteRes.toObject());
         }
 
-        if (payloadClass === rpc.RpcMessage.Payload.TRADE_HISTORY_RES) {
-            const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
-            tradeHistorySubject.next(tradeHistory.toObject());
-            console.log(66, tradeHistory);
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
+            const tradeHistory = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
+            tradeHistorySubject.next(tradeHistory.toObject().orderList);
         }
         
     }

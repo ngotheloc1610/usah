@@ -41,7 +41,6 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            console.log(44, res);            
             setgetDataTradeHistory(res)
         });
 
@@ -63,17 +62,12 @@ const OrderTradeHistory = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
-            tradeHistoryRequest.getAccountId(Number(accountId));
-
-            // {LIST_TICKER_INFOR_MOCK_DATA.map((item: any) => (tradeHistoryRequest.setSymbolCode(item.symbolId)))}
-            // tradeHistoryRequest.setOrderType(getParamOrderSide())
-            // tradeHistoryRequest.setFromDatetime(dateTimeFrom)
-            // tradeHistoryRequest.setToDatetime(dateTimeTo)
-
+            let tradeHistoryRequest = new queryServicePb.GetOrderRequest();  
+            tradeHistoryRequest.setAccountId(Number(accountId));
+' '
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());  

@@ -1,9 +1,34 @@
-import { ORDER_TRADE_HISTORY } from '../../../mocks'
-import { IOrderTradeHistory } from '../../../interfaces/order.interface'
+import { SIDE, STATE } from "../../../constants/general.constant";
+import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import * as tspb from '../../../models/proto/trading_model_pb';
+import { IOrderTradeHistory, IListOrder } from '../../../interfaces/order.interface'
 import Pagination from '../OrderHistory/Pagination'
+
 
 function TableTradeHistory(props: any) {
     const {getDataTradeHistory} = props
+    console.log(7, getDataTradeHistory);
+    const tradingModelPb: any = tspb;
+    const listOrderHistorySortDate: IListOrder[] = getDataTradeHistory.sort((a:any, b:any) => b.time - a.time);
+
+    const getTickerCode = (sympleId: string) => {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
+    }
+
+    const getTickerName = (sympleId: string) => {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
+    }
+
+    const getSideName = (sideId: number) => {
+        return SIDE.find(item => item.code === sideId)?.title;
+    }
+
+    const formatPrice = (item: string) => {
+        return (Math.round(parseInt(item) * 100) / 100).toFixed(2);
+    }
+
+    
     const _renderTradeHistoryTableHeader = () =>
     (<tr>
         <th className="text-left fz-14">Order ID</th>
@@ -21,43 +46,43 @@ function TableTradeHistory(props: any) {
 
 
     const _renderTradeHistoryTableBody = () => (
-        ORDER_TRADE_HISTORY.map((item: IOrderTradeHistory, index: number) => (
+        listOrderHistorySortDate.map((item, index: number) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.oderId}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
-                    <div className="text-ellipsis text-start">{item.tickerCode}</div>
+                    <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>
                 </td>
                 <td>
-                    <div className="text-ellipsis text-start">{item.tickerName}</div>
+                    <div className="text-ellipsis text-start">{getTickerName(item.symbolCode.toString())}</div>
                 </td>
                 <td className="text-center">
-                    <span className={item.side == 'Sell' ? "text-success" : "text-danger"}>
-                        {item.side}
+                    <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>
+                        {getSideName(item.orderType)}
                     </span>
                 </td>
 
-                <td className="text-center">{item.orderType}</td>
+                <td className="text-center">Limit</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.orderVolume}</div>
+                    <div className="text-ellipsis text-end">{formatNumber(item.amount)}</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.orderPrice}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
                 </td>
 
-                <td className="text-end" >{item.executedVolume}</td>
+                <td className="text-end" >{formatNumber(item.filledAmount)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.executedPrice}</div>
+                    <div className="text-ellipsis text-end">???</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{item.matchedValue}</div>
+                    <div className="text-ellipsis text-end">???</div>
                 </td>
                 <td>
-                    <div className="text-ellipsis  text-end">{item.excutedDatetime}</div>
+                    <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>
                 </td>
             </tr>
         ))
