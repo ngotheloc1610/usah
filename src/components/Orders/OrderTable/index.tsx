@@ -31,7 +31,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const getStateName = (state: number) => {
         return STATE.find(item => item.code === state)?.title;
     }
-    
+
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 

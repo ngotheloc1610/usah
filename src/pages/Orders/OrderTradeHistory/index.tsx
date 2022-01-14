@@ -7,11 +7,10 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
-import '../OrderHistory/orderHistory.css'
-import { useState, useEffect } from 'react'
-
+import '../OrderHistory/orderHistory.scss'
+import { useState, useEffect } from 'react';
 const OrderTradeHistory = () => {
-    const [getDataTradeHistory, setgetDataTradeHistory] = useState([]);
+    const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [tradeSearch, setTradeSearch] = useState({
         ticker: '',
         orderSideSell: false,
@@ -40,7 +39,7 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setgetDataTradeHistory(res)
+            setGetDataTradeHistory(res.tradeList)
         });
 
         return () => renderDataToScreen.unsubscribe();  
@@ -61,12 +60,12 @@ const OrderTradeHistory = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetOrderRequest();  
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
             tradeHistoryRequest.setAccountId(Number(accountId));
 
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());  
@@ -114,7 +113,6 @@ const OrderTradeHistory = () => {
             </div>
         )
     }
-
 
     return (
         <div>

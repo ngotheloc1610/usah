@@ -14,6 +14,7 @@ var dataLastQuotes = {quotesList: []};
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
+const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
 const paramStr = window.location.search;
 const objAuthen = queryString.parse(paramStr);
@@ -24,7 +25,7 @@ const startWs = async () => {
     } else {
         const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
         if (objAuthen) {
-            const obj = JSON.parse(objAuthen);
+            const obj = JSON.parse(objAuthen);         
             token = obj.access_token;
         }
     }
@@ -69,14 +70,19 @@ const startWs = async () => {
             dataLastQuotes = lastQuoteRes.toObject();
             orderSubject.next(lastQuoteRes.toObject());
         }
-
-        if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
-            const tradeHistory = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
-            tradeHistorySubject.next(tradeHistory.toObject().orderList);
-        }
         
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
+            const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
+            orderHistorySubject.next(listOrderHistoryRes.toObject());
+        }
+
+        if (payloadClass === rpc.RpcMessage.Payload.TRADE_HISTORY_RES) {
+            const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
+            tradeHistorySubject.next(tradeHistory.toObject());
+        }
     }
 }
+
 
 startWs();
 
@@ -84,6 +90,7 @@ export const wsService = {
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
+    getListOrderHistory: () => orderHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes,

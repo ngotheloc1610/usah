@@ -32,9 +32,11 @@ export interface IOrderBook {
 export interface IPropListOrder {
     listOrder: IListOrder[];
 }
-
-export interface IPropsTradeHistory {
-    getDataTradeHistory:IListOrder[]
+export interface IPropListOrderHistory {
+    listOrderHistory: IListOrderHistory[]
+}
+export interface IPropListTradeHistory {
+    getDataTradeHistory: IListTradeHistory[]
 }
 export interface IStateListOrder {
     dateCurrent: string;
@@ -66,6 +68,47 @@ export interface IListOrder {
     triggerPrice: string;
     uid: string;
     filledAmount: string;
+}
+export interface IListOrderHistory {
+    amount: string;
+    entry: string;
+    executeMode: string;
+    executedDatetime: string;
+    expireTime: string;
+    fee: string;
+    lastPrice: string;
+    note: string;
+    orderFilling: string;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: string;
+    route: string;
+    sl: string;
+    slippage: string;
+    state: number;
+    swap: string;
+    symbolCode: number;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: string;
+    filledAmount: string;
+}
+export interface IListTradeHistory {
+    amount: string;
+    executedDatetime: string;
+    executedPrice: string;
+    executedVolume: string;
+    matchedValue: string;
+    orderId: string;
+    orderType: number;
+    price: string;
+    tickerCode: string;
+    tickerName: string;
 }
 export interface TickerInfo {
     symbolId: number,
@@ -164,4 +207,18 @@ export interface IOrderPortfolio {
     curentValue: string,
     pl: string,
     plPercent: number
+}
+
+export interface IParamHistorySearch {
+    ticker: string;
+    orderStatus: string;
+    orderSideSell: boolean;
+    orderSideBuy: boolean;
+    dateTimeFrom: string;
+    dateTimeTo: string;
+}
+
+export interface IHistorySearchStatus {
+    code: number, 
+    name: string
 }

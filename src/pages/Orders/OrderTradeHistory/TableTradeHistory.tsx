@@ -1,16 +1,17 @@
-import { SIDE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
+import { SIDE } from "../../../constants/general.constant";
+import { formatOrderTime, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { IOrderTradeHistory, IListOrder, IPropsTradeHistory } from '../../../interfaces/order.interface'
-import Pagination from '../OrderHistory/Pagination'
+import { IListTradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
+import Pagination from '../../../components/Orders/Pagination'
 
 
-function TableTradeHistory(props: IPropsTradeHistory) {
+function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
-    console.log(7, getDataTradeHistory);
+    
     const tradingModelPb: any = tspb;
-    const listOrderHistorySortDate: IListOrder[] = getDataTradeHistory.sort((a:any, b:any) => b.time - a.time);
+
+    const listOrderHistorySortDate: IListTradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.time - a.time);
 
     const getTickerCode = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
@@ -28,7 +29,6 @@ function TableTradeHistory(props: IPropsTradeHistory) {
         return (Math.round(parseInt(item) * 100) / 100).toFixed(2);
     }
 
-    
     const _renderTradeHistoryTableHeader = () =>
     (<tr>
         <th className="text-left fz-14">Order ID</th>
@@ -46,15 +46,15 @@ function TableTradeHistory(props: IPropsTradeHistory) {
 
 
     const _renderTradeHistoryTableBody = () => (
-        listOrderHistorySortDate.map((item: IListOrder, index: number) => (
+        listOrderHistorySortDate.map((item: IListTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
-                    <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>
+                    <div className="text-ellipsis text-start">{getTickerCode(item.tickerCode.toString())}</div>
                 </td>
                 <td>
-                    <div className="text-ellipsis text-start">{getTickerName(item.symbolCode.toString())}</div>
+                    <div className="text-ellipsis text-start">{getTickerName(item.tickerCode.toString())}</div>
                 </td>
                 <td className="text-center">
                     <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>
@@ -72,17 +72,17 @@ function TableTradeHistory(props: IPropsTradeHistory) {
                     <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
                 </td>
 
-                <td className="text-end" >{formatNumber(item.filledAmount)}</td>
+                <td className="text-end" >{formatPrice(item.executedVolume)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">???</div>
+                    <div className="text-ellipsis text-end">{formatNumber(item.executedPrice)}</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">???</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.matchedValue)}</div>
                 </td>
                 <td>
-                    <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>
+                    <div className="text-ellipsis  text-end">{formatOrderTime(Number(item.executedDatetime))}</div>
                 </td>
             </tr>
         ))

@@ -1,3 +1,6 @@
+import * as tspb from '../models/proto/trading_model_pb'
+const tradingModelPb: any = tspb;
+
 export const SIDE = [
     {
         title: 'Buy',
@@ -11,26 +14,25 @@ export const SIDE = [
 export const STATE = [
     {
         title: 'Working',
-        code: 1
+        code: tradingModelPb.OrderState.ORDER_STATE_PLACED
     },
     {
         title: 'Canceled',
-        code: 2
+        code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
     },
     {
         title: 'Working',
-        code: 3
+        code: tradingModelPb.OrderState.ORDER_STATE_PARTIAL
     },
     {
         title: 'Filled',
-        code: 4
+        code: tradingModelPb.OrderState.ORDER_STATE_FILLED
     },
     {
         title: 'Rejected',
-        code: 5
+        code: tradingModelPb.OrderState.ORDER_STATE_REJECTED
     }
 ]
-
 export const INVALID_DATE = 'Invalid date';
 export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss.SSS';
 
