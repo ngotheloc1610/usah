@@ -40,7 +40,6 @@ const ListModifyCancel = () => {
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
-            setGetDataOrder(getDataOrder.sort((a, b) => b.time - a.time));
         });
         return () => listOrder.unsubscribe();
     }, []);
@@ -50,7 +49,7 @@ const ListModifyCancel = () => {
             sendListOrder();
         }, 200);
     }
-
+    const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
     const sendListOrder = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
@@ -151,7 +150,7 @@ const ListModifyCancel = () => {
     }
 
     const getListModifyCancelData = () => (
-        getDataOrder.map((item, index) => {
+        listOrderSortDate.map((item, index) => {
             return <tr key={index}>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>

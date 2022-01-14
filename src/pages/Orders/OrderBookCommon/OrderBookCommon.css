@@ -1,0 +1,87 @@
+/* .input-group {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-align: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    width: 100%;
+} */
+.input-group-sm > .form-control, .input-group-sm > .form-select, .input-group-sm > .input-group-text, .input-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.76563rem;
+    border-radius: 0.2rem;
+}
+.btn-outline-secondary {
+    border-color: #ddd !important;
+    background: rgb(238,238,238);
+}
+.idTabs .btn-outline-secondary.selected {
+    border: 1px solid #16365C;
+    color: #16365C;
+    background-color: #C5D9F1;
+}
+.table > tbody {
+    vertical-align: inherit;
+}
+strong {
+    font-size: 14px;
+}
+.text-table {
+    color: rgb(22,54,92);
+}
+:root {
+    --bs-blue: #2F80ED;
+    --bs-indigo: #5115B1;
+    --bs-purple: #9B51E0;
+    --bs-pink: #E77494;
+    --bs-red: #ED1C24;
+    --bs-orange: #F08122;
+    --bs-yellow: #F2C94C;
+    --bs-green: #66B55D;
+    --bs-teal: #4EC5A1;
+    --bs-cyan: #5C9BCA;
+    --bs-white: #fff;
+    --bs-gray: #6c757d;
+    --bs-gray-dark: #343a40;
+    --bs-gray-100: #f8f9fa;
+    --bs-gray-200: #e9ecef;
+    --bs-gray-300: #dee2e6;
+    --bs-gray-400: #ced4da;
+    --bs-gray-500: #adb5bd;
+    --bs-gray-600: #6c757d;
+    --bs-gray-700: #495057;
+    --bs-gray-800: #343a40;
+    --bs-gray-900: #212529;
+    --bs-primary: #16365C;
+    --bs-secondary: #6c757d;
+    --bs-success: #66B55D;
+    --bs-info: #5C9BCA;
+    --bs-warning: #F2C94C;
+    --bs-danger: #ED1C24;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    --bs-primary-rgb: 22, 54, 92;
+    --bs-secondary-rgb: 108, 117, 125;
+    --bs-success-rgb: 102, 181, 93;
+    --bs-info-rgb: 92, 155, 202;
+    --bs-warning-rgb: 242, 201, 76;
+    --bs-danger-rgb: 237, 28, 36;
+    --bs-light-rgb: 248, 249, 250;
+    --bs-dark-rgb: 33, 37, 41;
+    --bs-white-rgb: 255, 255, 255;
+    --bs-black-rgb: 0, 0, 0;
+    --bs-body-color-rgb: 17, 17, 17;
+    --bs-body-bg-rgb: 255, 255, 255;
+    --bs-font-sans-serif: system-ui, -apple-system,"Segoe UI", Roboto,"Helvetica Neue", Arial,"Noto Sans","Liberation Sans", sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
+    --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+    --bs-body-font-family: var(--bs-font-sans-serif);
+    --bs-body-font-size: 0.875rem;
+    --bs-body-font-weight: 400;
+    --bs-body-line-height: 1.5;
+    --bs-body-color: #111;
+}
