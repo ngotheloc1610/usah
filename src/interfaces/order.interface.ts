@@ -190,10 +190,9 @@ export interface IOrderTradeHistory {
 
 export interface IParamTradeSearch {
     ticker: string,
-    orderSideSell: boolean,
-    orderSideBuy: boolean,
-    dateTimeFrom: string,
-    dateTimeTo: string,
+    orderType: number,
+    fromDatetime: string,
+    toDatetime : string,
 }
 
 export interface IOrderPortfolio {

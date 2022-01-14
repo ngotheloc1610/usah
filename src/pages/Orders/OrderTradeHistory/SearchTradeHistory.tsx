@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { IParamTradeSearch } from '../../../interfaces/order.interface'
+import { IParamTradeSearch, ITickerInfo } from '../../../interfaces/order.interface'
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import * as tmpb from "../../../models/proto/trading_model_pb"
 
 function SearchTradeHistory(props: any) {
     const { getDataFromTradeSearch } = props
@@ -7,37 +9,46 @@ function SearchTradeHistory(props: any) {
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
-    const [dateTimeFrom, setDateTimeFrom] = useState('')
-    const [dateTimeTo, setDateTimeTo] = useState('')
-    
+    const [orderType, setOrderType] = useState(0)
+    const [fromDatetime, setDateTimeFrom] = useState('')
+    const [toDatetime, setDateTimeTo] = useState('')
+
     const dataParam: IParamTradeSearch = {
-        ticker,   
-        orderSideSell,
-        orderSideBuy,
-        dateTimeFrom,
-        dateTimeTo,
+        ticker,
+        orderType,
+        fromDatetime,
+        toDatetime,
+    }
+    useEffect(() => getParamOrderSide(),[orderSideBuy, orderSideSell])
+    const handleSearch = () => {       
+        getDataFromTradeSearch(dataParam)
     }
 
-    const handleSearch = () => {
-        getDataFromTradeSearch(dataParam)
+    const getParamOrderSide = () => {
+        const tradingModelPb: any = tmpb
+        if (orderSideSell === true && orderSideBuy === false) {
+            setOrderType(tradingModelPb.OrderType.OP_SELL)
+        }
+        else if (orderSideSell === false && orderSideBuy === true) {
+            setOrderType(tradingModelPb.OrderType.OP_BUY)
+        }
+        else if (orderSideSell === true && orderSideBuy === true) {            
+            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+        }
+        else {
+            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+        }
     }
 
     const _renderTicker = () => (
         <div className="col-xl-3">
-            <label className="d-block text-secondary mb-1">Ticker</label>
-            <input type="text" className="form-control form-control-sm"
-                value={ticker}
-                onChange={(event) => setTicker(event.target.value)}
-            />
+            <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
+                <option value=''></option>
+                {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
+            </select>
         </div>
+       
     )
-
-    const handleChangeSell = (event: any) => {
-        setOrderSideSell(event.target.checked)
-    }
-    const handleChangeBuy = (event: any) => {
-        setOrderSideBuy(event.target.checked)
-    }
 
     const _renderOrderSide = () => (
         <div className="col-xl-2 pl-30">
@@ -45,11 +56,11 @@ function SearchTradeHistory(props: any) {
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={handleChangeSell} />
+                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={handleChangeBuy} />
+                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>
@@ -62,7 +73,7 @@ function SearchTradeHistory(props: any) {
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
                         <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={dateTimeFrom}
+                            value={fromDatetime}
                             onChange={(event) => setDateTimeFrom(event.target.value)}
                         />
                         <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
@@ -71,7 +82,7 @@ function SearchTradeHistory(props: any) {
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
                         <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={dateTimeTo}
+                            value={toDatetime}
                             onChange={(event) => setDateTimeTo(event.target.value)}
                         />
                         <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
@@ -80,7 +91,6 @@ function SearchTradeHistory(props: any) {
             </div>
         </div>
     )
-
 
     const _renderTemplate = () => (
         <>

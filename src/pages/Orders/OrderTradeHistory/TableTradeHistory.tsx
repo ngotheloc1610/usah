@@ -8,10 +8,9 @@ import Pagination from '../../../components/Orders/Pagination'
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
-    
     const tradingModelPb: any = tspb;
 
-    const listOrderHistorySortDate: IListTradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.time - a.time);
+    const listOrderHistorySortDate: IListTradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.executedDatetime - a.executedDatetime);
 
     const getTickerCode = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;

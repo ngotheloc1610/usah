@@ -1,4 +1,4 @@
-import { IParamTradeSearch } from '../../../interfaces/order.interface'
+import { ITickerInfo, IParamTradeSearch } from '../../../interfaces/order.interface'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
@@ -13,28 +13,15 @@ const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [tradeSearch, setTradeSearch] = useState({
         ticker: '',
-        orderSideSell: false,
-        orderSideBuy: false,
-        dateTimeFrom: '',
-        dateTimeTo: '',
+        orderType: 0,
+        fromDatetime: '',
+        toDatetime: '',
     })
-
-    const { ticker, orderSideSell, orderSideBuy, dateTimeFrom, dateTimeTo } = tradeSearch
+    
+    const { ticker, orderType, fromDatetime, toDatetime } = tradeSearch
 
     const getDataFromTradeSearch = (getDataFromTradeSearch: IParamTradeSearch) => {
         setTradeSearch(getDataFromTradeSearch)
-    }
-
-    const getParamOrderSide = () => {
-        if (orderSideSell === true && orderSideBuy === false) {
-            return 1
-        }
-        else if (orderSideSell === false && orderSideBuy === true) {
-            return 2
-        }
-        else {
-            return 0
-        }
     }
 
     useEffect(() => {
@@ -47,7 +34,7 @@ const OrderTradeHistory = () => {
 
     useEffect(() => { 
         callWs(); 
-    }, []);
+    }, [tradeSearch]);
 
     const callWs = () => {
         setTimeout(() => {
@@ -61,7 +48,13 @@ const OrderTradeHistory = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
+
             tradeHistoryRequest.setAccountId(Number(accountId));
+
+            tradeHistoryRequest.setSymbolCode(ticker)
+            tradeHistoryRequest.setOrderType(orderType)
+            tradeHistoryRequest.setFromDatetime(Number(fromDatetime))
+            tradeHistoryRequest.setToDatetime(Number(toDatetime))
 
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();

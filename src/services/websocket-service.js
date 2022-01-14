@@ -55,7 +55,6 @@ const startWs = async () => {
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
         }
-
         if(payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_SINGLE_RES){
             const singleOrderRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
             orderSubject.next(singleOrderRes.toObject());
@@ -64,18 +63,15 @@ const startWs = async () => {
             const listOrderRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
             listOrderSubject.next(listOrderRes.toObject());
         }
-
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
             const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
             dataLastQuotes = lastQuoteRes.toObject();
             orderSubject.next(lastQuoteRes.toObject());
         }
-        
         if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
             const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
             orderHistorySubject.next(listOrderHistoryRes.toObject());
         }
-
         if (payloadClass === rpc.RpcMessage.Payload.TRADE_HISTORY_RES) {
             const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
             tradeHistorySubject.next(tradeHistory.toObject());
@@ -91,8 +87,8 @@ export const wsService = {
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
     getListOrderHistory: () => orderHistorySubject.asObservable(),
+    getTradeHistory: () => tradeHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes,
-    getTradeHistory: () => tradeHistorySubject.asObservable()
+    getDataLastQuotes: () => dataLastQuotes
 }
