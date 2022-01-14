@@ -9,7 +9,7 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { RESPONSE_RESULT } from '../../constants/general.constant'
+import { KEY_LOCAL_STORAGE, RESPONSE_RESULT } from '../../constants/general.constant'
 import { formatNumber } from '../../helper/utils'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -82,11 +82,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let accountId: string | any = '';
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen));
             prepareMessagee(accountId);
             return;
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+        ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;

@@ -8,6 +8,7 @@ import TabBarItem, { ITabBarItem } from './TabBarItem';
 import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
+import { KEY_LOCAL_STORAGE } from '../../constants/general.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -21,11 +22,11 @@ const Header = () => {
     let accountId: string | any = '';
     if (objAuthen.access_token) {
       accountId = objAuthen.account_id;
-      ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+      ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen));
       setAccountId(accountId);
       return;
     }
-    ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+    ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
       if (resp) {
         const obj = JSON.parse(resp);
         accountId = obj.account_id;
@@ -37,6 +38,12 @@ const Header = () => {
         return;
       }
     });
+  }
+
+  const handleLogout = () => {
+    ReduxPersist.storeConfig.storage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    const baseUrl = window.location.origin;
+    window.location.href = `${baseUrl}/login`;
   }
 
   const _renderHeaderTop = () => (
@@ -59,7 +66,7 @@ const Header = () => {
             <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" href="#">Sub Menu</a></li>
-              <li><a className="dropdown-item" href="#">Logout</a></li>
+              <li><a className="dropdown-item" onClick={handleLogout}>Logout</a></li>
             </ul>
           </li>
         </ul>

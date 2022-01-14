@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SIDE } from "../../../constants/general.constant";
+import { KEY_LOCAL_STORAGE, SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -41,11 +41,11 @@ const ListOrder = () => {
         let accountId: string | any = '';
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen));
             prepareMessagee(accountId);
             return;
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+        ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;

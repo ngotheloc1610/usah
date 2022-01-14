@@ -42,3 +42,7 @@ export const RESPONSE_RESULT = {
 }
 
 export const MARKET_DEPTH_LENGTH = 3;
+
+export const KEY_LOCAL_STORAGE = {
+    AUTHEN: 'objAuthen'
+};

@@ -2218,7 +2218,7 @@ proto.GetTradeHistoryResponse.toObject = function(includeInstance, msg) {
     msgText: jspb.Message.getFieldWithDefault(msg, 2, ""),
     tradeList: jspb.Message.toObjectList(msg.getTradeList(),
     trading_model_pb.Trade.toObject, includeInstance),
-    accoundId: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    accountId: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -2270,7 +2270,7 @@ proto.GetTradeHistoryResponse.deserializeBinaryFromReader = function(msg, reader
       break;
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccoundId(value);
+      msg.setAccountId(value);
       break;
     default:
       reader.skipField();
@@ -2323,7 +2323,7 @@ proto.GetTradeHistoryResponse.serializeBinaryToWriter = function(message, writer
       trading_model_pb.Trade.serializeBinaryToWriter
     );
   }
-  f = message.getAccoundId();
+  f = message.getAccountId();
   if (f !== 0) {
     writer.writeInt64(
       4,
@@ -2408,10 +2408,10 @@ proto.GetTradeHistoryResponse.prototype.clearTradeList = function() {
 
 
 /**
- * optional int64 accound_id = 4;
+ * optional int64 account_id = 4;
  * @return {number}
  */
-proto.GetTradeHistoryResponse.prototype.getAccoundId = function() {
+proto.GetTradeHistoryResponse.prototype.getAccountId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
@@ -2420,7 +2420,7 @@ proto.GetTradeHistoryResponse.prototype.getAccoundId = function() {
  * @param {number} value
  * @return {!proto.GetTradeHistoryResponse} returns this
  */
-proto.GetTradeHistoryResponse.prototype.setAccoundId = function(value) {
+proto.GetTradeHistoryResponse.prototype.setAccountId = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
 };
 
@@ -2462,7 +2462,7 @@ proto.GetOrderHistoryRequest.toObject = function(includeInstance, msg) {
     fromDatetime: jspb.Message.getFieldWithDefault(msg, 3, 0),
     toDatetime: jspb.Message.getFieldWithDefault(msg, 4, 0),
     orderState: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    accoundId: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    accountId: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -2521,7 +2521,7 @@ proto.GetOrderHistoryRequest.deserializeBinaryFromReader = function(msg, reader)
       break;
     case 6:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccoundId(value);
+      msg.setAccountId(value);
       break;
     default:
       reader.skipField();
@@ -2587,7 +2587,7 @@ proto.GetOrderHistoryRequest.serializeBinaryToWriter = function(message, writer)
       f
     );
   }
-  f = message.getAccoundId();
+  f = message.getAccountId();
   if (f !== 0) {
     writer.writeInt64(
       6,
@@ -2688,10 +2688,10 @@ proto.GetOrderHistoryRequest.prototype.setOrderState = function(value) {
 
 
 /**
- * optional int64 accound_id = 6;
+ * optional int64 account_id = 6;
  * @return {number}
  */
-proto.GetOrderHistoryRequest.prototype.getAccoundId = function() {
+proto.GetOrderHistoryRequest.prototype.getAccountId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
@@ -2700,7 +2700,7 @@ proto.GetOrderHistoryRequest.prototype.getAccoundId = function() {
  * @param {number} value
  * @return {!proto.GetOrderHistoryRequest} returns this
  */
-proto.GetOrderHistoryRequest.prototype.setAccoundId = function(value) {
+proto.GetOrderHistoryRequest.prototype.setAccountId = function(value) {
   return jspb.Message.setProto3IntField(this, 6, value);
 };
 
@@ -2748,7 +2748,7 @@ proto.GetOrderHistoryResponse.toObject = function(includeInstance, msg) {
     msgText: jspb.Message.getFieldWithDefault(msg, 2, ""),
     orderList: jspb.Message.toObjectList(msg.getOrderList(),
     trading_model_pb.Order.toObject, includeInstance),
-    accoundId: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    accountId: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -2800,7 +2800,7 @@ proto.GetOrderHistoryResponse.deserializeBinaryFromReader = function(msg, reader
       break;
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccoundId(value);
+      msg.setAccountId(value);
       break;
     default:
       reader.skipField();
@@ -2853,7 +2853,7 @@ proto.GetOrderHistoryResponse.serializeBinaryToWriter = function(message, writer
       trading_model_pb.Order.serializeBinaryToWriter
     );
   }
-  f = message.getAccoundId();
+  f = message.getAccountId();
   if (f !== 0) {
     writer.writeInt64(
       4,
@@ -2938,10 +2938,10 @@ proto.GetOrderHistoryResponse.prototype.clearOrderList = function() {
 
 
 /**
- * optional int64 accound_id = 4;
+ * optional int64 account_id = 4;
  * @return {number}
  */
-proto.GetOrderHistoryResponse.prototype.getAccoundId = function() {
+proto.GetOrderHistoryResponse.prototype.getAccountId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
@@ -2950,7 +2950,7 @@ proto.GetOrderHistoryResponse.prototype.getAccoundId = function() {
  * @param {number} value
  * @return {!proto.GetOrderHistoryResponse} returns this
  */
-proto.GetOrderHistoryResponse.prototype.setAccoundId = function(value) {
+proto.GetOrderHistoryResponse.prototype.setAccountId = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
 };
 
