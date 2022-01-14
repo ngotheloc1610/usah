@@ -1,120 +1,90 @@
-import { ORDER_HISTORY } from '../../../mocks'
-import { IOrderHistory } from '../../../interfaces/order.interface'
-import SearchOrderHistory from './SearchOrderHistory'
-import Pagination from "./Pagination"
-import './custom.css'
-import './orderHistory.css'
-
+import OrderHistorySearch from '../../../components/Orders/OrderSearch'
+import OrderTable from '../../../components/Orders/OrderTable'
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from "../../../models/proto/query_service_pb"
+import * as rspb from "../../../models/proto/rpc_pb";
+import ReduxPersist from "../../../config/ReduxPersist";
+import queryString from 'query-string';
+import { IParamHistorySearch } from '../../../interfaces/order.interface'
+import { useEffect, useState } from 'react';
 
 const OrderHistory = () => {
-    const _renderOrderHistoryTableHeader = () =>
-    (
-        <tr>
-            <th><span className="text-ellipsis center center-sp fz-14">Order ID</span></th>
-            <th style={{ width: 200 }}>
-                <div className="text-ellipsis text-start fz-14">Ticker Code</div>
-                <div className="text-ellipsis text-start fz-14">Ticker Name</div>
-            </th >
-            <th className="text-center center fz-14" style={{ width: 120 }}>Order Side</th>
-            <th className="text-center center fz-14" style={{ width: 120 }}> Order Status</th>
-            <th className="text-center center fz-14" style={{ width: 120 }}>Order Type</th>
-            <th style={{ width: 120 }}>
-                <div className="text-ellipsis text-end fz-14">Order Volume</div>
-                <div className="text-ellipsis text-end fz-14">Remaining Volume</div>
-            </th>
-            <th className="text-end  center cennter-min fz-14" style={{ width: 140 }}> Executed Volume
-            </th>
-            <th style={{ width: 120 }}>
-                <div className="text-ellipsis text-end fz-14">Order Price</div>
-                <div className="text-ellipsis text-end fz-14">Last Price</div>
-            </th>
-            <th style={{ width: 180 }}>
-                <div className="text-ellipsis text-end fz-14">
-                    Order Datetime
-                </div>
-                <div className="text-ellipsis text-end fz-14">
-                    Executed Datetime
-                </div>
-            </th>
-        </tr>
-    )
 
+    const [getDataOrderHistory, setgetDataOrderHistory] = useState([]);
 
-    const _renderOrderHistoryTableBody = () => (
-        ORDER_HISTORY.map((item: IOrderHistory, index: number) => (
-            <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+    useEffect(() => {
+        const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {   
+            setgetDataOrderHistory(res.orderList)
+        });
 
-                <td>
-                    <div className="text-ellipsis text-start">{item.ticker}</div>
-                    <div className="text-ellipsis text-start">{item.companyName}</div>
-                </td>
-                <td className="text-center"><span className={item.side == 'Sell' ? "text-success" : "text-danger"}>{item.side}</span></td>
+        return () => renderDataToScreen.unsubscribe();  
+    }, [])
 
-                <td className={item.orderStatus == 'Working' ? "text-info text-center" : "text-center"}>
-                    {item.orderStatus}
-                </td>
+    useEffect(() => callWs(), []);
 
-                <td className="text-center">{item.orderType}</td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.orderVolume}</div>
-                    <div className="text-ellipsis text-end">{item.remainVolume}</div>
-                </td>
-
-                <td className="text-end">{item.executedVolume}</td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.orderPrice}</div>
-                    {item.lastPrice && <div className="text-ellipsis text-end">{item.lastPrice}</div>}
-                    {item.lastPrice === '' && <div className="text-ellipsis text-end">&nbsp;</div>}
-                </td>
-
-                <td>
-                    <div className="text-ellipsis  text-end">{item.orderDatetime}</div>
-                    {item.excutedDatetime && <div className="text-ellipsis  text-end">{item.excutedDatetime}</div>}
-                    {item.excutedDatetime === '' && <div className="text-ellipsis  text-end">&nbsp;</div>}
-                </td>
-            </tr>
-        ))
-    )
-
-
-    const _renderOrderHistoryTable = () => {
-        return (
-            <div className="card-body">
-                <div className="table-responsive mb-3">
-                    <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
-                        <thead>
-                            {_renderOrderHistoryTableHeader()}
-                        </thead>
-                        <tbody>
-                            {_renderOrderHistoryTableBody()}
-                        </tbody>
-                    </table>
-                    <Pagination />
-                </div>
-                <p className="text-end border-top pt-3">
-                    <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-                </p>
-            </div>
-        )
+    const callWs = () => {
+        setTimeout(() => {
+            sendListOrder();
+        }, 500)
     }
+
+    const prepareMessagee = (accountId: string ) => {
+        const uid = accountId;
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();           
+            orderHistoryRequest.setAccoundId(uid);
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
+            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());  
+        }
+    }
+
+    const sendListOrder = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '' ;
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
+                prepareMessagee(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+ 
     const _renderOrderHistory = () => {
         return (
             <div className='site'>
                 <div className="site-main">
                     <div className="container">
                         <div className="card shadow-sm mb-3">
-                            <SearchOrderHistory />
-                            {_renderOrderHistoryTable()}
+                            <OrderHistorySearch  />
+                            <OrderTable listOrderHistory = { getDataOrderHistory } />
                         </div>
                     </div>
                 </div>
             </div>
         )
     }
-
 
     return (
         <div>
