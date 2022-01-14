@@ -1,4 +1,4 @@
-import { ORDER_TYPE, SIDE, STATE } from "../../../constants/general.constant";
+import { ORDER_TYPE, ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ORDER_HISTORY, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
@@ -79,7 +79,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
                 </td>
 
-                <td className="text-center">{ORDER_TYPE.limit.name}</td>
+                <td className="text-center">{ORDER_TYPE_NAME.limit}</td>
 
                 <td>
                     <div className="text-ellipsis text-end">{formatNumber(item.amount)}</div>
