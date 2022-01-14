@@ -2,6 +2,7 @@ import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
+import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
@@ -11,6 +12,7 @@ var socket = null;
 var wsConnected = false;
 var dataLastQuotes = {quotesList: []};
 
+const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
@@ -53,6 +55,12 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
+
+        if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
+            const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());     
+            loginSubject.next(loginRes.toObject());
+        } 
+
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
@@ -92,6 +100,7 @@ const startWs = async () => {
 startWs();
 
 export const wsService = {
+    getLoginResponse: () => loginSubject.asObservable(),
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),

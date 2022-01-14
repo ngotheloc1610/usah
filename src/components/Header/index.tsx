@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { OBJ_AUTHEN } from '../../constants/general.constant';
+import { KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -41,6 +41,12 @@ const Header = () => {
     });
   }
 
+  const handleLogout = () => {
+    ReduxPersist.storeConfig.storage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    const baseUrl = window.location.origin;
+    window.location.href = `${baseUrl}/login`;
+  }
+
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -61,7 +67,7 @@ const Header = () => {
             <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" href="#">Sub Menu</a></li>
-              <li><a className="dropdown-item" href="#">Logout</a></li>
+              <li><a className="dropdown-item" onClick={handleLogout}>Logout</a></li>
             </ul>
           </li>
         </ul>

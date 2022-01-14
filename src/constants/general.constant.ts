@@ -61,3 +61,7 @@ export const ORDER_TYPE = [
 export const ORDER_TYPE_NAME = {
     limit: 'limit'
 };
+
+export const KEY_LOCAL_STORAGE = {
+    AUTHEN: 'objAuthen'
+};
