@@ -9,10 +9,11 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { RESPONSE_RESULT, SIDE_NAME } from '../../constants/general.constant'
+import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
 import { formatNumber } from '../../helper/utils'
 import { use } from 'i18next'
 import { IAuthen } from '../../interfaces'
+import { SIDE } from '../../constants'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -49,7 +50,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const getOrderType = () => {
-        if (params.side === '1') {
+        if (params.side === SIDE[0].id) {
             return tradingModelPb.OrderType.OP_BUY;
         }
         return tradingModelPb.OrderType.OP_SELL;
@@ -84,12 +85,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getModifySubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp['msgText']);
+                handleOrderResponse(tmp, resp[MSG_TEXT]);
             });
             handleCloseConfirmPopup(false);
         }
@@ -123,12 +124,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getOrderSubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp['msgText']);
+                handleOrderResponse(tmp, resp[MSG_TEXT]);
             });
 
             handleCloseConfirmPopup(true);
@@ -162,12 +163,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp['msgCode'] === systemModelPb.MsgCode.MT_RET_OK) {
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp['msgText']);
+                handleOrderResponse(tmp, resp[MSG_TEXT]);
             });
             handleCloseConfirmPopup(false);
         }
@@ -180,7 +181,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let accountId: string | any = '';
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
             if (isCancel) {
                 prepareMessageeCancel(accountId);
             }
@@ -191,7 +192,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             }
             return;
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
             if (resp) {
                 const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
@@ -258,7 +259,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     )
     const _renderListConfirm = () => (
         <div>
-            <table style={{ width: '354px' }}>
+            <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
@@ -267,7 +268,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderTradingPin()}
                 </tbody>
             </table>
-            <div style={{ marginTop: '30px' }}>
+            <div className='mt-30'>
                 {!isModify && !isCancel && _renderBtnConfirmOrder()}
                 {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
             </div>
@@ -292,7 +293,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <div>
             <div className="box">
                 <div>
-                    {isModify ? 'Modify' : isCancel ? 'Cancel' : 'New order confirmation'}
+                    {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
                     <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
                 </div>
             </div>

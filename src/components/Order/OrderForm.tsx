@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
-import { RESPONSE_RESULT } from '../../constants/general.constant';
+import { ORDER_TYPE, RESPONSE_RESULT } from '../../constants/general.constant';
 toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
@@ -139,7 +139,7 @@ const OrderForm = (props: IOrderForm) => {
         const param = {
             tickerCode: currentTicker.ticker,
             tickerName: currentTicker.tickerName,
-            orderType: 'limit',
+            orderType: ORDER_TYPE,
             volume: volume,
             price: price,
             side: currentSide,

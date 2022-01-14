@@ -1,5 +1,5 @@
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-import Pagination from "../../../pages/Orders/OrderHistory/Pagination";
+import Pagination from "../Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE, RESPONSE_RESULT, SIDE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -55,11 +55,11 @@ const ListModifyCancel = () => {
         let accountId: string | any = '';
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
             prepareMessagee(accountId);
             return;
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
             if (resp) {
                 const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
@@ -103,7 +103,7 @@ const ListModifyCancel = () => {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
-            orderType: 'limit',
+            orderType: ORDER_TYPE,
             volume: Number(item.amount),
             price: Number(item.price),
             side: item.orderType.toString(),
@@ -111,7 +111,7 @@ const ListModifyCancel = () => {
             tickerId: item.symbolCode.toString(),
         }
         setParamModifyCancel(param);
-        if (value === 'modify') {
+        if (value === TITLE_CONFIRM['modify']) {
             setIsModify(true);
             return;
         }
@@ -150,10 +150,10 @@ const ListModifyCancel = () => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-center">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, 'modify')}>
+                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
-                    <a onClick={() => handleModifyCancel(item, 'cancel')}>
+                    <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
                         <i className="bi bi-x-lg"></i>
                     </a>
                 </td>

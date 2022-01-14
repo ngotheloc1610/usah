@@ -47,3 +47,12 @@ export const SIDE_NAME = {
 }
 
 export const MARKET_DEPTH_LENGTH = 3;
+export const OBJ_AUTHEN = 'objAuthen';
+export const MSG_CODE = 'msgCode';
+export const MSG_TEXT = 'msgText';
+export const TITLE_CONFIRM = {
+    modify: 'Modify',
+    cancel: 'Cancel',
+    newOrder: 'New order confirmation'
+};
+export const ORDER_TYPE = 'limit';
