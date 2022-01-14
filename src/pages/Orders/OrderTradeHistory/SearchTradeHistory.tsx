@@ -20,7 +20,7 @@ function SearchTradeHistory(props: any) {
         toDatetime,
     }
     useEffect(() => getParamOrderSide(),[orderSideBuy, orderSideSell])
-    const handleSearch = () => {       
+    const handleSearch = () => {
         getDataFromTradeSearch(dataParam)
     }
 
@@ -31,10 +31,7 @@ function SearchTradeHistory(props: any) {
         }
         else if (orderSideSell === false && orderSideBuy === true) {
             setOrderType(tradingModelPb.OrderType.OP_BUY)
-        }
-        else if (orderSideSell === true && orderSideBuy === true) {            
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
-        }
+        }        
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
         }

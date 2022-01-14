@@ -34,7 +34,7 @@ const ListTicker = (props: IListTickerProps) => {
     const callWs = () => {
         setTimeout(() => {
             getOrderBooks();
-        }, 500);
+        }, 200);
     }
 
     const getOrderBooks = () => {

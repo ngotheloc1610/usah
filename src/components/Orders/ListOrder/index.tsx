@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { SIDE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
+import { OBJ_AUTHEN, ORDER_TYPE, ORDER_TYPE_NAME, SIDE } from "../../../constants/general.constant";
+import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -10,6 +10,8 @@ import queryString from 'query-string';
 import ReduxPersist from "../../../config/ReduxPersist";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
+import { formatNumber } from "../../../helper/utils";
+import { IAuthen } from "../../../interfaces";
 
 
 const defaultProps: IPropListOrder = {
@@ -27,7 +29,7 @@ const ListOrder = () => {
             setGetDataOrder(response.orderList);
         });
         return () => listOrder.unsubscribe();
-    });
+    }, []);
 
     const callWs = () => {
         setTimeout(() => {
@@ -41,13 +43,13 @@ const ListOrder = () => {
         let accountId: string | any = '';
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
             prepareMessagee(accountId);
             return;
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
             if (resp) {
-                const obj = JSON.parse(resp);
+                const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
                 prepareMessagee(accountId);
                 return;
@@ -66,11 +68,13 @@ const ListOrder = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let orderRequest = new queryServicePb.GetOrderRequest();
-            orderRequest.setAccountId(uid);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+
+            orderRequest.setAccountId(uid);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
+
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
@@ -133,7 +137,7 @@ const ListOrder = () => {
                     <td className="text-end w-10">{item.orderId}</td>
                     <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                    <td className="text-center w-10">Limit</td>
+                    <td className="text-center w-10">{ORDER_TYPE_NAME.limit}</td>
                     <td className="text-end w-10">{formatNumber(item.price.toString())}</td>
                     <td className="text-end w-10">{formatNumber(item.amount.toString())}</td>
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>

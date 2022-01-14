@@ -4,7 +4,8 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
-import { RESPONSE_RESULT } from '../../constants/general.constant';
+import { ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import * as tdpb from '../../models/proto/trading_model_pb';
 toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
@@ -29,7 +30,8 @@ const defaultProps = {
 
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard } = props;
-    const [currentSide, setCurrentSide] = useState('1');
+    const tradingModel: any = tdpb;
+    const [currentSide, setCurrentSide] = useState(tradingModel.OrderType.OP_BUY);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
@@ -139,7 +141,7 @@ const OrderForm = (props: IOrderForm) => {
         const param = {
             tickerCode: currentTicker.ticker,
             tickerName: currentTicker.tickerName,
-            orderType: 'limit',
+            orderType: ORDER_TYPE_NAME.limit,
             volume: volume,
             price: price,
             side: currentSide,
@@ -152,7 +154,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
         <button type="button"
-            className={side === '2' ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+            className={side === tradingModel.OrderType.OP_SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -189,8 +191,8 @@ const OrderForm = (props: IOrderForm) => {
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
-                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', '2', 'selected', '')}
-                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', '1', '', 'selected')}
+                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.OrderType.OP_SELL , 'selected', '')}
+                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.OrderType.OP_BUY, '', 'selected')}
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
