@@ -1,6 +1,6 @@
 export const FEMALE = 'Female';
 export const MALE = 'Male';
-export const SIDE = [
-    { id: '1', name: 'Buy'},
-    { id: '2', name: 'Sell'}
-];
+export const SIDE = {
+    'buy': 1,
+    'sell': 2,
+};

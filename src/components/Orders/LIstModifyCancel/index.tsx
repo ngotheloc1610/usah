@@ -41,7 +41,7 @@ const ListModifyCancel = () => {
             setGetDataOrder(response.orderList);
         });
         return () => listOrder.unsubscribe();
-    });
+    }, []);
 
     const callWs = () => {
         setTimeout(() => {
@@ -98,7 +98,7 @@ const ListModifyCancel = () => {
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
-    function handleModifyCancel(item: IListOrder, value: string) {
+    const handleModifyCancel = (item: IListOrder, value: string) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),

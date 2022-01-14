@@ -50,7 +50,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const getOrderType = () => {
-        if (params.side === SIDE[0].id) {
+        if (params.side === SIDE['buy'].toString()) {
             return tradingModelPb.OrderType.OP_BUY;
         }
         return tradingModelPb.OrderType.OP_SELL;

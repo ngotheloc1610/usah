@@ -29,7 +29,7 @@ const ListOrder = () => {
             setGetDataOrder(response.orderList);
         });
         return () => listOrder.unsubscribe();
-    });
+    }, []);
 
     const callWs = () => {
         setTimeout(() => {
