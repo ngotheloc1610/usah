@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, SIDE } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE, SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -135,7 +135,7 @@ const ListOrder = () => {
                     <td className="text-end w-10">{item.orderId}</td>
                     <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                    <td className="text-center w-10">Limit</td>
+                    <td className="text-center w-10">{ORDER_TYPE[0].name}</td>
                     <td className="text-end w-10">{formatNumber(item.price.toString())}</td>
                     <td className="text-end w-10">{formatNumber(item.amount.toString())}</td>
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>

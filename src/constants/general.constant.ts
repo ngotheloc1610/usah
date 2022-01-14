@@ -55,4 +55,6 @@ export const TITLE_CONFIRM = {
     cancel: 'Cancel',
     newOrder: 'New order confirmation'
 };
-export const ORDER_TYPE = 'limit';
+export const ORDER_TYPE = [
+    { id: 1, name: 'limit'}
+];

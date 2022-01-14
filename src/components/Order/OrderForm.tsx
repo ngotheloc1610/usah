@@ -139,7 +139,7 @@ const OrderForm = (props: IOrderForm) => {
         const param = {
             tickerCode: currentTicker.ticker,
             tickerName: currentTicker.tickerName,
-            orderType: ORDER_TYPE,
+            orderType: ORDER_TYPE[0].name,
             volume: volume,
             price: price,
             side: currentSide,
