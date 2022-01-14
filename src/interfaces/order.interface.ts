@@ -12,7 +12,9 @@ export interface ITickerInfo {
     change: string,
     changePrecent: string,
 }
+
 export interface IParamOrder {
+    orderId?: string;
     tickerCode: string;
     tickerName: string;
     orderType: string;
@@ -21,6 +23,7 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
+    
 }
 
 export interface IOrderBook {
@@ -32,13 +35,20 @@ export interface IOrderBook {
 export interface IPropListOrder {
     listOrder: IListOrder[];
 }
+
 export interface IPropListOrderHistory {
     listOrderHistory: IListOrderHistory[]
 }
+
+export interface IPropListTradeHistory {
+    getDataTradeHistory: ITradeHistory[]
+}
+
 export interface IStateListOrder {
     dateCurrent: string;
     setDateCurrent: string;
 }
+
 export interface IListOrder {
     amount: string;
     entry: string;
@@ -66,6 +76,7 @@ export interface IListOrder {
     uid: string;
     filledAmount: string;
 }
+
 export interface IListOrderHistory {
     amount: string;
     entry: string;
@@ -95,6 +106,20 @@ export interface IListOrderHistory {
     uid: string;
     filledAmount: string;
 }
+
+export interface ITradeHistory {
+    amount: string;
+    executedDatetime: string;
+    executedPrice: string;
+    executedVolume: string;
+    matchedValue: string;
+    orderId: string;
+    orderType: number;
+    price: string;
+    tickerCode: string;
+    tickerName: string;
+}
+
 export interface TickerInfo {
     symbolId: number,
     tickerName: string,
@@ -143,7 +168,7 @@ export interface ILastQuote {
     volumePerDay: string;
 }
 
-export interface IOrderHistory{
+export interface IOrderHistory {
     orderId: string,
     ticker: string,
     companyName: string,
@@ -159,21 +184,28 @@ export interface IOrderHistory{
     excutedDatetime: string
 }
 
-export interface IOrderTradeHistory{
-    oderId:string,
-    tickerCode:string,
+export interface IOrderTradeHistory {
+    oderId: string,
+    tickerCode: string,
     tickerName: string,
     side: string,
     orderType: string,
     orderVolume: string,
     orderPrice: string,
-    executedVolume:string,
-    executedPrice:string,
-    matchedValue:string,
+    executedVolume: string,
+    executedPrice: string,
+    matchedValue: string,
     excutedDatetime: string
 }
 
-export interface IOrderPortfolio{
+export interface IParamTradeSearch {
+    ticker: string,
+    orderType: number,
+    fromDatetime: string,
+    toDatetime : string,
+}
+
+export interface ITickerPortfolio {
     companyName: string,
     ticker: string,
     ownedVolume: string,
@@ -183,7 +215,7 @@ export interface IOrderPortfolio{
     marketPrice: string,
     curentValue: string,
     pl: string,
-    plPercent: number		
+    plPercent: number
 }
 
 export interface IParamHistorySearch {

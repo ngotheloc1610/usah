@@ -7,7 +7,7 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import { IParamHistorySearch } from '../../../interfaces/order.interface'
 import { useEffect, useState } from 'react';
-import { KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
+import { OBJ_AUTHEN } from '../../../constants/general.constant';
 
 const OrderHistory = () => {
 
@@ -53,12 +53,12 @@ const OrderHistory = () => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
                 prepareMessagee(accountId);
                 return;
             }
         }
-        ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then((resp: string | null) => {
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;

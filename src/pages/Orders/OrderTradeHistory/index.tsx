@@ -1,91 +1,97 @@
-import { ORDER_TRADE_HISTORY } from '../../../mocks'
-import { IOrderTradeHistory } from '../../../interfaces/order.interface'
+import { ITickerInfo, IParamTradeSearch } from '../../../interfaces/order.interface'
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from "../../../models/proto/query_service_pb"
+import * as rpcpb from "../../../models/proto/rpc_pb";
+import ReduxPersist from "../../../config/ReduxPersist";
+import queryString from 'query-string';
 import SearchTradeHistory from './SearchTradeHistory'
-import Pagination from "../../../components/Orders/Pagination"
+import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
-
-
+import { useState, useEffect } from 'react';
+import { Enum } from 'protobufjs';
 const OrderTradeHistory = () => {
+    const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
+    const [tradeSearch, setTradeSearch] = useState({
+        ticker: '',
+        orderType: 0,
+        fromDatetime: '',
+        toDatetime: '',
+    })
     
-    const _renderTradeHistoryTableHeader = () =>
-    (<tr>
-            <th className="text-left fz-14">Order ID</th>
-            <th className="text-start fz-14">Ticker Code</th >
-            <th className="text-start fz-14" >Ticker Name</th>
-            <th className="text-center fz-14" > Order Side </th>
-            <th className="text-center fz-14" >Order Type </th>
-            <th className="text-end fz-14 "> Order Volume	 </th>
-            <th className="text-end fz-14 " >Order Price  </th>
-            <th className="text-end fz-14" > Executed Volume</th>
-            <th className="text-end fz-14">Executed Price</th>
-            <th className="text-end fz-14"> Matched Value</th>
-            <th className="text-end fz-14"> Executed Datetime</th>
-        </tr>)
+    const { ticker, orderType, fromDatetime, toDatetime } = tradeSearch
 
-
-    const _renderTradeHistoryTableBody = () => (
-        ORDER_TRADE_HISTORY.map((item: IOrderTradeHistory, index: number) => (
-            <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.oderId}</a></span></td>
-
-                <td>
-                    <div className="text-ellipsis text-start">{item.tickerCode}</div>
-                </td>
-                <td>
-                    <div className="text-ellipsis text-start">{item.tickerName}</div>
-                </td>
-                <td className="text-center">
-                    <span className={item.side == 'Sell' ? "text-success" : "text-danger"}>
-                        {item.side}
-                    </span>
-                </td>
-
-                <td className="text-center">{item.orderType}</td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.orderVolume}</div>
-                </td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.orderPrice}</div>
-                </td>
-
-                <td className="text-end" >{item.executedVolume}</td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.executedPrice}</div>
-                </td>
-
-                <td>
-                    <div className="text-ellipsis text-end">{item.matchedValue}</div>
-                </td>
-                <td>
-                    <div className="text-ellipsis  text-end">{item.excutedDatetime}</div>
-                </td>
-            </tr>
-        ))
-    )         
-            
-    const _renderTradeHistoryTable = () => {
-        return (
-            <div className="card-body">
-                <div className="table-responsive mb-3">
-                    <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
-                        <thead>
-                            {_renderTradeHistoryTableHeader()}
-                        </thead>
-                        <tbody>
-                            {_renderTradeHistoryTableBody()}
-                        </tbody>
-                    </table>
-                    <Pagination />
-                </div>
-                <p className="text-end border-top pt-3">
-                    <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-                </p>
-            </div>
-        )
+    const getDataFromTradeSearch = (getDataFromTradeSearch: IParamTradeSearch) => {
+        setTradeSearch(getDataFromTradeSearch)
     }
+
+    useEffect(() => {
+        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+            setGetDataTradeHistory(res.tradeList)
+        });
+
+        return () => renderDataToScreen.unsubscribe();  
+    }, [tradeSearch] )
+
+    useEffect(() => { 
+        callWs(); 
+    }, [tradeSearch]);
+
+    const callWs = () => {
+        setTimeout(() => {
+            sendMessage();
+        }, 200)
+    }
+
+    const prepareMessagee = (accountId: string ) => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
+
+            tradeHistoryRequest.setAccountId(Number(accountId));
+
+            tradeHistoryRequest.setSymbolCode(ticker)
+            tradeHistoryRequest.setOrderType(orderType)
+            tradeHistoryRequest.setFromDatetime(Number(fromDatetime))
+            tradeHistoryRequest.setToDatetime(Number(toDatetime))
+
+            const rpcPb: any = rpcpb;
+            let rpcMsg = new rpcPb.RpcMessage();
+            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());  
+        }
+    }
+
+    const sendMessage = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string = '' ;
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
+                prepareMessagee(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(res => {
+            if (res) {
+                const obj = JSON.parse(res);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ?? '';
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+
 
     const _renderTradeHistory = () => {
         return (
@@ -93,8 +99,8 @@ const OrderTradeHistory = () => {
                 <div className="site-main">
                     <div className="container">
                         <div className="card shadow-sm mb-3">
-                            <SearchTradeHistory />
-                            {_renderTradeHistoryTable()}
+                            <SearchTradeHistory getDataFromTradeSearch = { getDataFromTradeSearch } />
+                            <TableTradeHistory getDataTradeHistory = { getDataTradeHistory } />
                         </div>
                     </div>
                 </div>
