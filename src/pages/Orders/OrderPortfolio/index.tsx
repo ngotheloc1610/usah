@@ -84,17 +84,15 @@ function OrderPortfolio() {
         )
     }
     const _renderPortfolio = () => (
-        <div className="site">
-            <div className="site-main">
-                <div className="container">
-                    <div className="card shadow-sm mb-3">
-                        <div className="card-header">
-                            <h6 className="card-title fs-6 mb-0">My Account</h6>
-                        </div>
-                        <div className="card-body">
-                            {_rederPortfolioInvest()}
-                            {_renderPortfolioTable()}
-                        </div>
+        <div className="site-main">
+            <div className="container">
+                <div className="card shadow-sm mb-3">
+                    <div className="card-header">
+                        <h6 className="card-title fs-6 mb-0">My Account</h6>
+                    </div>
+                    <div className="card-body">
+                        {_rederPortfolioInvest()}
+                        {_renderPortfolioTable()}
                     </div>
                 </div>
             </div>

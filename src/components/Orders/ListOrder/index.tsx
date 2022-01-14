@@ -86,6 +86,7 @@ const ListOrder = () => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
     }
     const getSideName = (sideId: number) => {
+        console.log(89, SIDE);
         return SIDE.find(item => item.code === sideId)?.title;
     }
     const btnShowFullData = () => {
