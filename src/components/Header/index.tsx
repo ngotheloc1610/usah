@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { OBJ_AUTHEN } from '../../constants/general.constant';
+import { KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
