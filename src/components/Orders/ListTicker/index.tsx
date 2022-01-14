@@ -140,8 +140,8 @@ const ListTicker = (props: IListTickerProps) => {
             tradable: false,
             volume: '-'
         }
-        return arr.map((item: IBidPrice) => (
-            <tr>
+        return arr.map((item: IBidPrice, index: number) => (
+            <tr key={index}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>

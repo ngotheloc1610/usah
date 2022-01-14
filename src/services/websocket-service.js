@@ -14,6 +14,7 @@ var dataLastQuotes = {quotesList: []};
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
+const orderHistorySubject = new Subject();
 const paramStr = window.location.search;
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
@@ -23,7 +24,7 @@ const startWs = async () => {
     } else {
         const objAuthen = await ReduxPersist.storeConfig.storage.getItem('objAuthen');
         if (objAuthen) {
-            const obj = JSON.parse(objAuthen);
+            const obj = JSON.parse(objAuthen);         
             token = obj.access_token;
         }
     }
@@ -69,6 +70,10 @@ const startWs = async () => {
             orderSubject.next(lastQuoteRes.toObject());
         }
         
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
+            const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
+            orderHistorySubject.next(listOrderHistoryRes.toObject());
+        }
     }
 }
 
@@ -78,6 +83,7 @@ export const wsService = {
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
+    getListOrderHistory: () => orderHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes

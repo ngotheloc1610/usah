@@ -1,5 +1,4 @@
-import './custom.css'
-import './orderHistory.css'
+import '../../../pages/Orders/OrderHistory/orderHistory.scss'
 
 
 

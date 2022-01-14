@@ -32,6 +32,9 @@ export interface IOrderBook {
 export interface IPropListOrder {
     listOrder: IListOrder[];
 }
+export interface IPropListOrderHistory {
+    listOrderHistory: IListOrderHistory[]
+}
 export interface IStateListOrder {
     dateCurrent: string;
     setDateCurrent: string;
@@ -55,6 +58,35 @@ export interface IListOrder {
     sl: string;
     slippage: string;
     state: string;
+    swap: string;
+    symbolCode: number;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: string;
+    filledAmount: string;
+}
+export interface IListOrderHistory {
+    amount: string;
+    entry: string;
+    executeMode: string;
+    executedDatetime: string;
+    expireTime: string;
+    fee: string;
+    lastPrice: string;
+    note: string;
+    orderFilling: string;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: string;
+    route: string;
+    sl: string;
+    slippage: string;
+    state: number;
     swap: string;
     symbolCode: number;
     time: number;
@@ -152,4 +184,18 @@ export interface IOrderPortfolio{
     curentValue: string,
     pl: string,
     plPercent: number		
+}
+
+export interface IParamHistorySearch {
+    ticker: string;
+    orderStatus: string;
+    orderSideSell: boolean;
+    orderSideBuy: boolean;
+    dateTimeFrom: string;
+    dateTimeTo: string;
+}
+
+export interface IHistorySearchStatus {
+    code: number, 
+    name: string
 }

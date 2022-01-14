@@ -1,7 +1,8 @@
 import { REPORT_LIST } from '../../mocks'
 import { IReportList } from '../../interfaces/report.interface'
 import './Report.css'
-import Pagination from '../Orders/OrderHistory/Pagination'
+import Pagination from "../../components/Orders/Pagination"
+
 function Report() {
 
     const _renderReportHeader = () => (
