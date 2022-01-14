@@ -2,13 +2,14 @@ import { ITickerInfo, IParamTradeSearch } from '../../../interfaces/order.interf
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
-import * as rspb from "../../../models/proto/rpc_pb";
+import * as rpcpb from "../../../models/proto/rpc_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
+import { Enum } from 'protobufjs';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [tradeSearch, setTradeSearch] = useState({
@@ -39,7 +40,7 @@ const OrderTradeHistory = () => {
     const callWs = () => {
         setTimeout(() => {
             sendMessage();
-        }, 500)
+        }, 200)
     }
 
     const prepareMessagee = (accountId: string ) => {
@@ -56,9 +57,9 @@ const OrderTradeHistory = () => {
             tradeHistoryRequest.setFromDatetime(Number(fromDatetime))
             tradeHistoryRequest.setToDatetime(Number(toDatetime))
 
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            const rpcPb: any = rpcpb;
+            let rpcMsg = new rpcPb.RpcMessage();
+            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());  

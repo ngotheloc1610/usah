@@ -12,6 +12,7 @@ export interface ITickerInfo {
     change: string,
     changePrecent: string,
 }
+
 export interface IParamOrder {
     orderId?: string;
     tickerCode: string;
@@ -34,16 +35,20 @@ export interface IOrderBook {
 export interface IPropListOrder {
     listOrder: IListOrder[];
 }
+
 export interface IPropListOrderHistory {
     listOrderHistory: IListOrderHistory[]
 }
+
 export interface IPropListTradeHistory {
-    getDataTradeHistory: IListTradeHistory[]
+    getDataTradeHistory: ITradeHistory[]
 }
+
 export interface IStateListOrder {
     dateCurrent: string;
     setDateCurrent: string;
 }
+
 export interface IListOrder {
     amount: string;
     entry: string;
@@ -71,6 +76,7 @@ export interface IListOrder {
     uid: string;
     filledAmount: string;
 }
+
 export interface IListOrderHistory {
     amount: string;
     entry: string;
@@ -100,7 +106,8 @@ export interface IListOrderHistory {
     uid: string;
     filledAmount: string;
 }
-export interface IListTradeHistory {
+
+export interface ITradeHistory {
     amount: string;
     executedDatetime: string;
     executedPrice: string;
@@ -112,6 +119,7 @@ export interface IListTradeHistory {
     tickerCode: string;
     tickerName: string;
 }
+
 export interface TickerInfo {
     symbolId: number,
     tickerName: string,
@@ -196,6 +204,7 @@ export interface IParamTradeSearch {
     fromDatetime: string,
     toDatetime : string,
 }
+
 export interface ITickerPortfolio {
     companyName: string,
     ticker: string,

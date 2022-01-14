@@ -2,7 +2,7 @@ import { SIDE } from "../../../constants/general.constant";
 import { formatOrderTime, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { IListTradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
+import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
 import Pagination from '../../../components/Orders/Pagination'
 
 
@@ -10,7 +10,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
     const tradingModelPb: any = tspb;
 
-    const listOrderHistorySortDate: IListTradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.executedDatetime - a.executedDatetime);
+    const listOrderHistorySortDate: ITradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.executedDatetime - a.executedDatetime);
 
     const getTickerCode = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
@@ -45,7 +45,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
 
 
     const _renderTradeHistoryTableBody = () => (
-        listOrderHistorySortDate.map((item: IListTradeHistory, index: number) => (
+        listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
