@@ -79,7 +79,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
                 </td>
 
-                <td className="text-center">{ORDER_TYPE[0].name}</td>
+                <td className="text-center">{ORDER_TYPE.limit.name}</td>
 
                 <td>
                     <div className="text-ellipsis text-end">{formatNumber(item.amount)}</div>

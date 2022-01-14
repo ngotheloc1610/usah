@@ -103,7 +103,7 @@ const ListModifyCancel = () => {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
-            orderType: ORDER_TYPE[0].name,
+            orderType: ORDER_TYPE.limit.name,
             volume: Number(item.amount),
             price: Number(item.price),
             side: item.orderType.toString(),
@@ -143,7 +143,7 @@ const ListModifyCancel = () => {
             return <tr key={index}>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                <td className="text-center">{ORDER_TYPE[0].name}</td>
+                <td className="text-center">{ORDER_TYPE.limit.name}</td>
                 <td className="text-end">{formatNumber(item.price.toString())}</td>
                 <td className="text-end">{formatNumber(item.amount.toString())}</td>
                 <td className="text-end">{formatNumber(item.filledAmount.toString())}</td>

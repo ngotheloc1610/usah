@@ -255,7 +255,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </div>
     );
     const _renderBtnConfirmOrder = () => (
-        <button className='btn-primary-custom wt-100' onClick={sendOrder} disabled={!isValidOrder}>Place</button>
+        <button className='btn-primary-custom w-px-100' onClick={sendOrder} disabled={!isValidOrder}>Place</button>
     )
     const _renderListConfirm = () => (
         <div>
