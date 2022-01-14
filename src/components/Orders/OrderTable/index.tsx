@@ -32,11 +32,6 @@ function OrderTable(props: IPropListOrderHistory) {
         return STATE.find(item => item.code === state)?.title;
     }
 
-    const formatPrice = (item: string) => {
-        return (Math.round(parseInt(item) * 100) / 100).toFixed(2);
-    }
-
-
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
 
