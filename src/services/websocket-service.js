@@ -89,7 +89,6 @@ const startWs = async () => {
     }
 }
 
-
 startWs();
 
 export const wsService = {
