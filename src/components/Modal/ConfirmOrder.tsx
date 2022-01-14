@@ -13,7 +13,6 @@ import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFI
 import { formatNumber } from '../../helper/utils'
 import { use } from 'i18next'
 import { IAuthen } from '../../interfaces'
-import { SIDE } from '../../constants'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;

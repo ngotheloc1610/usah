@@ -40,6 +40,7 @@ const ListModifyCancel = () => {
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
+            setGetDataOrder(getDataOrder.sort((a, b) => b.time - a.time));
         });
         return () => listOrder.unsubscribe();
     }, []);

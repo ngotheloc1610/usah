@@ -6,6 +6,6 @@ export const Sell = TradingModel.OrderType.OP_SELL;
 export const FEMALE = 'Female';
 export const MALE = 'Male';
 export const SIDE = {
-    Buy: 1,
-    Sell: 2,
+    buy: Buy,
+    sell: Sell,
 };
