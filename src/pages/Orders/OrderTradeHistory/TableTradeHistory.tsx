@@ -2,11 +2,11 @@ import { SIDE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { IOrderTradeHistory, IListOrder } from '../../../interfaces/order.interface'
+import { IOrderTradeHistory, IListOrder, IPropsTradeHistory } from '../../../interfaces/order.interface'
 import Pagination from '../OrderHistory/Pagination'
 
 
-function TableTradeHistory(props: any) {
+function TableTradeHistory(props: IPropsTradeHistory) {
     const {getDataTradeHistory} = props
     console.log(7, getDataTradeHistory);
     const tradingModelPb: any = tspb;
@@ -46,7 +46,7 @@ function TableTradeHistory(props: any) {
 
 
     const _renderTradeHistoryTableBody = () => (
-        listOrderHistorySortDate.map((item, index: number) => (
+        listOrderHistorySortDate.map((item: IListOrder, index: number) => (
             <tr className="align-middle" key={index}>
                 <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
@@ -69,7 +69,7 @@ function TableTradeHistory(props: any) {
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
+                    <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
                 </td>
 
                 <td className="text-end" >{formatNumber(item.filledAmount)}</td>
@@ -89,8 +89,7 @@ function TableTradeHistory(props: any) {
     )
 
 
-    const _renderTradeHistoryTable = () => {
-        return (
+    const _renderTradeHistoryTable = () => (
             <div className="card-body">
                 <div className="table-responsive mb-3">
                     <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
@@ -108,7 +107,7 @@ function TableTradeHistory(props: any) {
                 </p>
             </div>
         )
-    }
+    
     return(
         <>
         {_renderTradeHistoryTable()}

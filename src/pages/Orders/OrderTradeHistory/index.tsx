@@ -12,7 +12,6 @@ import { useState, useEffect } from 'react'
 
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setgetDataTradeHistory] = useState([]);
-    // const [accountId, setAccountId] = useState<string>('');
     const [tradeSearch, setTradeSearch] = useState({
         ticker: '',
         orderSideSell: false,
@@ -64,7 +63,7 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetOrderRequest();  
             tradeHistoryRequest.setAccountId(Number(accountId));
-' '
+
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);

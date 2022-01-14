@@ -19,7 +19,6 @@ function SearchTradeHistory(props: any) {
     }
 
     const handleSearch = () => {
-        // console.log(21, dataParam);
         getDataFromTradeSearch(dataParam)
     }
 
