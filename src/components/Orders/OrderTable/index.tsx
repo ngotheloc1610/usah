@@ -3,7 +3,7 @@ import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helpe
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ORDER_HISTORY, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../Pagination'
-import { IPropListOrderHistory, IListOrder } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
 
 const defaultProps: IPropListOrderHistory = {
     listOrderHistory: []
@@ -14,7 +14,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const tradingModelPb: any = tspb;
 
-    const listOrderHistorySortDate: IListOrder[] = listOrderHistory.sort((a, b) => b.time - a.time);
+    const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
 
     const getTickerCode = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
@@ -94,15 +94,15 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-end">{formatNumber(item.filledAmount)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
-                    {item.price && <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>}
-                    {item.price === '' && <div className="text-ellipsis text-end">&nbsp;</div>}
+                    <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
+                    {item.lastPrice && <div className="text-ellipsis text-end">{formatNumber(item.lastPrice)}</div>}
+                    {item.lastPrice === '' && <div className="text-ellipsis text-end">&nbsp;</div>}
                 </td>
 
                 <td>
                     <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>
-                    {item.time && <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>}
-                    {item.time.toString() === '' && <div className="text-ellipsis  text-end">&nbsp;</div>}
+                    {item.executedDatetime && <div className="text-ellipsis  text-end">{formatOrderTime(item.time)}</div>}
+                    {item.executedDatetime === '' && <div className="text-ellipsis  text-end">&nbsp;</div>}
                 </td>
 
             </tr>

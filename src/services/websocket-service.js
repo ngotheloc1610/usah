@@ -70,8 +70,8 @@ const startWs = async () => {
             orderSubject.next(lastQuoteRes.toObject());
         }
         
-        if (payloadClass === rpc.RpcMessage.Payload.ORDER_LIST_RES) {
-            const listOrderHistoryRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
+            const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
             orderHistorySubject.next(listOrderHistoryRes.toObject());
         }
     }

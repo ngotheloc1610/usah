@@ -33,7 +33,7 @@ export interface IPropListOrder {
     listOrder: IListOrder[];
 }
 export interface IPropListOrderHistory {
-    listOrderHistory: IListOrder[]
+    listOrderHistory: IListOrderHistory[]
 }
 export interface IStateListOrder {
     dateCurrent: string;
@@ -45,6 +45,35 @@ export interface IListOrder {
     executeMode: string;
     expireTime: string;
     fee: string;
+    note: string;
+    orderFilling: string;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: string;
+    route: string;
+    sl: string;
+    slippage: string;
+    state: string;
+    swap: string;
+    symbolCode: number;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: string;
+    filledAmount: string;
+}
+export interface IListOrderHistory {
+    amount: string;
+    entry: string;
+    executeMode: string;
+    executedDatetime: string;
+    expireTime: string;
+    fee: string;
+    lastPrice: string;
     note: string;
     orderFilling: string;
     orderId: string;

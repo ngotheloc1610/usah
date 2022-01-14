@@ -13,7 +13,7 @@ const OrderHistory = () => {
     const [getDataOrderHistory, setgetDataOrderHistory] = useState([]);
 
     useEffect(() => {
-        const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {      
+        const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {   
             setgetDataOrderHistory(res.orderList)
         });
 
@@ -34,12 +34,12 @@ const OrderHistory = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let orderRequest = new queryServicePb.GetOrderRequest();           
-            orderRequest.setAccountId(uid);
+            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();           
+            orderHistoryRequest.setAccoundId(uid);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-            rpcMsg.setPayloadData(orderRequest.serializeBinary());
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
+            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());  
         }
