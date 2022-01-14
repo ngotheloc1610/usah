@@ -8,6 +8,8 @@ import TabBarItem, { ITabBarItem } from './TabBarItem';
 import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
+import { IAuthen } from '../../interfaces';
+import { OBJ_AUTHEN } from '../../constants/general.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -21,13 +23,13 @@ const Header = () => {
     let accountId: string | any = '';
     if (objAuthen.access_token) {
       accountId = objAuthen.account_id;
-      ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen));
+      ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
       setAccountId(accountId);
       return;
     }
-    ReduxPersist.storeConfig.storage.getItem('objAuthen').then(resp => {
+    ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
       if (resp) {
-        const obj = JSON.parse(resp);
+        const obj: IAuthen = JSON.parse(resp);
         accountId = obj.account_id;
         setAccountId(accountId);
         return;

@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, IOrderPortfolio, IHistorySearchStatus } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -1182,7 +1182,7 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     },
 ]
 
-export const ORDER_PORTFOLIO: IOrderPortfolio[] = [
+export const ORDER_PORTFOLIO: ITickerPortfolio[] = [
     {
         companyName: 'Apple inc',
         ticker: 'AAPL',

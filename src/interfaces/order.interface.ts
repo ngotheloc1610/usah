@@ -13,6 +13,7 @@ export interface ITickerInfo {
     changePrecent: string,
 }
 export interface IParamOrder {
+    orderId?: string;
     tickerCode: string;
     tickerName: string;
     orderType: string;
@@ -21,6 +22,7 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
+    
 }
 
 export interface IOrderBook {
@@ -143,7 +145,7 @@ export interface ILastQuote {
     volumePerDay: string;
 }
 
-export interface IOrderHistory{
+export interface IOrderHistory {
     orderId: string,
     ticker: string,
     companyName: string,
@@ -159,21 +161,21 @@ export interface IOrderHistory{
     excutedDatetime: string
 }
 
-export interface IOrderTradeHistory{
-    oderId:string,
-    tickerCode:string,
+export interface IOrderTradeHistory {
+    oderId: string,
+    tickerCode: string,
     tickerName: string,
     side: string,
     orderType: string,
     orderVolume: string,
     orderPrice: string,
-    executedVolume:string,
-    executedPrice:string,
-    matchedValue:string,
+    executedVolume: string,
+    executedPrice: string,
+    matchedValue: string,
     excutedDatetime: string
 }
 
-export interface IOrderPortfolio{
+export interface ITickerPortfolio {
     companyName: string,
     ticker: string,
     ownedVolume: string,

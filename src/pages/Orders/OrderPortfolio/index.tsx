@@ -1,5 +1,5 @@
 import { ORDER_PORTFOLIO } from '../../../mocks'
-import { IOrderPortfolio } from '../../../interfaces/order.interface'
+import { ITickerPortfolio } from '../../../interfaces/order.interface'
 import './orderPortfolio.css'
 
 function OrderPortfolio() {
@@ -44,7 +44,7 @@ function OrderPortfolio() {
         </tr>
     )
     const _renderPortfolioTableBody = () => (
-        ORDER_PORTFOLIO.map((item: IOrderPortfolio, index: number) => (
+        ORDER_PORTFOLIO.map((item: ITickerPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" >{item.companyName}</td>
                 <td className="text-start w-s td">{item.ticker}</td>

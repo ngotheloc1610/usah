@@ -4,11 +4,11 @@ const tradingModelPb: any = tspb;
 export const SIDE = [
     {
         title: 'Buy',
-        code: 100
+        code: Number(tradingModelPb.OrderState.OP_BUY),
     },
     {
         title: 'Sell',
-        code: 101
+        code: Number(tradingModelPb.OrderState.OP_SELL)
     }
 ]
 export const STATE = [
@@ -41,4 +41,23 @@ export const RESPONSE_RESULT = {
     error: 2
 }
 
+export const SIDE_NAME = {
+    buy: 'buy',
+    sell: 'sell'
+}
+
 export const MARKET_DEPTH_LENGTH = 3;
+export const OBJ_AUTHEN = 'objAuthen';
+export const MSG_CODE = 'msgCode';
+export const MSG_TEXT = 'msgText';
+export const TITLE_CONFIRM = {
+    modify: 'Modify',
+    cancel: 'Cancel',
+    newOrder: 'New order confirmation'
+};
+export const ORDER_TYPE = [
+    { id: 1, name: 'limit'}
+];
+export const ORDER_TYPE_NAME = {
+    limit: 'limit'
+};
