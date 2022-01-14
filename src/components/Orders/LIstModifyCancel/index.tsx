@@ -32,6 +32,7 @@ const ListModifyCancel = () => {
         tickerId: ''
     }
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
+
     useEffect(() => {
         callWs();
     }, []);
@@ -80,24 +81,30 @@ const ListModifyCancel = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let orderRequest = new queryServicePb.GetOrderRequest();
-            orderRequest.setAccountId(uid);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+
+            orderRequest.setAccountId(uid);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
+            
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
+
     const getTickerCode = (sympleId: string) : string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
     }
+
     const getTickerName = (sympleId: string) : string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName || '';
     }
+
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
+
     const handleModifyCancel = (item: IListOrder, value: string) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
@@ -117,10 +124,12 @@ const ListModifyCancel = () => {
         }
         setIsCancel(true);
     }
+    
     const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
     }
+
     const _rendetMessageSuccess = (message: string) => (
         <div>{toast.success('Place order successfully')}</div>
     )
@@ -128,6 +137,7 @@ const ListModifyCancel = () => {
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
+
     const getStatusOrderResponse = (value: number, content: string) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
@@ -138,6 +148,7 @@ const ListModifyCancel = () => {
         }
         return <></>;
     }
+
     const getListModifyCancelData = () => (
         getDataOrder.map((item, index) => {
             return <tr key={index}>

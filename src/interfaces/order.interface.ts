@@ -175,7 +175,7 @@ export interface IOrderTradeHistory {
     excutedDatetime: string
 }
 
-export interface IOrderPortfolio {
+export interface ITickerPortfolio {
     companyName: string,
     ticker: string,
     ownedVolume: string,

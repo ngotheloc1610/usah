@@ -49,13 +49,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setPriceModify(event.target.value);
     }
 
-    const getOrderType = () => {
-        if (params.side === SIDE['buy'].toString()) {
-            return tradingModelPb.OrderType.OP_BUY;
-        }
-        return tradingModelPb.OrderType.OP_SELL;
-    }
-
     const prepareMessageeModify = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
@@ -72,11 +65,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
-            order.setOrderType(getOrderType());
+            order.setOrderType(params.side);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             modifyOrder.addOrder(order);
+
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
             rpcMsg.setPayloadData(modifyOrder.serializeBinary());
@@ -105,13 +99,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
             singleOrder.setSecretKey(tradingPin);
             singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
-
+            
             let order = new tradingModelPb.Order();
             order.setAmount(`${params.volume}`);
             order.setPrice(`${params.price}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
-            order.setOrderType(getOrderType());
+            order.setOrderType(params.side);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -151,7 +145,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
-            order.setOrderType(getOrderType());
+            order.setOrderType(params.side);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -282,8 +276,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
                 {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
             </span>
-            {!isModify && !isCancel && <span className={Number(currentSide) === 1 ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === 1 ? SIDE_NAME.buy : SIDE_NAME.sell}
+            {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.OrderType.OP_BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
+                {Number(currentSide) === Number(tradingModelPb.OrderType.OP_BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}
             </b></span>} &nbsp;
             <span className='fs-18'><b>?</b></span>
         </div>

@@ -68,11 +68,13 @@ const ListOrder = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let orderRequest = new queryServicePb.GetOrderRequest();
-            orderRequest.setAccountId(uid);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+
+            orderRequest.setAccountId(uid);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
+
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }

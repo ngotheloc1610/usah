@@ -34,7 +34,7 @@ const ListTicker = (props: IListTickerProps) => {
     const callWs = () => {
         setTimeout(() => {
             getOrderBooks();
-        }, 500);
+        }, 200);
     }
 
     const getOrderBooks = () => {
@@ -49,8 +49,7 @@ const ListTicker = (props: IListTickerProps) => {
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
             rpcMsg.setPayloadData(lastQoutes.serializeBinary());
-            // Note
-            // wsService.sendMessage(rpcMsg.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
 
     }
