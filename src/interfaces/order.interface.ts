@@ -219,12 +219,11 @@ export interface ITickerPortfolio {
 }
 
 export interface IParamHistorySearch {
-    ticker: string;
-    orderStatus: string;
-    orderSideSell: boolean;
-    orderSideBuy: boolean;
-    dateTimeFrom: string;
-    dateTimeTo: string;
+    ticker: string,
+    orderState: number
+    orderType: number,
+    fromDatetime: string,
+    toDatetime: string,
 }
 
 export interface IHistorySearchStatus {

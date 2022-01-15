@@ -270,7 +270,7 @@ SITE MAIN
 --------------*/
 
 .card {
-    border: 0;
+    border: 0 !important;
     .card-header {
         padding: 0.5rem 0.75rem;
         background-color: #16365C;

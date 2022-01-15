@@ -3,7 +3,7 @@ import { formatOrderTime, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
-import Pagination from '../../../components/Orders/Pagination'
+import Pagination from '../../../Common/Pagination'
 
 
 function TableTradeHistory(props: IPropListTradeHistory) {
