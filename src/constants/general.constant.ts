@@ -65,3 +65,8 @@ export const ORDER_TYPE_NAME = {
 export const KEY_LOCAL_STORAGE = {
     AUTHEN: 'objAuthen'
 };
+
+export const MODIFY_CANCEL_STATUS = {
+    success: true,
+    error: false
+}

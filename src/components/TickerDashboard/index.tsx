@@ -1,8 +1,23 @@
+import { useState } from "react"
 import { ITickerInfo } from "../../interfaces/order.interface"
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../mocks"
 import './TickerDashboard.scss'
 
-const TickerDashboard = () => {
+interface ITickerDashboard {
+    handleTickerInfo: (item: ITickerInfo) => void
+}
+
+const defaultProps = {
+    handleTickerInfo: null
+}
+
+const TickerDashboard = (props: ITickerDashboard) => {
+
+    const { handleTickerInfo } = props;
+
+    const onClickTickerInfo = (item: ITickerInfo) => {
+        handleTickerInfo(item);
+    }
 
     const headerTable = () => (
         <>
@@ -41,7 +56,7 @@ const TickerDashboard = () => {
 
     const renderDataListCompany = () => (
         LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo, index: number) => (
-            <tr key={index}>
+            <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="w-px-150">{item.tickerName}</td>
                 <td className="w-px-80">{item.ticker}</td>
                 <td className="text-center w-px-100">{item.previousClose}</td>
@@ -92,5 +107,7 @@ const TickerDashboard = () => {
         {setTableData()}
     </div>
 }
+
+TickerDashboard.defaultProps = defaultProps
 
 export default TickerDashboard
