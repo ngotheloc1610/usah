@@ -1,5 +1,5 @@
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-import Pagination from "../Pagination";
+import Pagination from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { OBJ_AUTHEN, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -49,6 +49,7 @@ const ListModifyCancel = () => {
             sendListOrder();
         }, 200);
     }
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
     const sendListOrder = () => {
         const paramStr = window.location.search;
@@ -149,6 +150,12 @@ const ListModifyCancel = () => {
         return <></>;
     }
 
+    const getStatusModifyCancel = (value: boolean) => {
+        if (value) {
+            sendListOrder();
+        }
+    }
+
     const getListModifyCancelData = () => (
         listOrderSortDate.map((item, index) => {
             return <tr key={index}>
@@ -171,7 +178,7 @@ const ListModifyCancel = () => {
             </tr>
         })
     )
-    return <div className="card-modify">
+    return <div className="card-modify mb-3">
         <div className="card-body p-0 mb-3">
             <div className="table">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
@@ -195,8 +202,16 @@ const ListModifyCancel = () => {
             </div>
         </div>
         <Pagination />
-        {isCancel && <ConfirmOrder isCancel={isCancel} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModifyCancel} />}
-        {isModify && <ConfirmOrder isModify={isModify} handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramModifyCancel} />}
+        {isCancel && <ConfirmOrder isCancel={isCancel} 
+                                   handleCloseConfirmPopup={togglePopup}
+                                   handleOrderResponse={getStatusOrderResponse}
+                                   params={paramModifyCancel} 
+                                   handleStatusModifyCancel={getStatusModifyCancel}/>}
+        {isModify && <ConfirmOrder isModify={isModify} 
+                                    handleCloseConfirmPopup={togglePopup} 
+                                    handleOrderResponse={getStatusOrderResponse} 
+                                    params={paramModifyCancel} 
+                                    handleStatusModifyCancel={getStatusModifyCancel}/>}
     </div>
 }
 export default ListModifyCancel;

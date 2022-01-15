@@ -5,13 +5,41 @@ import { PersistGate } from 'redux-persist/integration/react';
 import {Provider} from 'react-redux';
 import RouterDom from './Router';
 import Header from './components/Header';
+import { useEffect, useState } from 'react';
+import Login from './pages/Authentication/Login';
+import ReduxPersist from './config/ReduxPersist';
+import { KEY_LOCAL_STORAGE } from './constants/general.constant';
 
 const App = () => {
+  const [isLogin, setIsLogin] = useState(false)
+
+  useEffect(() => {
+    checkLoginPage();
+  }, [isLogin])
+
+  const checkLoginPage = () => {
+    ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
+      const queryString = window.location.search;
+      if (resp || queryString) {
+        setIsLogin(false);
+      } else {
+        setIsLogin(true);
+      }
+    });
+  }
+
+  const _renderMainPage = () => (
+    <>
+      <Header />
+      <RouterDom/>
+    </>
+  )
+
   return (
     <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <Header />
-      <RouterDom/>
+      {!isLogin && _renderMainPage()}
+      {isLogin && <Login />}
     </PersistGate>
   </Provider>
   );

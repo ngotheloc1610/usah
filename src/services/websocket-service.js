@@ -2,6 +2,7 @@ import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
+import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
@@ -11,10 +12,12 @@ var socket = null;
 var wsConnected = false;
 var dataLastQuotes = {quotesList: []};
 
+const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const orderHistorySubject = new Subject();
+const tradeHistorySubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
@@ -52,11 +55,15 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
+        if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
+            const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());     
+            loginSubject.next(loginRes.toObject());
+        } 
+
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
         }
-
         if(payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_SINGLE_RES){
             const singleOrderRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
             orderSubject.next(singleOrderRes.toObject());
@@ -65,7 +72,6 @@ const startWs = async () => {
             const listOrderRes = queryService.GetOrderResponse.deserializeBinary(msg.getPayloadData());
             listOrderSubject.next(listOrderRes.toObject());
         }
-
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
             const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
             dataLastQuotes = lastQuoteRes.toObject();
@@ -78,11 +84,14 @@ const startWs = async () => {
         if (payloadClass === rpc.RpcMessage.Payload.CANCEL_ORDER_RES) {
             const cancelRes = tradingService.CancelOrderResponse.deserializeBinary(msg.getPayloadData());
             cancelSubject.next(cancelRes.toObject());
-        }
-        
+        }        
         if (payloadClass === rpc.RpcMessage.Payload.ORDER_HISTORY_RES) {
             const listOrderHistoryRes = queryService.GetOrderHistoryResponse.deserializeBinary(msg.getPayloadData());
             orderHistorySubject.next(listOrderHistoryRes.toObject());
+        }
+        if (payloadClass === rpc.RpcMessage.Payload.TRADE_HISTORY_RES) {
+            const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
+            tradeHistorySubject.next(tradeHistory.toObject());
         }
     }
 }
@@ -90,12 +99,14 @@ const startWs = async () => {
 startWs();
 
 export const wsService = {
+    getLoginResponse: () => loginSubject.asObservable(),
     getQuoteSubject: () => quoteSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
+    getListOrderHistory: () => orderHistorySubject.asObservable(),
+    getTradeHistory: () => tradeHistorySubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
-    getListOrderHistory: () => orderHistorySubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes

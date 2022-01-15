@@ -1,4 +1,4 @@
-import '../../../pages/Orders/OrderHistory/orderHistory.scss'
+import '../pages/Orders/OrderHistory/orderHistory.scss'
 
 
 
@@ -6,7 +6,7 @@ function Pagination() {
 
    
     return (
-        <div className="border-top pt-2 d-flex justify-content-between align-items-center mb-3">
+        <div className="border-top pt-2 d-flex justify-content-between align-items-center">
             <div className="dataTables_length" id="table_length">
                 <label className='special'>
                     Show

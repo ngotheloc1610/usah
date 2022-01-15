@@ -1,13 +1,10 @@
-import { ORDER_TYPE, ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
+import { ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { ORDER_HISTORY, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
-import Pagination from '../Pagination'
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import Pagination from '../../../Common/Pagination'
 import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
-
-const defaultProps: IPropListOrderHistory = {
-    listOrderHistory: []
-};
+import { format } from "path/posix";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;

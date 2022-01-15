@@ -1,0 +1,54 @@
+.page.login {
+    background: #C5D9F1 url(../../../assets/images/page-login-bg.jpg) 50% 50% no-repeat;
+    background-size: cover;
+}
+
+.h-full {
+    height: calc(100vh);
+}
+
+.site {
+    width: 100%;
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.site-main {
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    padding: 1rem 0;
+}
+
+.align-items-center {
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+}
+
+.card-login {
+    border-radius: 1rem !important;
+    border: 0 !important;
+}
+
+.card-login .card-body {
+    border-radius: 1rem;
+    border: 0;
+    padding: 1.5rem;
+}
+
+.text-primary-custom {
+    color: #16365C;
+}
+
+.form-check-input-custom:checked {
+    background-color: #16365C;
+    border-color: #16365C;
+}
