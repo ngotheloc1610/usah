@@ -2,7 +2,7 @@ import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
-import systemService from '../models/proto/system_service_pb';
+import systemService from '../models/proto/system_service_pb'
 import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
@@ -18,6 +18,7 @@ const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
+const accountBalanceSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
@@ -55,12 +56,10 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-
         if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
             const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());     
             loginSubject.next(loginRes.toObject());
         } 
-
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
@@ -94,6 +93,10 @@ const startWs = async () => {
             const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
             tradeHistorySubject.next(tradeHistory.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_BALANCE_RES) {
+            const accountBalance = systemService.AccountBalanceResponse.deserializeBinary(msg.getPayloadData());
+            accountBalanceSubject.next(accountBalance.toObject());
+        }
     }
 }
 
@@ -106,6 +109,7 @@ export const wsService = {
     getListOrder: () => listOrderSubject.asObservable(),
     getListOrderHistory: () => orderHistorySubject.asObservable(),
     getTradeHistory: () => tradeHistorySubject.asObservable(),
+    getAccountBalance: () => accountBalanceSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
     sendMessage: message => socket.send(message),
