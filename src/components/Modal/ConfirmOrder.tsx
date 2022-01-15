@@ -9,7 +9,7 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
+import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
 import { formatNumber } from '../../helper/utils'
 import { use } from 'i18next'
 import { IAuthen } from '../../interfaces'
@@ -81,12 +81,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     if (handleStatusModifyCancel) {
-                        handleStatusModifyCancel(true)
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success)
                     }
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     if (handleStatusModifyCancel) {
-                        handleStatusModifyCancel(false)
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error)
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
@@ -165,12 +167,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     if (handleStatusModifyCancel) {
-                        handleStatusModifyCancel(true);
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success);
                     }
                     tmp = RESPONSE_RESULT.success;
                 } else {
                     if (handleStatusModifyCancel) {
-                        handleStatusModifyCancel(false);
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error);
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
