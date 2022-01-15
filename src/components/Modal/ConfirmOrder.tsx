@@ -9,23 +9,24 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
+import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
 import { formatNumber } from '../../helper/utils'
 import { use } from 'i18next'
 import { IAuthen } from '../../interfaces'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
-    params: IParamOrder,
-    isModify?: boolean,
-    isCancel?: boolean,
+    handleStatusModifyCancel?: (value: boolean) => void;
+    params: IParamOrder;
+    isModify?: boolean;
+    isCancel?: boolean;
 }
 
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
@@ -79,8 +80,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.getModifySubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    if (handleStatusModifyCancel) {
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success)
+                    }
                     tmp = RESPONSE_RESULT.success;
                 } else {
+                    if (handleStatusModifyCancel) {
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error)
+                    }
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp[MSG_TEXT]);
@@ -157,8 +166,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    if (handleStatusModifyCancel) {
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success);
+                    }
                     tmp = RESPONSE_RESULT.success;
                 } else {
+                    if (handleStatusModifyCancel) {
+                        // Get status modify or cancel order response
+                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error);
+                    }
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp[MSG_TEXT]);

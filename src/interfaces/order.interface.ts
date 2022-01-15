@@ -32,10 +32,6 @@ export interface IOrderBook {
     bidPrice: string;
 }
 
-export interface IPropListOrder {
-    listOrder: IListOrder[];
-}
-
 export interface IPropListOrderHistory {
     listOrderHistory: IListOrderHistory[]
 }
