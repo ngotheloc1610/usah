@@ -12,6 +12,19 @@ export function formatOrderTime(date: number): string {
 export function calcPendingVolume(volume: string, filledAmount: string) {
     return Number(volume) - Number(filledAmount);
 }
-export function formatNumber(item: string): string {
-    return new Intl.NumberFormat('en-US').format(Number(item))
+export function formatNumber(item: string) {
+    const a = Number(item).toLocaleString("en-IN");
+    if (a.includes(".")) {
+      const position = item[item.indexOf(".", 0) + 2];
+      if (position === "0" || position === undefined) {
+        return a.slice(0, a.length) + "0";
+      } else {
+        return a;
+      }
+    } else {
+      return a.slice(0, a.length) + ".00";
+    }
+}
+export function formatIdNumber(item: string) {
+    return Number(item.slice(0,6))
 }

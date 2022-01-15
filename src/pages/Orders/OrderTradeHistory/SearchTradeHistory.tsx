@@ -39,6 +39,7 @@ function SearchTradeHistory(props: any) {
 
     const _renderTicker = () => (
         <div className="col-xl-3">
+            <label className="d-block text-secondary mb-1">Ticker Code</label>
             <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
                 <option value=''></option>
                 {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
@@ -67,7 +68,7 @@ function SearchTradeHistory(props: any) {
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
-                <div className="col-md-6">
+                <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
                             value={fromDatetime}
@@ -76,7 +77,8 @@ function SearchTradeHistory(props: any) {
                         <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
-                <div className="col-md-6">
+                <div className='col-md-1 seperate'>~</div>
+                <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
                             value={toDatetime}
