@@ -53,8 +53,8 @@ const OrderHistory = () => {
 
             orderHistoryRequest.setSymbolCode(ticker);
             orderHistoryRequest.setOrderType(orderType);
-            orderHistoryRequest.setFromDatetime(fromDatetime);
-            orderHistoryRequest.setToDatetime(toDatetime);
+            orderHistoryRequest.setFromDatetime(parseInt(fromDatetime));
+            orderHistoryRequest.setToDatetime(parseInt(toDatetime));
             orderHistoryRequest.setOrderState(orderState);
 
             const rpcModel: any = rspb;
