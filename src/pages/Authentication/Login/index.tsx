@@ -14,7 +14,7 @@ const Login = () => {
 
     useEffect(() => {
         const loginRes = wsService.getLoginResponse().subscribe(resp => {
-            console.log(14, resp)
+            console.log('login response:', resp)
         });
         return () => loginRes.unsubscribe();
     }, [])
