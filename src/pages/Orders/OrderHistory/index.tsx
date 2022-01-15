@@ -29,8 +29,6 @@ const OrderHistory = () => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
-            console.log(32, res.orderList);
-            
             setListOrderHistory(res.orderList)
         });
 
@@ -42,16 +40,16 @@ const OrderHistory = () => {
     const callWs = () => {
         setTimeout(() => {
             sendListOrder();
-        }, 500)
+        }, 200)
     }
 
-    const prepareMessagee = (accountId: string) => {
+    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
-            orderHistoryRequest.setAccountId(accountId);
+            orderHistoryRequest.setAccountId(parseInt(accountId));
 
             orderHistoryRequest.setSymbolCode(ticker);
             orderHistoryRequest.setOrderType(orderType);
@@ -76,7 +74,7 @@ const OrderHistory = () => {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             }
         }
@@ -84,11 +82,11 @@ const OrderHistory = () => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             }
         });

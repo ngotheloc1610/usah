@@ -23,7 +23,7 @@ function OrderHistorySearch(props: any) {
     }
 
     const handleSearch = () => {
-        getDataFromOrderHistorySearch(dataParam)        
+        getDataFromOrderHistorySearch(dataParam)
     }
 
     const _renderTicker = () => (
@@ -45,7 +45,7 @@ function OrderHistorySearch(props: any) {
         </div>
     )
 
-    useEffect(() => getParamOrderSide(),[orderBuy, orderSell])
+    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
@@ -54,7 +54,7 @@ function OrderHistorySearch(props: any) {
         }
         else if (orderSell === false && orderBuy === true) {
             setOrderType(tradingModelPb.OrderType.OP_BUY)
-        }        
+        }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
         }

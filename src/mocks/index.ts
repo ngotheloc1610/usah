@@ -5,7 +5,7 @@ import * as tdpb from '../models/proto/trading_model_pb';
 
 export const TradingModel: any = tdpb;
 export const NONE: number = TradingModel.OrderState.ORDER_STATE_NONE;
-export const PLACED: number = TradingModel.OrderState.ORDER_STATE_PLACED;
+export const WORKING: number = TradingModel.OrderState.ORDER_STATE_PLACED;
 export const CANCELED: number = TradingModel.OrderState.ORDER_STATE_CANCELED;
 export const PARTIAL: number = TradingModel.OrderState.ORDER_STATE_PARTIAL;
 export const FILLED: number = TradingModel.OrderState.ORDER_STATE_FILLED;
@@ -1033,8 +1033,8 @@ export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
         name: "All"
     },
     {
-        code: PLACED,
-        name: "Placed"
+        code: WORKING,
+        name: "Working"
     },
     {
         code: CANCELED,
