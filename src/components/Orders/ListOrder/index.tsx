@@ -223,7 +223,7 @@ const ListOrder = () => {
                     <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center w-10">{ORDER_TYPE_NAME.limit}</td>
-                    <td className="text-end w-10">{formatNumber(item.price.toString())}</td>
+                    <td className="text-end w-10">{Number(item.price) < 1 ? formatNumber(item.price.toString()) : formatNumber(item.price.toString(), 2)}</td>
                     <td className="text-end w-10">{formatNumber(item.amount.toString())}</td>
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>

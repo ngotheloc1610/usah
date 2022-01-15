@@ -107,7 +107,7 @@ const ListTicker = (props: IListTickerProps) => {
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
                 <td className="text-center">
-                    {item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
+                    {item.price !== '-' ? formatNumber(item.price.toString(), 2) : '-'}</td>
                 <td className="w-33" >&nbsp;</td>
             </tr>
         ));
@@ -116,7 +116,7 @@ const ListTicker = (props: IListTickerProps) => {
     const _renderBidPrice = (bidItems: IBidPrice[]) => {
         let arr: IBidPrice[] = [];
         let counter = 0;
-        while (counter <= MARKET_DEPTH_LENGTH) {
+        while (counter < MARKET_DEPTH_LENGTH) {
             if (bidItems[counter]) {
                 arr.push({
                     numOrders: bidItems[counter].numOrders,
@@ -144,7 +144,7 @@ const ListTicker = (props: IListTickerProps) => {
             <tr key={index}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
-                    { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
+                    { item.price !== '-' ? formatNumber(item.price.toString(), 2) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{ item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
