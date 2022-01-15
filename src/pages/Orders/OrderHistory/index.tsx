@@ -49,12 +49,12 @@ const OrderHistory = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
-            orderHistoryRequest.setAccountId(parseInt(accountId));
+            orderHistoryRequest.setAccountId(Number(accountId));
 
             orderHistoryRequest.setSymbolCode(ticker);
             orderHistoryRequest.setOrderType(orderType);
-            orderHistoryRequest.setFromDatetime(parseInt(fromDatetime));
-            orderHistoryRequest.setToDatetime(parseInt(toDatetime));
+            orderHistoryRequest.setFromDatetime(Number(fromDatetime));
+            orderHistoryRequest.setToDatetime(Number(toDatetime));
             orderHistoryRequest.setOrderState(orderState);
 
             const rpcModel: any = rspb;
