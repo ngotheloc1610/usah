@@ -55,7 +55,6 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-
         if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
             const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());     
             loginSubject.next(loginRes.toObject());

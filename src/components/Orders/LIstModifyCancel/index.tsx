@@ -1,5 +1,5 @@
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
-import Pagination from "../Pagination";
+import Pagination from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -178,7 +178,7 @@ const ListModifyCancel = () => {
             </tr>
         })
     )
-    return <div className="card-modify">
+    return <div className="card-modify mb-3">
         <div className="card-body p-0 mb-3">
             <div className="table">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
