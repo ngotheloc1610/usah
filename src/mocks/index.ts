@@ -4,13 +4,6 @@ import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces
 import * as tdpb from '../models/proto/trading_model_pb';
 
 export const TradingModel: any = tdpb;
-export const NONE: number = TradingModel.OrderState.ORDER_STATE_NONE;
-export const WORKING: number = TradingModel.OrderState.ORDER_STATE_PLACED;
-export const CANCELED: number = TradingModel.OrderState.ORDER_STATE_CANCELED;
-export const PARTIAL: number = TradingModel.OrderState.ORDER_STATE_PARTIAL;
-export const FILLED: number = TradingModel.OrderState.ORDER_STATE_FILLED;
-export const REJECTED: number = TradingModel.OrderState.ORDER_STATE_REJECTED;
-
 
 const test = ''
 export default {
@@ -1029,27 +1022,27 @@ export const ORDER_HISTORY: IOrderHistory[] = [
 
 export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
     {
-        code: NONE,
+        code: TradingModel.OrderState.ORDER_STATE_NONE,
         name: "All"
     },
     {
-        code: WORKING,
+        code: TradingModel.OrderState.ORDER_STATE_PLACED,
         name: "Working"
     },
     {
-        code: CANCELED,
+        code: TradingModel.OrderState.ORDER_STATE_CANCELED,
         name: "Canceled"
     },
     {
-        code: PARTIAL,
+        code: TradingModel.OrderState.ORDER_STATE_PARTIAL,
         name: "Partial"
     },
     {
-        code: FILLED,
+        code: TradingModel.OrderState.ORDER_STATE_FILLED,
         name: "Filled"
     },
     {
-        code: REJECTED,
+        code: TradingModel.OrderState.ORDER_STATE_REJECTED,
         name: "Rejected"
     },
 ]
