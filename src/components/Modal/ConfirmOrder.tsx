@@ -16,16 +16,17 @@ import { IAuthen } from '../../interfaces'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
-    params: IParamOrder,
-    isModify?: boolean,
-    isCancel?: boolean,
+    handleStatusModifyCancel?: (value: boolean) => void;
+    params: IParamOrder;
+    isModify?: boolean;
+    isCancel?: boolean;
 }
 
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
@@ -79,8 +80,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.getModifySubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    if (handleStatusModifyCancel) {
+                        handleStatusModifyCancel(true)
+                    }
                     tmp = RESPONSE_RESULT.success;
                 } else {
+                    if (handleStatusModifyCancel) {
+                        handleStatusModifyCancel(false)
+                    }
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp[MSG_TEXT]);
@@ -157,8 +164,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    if (handleStatusModifyCancel) {
+                        handleStatusModifyCancel(true);
+                    }
                     tmp = RESPONSE_RESULT.success;
                 } else {
+                    if (handleStatusModifyCancel) {
+                        handleStatusModifyCancel(false);
+                    }
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp[MSG_TEXT]);

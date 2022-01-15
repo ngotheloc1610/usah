@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE, ORDER_TYPE_NAME, SIDE } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
-import { IListOrder, IPropListOrder } from "../../../interfaces/order.interface";
+import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
@@ -12,13 +12,29 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { formatNumber } from "../../../helper/utils";
 import { IAuthen } from "../../../interfaces";
+import ConfirmOrder from "../../Modal/ConfirmOrder";
+import { toast } from "react-toastify";
 
 
-const defaultProps: IPropListOrder = {
-    listOrder: []
-};
+const paramModifiCancelDefault: IParamOrder = {
+    tickerCode: '',
+    tickerName: '',
+    orderType: '',
+    volume: 0,
+    price: 0,
+    side: '',
+    confirmationConfig: false,
+    tickerId: ''
+}
+
 const ListOrder = () => {
+    const tradingModelPb: any = tspb;
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
+    const [isShowFullData, setShowFullData] = useState(false);
+    const [isCancel, setIsCancel] = useState(false);
+    const [isModify, setIsModify] = useState(false);
+    const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
+    const [statusOrder, setStatusOrder] = useState(0);
 
     useEffect(() => {
         callWs();
@@ -79,18 +95,87 @@ const ListOrder = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
-    const tradingModelPb: any = tspb;
-    const [isShowFullData, setShowFullData] = useState(false);
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
-    const getTickerName = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
+
+    const getTickerName = (sympleId: string): string => {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
     }
+
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
+
     const btnShowFullData = () => {
         setShowFullData(!isShowFullData);
     }
+
+    const getTickerCode = (sympleId: string) : string => {
+        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    }
+
+    const handleModify = (item: IListOrder) => {
+        const param: IParamOrder = {
+            orderId: item.orderId.toString(),
+            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
+            tickerName: getTickerName(item.symbolCode.toString())?.toString(),
+            orderType: ORDER_TYPE_NAME.limit,
+            volume: Number(item.amount),
+            price: Number(item.price),
+            side: item.orderType.toString(),
+            confirmationConfig: false,
+            tickerId: item.symbolCode.toString(),
+        }
+        setParamModifyCancel(param)
+        setIsModify(true)
+    }
+
+    const handleCancel = (item: IListOrder) => {
+        const param: IParamOrder = {
+            orderId: item.orderId.toString(),
+            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
+            tickerName: getTickerName(item.symbolCode.toString())?.toString(),
+            orderType: ORDER_TYPE_NAME.limit,
+            volume: Number(item.amount),
+            price: Number(item.price),
+            side: item.orderType.toString(),
+            confirmationConfig: false,
+            tickerId: item.symbolCode.toString(),
+        }
+        setParamModifyCancel(param)
+        setIsCancel(true)
+    }
+
+    const togglePopup = (isCloseModifyCancel: boolean) => {
+        setIsModify(isCloseModifyCancel);
+        setIsCancel(isCloseModifyCancel);
+    }
+
+    const _rendetMessageSuccess = () => (
+        <div>{toast.success('Place order successfully')}</div>
+    )
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+
+    const getStatusOrderResponse = (value: number, content: string) => {
+        if (statusOrder === 0) {
+            setStatusOrder(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess()}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        return <></>;
+    }
+
+    const getStatusModifyCancel = (value: boolean) => {
+        if (value) {
+            sendListOrder();
+        }
+    }
+
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
@@ -143,10 +228,10 @@ const ListOrder = () => {
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">
-                        <a className="btn-edit-order mr-10">
+                        <a className="btn-edit-order mr-10" onClick={() => handleModify(item)}>
                             <i className="bi bi-pencil-fill"></i>
                         </a>
-                        <a >
+                        <a onClick={() => handleCancel(item)}>
                             <i className="bi bi-x-lg"></i>
                         </a>
                     </td>
@@ -155,18 +240,31 @@ const ListOrder = () => {
         })
     )
     return (
-        <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-                <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
-                <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
-            </div>
-            <div className="card-body p-0">
-                <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
-                    {_renderTableListOrder()}
+        <>
+            <div className="card">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                    <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
+                    <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
+                </div>
+                <div className="card-body p-0">
+                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
+                        {_renderTableListOrder()}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {isCancel && <ConfirmOrder isCancel={isCancel}
+                handleCloseConfirmPopup={togglePopup}
+                handleOrderResponse={getStatusOrderResponse}
+                params={paramModifyCancel}
+                handleStatusModifyCancel={getStatusModifyCancel} />}
+            {isModify && <ConfirmOrder isModify={isModify}
+                handleCloseConfirmPopup={togglePopup}
+                handleOrderResponse={getStatusOrderResponse}
+                params={paramModifyCancel}
+                handleStatusModifyCancel={getStatusModifyCancel} />}
+        </>
     )
 }
-ListOrder.defaultProps = defaultProps;
+
 export default ListOrder;
