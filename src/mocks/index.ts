@@ -1396,3 +1396,72 @@ export const NOTIFICATION_DETAIL: INotificationDetail[] = [
         content: ' Inceptos suspendisse fringilla ultricies ut nam orci dictum commodo sociosqu netus efficitur facilisi aptent, platea lacus mus aliquam potenti ad eu turpis vitae quisque gravida eleifend.'
     }
 ]
+export const Mock_Bids_Ask = [
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    },
+    {
+        totalBids: 42,
+        numberBids: 23,
+        bidPrice: 157.66,
+        askPrice: 157.69,
+        numberAsk: 18,
+        totalAsk: 41,
+    },
+    {
+        totalBids: 74,
+        numberBids: 32,
+        bidPrice: 157.65,
+        askPrice: 157.70,
+        numberAsk: 42,
+        totalAsk: 83,
+    },
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    },
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    }
+]
+export const MOCKDATA_TRADE_HISTORY = [
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    }
+]

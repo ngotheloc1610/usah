@@ -85,3 +85,15 @@ strong {
     --bs-body-line-height: 1.5;
     --bs-body-color: #111;
 }
+.card-trade-history {
+    height: 100%;
+}
+.card-ticker {
+    z-index: 1;
+}
+.w-pr-135 {
+    width: 133.9%;
+}
+.w-pr-100 {
+    width: 100%;
+}

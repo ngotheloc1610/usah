@@ -201,3 +201,15 @@ export interface IHistorySearchStatus {
     code: number, 
     name: string
 }
+
+export interface IStyleBidsAsk {
+    earmarkSpreadSheet: boolean;
+    spreadsheet: boolean;
+    grid: boolean;
+    columns: boolean;
+    columnsGap: boolean;
+}
+
+export interface IPropsListBidsAsk {
+    styleListBidsAsk: IStyleBidsAsk;
+}
