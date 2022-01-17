@@ -1,4 +1,3 @@
-import { ORDER_PORTFOLIO_HEADER } from '../../../mocks'
 import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
 import { formatPrice } from '../../../helper/utils'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
@@ -51,15 +50,18 @@ function PortfolioTable(props: IPropsListPortfolio) {
         </div>)
     }
 
-    const _renderPortfolioTableHeaderItem = (title: string, index: number) => (
-        <th className={title === 'Ticker Name' || title === 'Ticker Code' ? "text-start fz-14 w-s" : "text-end fz-14 w-s"} key={index}>{title}</th>
-    )
-
     const _renderPortfolioTableHeader = () => (
         <tr>
-            {ORDER_PORTFOLIO_HEADER.map((item: string, index: number) => (
-                _renderPortfolioTableHeaderItem(item, index)
-            ))}
+            <th className="text-start fz-14 w-s" >Ticker Name	</th>
+            <th className="text-start fz-14 w-s" >Ticker Code</th >
+            <th className="text-end fz-14 w-s" >Owned Volume	</th>
+            <th className="text-end fz-14 w-s" > Pending Volume</th>
+            <th className="text-end fz-14 w-s" >AVG Price</th>
+            <th className="text-end fz-14 w-s" > Invested Value</th>
+            <th className="text-end fz-14 w-s" >Market Price</th>
+            <th className="text-end fz-14 w-s" > Current Value</th>
+            <th className="text-end fz-14 w-s" > P&amp;L</th>
+            <th className="text-end fz-14 w-s" > % P&amp;L</th>
             {accountPortfolio.length > 6 && <th className="text-end fz-14 w-17"></th>}
         </tr>
     )
