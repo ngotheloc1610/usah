@@ -15,17 +15,24 @@ function PortfolioTable(props: IPropsListPortfolio) {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
     }
 
-    const _rederPortfolioInvestItem = (title: string, value: number | string) => (
-        title === 'Currency:' ?
-            <div className="col-md-3 order-0 order-md-4">
+    const _rederPortfolioInvestItem = (title: string, value: number | string) => {
+        if (title === 'Currency:') {
+            return (<div className="col-md-3 order-0 order-md-4">
                 <p className="text-end small opacity-50 mb-2">{title} {value}</p>
-            </div> :
-            <div className="col-md-3 text-center">
+            </div>)
+        }
+        if (title === 'Total P&L:') {
+            return (<div className="col-md-3 text-center">
                 <div>{title}</div>
-                <div className="fs-5 fw-bold">{formatPrice(value.toString())}</div>
-            </div>
-
-    )
+                <div className="fs-5 fw-bold text-success">{formatPrice(value.toString())}</div>
+            </div>)
+        } else {
+            return (<div className="col-md-3 text-center">
+            <div>{title}</div>
+            <div className="fs-5 fw-bold">{formatPrice(value.toString())}</div>
+        </div>)
+        }
+    }
 
     const _rederPortfolioInvest = () => {
         const totalInvestedValue = accountPortfolio.reduce((acc, crr) => {
@@ -44,7 +51,7 @@ function PortfolioTable(props: IPropsListPortfolio) {
             <div className="row">
                 {_rederPortfolioInvestItem('Total Invested Value:', totalInvestedValue)}
                 {_rederPortfolioInvestItem('Total Current Value:', totalCurrentValue)}
-                {_rederPortfolioInvestItem('Total P&amp;L:', totalPl)}
+                {_rederPortfolioInvestItem('Total P&L:', totalPl)}
                 {_rederPortfolioInvestItem('Currency:', 'USD')}
             </div>
         </div>)
