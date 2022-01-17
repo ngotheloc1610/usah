@@ -1,10 +1,9 @@
 import { ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatNumber } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatIdNumber, formatPrice, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../../../Common/Pagination'
 import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
-import { format } from "path/posix";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
@@ -62,7 +61,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{formatIdNumber(item.orderId)}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>
@@ -86,8 +85,8 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-end">{formatNumber(item.filledAmount)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
-                    {item.lastPrice && <div className="text-ellipsis text-end">{formatNumber(item.lastPrice)}</div>}
+                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
+                    {item.lastPrice && <div className="text-ellipsis text-end">{formatPrice(item.lastPrice)}</div>}
                     {item.lastPrice === '' && <div className="text-ellipsis text-end">&nbsp;</div>}
                 </td>
 

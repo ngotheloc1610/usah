@@ -1,5 +1,5 @@
 import { SIDE, ORDER_TYPE_NAME } from "../../../constants/general.constant";
-import { formatOrderTime, formatNumber, formatIdNumber } from "../../../helper/utils";
+import { formatOrderTime, formatPrice, formatIdNumber, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
@@ -66,17 +66,17 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
                 </td>
 
                 <td className="text-end" >{formatNumber(item.executedVolume)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.executedPrice)}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.executedPrice)}</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.matchedValue)}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.matchedValue)}</div>
                 </td>
                 <td>
                     <div className="text-ellipsis  text-end">{formatOrderTime(Number(item.executedDatetime))}</div>
