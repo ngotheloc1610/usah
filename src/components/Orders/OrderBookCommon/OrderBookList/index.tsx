@@ -3,14 +3,14 @@ import { IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import { Mock_Bids_Ask } from '../../../../mocks';
 import './OrderBoolListBidsAsk.css';
 
-const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
+const OrderBookList = (props: IPropsListBidsAsk) => {
     const { styleListBidsAsk } = props;
-    const _renderTitle1 = () => (
+    const _renderTitleStyleEarmarkSpreadSheet = () => (
         TITLE_LIST_BID_ASK.map((item, index) => {
             return <th key={index} className="border-end">{item}</th>
         })
     )
-    const _renderData1 = () => (
+    const _renderDataStyleEarmarkSpreadSheet = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end border-end border-bottom-0">{item.totalBids}</td>
@@ -23,13 +23,13 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
         })
     )
 
-    const _renderTitle2 = () => (
+    const _renderTitleStyleSpreadsheet = () => (
         TITLE_LIST_BID_ASK_SPREADSHEET.map((item, index) => {
             return <th key={index} className="border-end">{item}</th>
         })
     )
 
-    const _renderData2 = () => (
+    const _renderDataStyleSpreadsheet = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end border-end border-bottom-0">{item.totalAsk}</td>
@@ -113,23 +113,23 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
         <table className="table table-sm table-hover border">
             <thead>
                 <tr>
-                    {styleListBidsAsk.earmarkSpreadSheet && _renderTitle1()}
-                    {styleListBidsAsk.spreadsheet && _renderTitle2()}
+                    {styleListBidsAsk.earmarkSpreadSheet && _renderTitleStyleEarmarkSpreadSheet()}
+                    {styleListBidsAsk.spreadsheet && _renderTitleStyleSpreadsheet()}
                 </tr>
             </thead>
             <tbody>
-                {styleListBidsAsk.earmarkSpreadSheet && _renderData1()}
-                {styleListBidsAsk.spreadsheet && _renderData2()}
+                {styleListBidsAsk.earmarkSpreadSheet && _renderDataStyleEarmarkSpreadSheet()}
+                {styleListBidsAsk.spreadsheet && _renderDataStyleSpreadsheet()}
                 {_renderDataEmp()}
             </tbody>
         </table>
     )
-    const _renderTitle31 = () => (
+    const _renderTitleStyleGirdAsk = () => (
         TITLE_LIST_BID_ASK.slice(0, 3).map(item => {
             return <th className="text-end">{item}</th>
         })
     )
-    const _renderData31 = () => (
+    const _renderDataStyleGirdAsk = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalBids}</td>
@@ -138,12 +138,12 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
-    const _renderTitle32 = () => (
+    const _renderTitleStyleGirdBids = () => (
         TITLE_LIST_BID_ASK.slice(3, 6).map((item, index) => {
             return <th key={index} className="text-end">{item}</th>
         })
     )
-    const _renderData32 = () => (
+    const _renderDataStyleGirdBids = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalAsk}</td>
@@ -157,7 +157,7 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
             <table className="table table-sm border table-borderless table-hover mb-0">
                 <thead>
                     <tr>
-                        {_renderTitle32()}
+                        {_renderTitleStyleGirdBids()}
                     </tr>
                 </thead>
                 <tbody>
@@ -166,7 +166,7 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">OVER</td>
                     </tr>
-                    {_renderData32()}
+                    {_renderDataStyleGirdBids()}
                     <tr>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">&nbsp;</td>
@@ -182,14 +182,13 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
             <table className="table table-sm border table-borderless table-hover mb-0">
                 <thead>
                     <tr>
-                        {_renderTitle31()}
+                        {_renderTitleStyleGirdAsk()}
                     </tr>
                 </thead>
                 <tbody>
-                    {_renderData31()}
+                    {_renderDataStyleGirdAsk()}
                     <tr>
-                        <td className="text-end">&nbsp;</td>
-                        <td className="text-end">&nbsp;</td>
+                        <td className="text-end" colSpan={2}>&nbsp;</td>
                         <td className="text-end"><span className="text-info">&nbsp;</span></td>
                     </tr>
                     <tr>
@@ -201,33 +200,31 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
             </table>
         </div>
     )
-    const _renderTitle4 = () => (
+    const _renderTitleStyleColumns = () => (
         TITLE_LIST_BID_ASK_COLUMN.map((item, index) => {
             return <th key={index} className='text-end'>{item}</th>
         })
     )
-    const _renderData41 = () => (
+    const _renderDataStyleColumnsAsk = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">&nbsp;</td>
-                <td className="text-end">&nbsp;</td>
+                <td className="text-end" colSpan={2}>&nbsp;</td>
                 <td className={`text-end 
-                ${((index + 1)=== Mock_Bids_Ask.length && styleListBidsAsk.columnsGap) ? 'bg-success-light' 
-                : ((index + 1) === Mock_Bids_Ask.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
-                {item.askPrice}</td>
+                ${((index + 1) === Mock_Bids_Ask.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
+                        : ((index + 1) === Mock_Bids_Ask.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
+                    {item.askPrice}</td>
                 <td className="text-end">{item.numberAsk}</td>
                 <td className="text-end">{item.totalAsk}</td>
             </tr>
         })
     )
-    const _renderData42 = () => (
+    const _renderDataStyleColumnsBids = () => (
         Mock_Bids_Ask.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalAsk}</td>
                 <td className="text-end">{item.numberBids}</td>
                 <td className="text-end">{item.bidPrice}</td>
-                <td className="text-end">&nbsp;</td>
-                <td className="text-end">&nbsp;</td>
+                <td className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
         })
     )
@@ -235,53 +232,36 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
         <table className="table table-sm table-borderless table-hover border  mb-0">
             <thead>
                 <tr>
-                    {_renderTitle4()}
+                    {_renderTitleStyleColumns()}
+
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={2}>&nbsp;</td>
                     <td className="text-end">OVER</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={2}>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={4}>&nbsp;</td>
                     <td className="text-end">144</td>
                 </tr>
-                {_renderData41()}
-                {_renderData42()}
+                {_renderDataStyleColumnsAsk()}
+                {_renderDataStyleColumnsBids()}
                 <tr>
                     <td className="text-end"><strong>113</strong></td>
-                    <td className="text-end">&nbsp; </td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={4}>&nbsp; </td>
                 </tr>
                 <tr>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={2}>&nbsp;</td>
                     <td className="text-end">UNDER</td>
-                    <td className="text-end">&nbsp;</td>
-                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end" colSpan={2}>&nbsp;</td>
                 </tr>
             </tbody>
         </table>
@@ -292,4 +272,4 @@ const OrderBookListBidsAsk = (props: IPropsListBidsAsk) => {
         {(styleListBidsAsk.columns || styleListBidsAsk.columnsGap) && _renderTable4()}
     </div>
 };
-export default OrderBookListBidsAsk;
+export default OrderBookList;

@@ -103,7 +103,6 @@ const ListOrder = () => {
     }
 
     const getSideName = (sideId: number) => {
-        console.log(89, SIDE);
         return SIDE.find(item => item.code === sideId)?.title;
     }
 

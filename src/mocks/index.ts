@@ -5,12 +5,6 @@ import * as tdpb from '../models/proto/trading_model_pb';
 
 export const TradingModel: any = tdpb;
 
-const test = ''
-export default {
-    test
-}
-
-
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
         symbolId: 1,
@@ -1463,3 +1457,19 @@ export const MOCKDATA_TRADE_HISTORY = [
         price: '157.54'
     }
 ]
+export const MOCKDATA_ORDER_BOOK_DETAIL = {
+
+    tickerName: 'AAPL',
+    lastPrice: '157.67',
+    open: '158.67',
+    high: '159.63',
+    low: '160.67',
+    change: '4.56',
+    changePercent: '3.89',
+    dailyTradingVol: '1,452,798',
+    averageTradingVol: '3,283,932',
+    vwap: '156.38',
+    lotSize: '100',
+    floor: '162.87',
+    ceiling: '151.72',
+}

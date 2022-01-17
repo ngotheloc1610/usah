@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import OrderForm from '../../../components/Order/OrderForm';
-import OrderBookListBidsAsk from '../../../components/Orders/OrderBookCommon/OrderBookListBidsAsk';
+import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
@@ -95,7 +95,7 @@ const OrderBookCommon = () => {
                         <div id="layout-1">
                             <div className="row align-items-stretch g-2">
                                 <div className="col-md-9">
-                                    <OrderBookListBidsAsk styleListBidsAsk={listStyleBidsAsk} />
+                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} />
                                     <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
                                         <OrderBookTickerDetail />
                                     </div>

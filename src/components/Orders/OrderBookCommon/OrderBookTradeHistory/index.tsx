@@ -2,13 +2,13 @@ import { MOCKDATA_TRADE_HISTORY } from '../../../../mocks';
 import './OrderBookTradeHistory.css';
 const OrderBookTradeHistory = () => {
     const _renderData = () => (
-        MOCKDATA_TRADE_HISTORY.map((item, index) => {
-            return <tr key={index} className="odd">
+        MOCKDATA_TRADE_HISTORY.map((item, index) => (
+            <tr key={index} className="odd">
                 <td>{item.dateTime}</td>
                 <td className="text-end">{item.volume}</td>
                 <td className="text-end">{item.price}</td>
             </tr>
-        })
+        ))
     )
     return <div className="card card-trade-history">
         <div className="card-header">
