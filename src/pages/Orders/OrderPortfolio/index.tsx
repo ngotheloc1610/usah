@@ -13,9 +13,7 @@ function OrderPortfolio() {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-            console.log(16, res);
-            
-            setAccountPortfolio(res.orderList)
+            setAccountPortfolio(res.accountPortfolioList)
         });
 
         return () => renderDataToScreen.unsubscribe();
@@ -42,8 +40,6 @@ function OrderPortfolio() {
             rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log('send');
-            
         }
     }
 
