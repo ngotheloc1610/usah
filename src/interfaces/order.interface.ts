@@ -130,16 +130,7 @@ export interface TickerInfo {
     change: string,
     changePrecent: string,
 }
-
-export interface IBidPrice {
-    numOrders: number;
-    price: string;
-    tradable: boolean;
-    volume: string;
-    symbolCode: string;
-}
-
-export interface IAskPrice {
+export interface IAskAndBidPrice {
     price: string;
     volume: string;
     tradable: boolean;
@@ -149,8 +140,8 @@ export interface IAskPrice {
 }
 
 export interface ILastQuote {
-    asksList: IAskPrice[];
-    bidsList: IBidPrice[];
+    asksList: IAskAndBidPrice[];
+    bidsList: IAskAndBidPrice[];
     close: string;
     currentPrice: string;
     high: string;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
 import { formatNumber } from "../../../helper/utils";
-import { IAskPrice, IBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
+import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
@@ -9,7 +9,7 @@ import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 interface IListTickerProps {
-    getTicerLastQuote: (item: IAskPrice) => void;
+    getTicerLastQuote: (item: IAskAndBidPrice) => void;
 }
 
 const defaultProps = {
@@ -64,7 +64,7 @@ const ListTicker = (props: IListTickerProps) => {
         setLastQoutes(data.quotesList);
     }
 
-    const handleTicker = (item: IAskPrice, side: string) => {
+    const handleTicker = (item: IAskAndBidPrice, side: string) => {
         const itemTicker = {...item, side: side};
         getTicerLastQuote(itemTicker);
     }
@@ -82,8 +82,8 @@ const ListTicker = (props: IListTickerProps) => {
     )
 
     const _renderAskPrice = (itemData: ILastQuote) => {
-        let askItems: IAskPrice[] = itemData.asksList;
-        let arr: IAskPrice[] = [];
+        let askItems: IAskAndBidPrice[] = itemData.asksList;
+        let arr: IAskAndBidPrice[] = [];
         let counter = MARKET_DEPTH_LENGTH - 1;
         while (counter >= 0) {
             if (askItems[counter]) {
@@ -105,7 +105,7 @@ const ListTicker = (props: IListTickerProps) => {
             }
             counter--;
         }
-        return arr.map((item: IAskPrice, index: number) => (
+        return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
@@ -119,8 +119,8 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderBidPrice = (itemĐata: ILastQuote) => {
-        let bidItems: IBidPrice[] = itemĐata.bidsList;
-        let arr: IBidPrice[] = [];
+        let bidItems: IAskAndBidPrice[] = itemĐata.bidsList;
+        let arr: IAskAndBidPrice[] = [];
         let counter = 0;
         while (counter <= MARKET_DEPTH_LENGTH) {
             if (bidItems[counter]) {
@@ -142,14 +142,14 @@ const ListTicker = (props: IListTickerProps) => {
             }
             counter++;
         }
-        const defaultBidPrice: IBidPrice = {
+        const defaultBidPrice: IAskAndBidPrice = {
             numOrders: 0,
             price: '-',
             tradable: false,
             volume: '-',
             symbolCode: '-'
         }
-        return arr.map((item: IBidPrice, index: number) => (
+        return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">

@@ -3,7 +3,7 @@ import { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { IAskPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
+import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
@@ -24,7 +24,7 @@ const defaultCurrentTicker: ITickerInfo | any = {
 const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
 
-    const handleTicker = (item: IAskPrice) => {
+    const handleTicker = (item: IAskAndBidPrice) => {
         const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(item.symbolCode));
         const itemTicker = {
             tickerName: tickerData?.tickerName,
