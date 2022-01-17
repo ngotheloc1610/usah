@@ -2,7 +2,7 @@ import rpc from '../models/proto/rpc_pb';
 import pricingService from '../models/proto/pricing_service_pb';
 import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
-import systemService from '../models/proto/system_service_pb'
+import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';

@@ -8,7 +8,6 @@ import Pagination from '../../../Common/Pagination'
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
-    console.log(11, getDataTradeHistory);
     
     const tradingModelPb: any = tspb;
 

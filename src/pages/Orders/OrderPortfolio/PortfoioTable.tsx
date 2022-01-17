@@ -1,29 +1,31 @@
 import { ORDER_PORTFOLIO } from '../../../mocks'
 import { ITickerPortfolio } from '../../../interfaces/order.interface'
+import { formatPrice } from '../../../helper/utils'
 
 function PortfolioTable(props: any) {
 
     const { accountBalance } = props
-    
+
+    const _rederPortfolioInvestItem = (title: string, value: string) => (
+        title === 'Currency:' ?
+            <div className="col-md-3 order-0 order-md-4">
+                <p className="text-end small opacity-50 mb-2">{title} {value}</p>
+            </div> :
+            <div className="col-md-3 text-center">
+                <div>{title}</div>
+                <div className="fs-5 fw-bold">{formatPrice(value)}</div>
+            </div>
+
+    )
+
     const _rederPortfolioInvest = () => (
         <>
             <div className="border p-3 mb-3">
                 <div className="row">
-                    <div className="col-md-3 text-center">
-                        <div>Total Invested Value:</div>
-                        <div className="fs-5 fw-bold">1,453,537.86</div>
-                    </div>
-                    <div className="col-md-3 text-center">
-                        <div>Total Current Value:</div>
-                        <div className="fs-5 fw-bold">1,481,240.10</div>
-                    </div>
-                    <div className="col-md-3 text-center">
-                        <div>Total P&amp;L:</div>
-                        <div className="fs-5 fw-bold text-success">27702.24</div>
-                    </div>
-                    <div className="col-md-3 order-0 order-md-4">
-                        <p className="text-end small opacity-50 mb-2">Currency: USD</p>
-                    </div>
+                    {_rederPortfolioInvestItem('Total Invested Value:', '1453537.86')}
+                    {_rederPortfolioInvestItem('Total Current Value:', '1481240.10')}
+                    {_rederPortfolioInvestItem('Total P&amp;L:', '1481240.10')}
+                    {_rederPortfolioInvestItem('Currency:', 'USD')}
                 </div>
             </div>
         </>
