@@ -18,7 +18,7 @@ const orderSubject = new Subject();
 const listOrderSubject = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
-const accountBalanceSubject = new Subject();
+const accountPortfolioSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
@@ -56,6 +56,7 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
+        console.log(59, payloadClass);
         if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
             const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());     
             loginSubject.next(loginRes.toObject());
@@ -93,9 +94,9 @@ const startWs = async () => {
             const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
             tradeHistorySubject.next(tradeHistory.toObject());
         }
-        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_BALANCE_RES) {
-            const accountBalance = systemService.AccountBalanceResponse.deserializeBinary(msg.getPayloadData());
-            accountBalanceSubject.next(accountBalance.toObject());
+        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_PORTFOLIO_RES) {
+            const accountPortfolio = systemService.AccountPortfolioResponse.deserializeBinary(msg.getPayloadData());
+            accountPortfolioSubject.next(accountPortfolio.toObject());
         }
     }
 }
@@ -109,7 +110,7 @@ export const wsService = {
     getListOrder: () => listOrderSubject.asObservable(),
     getListOrderHistory: () => orderHistorySubject.asObservable(),
     getTradeHistory: () => tradeHistorySubject.asObservable(),
-    getAccountBalance: () => accountBalanceSubject.asObservable(),
+    getAccountPortfolio: () => accountPortfolioSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
     sendMessage: message => socket.send(message),

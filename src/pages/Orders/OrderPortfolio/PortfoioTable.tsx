@@ -1,4 +1,4 @@
-import { ORDER_PORTFOLIO } from '../../../mocks'
+import { ORDER_PORTFOLIO, ORDER_PORTFOLIO_HEADER } from '../../../mocks'
 import { ITickerPortfolio } from '../../../interfaces/order.interface'
 import { formatPrice } from '../../../helper/utils'
 
@@ -19,33 +19,30 @@ function PortfolioTable(props: any) {
     )
 
     const _rederPortfolioInvest = () => (
-        <>
-            <div className="border p-3 mb-3">
-                <div className="row">
-                    {_rederPortfolioInvestItem('Total Invested Value:', '1453537.86')}
-                    {_rederPortfolioInvestItem('Total Current Value:', '1481240.10')}
-                    {_rederPortfolioInvestItem('Total P&amp;L:', '1481240.10')}
-                    {_rederPortfolioInvestItem('Currency:', 'USD')}
-                </div>
+        <div className="border p-3 mb-3">
+            <div className="row">
+                {_rederPortfolioInvestItem('Total Invested Value:', '1453537.86')}
+                {_rederPortfolioInvestItem('Total Current Value:', '1481240.10')}
+                {_rederPortfolioInvestItem('Total P&amp;L:', '27702.24')}
+                {_rederPortfolioInvestItem('Currency:', 'USD')}
             </div>
-        </>
+        </div>
     )
+
+    const _renderPortfolioTableHeaderItem = (title: string, index: number) => (
+      <th className={title === 'Ticker Name' || title ==='Ticker Code' ? "text-start fz-14 w-s" : "text-end fz-14 w-s"} key={index}>{title}</th> 
+    )
+
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-start fz-14 w-s" >Ticker Name	</th>
-            <th className="text-start fz-14 w-s" >Ticker Code</th >
-            <th className="text-end fz-14 w-s" >Owned Volume	</th>
-            <th className="text-end fz-14 w-s" > Pending Volume</th>
-            <th className="text-end fz-14 w-s" >AVG Price</th>
-            <th className="text-end fz-14 w-s" > Invested Value</th>
-            <th className="text-end fz-14 w-s" >Market Price</th>
-            <th className="text-end fz-14 w-s" > Current Value</th>
-            <th className="text-end fz-14 w-s" > P&amp;L</th>
-            <th className="text-end fz-14 w-s" > % P&amp;L</th>
+            {ORDER_PORTFOLIO_HEADER.map((item: string, index: number) => (
+                _renderPortfolioTableHeaderItem(item, index)
+            ))}
             <th className="text-end fz-14 w-17"></th>
 
         </tr>
     )
+
     const _renderPortfolioTableBody = () => (
         ORDER_PORTFOLIO.map((item: ITickerPortfolio, index: number) => (
             <tr className="odd " key={index}>
@@ -69,6 +66,7 @@ function PortfolioTable(props: any) {
         ))
 
     )
+
     const _renderPortfolioTable = () => {
         return (
             <>

@@ -1180,6 +1180,9 @@ export const ORDER_TRADE_HISTORY: IOrderTradeHistory[] = [
     },
 ]
 
+export const ORDER_PORTFOLIO_HEADER = ['Ticker Name', 'Ticker Code', 'Owned Volume', 'Pending Volume', 'AVG Price',
+                                        'Invested Value', 'Market Price', 'Current Value', 'P&amp;L', '% P&amp;L']
+
 export const ORDER_PORTFOLIO: ITickerPortfolio[] = [
     {
         companyName: 'Apple inc',

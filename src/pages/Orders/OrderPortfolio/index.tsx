@@ -9,11 +9,13 @@ import PortfolioTable from './PortfoioTable'
 import './orderPortfolio.scss'
 
 function OrderPortfolio() {
-    const [accountBalance, setAccountBalance] = useState([]);
+    const [accountPortfolio, setAccountPortfolio] = useState([]);
 
     useEffect(() => {
-        const renderDataToScreen = wsService.getAccountBalance().subscribe(res => {
-            setAccountBalance(res.orderList)
+        const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
+            console.log(16, res);
+            
+            setAccountPortfolio(res.orderList)
         });
 
         return () => renderDataToScreen.unsubscribe();
@@ -23,27 +25,29 @@ function OrderPortfolio() {
 
     const callWs = () => {
         setTimeout(() => {
-            sendAccountBalance();
+            sendAccountPortfolio();
         }, 200)
     }
 
-    const prepareMessagee = (accountId: string) => {
+    const buildMessage = (accountId: string) => {
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let accountBalanceRequest = new systemServicePb.AccountBalanceRequest();
-            accountBalanceRequest.setAccountId(parseInt(accountId));
+            let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
+            accountPortfolioRequest.setAccountId(Number(accountId));
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_BALANCE_REQ);
-            rpcMsg.setPayloadData(accountBalanceRequest.serializeBinary());
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
+            rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log('send');
+            
         }
     }
 
-    const sendAccountBalance = () => {
+    const sendAccountPortfolio = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId = '';
@@ -51,7 +55,7 @@ function OrderPortfolio() {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             }
         }
@@ -59,11 +63,11 @@ function OrderPortfolio() {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ?? '';
-                prepareMessagee(accountId);
+                buildMessage(accountId);
                 return;
             }
         });
@@ -78,7 +82,7 @@ function OrderPortfolio() {
                             <h6 className="card-title fs-6 mb-0">My Account</h6>
                         </div>
                         <div className="card-body">
-                            <PortfolioTable accountBalance = {accountBalance}/>
+                            <PortfolioTable accountPortfolio = {accountPortfolio}/>
                         </div>
                     </div>
                 </div>
