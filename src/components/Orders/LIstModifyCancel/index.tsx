@@ -112,7 +112,7 @@ const ListModifyCancel = () => {
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
-            volume: Number(item.amount),
+            volume: Number(calcPendingVolume(item.amount, item.filledAmount)),
             price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,

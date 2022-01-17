@@ -11,7 +11,6 @@ import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
 import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
 import { formatNumber, formatPrice } from '../../helper/utils'
-import { use } from 'i18next'
 import { IAuthen } from '../../interfaces'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -32,11 +31,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [isValidOrder, setIsValidOrder] = useState(false);
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
+    
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
         setIsValidOrder(event.target.value !== '');
     }
-
+    
     const handleVolumeModify = (event: any) => {
         if (Number(event.target.value) > params.volume) {
             setVolumeModify(params.volume);
