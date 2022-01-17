@@ -22,10 +22,14 @@ const defaultCurrentTicker: ITickerInfo | any = {
 
 const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
+    const [msgSuccess, setMsgSuccess] = useState<string>('');
 
     const handleTicker = (ticker: ILastQuote) => {
         const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === ticker.symbolCode);
         setCurrentTicker(item);
+    }
+    const messageSuccess = (item: string) => {
+        setMsgSuccess(item);
     }
 
     return (
@@ -47,12 +51,12 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    <OrderForm currentTicker={currentTicker} />
+                                    <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <ListOrder />
+                    <ListOrder  msgSuccess={msgSuccess} />
                 </div>
             </div>
         </div>
