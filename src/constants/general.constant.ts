@@ -56,10 +56,10 @@ export const TITLE_CONFIRM = {
     newOrder: 'New order confirmation'
 };
 export const ORDER_TYPE = [
-    { id: 1, name: 'limit'}
+    { id: 1, name: 'Limit'}
 ];
 export const ORDER_TYPE_NAME = {
-    limit: 'limit'
+    limit: 'Limit'
 };
 
 export const KEY_LOCAL_STORAGE = {

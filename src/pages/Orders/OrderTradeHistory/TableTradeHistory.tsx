@@ -1,5 +1,5 @@
-import { SIDE } from "../../../constants/general.constant";
-import { formatOrderTime, formatNumber } from "../../../helper/utils";
+import { SIDE, ORDER_TYPE_NAME } from "../../../constants/general.constant";
+import { formatOrderTime, formatPrice, formatIdNumber, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
@@ -8,6 +8,7 @@ import Pagination from '../../../Common/Pagination'
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
+    
     const tradingModelPb: any = tspb;
 
     const listOrderHistorySortDate: ITradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.executedDatetime - a.executedDatetime);
@@ -22,10 +23,6 @@ function TableTradeHistory(props: IPropListTradeHistory) {
 
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
-    }
-
-    const formatPrice = (item: string) => {
-        return (Math.round(parseInt(item) * 100) / 100).toFixed(2);
     }
 
     const _renderTradeHistoryTableHeader = () =>
@@ -47,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{formatIdNumber(item.orderId)}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.tickerCode.toString())}</div>
@@ -61,20 +58,20 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     </span>
                 </td>
 
-                <td className="text-center">Limit</td>
+                <td className="text-center">{ORDER_TYPE_NAME.limit}</td>
 
                 <td>
                     <div className="text-ellipsis text-end">{formatNumber(item.amount)}</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.price)}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
                 </td>
 
-                <td className="text-end" >{formatPrice(item.executedVolume)}</td>
+                <td className="text-end" >{formatNumber(item.executedVolume)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatNumber(item.executedPrice)}</div>
+                    <div className="text-ellipsis text-end">{formatPrice(item.executedPrice)}</div>
                 </td>
 
                 <td>
