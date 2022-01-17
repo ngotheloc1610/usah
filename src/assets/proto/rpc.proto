@@ -21,7 +21,7 @@ message RpcMessage {
   	INVALID_SERVICE = 3;
   	INVALID_PAYLOAD = 4;
   	NOT_AUTHENTICATED = 5;
-  	SERVICE_TIMEOUT = 6;  
+  	SERVICE_TIMEOUT = 6;
   	SERVICE_REJECTED = 7;
   	SERVICE_UNAVAILABLE = 8;
   	REQUIRE_VPN = 9;
@@ -45,7 +45,7 @@ message RpcMessage {
 
     AUTHEN_RES		                            = 11;
     HEARTBEAT_RES								= 12;
-	
+
 	//Pricing message (20~59)
     LAST_QUOTE_REQ                              = 20;
     SUBSCRIBE_QUOTE_REQ							= 21;
@@ -81,13 +81,15 @@ message RpcMessage {
 	ACCOUNT_DETAIL_REQ							= 83;
 	ACCOUNT_CREATE_MULTI_REQ					= 84;
 	ACCOUNT_BALANCE_REQ							= 85;
-	
+	ACCOUNT_PORTFOLIO_REQ						= 86;
+
 	BALANCE_UPDATE_RES							= 90;
 	ACCOUNT_CREATE_RES							= 91;
 	ACCOUNT_UPDATE_RES							= 92;
 	ACCOUNT_DETAIL_RES							= 93;
 	ACCOUNT_CREATE_MULTI_RES					= 94;
 	ACCOUNT_BALANCE_RES							= 95;
+	ACCOUNT_PORTFOLIO_RES						= 96;
 
 	//Querry message
 	POSITION_REQ                        		= 100;
@@ -103,8 +105,8 @@ message RpcMessage {
 	SYMBOL_LIST_RES								= 113;
 	TRADE_HISTORY_RES							= 114;
 	ORDER_HISTORY_RES							= 115;
-	
-	
+
+
 	//SPAN message
 	SPAN_SIMULATE_REQ                      		= 120;
 

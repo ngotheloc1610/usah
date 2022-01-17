@@ -4,7 +4,7 @@ message LoginInfo {
 	string login		= 1;
 	string mac_address	= 3;	//PC mac_address
 	string local_ip		= 4;	//local ip
-} 
+}
 
 message Account {
 	int64 account_id 	= 1;
@@ -37,6 +37,20 @@ message AccountBalance {
 	string password 					=	13; // login password
 }
 
+message AccountPortfolio {
+	int64 account_id 			= 1;
+	string symbol_code			= 2;
+	string owned_volume			= 3;
+	string pending_volume		= 4;
+	string avg_price			= 5;
+	string market_price			= 6;
+	string invested_value		= 7;
+	string current_value		= 8;
+	string realized_pl			= 9;
+	string unrealized_pl 		= 10;
+	string currency_code		= 11;
+}
+
 enum DealAction {
 	DEAL_NONE		= 0;
 	DEAL_BALANCE	= 2;
@@ -59,13 +73,13 @@ enum MsgCode {
 	MT_RET_ERR_NOTFOUND				= 13;
 
 
-	
 
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	MT_RET_SUBCRIBE_OK				= 310;
 	MT_RET_SUBCRIBE_ALREADY			= 311;
 	MT_RET_SUBCRIBE_ERROR			= 312;
@@ -75,7 +89,7 @@ enum MsgCode {
 
 	MT_RET_AUTH_ACCOUNT_INVALID		= 1001;	//Invalid account
 	MT_RET_AUTH_ACCOUNT_DISABLED	= 1002;	//Account is disabled
-	
+
 	MT_RET_REQUEST_INVALID_VOLUME	= 10014;
 	MT_RET_ERR_NOT_ENOUGH_MONEY = 10019;
 	MT_RET_REQUEST_INVALID_FILL		= 10030;
