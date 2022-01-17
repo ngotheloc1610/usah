@@ -69,8 +69,8 @@ const OrderForm = (props: IOrderForm) => {
 
         const position: number = value.indexOf(".", 0);
         const lengthFromDecimal: number = value.slice(position).length
-        if (position!== -1 && lengthFromDecimal > 2 ) {
-            const valueAfterFormat = value.slice(0,position + 3)
+        if (position !== -1 && lengthFromDecimal > 2 ) {
+            const valueAfterFormat = value.slice(0, position + 3)
             setPrice(valueAfterFormat)
           }
     }
