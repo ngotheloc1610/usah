@@ -1,9 +1,9 @@
 import moment from 'moment';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE } from '../constants/general.constant';
+import { FORMAT_DATE_TIME, INVALID_DATE } from '../constants/general.constant';
 
 export function formatOrderTime(date: number): string {
     // time in miliseconds
-    const dateTime = moment(date).format(FORMAT_DATE_TIME_MILLI);
+    const dateTime = moment(date).format(FORMAT_DATE_TIME);
     if (dateTime !== INVALID_DATE) {
         return dateTime;
     }
