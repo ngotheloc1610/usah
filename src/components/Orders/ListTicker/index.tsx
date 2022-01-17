@@ -7,9 +7,9 @@ import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
-
+import * as tdpb from '../../../models/proto/trading_model_pb';
 interface IListTickerProps {
-    getTicerLastQuote: (item: ILastQuote) => void;
+    getTicerLastQuote: (item: IAskPrice) => void;
 }
 
 const defaultProps = {
@@ -22,6 +22,7 @@ const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote } = props;
     const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
+    const tradingModel: any = tdpb;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -63,8 +64,9 @@ const ListTicker = (props: IListTickerProps) => {
         setLastQoutes(data.quotesList);
     }
 
-    const handleTicker = (item: ILastQuote) => {
-        getTicerLastQuote(item);
+    const handleTicker = (item: IAskPrice, side: string) => {
+        const itemTicker = {...item, side: side};
+        getTicerLastQuote(itemTicker);
     }
 
     const _renderSearchForm = () => (
@@ -79,7 +81,8 @@ const ListTicker = (props: IListTickerProps) => {
         </div>
     )
 
-    const _renderAskPrice = (askItems: IAskPrice[]) => {
+    const _renderAskPrice = (itemData: ILastQuote) => {
+        let askItems: IAskPrice[] = itemData.asksList;
         let arr: IAskPrice[] = [];
         let counter = MARKET_DEPTH_LENGTH - 1;
         while (counter >= 0) {
@@ -88,20 +91,22 @@ const ListTicker = (props: IListTickerProps) => {
                     numOrders: askItems[counter].numOrders,
                     price: askItems[counter].price,
                     tradable: askItems[counter].tradable,
-                    volume: askItems[counter].volume
+                    volume: askItems[counter].volume,
+                    symbolCode: itemData.symbolCode,
                 });
             } else {
                 arr.push({
                     numOrders: 0,
                     price: '-',
                     tradable: false,
-                    volume: '-'
+                    volume: '-',
+                    symbolCode: '-',
                 });
             }
             counter--;
         }
         return arr.map((item: IAskPrice, index: number) => (
-            <tr key={index}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -113,7 +118,8 @@ const ListTicker = (props: IListTickerProps) => {
         ));
     }
 
-    const _renderBidPrice = (bidItems: IBidPrice[]) => {
+    const _renderBidPrice = (itemĐata: ILastQuote) => {
+        let bidItems: IBidPrice[] = itemĐata.bidsList;
         let arr: IBidPrice[] = [];
         let counter = 0;
         while (counter <= MARKET_DEPTH_LENGTH) {
@@ -122,14 +128,16 @@ const ListTicker = (props: IListTickerProps) => {
                     numOrders: bidItems[counter].numOrders,
                     price: bidItems[counter].price,
                     tradable: bidItems[counter].tradable,
-                    volume: bidItems[counter].volume
+                    volume: bidItems[counter].volume,
+                    symbolCode: itemĐata.symbolCode
                 });
             } else {
                 arr.push({
                     numOrders: 0,
                     price: '-',
                     tradable: false,
-                    volume: '-'
+                    volume: '-',
+                    symbolCode: '-'
                 });
             }
             counter++;
@@ -138,10 +146,11 @@ const ListTicker = (props: IListTickerProps) => {
             numOrders: 0,
             price: '-',
             tradable: false,
-            volume: '-'
+            volume: '-',
+            symbolCode: '-'
         }
         return arr.map((item: IBidPrice, index: number) => (
-            <tr key={index}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     { item.price !== '-' ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item.price).toFixed(2))) : '-'}</td>
@@ -197,7 +206,7 @@ const ListTicker = (props: IListTickerProps) => {
     const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
         const symbol = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         return <div className="col-xl-3" key={index}>
-            <table onClick={() => handleTicker(item)}
+            <table
                 className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
             >
                 <thead>
@@ -213,8 +222,8 @@ const ListTicker = (props: IListTickerProps) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {_renderAskPrice(item.asksList)}
-                    {_renderBidPrice(item.bidsList)}
+                    {_renderAskPrice(item)}
+                    {_renderBidPrice(item)}
 
                 </tbody>
             </table>

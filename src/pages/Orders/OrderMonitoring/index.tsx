@@ -3,7 +3,7 @@ import { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
+import { IAskPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
@@ -18,14 +18,23 @@ const defaultCurrentTicker: ITickerInfo | any = {
         volume: '',
         change: '',
         changePrecent: '',
+        side: '',
 }
 
 const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
 
-    const handleTicker = (ticker: ILastQuote) => {
-        const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === ticker.symbolCode);
-        setCurrentTicker(item);
+    const handleTicker = (item: IAskPrice) => {
+        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(item.symbolCode));
+        const itemTicker = {
+            tickerName: tickerData?.tickerName,
+            ticker: tickerData?.ticker,
+            lastPrice: item.price,
+            volume: item.volume,
+            side: item.side,
+            symbolId: item.symbolCode
+        }
+        setCurrentTicker(itemTicker);
     }
 
     return (

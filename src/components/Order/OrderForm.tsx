@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
-import { ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 toast.configure()
 interface IOrderForm {
@@ -31,25 +31,34 @@ const defaultProps = {
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard } = props;
     const tradingModel: any = tdpb;
-    const [currentSide, setCurrentSide] = useState(tradingModel.OrderType.OP_BUY);
+    const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY) ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
     const [tradingUnit, setTradingUnit] = useState(100);
     const [tickerSize, setTickerSize] = useState(0.01)
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replace(',', '')));
-    const [volume, setVolume] = useState(tradingUnit);
+    const [volume, setVolume] = useState(Number(currentTicker.volume));
     const [statusOrder, setStatusOrder] = useState(0);
 
     useEffect(() => {
-        handleSetPrice()
-    }, [currentTicker.lastPrice])
+        handleSetPrice();
+        handleSetVolume();
+        handleSetSide();
+    }, [currentTicker])
 
     const handleSetPrice = () => {
         setPrice(Number(currentTicker.lastPrice?.replace(',', '')));
         setValidForm(currentTicker.lastPrice !== undefined);
     }
-
+    const handleSetVolume = () => {
+        setVolume(Number(currentTicker.volume));
+        setValidForm(currentTicker.volume !== undefined);
+    }
+    const handleSetSide = () => {
+        setCurrentSide(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY) ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
+        setValidForm(currentTicker.side !== undefined);
+    }
     const _rendetMessageSuccess = (message: string) => (
         <div>{toast.success('Place order successfully')}</div>
     )

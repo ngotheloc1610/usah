@@ -11,6 +11,7 @@ export interface ITickerInfo {
     volume: string,
     change: string,
     changePrecent: string,
+    side?: string,
 }
 
 export interface IParamOrder {
@@ -23,7 +24,6 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
-    
 }
 
 export interface IOrderBook {
@@ -136,6 +136,7 @@ export interface IBidPrice {
     price: string;
     tradable: boolean;
     volume: string;
+    symbolCode: string;
 }
 
 export interface IAskPrice {
@@ -143,6 +144,8 @@ export interface IAskPrice {
     volume: string;
     tradable: boolean;
     numOrders: number;
+    symbolCode: string;
+    side?: string;
 }
 
 export interface ILastQuote {
