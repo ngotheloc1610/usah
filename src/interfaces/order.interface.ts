@@ -192,7 +192,25 @@ export interface IParamTradeSearch {
     ticker: string,
     orderType: number,
     fromDatetime: string,
-    toDatetime : string,
+    toDatetime: string,
+}
+
+export interface IPropsListPortfolio {
+    accountPortfolio: IListPortfolio[]
+}
+
+export interface IListPortfolio {
+    accountId: number,
+    avgPrice: string,
+    currencyCode: string,
+    currentValue: string,
+    investedValue: string,
+    marketPrice: string,
+    ownedVolume: string,
+    pendingVolume: string,
+    realizedPl: string,
+    symbolCode: string,
+    unrealizedPl: string
 }
 
 export interface ITickerPortfolio {
@@ -217,6 +235,6 @@ export interface IParamHistorySearch {
 }
 
 export interface IHistorySearchStatus {
-    code: number, 
+    code: number,
     name: string
 }

@@ -581,3 +581,14 @@ a{
 .w-180{
     width: 180px;
 }
+.seperate{
+    width: 2% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (max-width: 770px) {
+    .seperate{
+        display: none;
+    }
+}

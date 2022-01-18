@@ -10,6 +10,7 @@ toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
     isDashboard: boolean;
+    messageSuccess: (item: string) => void;
 }
 
 const defaultData: IParamOrder = {
@@ -29,7 +30,7 @@ const defaultProps = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard } = props;
+    const { currentTicker, isDashboard, messageSuccess } = props;
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(currentTicker.side ? currentTicker.side.toString() : tradingModel.OrderType.OP_BUY);
     const [isConfirm, setIsConfirm] = useState(false);
@@ -59,9 +60,12 @@ const OrderForm = (props: IOrderForm) => {
         setCurrentSide(currentTicker.side ? currentTicker.side.toString() : tradingModel.OrderType.OP_BUY);
         setValidForm(currentTicker.side !== undefined);
     }
-    const _rendetMessageSuccess = (message: string) => (
-        <div>{toast.success('Place order successfully')}</div>
-    )
+
+    const _rendetMessageSuccess = (message: string) => {
+        // To handle when order success then update new data without having to press f5
+        messageSuccess('Place order successfully');
+        return <div>{toast.success('Place order successfully')}</div>
+    }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
