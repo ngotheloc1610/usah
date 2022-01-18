@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
-import { IAskPrice, IBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
-import { formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
