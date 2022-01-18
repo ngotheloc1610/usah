@@ -5,6 +5,11 @@ import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/Or
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
 import { IStyleBidsAsk, ITickerInfo } from '../../../interfaces/order.interface';
+import { ILastQuote } from '../../../interfaces/order.interface';
+import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks';
+import * as pspb from "../../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../../models/proto/rpc_pb';
+import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.css';
 
 const OrderBookCommon = () => {
@@ -23,6 +28,44 @@ const OrderBookCommon = () => {
         setColumns(false);
         setColumnsGap(false);
     }
+    const dafaultLastQuotesData: ILastQuote[] = [];
+    const [itemSearch, setItemSearch] = useState('');
+    const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
+
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         handleDataFromWs();
+    //         callWs();
+    //     }, 500);
+    //     return () => clearInterval(interval);
+    // }, []);
+
+    const callWs = () => {
+        setTimeout(() => {
+            getOrderBooks();
+        }, 200);
+    }
+    const handleDataFromWs = () => {
+        const data = wsService.getDataLastQuotes();
+        setLastQoutes(data.quotesList);
+    }
+    const getOrderBooks = () => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
+            LIST_TICKER_INFOR_MOCK_DATA.forEach(item => {
+                lastQoutes.addSymbolCode(item.symbolId.toString())
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+
+    }
+
 
     const selectedStyle = (item: string) => {
         defaultData();

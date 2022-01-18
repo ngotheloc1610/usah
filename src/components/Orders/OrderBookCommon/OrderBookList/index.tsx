@@ -2,9 +2,10 @@ import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_SPREA
 import { IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import { Mock_Bids_Ask } from '../../../../mocks';
 import './OrderBoolListBidsAsk.css';
-
 const OrderBookList = (props: IPropsListBidsAsk) => {
     const { styleListBidsAsk } = props;
+    // const { getTicerLastQuote } = props;
+    
     const _renderTitleStyleEarmarkSpreadSheet = () => (
         TITLE_LIST_BID_ASK.map((item, index) => {
             return <th key={index} className="border-end">{item}</th>
