@@ -39,7 +39,8 @@ const OrderBookCommon = () => {
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo>();
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
-    
+    const [tickerSearch, setTickerSearch] = useState<string>('');
+
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
         setSpreadsheet(false);
@@ -57,8 +58,9 @@ const OrderBookCommon = () => {
         }, 200);
     }
     const handleDataFromWs = () => {
-        const data = wsService.getDataLastQuotes();
-        setLastQoutes(data.quotesList);
+        wsService.getDataLastQuotes().subscribe(response => {
+            setLastQoutes(response.quotesList);
+        });
     }
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -119,9 +121,15 @@ const OrderBookCommon = () => {
                 <i className={`bi bi-${itemStyle}`}></i></a>
         </li>
     )
-
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
+    }
+    const getTickerSearch = (itemTicker: any) => {
+        setTickerSearch(itemTicker.target.value);
+    }
+    const searchTicker = () => {
+        callWs();
+        handleDataFromWs();
     }
     return <div className="site-main">
         <div className="container">
@@ -130,8 +138,8 @@ const OrderBookCommon = () => {
                     <div className="row g-2 justify-content-end">
                         <div className="col-md-3">
                             <div className="input-group input-group-sm mb-2">
-                                <input type="text" className="form-control border-end-0" placeholder="Search" />
-                                <button className="btn btn-outline-secondary border-start-0" type="button"><i className="bi bi-search"></i></button>
+                                <input type="text" className="form-control border-end-0" onChange={getTickerSearch} placeholder="Search" />
+                                <button className="btn btn-outline-secondary border-start-0" onClick={searchTicker} type="button"><i className="bi bi-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -163,74 +171,7 @@ const OrderBookCommon = () => {
                                             <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                         </div>
                                         <div className="card-body">
-                                            <OrderForm currentTicker={currentTicker}  messageSuccess={messageSuccess} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="layout-3" style={{ display: "none" }}>
-                            <div className="row align-items-stretch g-2">
-                                <div className="col-md-9">
-                                </div>
-                                <div className="col-md-3">
-                                    <div className="card card-new-order d-flex flex-column h-100">
-                                        <div className="card-header">
-                                            <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
-                                        </div>
-                                        <div className="card-body flew-grow-1">
-                                            <form action="#" className="order-form">
-
-                                                <div className="order-btn-group d-flex align-items-stretch mb-2">
-
-                                                    <button type="button" className="btn btn-buy text-white flex-grow-1 p-2 text-center selected">
-                                                        <span className="fs-5 text-uppercase">Buy</span>
-                                                    </button>
-
-
-                                                    <button type="button" className="btn btn-sell text-white flex-grow-1 p-2 px-2 text-center">
-                                                        <span className="fs-5 text-uppercase">Sell</span>
-                                                    </button>
-
-                                                </div>
-                                                <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                                                    <label className="text text-secondary">Ticker</label>
-                                                    <div className="fs-5">AAPL</div>
-                                                </div>
-                                                <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                                                    <div className="flex-grow-1 py-1 px-2">
-                                                        <label className="text text-secondary">Price</label>
-                                                        <input type="text" className="form-control text-end border-0 p-0 fs-5 lh-1"
-                                                            value="145.58" placeholder="" />
-                                                    </div>
-                                                    <div className="border-start d-flex flex-column">
-                                                        <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1">+</button>
-                                                        <button type="button" className="btn px-2 py-1 flex-grow-1">-</button>
-                                                    </div>
-                                                </div>
-                                                <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                                                    <div className="flex-grow-1 py-1 px-2">
-                                                        <label className="text text-secondary">Volume</label>
-                                                        <input type="text" className="form-control text-end border-0 p-0 fs-5 lh-1"
-                                                            value="5,000" placeholder="" />
-                                                    </div>
-                                                    <div className="border-start d-flex flex-column">
-                                                        <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1">+</button>
-                                                        <button type="button" className="btn px-2 py-1 flex-grow-1">-</button>
-                                                    </div>
-                                                </div>
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <div className="text-secondary">Min lot</div>
-                                                    <div><strong>100</strong></div>
-                                                </div>
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <div className="text-secondary">Owned Volume</div>
-                                                    <div><strong>10,000</strong></div>
-                                                </div>
-                                                <div className="border-top">
-                                                    <a href="#" className="btn btn-placeholder btn-primary d-block fw-bold text-white mb-1">Place</a>
-                                                </div>
-                                            </form>
+                                            <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
                                         </div>
                                     </div>
                                 </div>

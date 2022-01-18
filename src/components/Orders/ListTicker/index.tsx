@@ -59,8 +59,9 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleDataFromWs = () => {
-        const data = wsService.getDataLastQuotes();
-        setLastQoutes(data.quotesList);
+        wsService.getDataLastQuotes().subscribe(resp => {
+            setLastQoutes(resp.quotesList);
+        });
     }
 
     const handleTicker = (item: ILastQuote) => {
