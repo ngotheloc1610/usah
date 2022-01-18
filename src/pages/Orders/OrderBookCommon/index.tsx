@@ -11,6 +11,24 @@ import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.css';
+const defaultDataTicker: ILastQuote = {
+    asksList: [],
+    bidsList: [],
+    close: '',
+    currentPrice: '',
+    high: '',
+    id: 0,
+    low: '',
+    netChange: '',
+    open: '',
+    pctChange: '',
+    quoteTime: 0,
+    scale: 0,
+    symbolCode: '',
+    symbolId: 0,
+    tickPerDay: 0,
+    volumePerDay: '',
+}
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -19,7 +37,8 @@ const OrderBookCommon = () => {
     const [isColumns, setColumns] = useState<boolean>(false);
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo>();
-    const [msgSuccess, setMsgSuccess] = useState<string>('')
+    const [msgSuccess, setMsgSuccess] = useState<string>('');
+    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
     
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -31,14 +50,6 @@ const OrderBookCommon = () => {
     const dafaultLastQuotesData: ILastQuote[] = [];
     const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         handleDataFromWs();
-    //         callWs();
-    //     }, 500);
-    //     return () => clearInterval(interval);
-    // }, []);
 
     const callWs = () => {
         setTimeout(() => {
@@ -141,7 +152,7 @@ const OrderBookCommon = () => {
                         <div id="layout-1">
                             <div className="row align-items-stretch g-2">
                                 <div className="col-md-9">
-                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} />
+                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} />
                                     <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
                                         <OrderBookTickerDetail />
                                     </div>

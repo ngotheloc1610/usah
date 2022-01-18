@@ -255,4 +255,5 @@ export interface IStyleBidsAsk {
 
 export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
+    getTickerDetail: ILastQuote;
 }
