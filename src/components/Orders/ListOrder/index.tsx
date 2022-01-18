@@ -14,6 +14,9 @@ import { formatNumber } from "../../../helper/utils";
 import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
+interface IPropsListOrder {
+    msgSuccess: string;
+}
 
 
 const paramModifiCancelDefault: IParamOrder = {
@@ -27,7 +30,8 @@ const paramModifiCancelDefault: IParamOrder = {
     tickerId: ''
 }
 
-const ListOrder = () => {
+const ListOrder = (props: IPropsListOrder) => {
+    const { msgSuccess } = props;
     const tradingModelPb: any = tspb;
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
@@ -46,6 +50,14 @@ const ListOrder = () => {
         });
         return () => listOrder.unsubscribe();
     }, []);
+
+    useEffect(() => {
+        callWs();
+        const listOrder = wsService.getListOrder().subscribe(response => {
+            setGetDataOrder(response.orderList);
+        });
+        return () => listOrder.unsubscribe();
+    }, [msgSuccess]);
 
     const callWs = () => {
         setTimeout(() => {
@@ -110,7 +122,7 @@ const ListOrder = () => {
         setShowFullData(!isShowFullData);
     }
 
-    const getTickerCode = (sympleId: string) : string => {
+    const getTickerCode = (sympleId: string): string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
     }
 
@@ -200,7 +212,7 @@ const ListOrder = () => {
                             <span className="text-ellipsis">Volume</span>
                         </th>
                         <th className="text-end sorting_disabled">
-                            <span className="text-ellipsis">Pending Volume</span>
+                            <span className="text-ellipsis">Pending</span>
                         </th>
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Datetime</span>
