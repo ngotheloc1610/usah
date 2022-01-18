@@ -1,98 +1,85 @@
-import { ORDER_PORTFOLIO } from '../../../mocks'
-import { ITickerPortfolio } from '../../../interfaces/order.interface'
-import './orderPortfolio.css'
+import { wsService } from "../../../services/websocket-service";
+import * as sspb from "../../../models/proto/system_service_pb"
+import * as rspb from "../../../models/proto/rpc_pb";
+import ReduxPersist from "../../../config/ReduxPersist";
+import queryString from 'query-string';
+import { useEffect, useState } from 'react';
+import { OBJ_AUTHEN } from '../../../constants/general.constant';
+import PortfolioTable from './PortfoioTable'
+import './orderPortfolio.scss'
 
 function OrderPortfolio() {
+    const [accountPortfolio, setAccountPortfolio] = useState([]);
 
-    const _rederPortfolioInvest = () => (
-        <>
-            <div className="border p-3 mb-3">
-                <div className="row">
-                    <div className="col-md-3 text-center">
-                        <div>Total Invested Value:</div>
-                        <div className="fs-5 fw-bold">1,453,537.86</div>
-                    </div>
-                    <div className="col-md-3 text-center">
-                        <div>Total Current Value:</div>
-                        <div className="fs-5 fw-bold">1,481,240.10</div>
-                    </div>
-                    <div className="col-md-3 text-center">
-                        <div>Total P&amp;L:</div>
-                        <div className="fs-5 fw-bold text-success">27702.24</div>
-                    </div>
-                    <div className="col-md-3 order-0 order-md-4">
-                        <p className="text-end small opacity-50 mb-2">Currency: USD</p>
-                    </div>
-                </div>
-            </div>
-        </>
-    )
-    const _renderPortfolioTableHeader = () => (
-        <tr>
-            <th className="text-start fz-14 w-s" >Ticker Name	</th>
-            <th className="text-start fz-14 w-s" >Ticker Code</th >
-            <th className="text-end fz-14 w-s" >Owned Volume	</th>
-            <th className="text-end fz-14 w-s" > Pending Volume</th>
-            <th className="text-end fz-14 w-s" >AVG Price</th>
-            <th className="text-end fz-14 w-s" > Invested Value</th>
-            <th className="text-end fz-14 w-s" >Market Price</th>
-            <th className="text-end fz-14 w-s" > Current Value</th>
-            <th className="text-end fz-14 w-s" > P&amp;L</th>
-            <th className="text-end fz-14 w-s" > % P&amp;L</th>
-            <th className="text-end fz-14 w-17"></th>
+    useEffect(() => {
+        const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
+            setAccountPortfolio(res.accountPortfolioList)
+        });
 
-        </tr>
-    )
-    const _renderPortfolioTableBody = () => (
-        ORDER_PORTFOLIO.map((item: ITickerPortfolio, index: number) => (
-            <tr className="odd " key={index}>
-                <td className="text-start w-s td" >{item.companyName}</td>
-                <td className="text-start w-s td">{item.ticker}</td>
-                {
-                    parseInt(item.ownedVolume)===0 ? <td className="text-end w-s td" >&nbsp;</td> : <td className="text-end w-s td" >{item.ownedVolume}</td>
-                } 
-                
-                {
-                    item.orderPendingVolume===0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{item.orderPendingVolume}</td>
-                }                
-                
-                <td className="text-end w-s td" >{item.avgPrice}</td>
-                <td className="text-end w-s td" >{item.investedValue}</td>
-                <td className="text-end w-s td" >{item.marketPrice}</td>
-                <td className="text-end w-s td"  >{item.curentValue}</td>
-                <td className="text-end w-s td" ><span className={parseInt(item.pl)>0?"text-success":"text-danger"}>{item.pl}</span></td>
-                <td className="text-end w-s td"><span className={item.plPercent>0?"text-success":"text-danger"}>{item.plPercent + "%"}</span></td>
-            </tr>
-        ))
+        return () => renderDataToScreen.unsubscribe();
+    }, [])
 
-    )
-    const _renderPortfolioTable = () => {
-        return (
-            <>
-                <div className="table-responsive mb-3">
-                    <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
-                        <thead className="thead">
-                            {_renderPortfolioTableHeader()}
-                        </thead>
-                        <tbody className='scroll tbody'>
-                            {_renderPortfolioTableBody()}
-                        </tbody>
-                    </table>
+    useEffect(() => callWs(), []);
 
-                </div>
-            </>
-        )
+    const callWs = () => {
+        setTimeout(() => {
+            sendAccountPortfolio();
+        }, 200)
     }
+
+    const buildMessage = (accountId: string) => {
+        const systemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
+            accountPortfolioRequest.setAccountId(Number(accountId));
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
+            rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendAccountPortfolio = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ?? '';
+                buildMessage(accountId);
+                return;
+            }
+        });
+    }
+
     const _renderPortfolio = () => (
-        <div className="site-main">
-            <div className="container">
-                <div className="card shadow-sm mb-3">
-                    <div className="card-header">
-                        <h6 className="card-title fs-6 mb-0">My Account</h6>
-                    </div>
-                    <div className="card-body">
-                        {_rederPortfolioInvest()}
-                        {_renderPortfolioTable()}
+        <div className="site">
+            <div className="site-main">
+                <div className="container">
+                    <div className="card shadow-sm mb-3">
+                        <div className="card-header">
+                            <h6 className="card-title fs-6 mb-0">My Account</h6>
+                        </div>
+                        <div className="card-body">
+                            <PortfolioTable accountPortfolio = {accountPortfolio}/>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -104,7 +104,7 @@ message AccountDetailResponse {
 	string comment 			= 9;
 }
 
-//Get account balance info 
+//Get account balance info
 message AccountBalanceRequest {
 	int64 account_id 					= 1;
 }
@@ -113,4 +113,17 @@ message AccountBalanceResponse {
 	MsgCode msg_code 					= 1;
 	string  msg_text					= 2;
 	AccountBalance account_balance		= 3;
+}
+
+//Get account portfolio info
+message AccountPortfolioRequest {
+	int64 account_id 					= 1;
+}
+
+message AccountPortfolioResponse {
+	MsgCode msg_code 					= 1;
+	string  msg_text					= 2;
+	int64 account_id 					= 3;
+	string currency_code 				= 4;
+	repeated AccountPortfolio account_portfolio	= 5;
 }
