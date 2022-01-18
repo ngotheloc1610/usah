@@ -32,7 +32,8 @@ const defaultProps = {
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard, messageSuccess } = props;
     const tradingModel: any = tdpb;
-    const [currentSide, setCurrentSide] = useState(currentTicker.side ? currentTicker.side.toString() : tradingModel.OrderType.OP_BUY);
+    const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
+    ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
@@ -57,7 +58,8 @@ const OrderForm = (props: IOrderForm) => {
         setValidForm(currentTicker.volume !== undefined);
     }
     const handleSetSide = () => {
-        setCurrentSide(currentTicker.side ? currentTicker.side.toString() : tradingModel.OrderType.OP_BUY);
+        setCurrentSide(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
+        ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
         setValidForm(currentTicker.side !== undefined);
     }
 
