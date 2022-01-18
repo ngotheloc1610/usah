@@ -25,12 +25,16 @@ const OrderNew = () => {
     }
 
     const [currentTicker, setCurrentTicker] = useState(defaultTickerData);
+    const [msgSuccess, setMsgSuccess] = useState<string>('');
 
     const getTicker = (value: string) => {
         const item = LIST_TICKER_INFOR_MOCK_DATA.find((o: ITickerInfo) => o.symbolId.toString() === value);
         setCurrentTicker(item);
     }
 
+    const messageSuccess = (item: string) => {
+        setMsgSuccess(item);
+    }
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -44,7 +48,7 @@ const OrderNew = () => {
                             <TickerDetail currentTicker={currentTicker} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
-                                    <OrderForm currentTicker={currentTicker} />
+                                    <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess}/>
                                 </div>
                             </div>
                         </div>

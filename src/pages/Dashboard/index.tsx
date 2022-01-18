@@ -23,6 +23,7 @@ const defaultTickerInfo: ITickerInfo = {
 const Dashboard = () => {
     const [isDashboard, setIsDashboard] = useState(true)
     const [ticker, setTicker] = useState(defaultTickerInfo)
+    const [msgSuccess, setMsgSuccess] = useState<string>('')
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
             <div className="d-flex justify-content-center align-items-center col-md-4">
@@ -58,6 +59,9 @@ const Dashboard = () => {
         setTicker(value);
     }
 
+    const messageSuccess = (item: string) => {
+        setMsgSuccess(item);
+    }
     return (
         <div className="site-main">
             <div className="container">
@@ -80,7 +84,7 @@ const Dashboard = () => {
                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                             </div>
                             <div className="card-body" style={{height: '500px'}}>
-                                <OrderForm isDashboard={isDashboard} currentTicker={ticker} />
+                                <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
                             </div>
                         </div>
                     </div>

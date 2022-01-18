@@ -10,6 +10,7 @@ toast.configure()
 interface IOrderForm {
     currentTicker: ITickerInfo;
     isDashboard: boolean;
+    messageSuccess: (item: string) => void;
 }
 
 const defaultData: IParamOrder = {
@@ -29,7 +30,7 @@ const defaultProps = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard } = props;
+    const { currentTicker, isDashboard, messageSuccess } = props;
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.OrderType.OP_BUY);
     const [isConfirm, setIsConfirm] = useState(false);
@@ -50,9 +51,11 @@ const OrderForm = (props: IOrderForm) => {
         setValidForm(currentTicker.lastPrice !== undefined);
     }
 
-    const _rendetMessageSuccess = (message: string) => (
-        <div>{toast.success('Place order successfully')}</div>
-    )
+    const _rendetMessageSuccess = (message: string) => {
+        // To handle when order success then update new data without having to press f5
+        messageSuccess('Place order successfully');
+        return <div>{toast.success('Place order successfully')}</div>
+    }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -63,8 +66,16 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handlePrice = (event: any) => {
-        setPrice(event.target.value);
+        const value = event.target.value
+        setPrice(value)
         setValidForm(Number(event.target.value) > 0 && volume > 0);
+
+        const position: number = value.indexOf(".", 0);
+        const lengthFromDecimal: number = value.slice(position).length
+        if (position !== -1 && lengthFromDecimal > 2 ) {
+            const valueAfterFormat = value.slice(0, position + 3)
+            setPrice(valueAfterFormat)
+          }
     }
 
     const handleVolume = (event: any) => {

@@ -32,6 +32,7 @@ const ListModifyCancel = () => {
         tickerId: ''
     }
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
+    const [msgSuccess, setMsgSuccess] = useState<string>('');
 
     useEffect(() => {
         callWs();
@@ -49,7 +50,12 @@ const ListModifyCancel = () => {
             sendListOrder();
         }, 200);
     }
-
+    useEffect(() => {
+        callWs();
+        setTimeout(() => {
+            sendListOrder();
+        }, 200);
+    }, [msgSuccess]);
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
     const sendListOrder = () => {
         const paramStr = window.location.search;
@@ -112,7 +118,7 @@ const ListModifyCancel = () => {
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
-            volume: Number(item.amount),
+            volume: Number(calcPendingVolume(item.amount, item.filledAmount)),
             price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
@@ -131,9 +137,11 @@ const ListModifyCancel = () => {
         setIsCancel(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = (message: string) => (
-        <div>{toast.success('Place order successfully')}</div>
-    )
+    const _rendetMessageSuccess = (message: string) => {
+        // To handle when modify or cancel success then update new data without having to press f5
+        setMsgSuccess('Place order successfully')
+        return <div>{toast.success('Place order successfully')}</div>
+    }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
