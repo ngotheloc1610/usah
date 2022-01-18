@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime } from "../../../helper/utils";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
+import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -193,10 +193,10 @@ const ListOrder = (props: IPropsListOrder) => {
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
                 <thead>
                     <tr>
-                        <th className="text-end sorting_disabled">
+                        <th className="sorting_disabled">
                             <span className="text-ellipsis">Order ID</span>
                         </th>
-                        <th className="sorting_disabled text-center">
+                        <th className="sorting_disabled">
                             <span className="text-ellipsis">Ticker</span>
                         </th>
                         <th className="sorting_disabled text-center">
@@ -231,12 +231,12 @@ const ListOrder = (props: IPropsListOrder) => {
         listOrderSortDate.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td className="text-end w-10">{item.orderId}</td>
-                    <td className="text-center w-10">{getTickerName(item.symbolCode.toString())}</td>
-                    <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                    <td className="text-center w-10">{ORDER_TYPE_NAME.limit}</td>
-                    <td className="text-end w-10">{formatNumber(item.price.toString())}</td>
-                    <td className="text-end w-10">{formatNumber(item.amount.toString())}</td>
+                    <td>{item.orderId}</td>
+                    <td>{getTickerName(item.symbolCode.toString())}</td>
+                    <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                    <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
+                    <td className="text-end ">{formatCurrency(item.price.toString())}</td>
+                    <td className="text-end ">{formatNumber(item.amount.toString())}</td>
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">

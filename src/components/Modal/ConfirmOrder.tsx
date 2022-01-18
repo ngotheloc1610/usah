@@ -10,7 +10,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
 import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
-import { formatNumber, formatPrice } from '../../helper/utils'
+import { formatNumber, formatCurrency } from '../../helper/utils'
 import { IAuthen } from '../../interfaces'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -272,7 +272,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
-                    {_renderConfirmOrder('Price', `${formatPrice(params.price.toString())}`)}
+                    {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
                     {_renderConfirmOrder('Value ($)', `${formatNumber((volumeModify * priceModify).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
