@@ -13,9 +13,9 @@ const OrderBookCommon = () => {
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
-    const [currentTicker, setCurrentTicker] = useState<ITickerInfo>(
-        
-    )
+    const [currentTicker, setCurrentTicker] = useState<ITickerInfo>();
+    const [msgSuccess, setMsgSuccess] = useState<string>('')
+    
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
         setSpreadsheet(false);
@@ -66,6 +66,9 @@ const OrderBookCommon = () => {
         </li>
     )
 
+    const messageSuccess = (item: string) => {
+        setMsgSuccess(item);
+    }
     return <div className="site-main">
         <div className="container">
             <div className="row g-2 align-items-center">
@@ -106,7 +109,7 @@ const OrderBookCommon = () => {
                                             <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                         </div>
                                         <div className="card-body">
-                                            <OrderForm currentTicker={currentTicker} />
+                                            <OrderForm currentTicker={currentTicker}  messageSuccess={messageSuccess} />
                                         </div>
                                     </div>
                                 </div>
