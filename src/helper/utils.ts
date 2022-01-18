@@ -21,15 +21,7 @@ export function formatNumber(item: string): string {
 
 // To format price --after the dot is 2 decimals.
 export function formatCurrency(item: string): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item).toFixed(2)));
-}
-
-
-export function formatPrice(item: string) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(Number(item))
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
 }
 
 export function formatIdNumber(item: string) {

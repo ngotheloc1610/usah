@@ -1,5 +1,5 @@
 import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
-import { formatPrice } from '../../../helper/utils'
+import { formatCurrency } from '../../../helper/utils'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 
 function PortfolioTable(props: IPropsListPortfolio) {
@@ -32,15 +32,15 @@ function PortfolioTable(props: IPropsListPortfolio) {
                 <div className="row">
                     <div className="col-md-3 text-center">
                         <div>Total Invested Value:</div>
-                        <div className="fs-5 fw-bold">{formatPrice(totalInvestedValue.toString())}</div>
+                        <div className="fs-5 fw-bold">{formatCurrency(totalInvestedValue.toString())}</div>
                     </div>
                     <div className="col-md-3 text-center">
                         <div>Total Current Value:</div>
-                        <div className="fs-5 fw-bold">{formatPrice(totalCurrentValue.toString())}</div>
+                        <div className="fs-5 fw-bold">{formatCurrency(totalCurrentValue.toString())}</div>
                     </div>
                     <div className="col-md-3 text-center">
                         <div>Total P&amp;L:</div>
-                        <div className="fs-5 fw-bold text-success">{formatPrice(totalPl.toString())}</div>
+                        <div className="fs-5 fw-bold text-success">{formatCurrency(totalPl.toString())}</div>
                     </div>
                     <div className="col-md-3 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -77,12 +77,12 @@ function PortfolioTable(props: IPropsListPortfolio) {
                 {
                     Number(item.pendingVolume) === 0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{item.pendingVolume}</td>
                 }
-                <td className="text-end w-s td" >{formatPrice(item.avgPrice)}</td>
-                <td className="text-end w-s td" >{formatPrice(item.investedValue)}</td>
-                <td className="text-end w-s td" >{formatPrice(item.marketPrice)}</td>
-                <td className="text-end w-s td"  >{formatPrice(item.currentValue)}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.investedValue)}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
+                <td className="text-end w-s td"  >{formatCurrency(item.currentValue)}</td>
                 <td className="text-end w-s td" ><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
-                    {formatPrice(item.unrealizedPl)}</span>
+                    {formatCurrency(item.unrealizedPl)}</span>
                 </td>
                 <td className="text-end w-s td"><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
                     {(Number(item.unrealizedPl) / Number(item.investedValue) * 100).toFixed(2) + '%'}</span></td>
