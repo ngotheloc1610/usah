@@ -2,7 +2,6 @@ import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.i
 import { formatPrice } from '../../../helper/utils'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 
-
 function PortfolioTable(props: IPropsListPortfolio) {
 
     const { accountPortfolio } = props
@@ -13,25 +12,6 @@ function PortfolioTable(props: IPropsListPortfolio) {
 
     const getTickerName = (sympleId: string) => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
-    }
-
-    const _rederPortfolioInvestItem = (title: string, value: number | string) => {
-        if (title === 'Currency:') {
-            return (<div className="col-md-3 order-0 order-md-4">
-                <p className="text-end small opacity-50 mb-2">{title} {value}</p>
-            </div>)
-        }
-        if (title === 'Total P&L:') {
-            return (<div className="col-md-3 text-center">
-                <div>{title}</div>
-                <div className="fs-5 fw-bold text-success">{formatPrice(value.toString())}</div>
-            </div>)
-        } else {
-            return (<div className="col-md-3 text-center">
-            <div>{title}</div>
-            <div className="fs-5 fw-bold">{formatPrice(value.toString())}</div>
-        </div>)
-        }
     }
 
     const _rederPortfolioInvest = () => {
@@ -47,14 +27,27 @@ function PortfolioTable(props: IPropsListPortfolio) {
             return acc + Number(crr.unrealizedPl)
         }, 0)
 
-        return (<div className="border p-3 mb-3">
-            <div className="row">
-                {_rederPortfolioInvestItem('Total Invested Value:', totalInvestedValue)}
-                {_rederPortfolioInvestItem('Total Current Value:', totalCurrentValue)}
-                {_rederPortfolioInvestItem('Total P&L:', totalPl)}
-                {_rederPortfolioInvestItem('Currency:', 'USD')}
+        return (
+            <div className="border p-3 mb-3">
+                <div className="row">
+                    <div className="col-md-3 text-center">
+                        <div>Total Invested Value:</div>
+                        <div className="fs-5 fw-bold">{formatPrice(totalInvestedValue.toString())}</div>
+                    </div>
+                    <div className="col-md-3 text-center">
+                        <div>Total Current Value:</div>
+                        <div className="fs-5 fw-bold">{formatPrice(totalCurrentValue.toString())}</div>
+                    </div>
+                    <div className="col-md-3 text-center">
+                        <div>Total P&amp;L:</div>
+                        <div className="fs-5 fw-bold text-success">{formatPrice(totalPl.toString())}</div>
+                    </div>
+                    <div className="col-md-3 order-0 order-md-4">
+                        <p className="text-end small opacity-50 mb-2">Currency: USD</p>
+                    </div>
+                </div>
             </div>
-        </div>)
+        )
     }
 
     const _renderPortfolioTableHeader = () => (
@@ -98,23 +91,18 @@ function PortfolioTable(props: IPropsListPortfolio) {
 
     )
 
-    const _renderPortfolioTable = () => {
-        return (
-            <>
-                <div className="table-responsive mb-3">
-                    <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
-                        <thead className="thead">
-                            {_renderPortfolioTableHeader()}
-                        </thead>
-                        <tbody className='scroll tbody'>
-                            {_renderPortfolioTableBody()}
-                        </tbody>
-                    </table>
-
-                </div>
-            </>
-        )
-    }
+    const _renderPortfolioTable = () => (
+        <div className="table-responsive mb-3">
+            <table id="table" className="table table-sm table-hover mb-0" cellSpacing="0" cellPadding="0">
+                <thead className="thead">
+                    {_renderPortfolioTableHeader()}
+                </thead>
+                <tbody className='scroll tbody'>
+                    {_renderPortfolioTableBody()}
+                </tbody>
+            </table>
+        </div>
+    )
 
     return (
         <>
