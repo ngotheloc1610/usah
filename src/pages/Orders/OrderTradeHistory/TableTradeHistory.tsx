@@ -1,5 +1,5 @@
 import { SIDE, ORDER_TYPE_NAME } from "../../../constants/general.constant";
-import { formatOrderTime, formatPrice, formatIdNumber, formatNumber } from "../../../helper/utils";
+import { formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
@@ -44,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{formatIdNumber(item.orderId)}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.tickerCode.toString())}</div>
@@ -65,17 +65,17 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatPrice(item.price)}</div>
+                    <div className="text-ellipsis text-end">{formatCurrency(item.price)}</div>
                 </td>
 
                 <td className="text-end" >{formatNumber(item.executedVolume)}</td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatPrice(item.executedPrice)}</div>
+                    <div className="text-ellipsis text-end">{formatCurrency(item.executedPrice)}</div>
                 </td>
 
                 <td>
-                    <div className="text-ellipsis text-end">{formatPrice(item.matchedValue)}</div>
+                    <div className="text-ellipsis text-end">{formatCurrency(item.matchedValue)}</div>
                 </td>
                 <td>
                     <div className="text-ellipsis  text-end">{formatOrderTime(Number(item.executedDatetime))}</div>
