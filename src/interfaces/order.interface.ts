@@ -257,3 +257,15 @@ export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
     getTickerDetail: ILastQuote;
 }
+
+export interface IPropsDetail {
+    getTickerDetail: ILastQuote;
+}
+export interface IListAskBid {
+    totalBids: string;
+    numberBids: string;
+    bidPrice: string;
+    askPrice: string;
+    numberAsks: string;
+    totalAsks: string;
+}

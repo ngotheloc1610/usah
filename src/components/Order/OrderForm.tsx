@@ -8,6 +8,7 @@ import { ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/ge
 import * as tdpb from '../../models/proto/trading_model_pb';
 toast.configure()
 interface IOrderForm {
+    isOrderBook?: boolean;
     currentTicker: ITickerInfo;
     isDashboard: boolean;
     messageSuccess: (item: string) => void;
@@ -30,7 +31,8 @@ const defaultProps = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard, messageSuccess } = props;
+    const { currentTicker, isDashboard, messageSuccess, isOrderBook } = props;
+    console.log(35, isOrderBook);
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.OrderType.OP_BUY);
     const [isConfirm, setIsConfirm] = useState(false);
@@ -72,10 +74,10 @@ const OrderForm = (props: IOrderForm) => {
 
         const position: number = value.indexOf(".", 0);
         const lengthFromDecimal: number = value.slice(position).length
-        if (position !== -1 && lengthFromDecimal > 2 ) {
+        if (position !== -1 && lengthFromDecimal > 2) {
             const valueAfterFormat = value.slice(0, position + 3)
             setPrice(valueAfterFormat)
-          }
+        }
     }
 
     const handleVolume = (event: any) => {
@@ -199,10 +201,31 @@ const OrderForm = (props: IOrderForm) => {
         <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
     )
 
+    const _renderOwnVol = () => {
+        const elementOwnVolMinLot = <>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="text-secondary">Owned Volume</div>
+            <div><strong>10,000</strong></div>
+        </div>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="text-secondary">Min lot</div>
+            <div><strong>10,000</strong></div>
+        </div>
+        </>
+
+        const elementOwnVol = <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="text-secondary">Owned Volume</div>
+            <div><strong>10,000</strong></div>
+        </div>
+        return <>
+            {isOrderBook && elementOwnVolMinLot}
+            {!isOrderBook && elementOwnVol}
+        </>
+    }
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
-                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.OrderType.OP_SELL , 'selected', '')}
+                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.OrderType.OP_SELL, 'selected', '')}
                 {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.OrderType.OP_BUY, '', 'selected')}
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
@@ -216,10 +239,8 @@ const OrderForm = (props: IOrderForm) => {
             {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
             {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
 
-            <div className="d-flex justify-content-between align-items-center mb-2 fs-17">
-                <div className="text-secondary">Owned Volume</div>
-                <div><strong>10,000</strong></div>
-            </div>
+            {_renderOwnVol()}
+
             <div className="border-top">
                 {validForm && _renderPlaceButtonEnable()}
                 {!validForm && _renderPlaceButtonDisable()}

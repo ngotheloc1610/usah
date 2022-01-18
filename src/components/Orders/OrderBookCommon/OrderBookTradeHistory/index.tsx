@@ -1,11 +1,14 @@
+import { formatOrderTime } from '../../../../helper/utils';
+import { IPropListTradeHistory } from '../../../../interfaces/order.interface';
 import { MOCKDATA_TRADE_HISTORY } from '../../../../mocks';
 import './OrderBookTradeHistory.css';
-const OrderBookTradeHistory = () => {
+const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
+    const {getDataTradeHistory} = props;
     const _renderData = () => (
-        MOCKDATA_TRADE_HISTORY.map((item, index) => (
+        getDataTradeHistory.map((item, index) => (
             <tr key={index} className="odd">
-                <td>{item.dateTime}</td>
-                <td className="text-end">{item.volume}</td>
+                <td>{formatOrderTime(Number(item.executedDatetime))}</td>
+                <td className="text-end">{item.amount}</td>
                 <td className="text-end">{item.price}</td>
             </tr>
         ))

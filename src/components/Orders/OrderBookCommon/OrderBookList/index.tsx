@@ -1,25 +1,65 @@
+import { useEffect, useState } from 'react';
+import { MARKET_DEPTH_LENGTH } from '../../../../constants/general.constant';
 import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
-import { IPropsListBidsAsk } from '../../../../interfaces/order.interface';
-import { Mock_Bids_Ask } from '../../../../mocks';
+import { ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import './OrderBoolListBidsAsk.css';
+
+const defaultAskBidList: IListAskBid[] = []
 const OrderBookList = (props: IPropsListBidsAsk) => {
-    const { styleListBidsAsk } = props;
-    // const { getTicerLastQuote } = props;
-    
+    const { styleListBidsAsk, getTickerDetail } = props;
+    console.log(7, getTickerDetail);
+    const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
+    const getListAsksBids = (itemTickerDetail: ILastQuote) => {
+        let counter = MARKET_DEPTH_LENGTH - 1;
+        let assgnListAsksBids: IListAskBid[] = [];
+        let askList = itemTickerDetail.asksList;
+        let bidList = itemTickerDetail.bidsList;
+        while (counter >= 0) {
+            if (askList[counter] || bidList[counter]) {
+                assgnListAsksBids.push(
+                    {
+                        askPrice: askList[counter].price ? askList[counter].price : '0',
+                        bidPrice: bidList[counter].price ? bidList[counter].price : '0',
+                        numberAsks: askList[counter].numOrders ? askList[counter].numOrders.toString() : '',
+                        numberBids: bidList[counter] ? bidList[counter].numOrders.toString() : '',
+                        totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ? askList[counter].numOrders.toString() : (Number(askList[counter].numOrders) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString(),
+                        totalBids: counter === (MARKET_DEPTH_LENGTH - 1) ? bidList[counter].numOrders.toString() : (Number(bidList[counter].numOrders) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString(),
+                    }
+                )
+            } else {
+                assgnListAsksBids.push(
+                    {
+                        askPrice: '',
+                        bidPrice: '',
+                        numberAsks: '',
+                        numberBids: '',
+                        totalAsks: '',
+                        totalBids: ''
+                    }
+                )
+            }
+            counter--;
+        }
+        setListAsksBids(assgnListAsksBids);
+    }
+    const listDataAsksBids = listAsksBids;
+    useEffect(() => {
+        getListAsksBids(getTickerDetail);
+    }, [getTickerDetail])
     const _renderTitleStyleEarmarkSpreadSheet = () => (
         TITLE_LIST_BID_ASK.map((item, index) => {
             return <th key={index} className="border-end">{item}</th>
         })
     )
     const _renderDataStyleEarmarkSpreadSheet = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end border-end border-bottom-0">{item.totalBids}</td>
                 <td className="text-end border-end border-bottom-0">{item.numberBids}</td>
                 <td className="text-end border-end border-bottom-0 text-danger">{item.bidPrice}</td>
                 <td className="text-end border-end border-bottom-0 text-info">{item.askPrice}</td>
-                <td className="text-end border-end border-bottom-0">{item.numberAsk}</td>
-                <td className="text-end border-end border-bottom-0">{item.totalAsk}</td>
+                <td className="text-end border-end border-bottom-0">{item.numberAsks}</td>
+                <td className="text-end border-end border-bottom-0">{item.totalAsks}</td>
             </tr>
         })
     )
@@ -31,10 +71,10 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderDataStyleSpreadsheet = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end border-end border-bottom-0">{item.totalAsk}</td>
-                <td className="text-end border-end border-bottom-0">{item.numberAsk}</td>
+                <td className="text-end border-end border-bottom-0">{item.totalAsks}</td>
+                <td className="text-end border-end border-bottom-0">{item.totalBids}</td>
                 <td className="text-end border-end border-bottom-0 text-danger">{item.askPrice}</td>
                 <td className="text-end border-end border-bottom-0 text-info">{item.bidPrice}</td>
                 <td className="text-end border-end border-bottom-0">{item.numberBids}</td>
@@ -131,7 +171,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
     const _renderDataStyleGirdAsk = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalBids}</td>
                 <td className="text-end">{item.numberBids}</td>
@@ -145,10 +185,10 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
     const _renderDataStyleGirdBids = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">{item.totalAsk}</td>
-                <td className="text-end">{item.numberAsk}</td>
+                <td className="text-end">{item.totalAsks}</td>
+                <td className="text-end">{item.numberAsks}</td>
                 <td className="text-end"><span className="text-info">{item.askPrice}</span></td>
             </tr>
         })
@@ -207,22 +247,22 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
     const _renderDataStyleColumnsAsk = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end" colSpan={2}>&nbsp;</td>
                 <td className={`text-end 
-                ${((index + 1) === Mock_Bids_Ask.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
-                        : ((index + 1) === Mock_Bids_Ask.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
+                ${((index + 1) === listDataAsksBids.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
+                        : ((index + 1) === listDataAsksBids.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
                     {item.askPrice}</td>
-                <td className="text-end">{item.numberAsk}</td>
-                <td className="text-end">{item.totalAsk}</td>
+                <td className="text-end">{item.numberAsks}</td>
+                <td className="text-end">{item.numberBids}</td>
             </tr>
         })
     )
     const _renderDataStyleColumnsBids = () => (
-        Mock_Bids_Ask.map((item, index) => {
+        listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">{item.totalAsk}</td>
+                <td className="text-end">{item.totalAsks}</td>
                 <td className="text-end">{item.numberBids}</td>
                 <td className="text-end">{item.bidPrice}</td>
                 <td className="text-end" colSpan={2}>&nbsp;</td>

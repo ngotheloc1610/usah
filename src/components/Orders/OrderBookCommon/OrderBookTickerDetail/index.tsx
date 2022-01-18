@@ -1,9 +1,12 @@
+import { IPropsDetail } from '../../../../interfaces/order.interface';
 import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
 import './OrderBookTickerDetail.css';
 
 const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
-const OrderBookTickerDetail = () => (
-    <>
+const OrderBookTickerDetail = (props: IPropsDetail) => {
+    const {getTickerDetail} = props;
+    console.log(8, getTickerDetail);
+    return <>
         <div className="card-header">
             <h6 className="card-title mb-0">{mockDataTickerDetail.tickerName}</h6>
         </div>
@@ -78,5 +81,5 @@ const OrderBookTickerDetail = () => (
             </div>
         </div>
     </>
-)
+}
 export default OrderBookTickerDetail;

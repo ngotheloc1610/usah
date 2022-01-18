@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import OrderForm from '../../../components/Order/OrderForm';
 import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IStyleBidsAsk, ITickerInfo } from '../../../interfaces/order.interface';
+import { IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.css';
+import queryString from 'query-string';
+import * as qspb from "../../../models/proto/query_service_pb";
+import ReduxPersist from "../../../config/ReduxPersist";
+
 const defaultDataTicker: ILastQuote = {
     asksList: [],
     bidsList: [],
@@ -32,6 +36,8 @@ const defaultDataTicker: ILastQuote = {
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
+    
+    const [getDataTradeHistory, setGetDataTradeHistory] = useState<ITradeHistory[]>([]);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
@@ -39,7 +45,7 @@ const OrderBookCommon = () => {
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo>();
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
-    const [tickerSearch, setTickerSearch] = useState<string>('');
+    const [symbolCode, setSymbolCode] = useState<string>('');
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -50,7 +56,70 @@ const OrderBookCommon = () => {
     }
     const dafaultLastQuotesData: ILastQuote[] = [];
     const [itemSearch, setItemSearch] = useState('');
-    const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
+
+
+    useEffect(() => {
+        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+            setGetDataTradeHistory(res.tradeList)
+        });
+
+        return () => renderDataToScreen.unsubscribe();  
+    })
+
+    useEffect(() => { 
+        callWsSendMessTrad(); 
+    });
+
+    const callWsSendMessTrad = () => {
+        setTimeout(() => {
+            sendMessage();
+        }, 200)
+    }
+
+    const prepareMessagee = (accountId: string ) => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
+
+            tradeHistoryRequest.setAccountId(Number(accountId));
+
+            const rpcPb: any = rpcpb;
+            let rpcMsg = new rpcPb.RpcMessage();
+            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());  
+        }
+    }
+
+    const sendMessage = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string = '' ;
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
+                prepareMessagee(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(res => {
+            if (res) {
+                const obj = JSON.parse(res);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ?? '';
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+
 
     const callWs = () => {
         setTimeout(() => {
@@ -59,7 +128,8 @@ const OrderBookCommon = () => {
     }
     const handleDataFromWs = () => {
         wsService.getDataLastQuotes().subscribe(response => {
-            setLastQoutes(response.quotesList);
+            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === Number(symbolCode));
+            setItemTickerDetail(tickerDetail);
         });
     }
     const getOrderBooks = () => {
@@ -125,11 +195,14 @@ const OrderBookCommon = () => {
         setMsgSuccess(item);
     }
     const getTickerSearch = (itemTicker: any) => {
-        setTickerSearch(itemTicker.target.value);
+        const itemTickerInfor = LIST_TICKER_INFOR_MOCK_DATA.find(item => item.ticker === itemTicker.target.value);
+        setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
     }
     const searchTicker = () => {
-        callWs();
-        handleDataFromWs();
+        if (symbolCode !== '') {
+            callWs();
+            handleDataFromWs();
+        }
     }
     return <div className="site-main">
         <div className="container">
@@ -162,7 +235,7 @@ const OrderBookCommon = () => {
                                 <div className="col-md-9">
                                     <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} />
                                     <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
-                                        <OrderBookTickerDetail />
+                                        <OrderBookTickerDetail  getTickerDetail={itemTickerDetail} />
                                     </div>
                                 </div>
                                 <div className="col-md-3">
@@ -171,7 +244,7 @@ const OrderBookCommon = () => {
                                             <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                         </div>
                                         <div className="card-body">
-                                            <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                            <OrderForm  isOrderBook = {true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
                                         </div>
                                     </div>
                                 </div>
@@ -180,7 +253,7 @@ const OrderBookCommon = () => {
                     </div>
                 </div>
                 <div className="col-md-3">
-                    <OrderBookTradeHistory />
+                    <OrderBookTradeHistory getDataTradeHistory={getDataTradeHistory} />
                 </div>
             </div>
         </div>
