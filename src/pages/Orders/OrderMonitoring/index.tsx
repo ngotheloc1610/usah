@@ -25,17 +25,17 @@ const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
-    const handleTicker = (item: IAskAndBidPrice) => {
-        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(item.symbolCode));
-        const itemTicker = {
+    const handleTicker = (itemTicker: IAskAndBidPrice) => {
+        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(itemTicker.symbolCode));
+        const assignItemTicker = {
             tickerName: tickerData?.tickerName,
             ticker: tickerData?.ticker,
-            lastPrice: item.price,
-            volume: item.volume,
-            side: item.side,
-            symbolId: item.symbolCode
+            lastPrice: itemTicker.price,
+            volume: itemTicker.volume,
+            side: itemTicker.side,
+            symbolId: itemTicker.symbolCode
         }
-        setCurrentTicker(itemTicker);
+        setCurrentTicker(assignItemTicker);
     }
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
