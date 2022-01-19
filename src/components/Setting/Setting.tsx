@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { IParamTradingPin } from '../../interfaces/confirmInfor.interface'
+import { useEffect, useState } from 'react'
+import { IParamTradingPin } from '../../interfaces/customerInfo.interface'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
@@ -28,6 +28,13 @@ const Setting = (props: ISetting) => {
         secretKey: '',
         newSecretKey: ''
     }
+    useEffect(() => {
+        if (isTradingPin === false || isChangePassword === false) {
+            setIsOpenEye(true)
+            setIsOpenEyeNew(true)
+            setIsOpenEyeConfirm(true)
+        }
+    }, [isTradingPin, isChangePassword])
 
     const changeTradingPin = (value: string) => {
         isTradingPin && setTradingPin(value)
@@ -47,8 +54,9 @@ const Setting = (props: ISetting) => {
     const handleSubmit = () => {
         getParamTradingPin(paramTradingPin)
     }
-
+    
     const handleClickEyeTradingPin = (event: any) => {
+        
         setIsOpenEye(!isOpenEye)
         const elCurrent = document.getElementById('trading-pin')
         isOpenEye ? elCurrent?.setAttribute('type', 'text') : elCurrent?.setAttribute('type', 'password')
@@ -163,9 +171,10 @@ const Setting = (props: ISetting) => {
             </div>
         </div>
     )
-
+       
     return <>
-        {!isNotification && _renderSettingTemplate()}
+        {isTradingPin && _renderSettingTemplate()}
+        {isChangePassword && _renderSettingTemplate()}
         {isNotification && _renderSettingNotification()}
     </>
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import CustomerInfomation from '../../components/CustomerInfo';
 import Setting from '../../components/Setting/Setting';
 import './CustomerInfo.scss';
-import { IParamTradingPin } from '../../interfaces/confirmInfor.interface'
+import { IParamTradingPin } from '../../interfaces/customerInfo.interface'
 import { wsService } from '../../services/websocket-service';
 import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
