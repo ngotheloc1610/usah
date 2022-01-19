@@ -1,8 +1,7 @@
 import {
   BrowserRouter,
   Routes,
-  Route,
-  Router
+  Route
 } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import OrderRouter from "./OrderRouter";
