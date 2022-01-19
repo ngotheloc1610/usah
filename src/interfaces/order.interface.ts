@@ -238,3 +238,28 @@ export interface IHistorySearchStatus {
     code: number,
     name: string
 }
+
+export interface IStyleBidsAsk {
+    earmarkSpreadSheet: boolean;
+    spreadsheet: boolean;
+    grid: boolean;
+    columns: boolean;
+    columnsGap: boolean;
+}
+
+export interface IPropsListBidsAsk {
+    styleListBidsAsk: IStyleBidsAsk;
+    getTickerDetail: ILastQuote;
+}
+
+export interface IPropsDetail {
+    getTickerDetail: ILastQuote;
+}
+export interface IListAskBid {
+    totalBids: string;
+    numberBids: string;
+    bidPrice: string;
+    askPrice: string;
+    numberAsks: string;
+    totalAsks: string;
+}

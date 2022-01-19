@@ -94,14 +94,12 @@ function Report() {
     )
 
     const _renderReportTemplate = () => (
-        <div className="site">
-            <div className="site-main">
-                <div className="container">
-                    <div className="card shadow-sm mb-3">
-                        {_renderReportHeader()}
-                        {_renderReportSearch()}
-                        {_renderReportBody()}
-                    </div>
+        <div className="site-main">
+            <div className="container">
+                <div className="card shadow-sm mb-3">
+                    {_renderReportHeader()}
+                    {_renderReportSearch()}
+                    {_renderReportBody()}
                 </div>
             </div>
         </div>
