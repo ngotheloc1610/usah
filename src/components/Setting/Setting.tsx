@@ -4,7 +4,7 @@ interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    getParamTradingPin: any
+    getParamTradingPin: (item: IParamTradingPin) => void 
 }
 
 const defaultProps = {
@@ -29,19 +29,19 @@ const Setting = (props: ISetting) => {
         newSecretKey: ''
     }
 
-    const changeTradingPin = (event: any) => {
-        isTradingPin && setTradingPin(event.target.value)
-        isChangePassword && setCurrentPassword(event.target.value)
+    const changeTradingPin = (value: string) => {
+        isTradingPin && setTradingPin(value)
+        isChangePassword && setCurrentPassword(value)
     }
 
-    const changeNewTradingPin = (event: any) => {
-        isTradingPin && setNewTradingPin(event.target.value)
-        isChangePassword && setNewPassword(event.target.value)
+    const changeNewTradingPin = (value: string) => {
+        isTradingPin && setNewTradingPin(value)
+        isChangePassword && setNewPassword(value)
     }
 
-    const confirmNewTradingPin = (event: any) => {
-        isTradingPin && setConfirmTradingPin(event.target.value)
-        isChangePassword && setConfirmPassword(event.target.value)
+    const confirmNewTradingPin = (value: string) => {
+        isTradingPin && setConfirmTradingPin(value)
+        isChangePassword && setConfirmPassword(value)
     }
 
     const handleSubmit = () => {
@@ -77,7 +77,7 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? tradingPin : currentPassword} onChange={changeTradingPin}
+                        value={isTradingPin ? tradingPin : currentPassword} onChange={(event) => changeTradingPin(event.target.value)}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickEyeTradingPin} className="bi bi-eye-fill opacity-50 pad-12" />
@@ -95,7 +95,7 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='new-trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? newTradingPin : newPassword} onChange={changeNewTradingPin}
+                        value={isTradingPin ? newTradingPin : newPassword} onChange={(event) => changeNewTradingPin(event.target.value)}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickNewTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>
@@ -113,7 +113,7 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='confirm-trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? confirmTradingPin : confirmPassword} onChange={confirmNewTradingPin}
+                        value={isTradingPin ? confirmTradingPin : confirmPassword} onChange={(event) => confirmNewTradingPin(event.target.value)}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickEyeConfirmTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>

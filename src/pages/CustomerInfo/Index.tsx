@@ -166,8 +166,8 @@ const CustomerInfo = () => {
                     </div>
                     <div className="col-md-9">
                         {!isSetting && <CustomerInfomation />}
-                        {(isSetting) && <Setting isTradingPin={isTradingPin} isChangePassword={isChangePassword} isNotification={isNotification}
-                            getParamTradingPin={getParamTradingPin}
+                        {(isSetting) && <Setting isTradingPin = {isTradingPin} isChangePassword = {isChangePassword} isNotification = {isNotification}
+                            getParamTradingPin = {getParamTradingPin}
                         />}
                     </div>
                 </div>
