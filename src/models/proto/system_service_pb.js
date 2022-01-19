@@ -32,6 +32,7 @@ goog.exportSymbol('proto.AccountDetailResponse', null, global);
 goog.exportSymbol('proto.AccountPortfolioRequest', null, global);
 goog.exportSymbol('proto.AccountPortfolioResponse', null, global);
 goog.exportSymbol('proto.AccountUpdateRequest', null, global);
+goog.exportSymbol('proto.AccountUpdateRequest.BoolFlag', null, global);
 goog.exportSymbol('proto.AccountUpdateRequest.TradingRights', null, global);
 goog.exportSymbol('proto.AccountUpdateResponse', null, global);
 goog.exportSymbol('proto.BalanceUpdateRequest', null, global);
@@ -1931,7 +1932,11 @@ proto.AccountUpdateRequest.toObject = function(includeInstance, msg) {
     password: jspb.Message.getFieldWithDefault(msg, 7, ""),
     comment: jspb.Message.getFieldWithDefault(msg, 8, ""),
     apiKey: jspb.Message.getFieldWithDefault(msg, 9, ""),
-    secretKey: jspb.Message.getFieldWithDefault(msg, 10, "")
+    secretKey: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    newPassword: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    newSecretKey: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    recvAdminNewsFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
+    recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 14, 0)
   };
 
   if (includeInstance) {
@@ -2007,6 +2012,22 @@ proto.AccountUpdateRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 10:
       var value = /** @type {string} */ (reader.readString());
       msg.setSecretKey(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNewPassword(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNewSecretKey(value);
+      break;
+    case 13:
+      var value = /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (reader.readEnum());
+      msg.setRecvAdminNewsFlg(value);
+      break;
+    case 14:
+      var value = /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (reader.readEnum());
+      msg.setRecvMatchNotiFlg(value);
       break;
     default:
       reader.skipField();
@@ -2107,8 +2128,45 @@ proto.AccountUpdateRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getNewPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      11,
+      f
+    );
+  }
+  f = message.getNewSecretKey();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
+      f
+    );
+  }
+  f = message.getRecvAdminNewsFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      13,
+      f
+    );
+  }
+  f = message.getRecvMatchNotiFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      14,
+      f
+    );
+  }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.AccountUpdateRequest.BoolFlag = {
+  BOOL_FLAG_NONE: 0,
+  BOOL_FLAG_ON: 1,
+  BOOL_FLAG_OFF: 2
+};
 
 /**
  * @enum {number}
@@ -2297,6 +2355,78 @@ proto.AccountUpdateRequest.prototype.getSecretKey = function() {
  */
 proto.AccountUpdateRequest.prototype.setSecretKey = function(value) {
   return jspb.Message.setProto3StringField(this, 10, value);
+};
+
+
+/**
+ * optional string new_password = 11;
+ * @return {string}
+ */
+proto.AccountUpdateRequest.prototype.getNewPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountUpdateRequest} returns this
+ */
+proto.AccountUpdateRequest.prototype.setNewPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 11, value);
+};
+
+
+/**
+ * optional string new_secret_key = 12;
+ * @return {string}
+ */
+proto.AccountUpdateRequest.prototype.getNewSecretKey = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountUpdateRequest} returns this
+ */
+proto.AccountUpdateRequest.prototype.setNewSecretKey = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional BoolFlag recv_admin_news_flg = 13;
+ * @return {!proto.AccountUpdateRequest.BoolFlag}
+ */
+proto.AccountUpdateRequest.prototype.getRecvAdminNewsFlg = function() {
+  return /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
+};
+
+
+/**
+ * @param {!proto.AccountUpdateRequest.BoolFlag} value
+ * @return {!proto.AccountUpdateRequest} returns this
+ */
+proto.AccountUpdateRequest.prototype.setRecvAdminNewsFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 13, value);
+};
+
+
+/**
+ * optional BoolFlag recv_match_noti_flg = 14;
+ * @return {!proto.AccountUpdateRequest.BoolFlag}
+ */
+proto.AccountUpdateRequest.prototype.getRecvMatchNotiFlg = function() {
+  return /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 14, 0));
+};
+
+
+/**
+ * @param {!proto.AccountUpdateRequest.BoolFlag} value
+ * @return {!proto.AccountUpdateRequest} returns this
+ */
+proto.AccountUpdateRequest.prototype.setRecvMatchNotiFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 14, value);
 };
 
 

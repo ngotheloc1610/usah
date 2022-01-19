@@ -22,6 +22,7 @@ const accountPortfolioSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
+const tradingPinSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     if (objAuthen.access_token) {
@@ -97,6 +98,10 @@ const startWs = async () => {
             const accountPortfolio = systemService.AccountPortfolioResponse.deserializeBinary(msg.getPayloadData());
             accountPortfolioSubject.next(accountPortfolio.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_UPDATE_RES) {
+            const tradingPin = systemService.AccountUpdateResponse.deserializeBinary(msg.getPayloadData());
+            tradingPinSubject.next(tradingPin.toObject());
+        }
     }
 }
 
@@ -112,6 +117,7 @@ export const wsService = {
     getAccountPortfolio: () => accountPortfolioSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
+    getTradingPinSubject: () => tradingPinSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes
