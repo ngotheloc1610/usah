@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { IParamTradingPin } from '../../interfaces/customerInfo.interface'
+import { IParamCustomerSetting } from '../../interfaces/customerInfo.interface'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    getParamTradingPin: (item: IParamTradingPin) => void 
+    getParamTradingPin: (item: IParamCustomerSetting) => void
 }
 
 const defaultProps = {
@@ -24,10 +24,17 @@ const Setting = (props: ISetting) => {
     const [isOpenEye, setIsOpenEye] = useState(true)
     const [isOpenEyeNew, setIsOpenEyeNew] = useState(true)
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
-    const paramTradingPin: IParamTradingPin = {
-        secretKey: '',
-        newSecretKey: ''
+    const [newsAdmin, setNewsAdmin] = useState(JSON.parse(localStorage.getItem('newsAdmin') || '{}'))
+    const [newsNotication, setNewsNotication] = useState(JSON.parse(localStorage.getItem('newsNotication') || '{}'))
+    const paramTradingPin: IParamCustomerSetting = {
+        secretKey: tradingPin,
+        newSecretKey: newTradingPin,
+        password: currentPassword,
+        newPassword: newPassword,
+        recvAdminNewsFlg: newsAdmin,
+        recvMatchNotiFlg: newsNotication
     }
+
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
             setIsOpenEye(true)
@@ -54,9 +61,9 @@ const Setting = (props: ISetting) => {
     const handleSubmit = () => {
         getParamTradingPin(paramTradingPin)
     }
-    
+
     const handleClickEyeTradingPin = (event: any) => {
-        
+
         setIsOpenEye(!isOpenEye)
         const elCurrent = document.getElementById('trading-pin')
         isOpenEye ? elCurrent?.setAttribute('type', 'text') : elCurrent?.setAttribute('type', 'password')
@@ -75,6 +82,18 @@ const Setting = (props: ISetting) => {
         const elConfirm = document.getElementById('confirm-trading-pin')
         isOpenEyeConfirm ? elConfirm?.setAttribute('type', 'text') : elConfirm?.setAttribute('type', 'password')
         event.target?.classList.toggle('bi-eye-slash')
+    }
+
+    const changeNewsAdmin = (checked: boolean) => {
+        localStorage.setItem('newsAdmin', JSON.stringify(checked))
+        const xxx = JSON.parse(localStorage.getItem('newsAdmin') || '{}')
+        setNewsAdmin(xxx)
+    }
+
+    const changeNewsNotication = (checked: boolean) => {
+        localStorage.setItem('newsNotication', JSON.stringify(checked))
+        const xxx = JSON.parse(localStorage.getItem('newsNotication') || '{}')
+        setNewsNotication(xxx)
     }
 
     const _renderChanngeTraddingPin = (isTradingPin: boolean) => (
@@ -160,18 +179,24 @@ const Setting = (props: ISetting) => {
                 <div className="mb-4">
                     <h6 className="c-title text-primary mb-3">Notification</h6>
                     <div className="form-check form-switch mb-2">
-                        <input className="form-check-input" type="checkbox" role="switch" id="news_admin" />
+                        <input className="form-check-input" type="checkbox" role="switch" id="news_admin"
+                            checked={newsAdmin}
+                            onChange={(event) => changeNewsAdmin(event.target.checked)}
+                        />
                         <label className="form-check-label" htmlFor="news_admin">Receive admin news</label>
                     </div>
                     <div className="form-check form-switch mb-2">
-                        <input className="form-check-input" type="checkbox" role="switch" id="news_notication" />
+                        <input className="form-check-input" type="checkbox" role="switch" id="news_notication"
+                            checked={newsNotication}
+                            onChange={(event) => changeNewsNotication(event.target.checked)}
+                        />
                         <label className="form-check-label" htmlFor="news_notication">Receive matched results notification</label>
                     </div>
                 </div>
             </div>
         </div>
     )
-       
+
     return <>
         {isTradingPin && _renderSettingTemplate()}
         {isChangePassword && _renderSettingTemplate()}

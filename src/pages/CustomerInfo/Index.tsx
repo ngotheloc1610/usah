@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import CustomerInfomation from '../../components/CustomerInfo';
 import Setting from '../../components/Setting/Setting';
 import './CustomerInfo.scss';
-import { IParamTradingPin } from '../../interfaces/customerInfo.interface'
+import { IParamCustomerSetting } from '../../interfaces/customerInfo.interface'
 import { wsService } from '../../services/websocket-service';
 import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -18,10 +18,13 @@ const CustomerInfo = () => {
     const [isNotification, setIsNotification] = useState(false)
     const [paramTradingPin, setParamTradingPin] = useState({
         secretKey: '',
-        newSecretKey: ''
+        newSecretKey: '',
+        password: '',
+        newPassword: '',
+        recvAdminNewsFlg: false,
+        recvMatchNotiFlg: false
     })
-    const {secretKey, newSecretKey} = paramTradingPin
-    const getParamTradingPin = (paramTradingPin: IParamTradingPin) => {
+    const getParamTradingPin = (paramTradingPin: IParamCustomerSetting) => {
         setParamTradingPin(paramTradingPin)
     }
 
@@ -98,7 +101,9 @@ const CustomerInfo = () => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getTradingPinSubject().subscribe(res => {
-            setListTradingPin(res.account)
+            console.log(104, res);
+            
+            setListTradingPin(res)
         });
 
         return () => renderDataToScreen.unsubscribe();
@@ -117,17 +122,21 @@ const CustomerInfo = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradingPinRequest = new SystemServicePb.AccountUpdateRequest();
-            tradingPinRequest.setAccountId(Number(accountId));
-            tradingPinRequest.setSecretKey(secretKey);
-            tradingPinRequest.setNewSecretKey(newSecretKey);
+            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
+            customerInfoRequest.setAccountId(Number(accountId));
+            customerInfoRequest.setSecretKey(paramTradingPin.secretKey);
+            customerInfoRequest.setNewSecretKey(paramTradingPin.newSecretKey);
+            customerInfoRequest.setPassword(paramTradingPin.password);
+            customerInfoRequest.setNewSecretKey(paramTradingPin.newPassword);
             
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(tradingPinRequest.serializeBinary());
+            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log(131, 'send');
+            
         }
     }
 

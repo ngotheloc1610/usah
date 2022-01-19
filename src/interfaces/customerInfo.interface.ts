@@ -1,4 +1,8 @@
-export interface IParamTradingPin {
+export interface IParamCustomerSetting {
     secretKey: string,
-    newSecretKey: string
+    newSecretKey: string,
+    password: string,
+    newPassword: string,
+    recvAdminNewsFlg: boolean,
+    recvMatchNotiFlg: boolean
 }
