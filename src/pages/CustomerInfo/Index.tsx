@@ -98,7 +98,7 @@ const CustomerInfo = () => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getTradingPinSubject().subscribe(res => {
-            setListTradingPin(res)
+            setListTradingPin(res.account)
         });
 
         return () => renderDataToScreen.unsubscribe();
