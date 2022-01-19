@@ -16,6 +16,7 @@ var goog = jspb;
 var global = Function('return this')();
 
 goog.exportSymbol('proto.Account', null, global);
+goog.exportSymbol('proto.Account.BoolFlag', null, global);
 goog.exportSymbol('proto.Account.TradingRights', null, global);
 goog.exportSymbol('proto.AccountBalance', null, global);
 goog.exportSymbol('proto.AccountPortfolio', null, global);
@@ -338,7 +339,11 @@ proto.Account.toObject = function(includeInstance, msg) {
     comment: jspb.Message.getFieldWithDefault(msg, 8, ""),
     apiKey: jspb.Message.getFieldWithDefault(msg, 9, ""),
     password: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    secretKey: jspb.Message.getFieldWithDefault(msg, 11, "")
+    secretKey: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    recvAdminNewsFlg: jspb.Message.getFieldWithDefault(msg, 12, 0),
+    recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
+    email: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    phone: jspb.Message.getFieldWithDefault(msg, 15, "")
   };
 
   if (includeInstance) {
@@ -418,6 +423,22 @@ proto.Account.deserializeBinaryFromReader = function(msg, reader) {
     case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.setSecretKey(value);
+      break;
+    case 12:
+      var value = /** @type {!proto.Account.BoolFlag} */ (reader.readEnum());
+      msg.setRecvAdminNewsFlg(value);
+      break;
+    case 13:
+      var value = /** @type {!proto.Account.BoolFlag} */ (reader.readEnum());
+      msg.setRecvMatchNotiFlg(value);
+      break;
+    case 14:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEmail(value);
+      break;
+    case 15:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhone(value);
       break;
     default:
       reader.skipField();
@@ -525,8 +546,45 @@ proto.Account.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getRecvAdminNewsFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      12,
+      f
+    );
+  }
+  f = message.getRecvMatchNotiFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      13,
+      f
+    );
+  }
+  f = message.getEmail();
+  if (f.length > 0) {
+    writer.writeString(
+      14,
+      f
+    );
+  }
+  f = message.getPhone();
+  if (f.length > 0) {
+    writer.writeString(
+      15,
+      f
+    );
+  }
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.Account.BoolFlag = {
+  BOOL_FLAG_NONE: 0,
+  BOOL_FLAG_ON: 1,
+  BOOL_FLAG_OFF: 2
+};
 
 /**
  * @enum {number}
@@ -733,6 +791,78 @@ proto.Account.prototype.getSecretKey = function() {
  */
 proto.Account.prototype.setSecretKey = function(value) {
   return jspb.Message.setProto3StringField(this, 11, value);
+};
+
+
+/**
+ * optional BoolFlag recv_admin_news_flg = 12;
+ * @return {!proto.Account.BoolFlag}
+ */
+proto.Account.prototype.getRecvAdminNewsFlg = function() {
+  return /** @type {!proto.Account.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
+};
+
+
+/**
+ * @param {!proto.Account.BoolFlag} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setRecvAdminNewsFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 12, value);
+};
+
+
+/**
+ * optional BoolFlag recv_match_noti_flg = 13;
+ * @return {!proto.Account.BoolFlag}
+ */
+proto.Account.prototype.getRecvMatchNotiFlg = function() {
+  return /** @type {!proto.Account.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
+};
+
+
+/**
+ * @param {!proto.Account.BoolFlag} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setRecvMatchNotiFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 13, value);
+};
+
+
+/**
+ * optional string email = 14;
+ * @return {string}
+ */
+proto.Account.prototype.getEmail = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setEmail = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
+/**
+ * optional string phone = 15;
+ * @return {string}
+ */
+proto.Account.prototype.getPhone = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setPhone = function(value) {
+  return jspb.Message.setProto3StringField(this, 15, value);
 };
 
 

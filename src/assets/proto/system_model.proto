@@ -18,6 +18,18 @@ message Account {
 	string api_key 				= 9;
 	string password = 10;
 	string secret_key			= 11;	//trading pin
+
+	// Setting notifications
+	BoolFlag recv_admin_news_flg = 12;
+	BoolFlag recv_match_noti_flg = 13;
+
+	string email = 14;
+	string phone = 15;
+
+	// Have to use enum with NONE value for bool flag because:
+	// There's no way of telling whether a field was explicitly set to
+	// the default value (for example whether a boolean was set to false) or just not set at all
+	enum BoolFlag {BOOL_FLAG_NONE = 0; BOOL_FLAG_ON = 1; BOOL_FLAG_OFF = 2;}
 	enum TradingRights {TRADING_RIGHTS_NONE = 0; TRADING_OPEN_ONLY = 1; TRADING_CLOSE_ONLY = 2; TRADING_NORMAL = 3; }
 }
 
