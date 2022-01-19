@@ -5,7 +5,6 @@ import './OrderBookTickerDetail.css';
 const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
 const OrderBookTickerDetail = (props: IPropsDetail) => {
     const {getTickerDetail} = props;
-    console.log(8, getTickerDetail);
     return <>
         <div className="card-header">
             <h6 className="card-title mb-0">{mockDataTickerDetail.tickerName}</h6>
@@ -17,19 +16,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.lastPrice}</td>
+                                <td className="text-end"></td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.open}</td>
+                                <td className="text-end">{getTickerDetail.open}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">High</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.high}</td>
+                                <td className="text-end">{getTickerDetail.high}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Low</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.low}</td>
+                                <td className="text-end">{getTickerDetail.low}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -39,19 +38,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.change}</td>
+                                <td className="text-end">{getTickerDetail.netChange}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.changePercent}</td>
+                                <td className="text-end">{getTickerDetail.pctChange}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Daily Trading Vol</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.dailyTradingVol}</td>
+                                <td className="text-end">{getTickerDetail.tickPerDay}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.averageTradingVol}</td>
+                                <td className="text-end"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -61,19 +60,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.vwap}</td>
+                                <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.lotSize}</td>
+                                <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.floor}</td>
+                                <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Ceiling</strong></td>
-                                <td className="text-end">{mockDataTickerDetail.ceiling}</td>
+                                <td className="text-end">{}</td>
                             </tr>
                         </tbody>
                     </table>

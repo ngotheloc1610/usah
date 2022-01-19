@@ -1,6 +1,5 @@
 import { formatOrderTime } from '../../../../helper/utils';
 import { IPropListTradeHistory } from '../../../../interfaces/order.interface';
-import { MOCKDATA_TRADE_HISTORY } from '../../../../mocks';
 import './OrderBookTradeHistory.css';
 const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
     const {getDataTradeHistory} = props;
@@ -13,7 +12,7 @@ const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
             </tr>
         ))
     )
-    return <div className="card card-trade-history">
+    return <div className="card card-trade-history z-1">
         <div className="card-header">
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
         </div>

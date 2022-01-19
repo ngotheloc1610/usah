@@ -135,7 +135,7 @@ export interface IAskAndBidPrice {
     volume: string;
     tradable: boolean;
     numOrders: number;
-    symbolCode: string;
+    symbolCode?: string;
     side?: string;
 }
 
@@ -250,6 +250,7 @@ export interface IStyleBidsAsk {
 export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
     getTickerDetail: ILastQuote;
+    getTicerLastQuote: (item: IAskAndBidPrice) => void;
 }
 
 export interface IPropsDetail {
@@ -262,4 +263,8 @@ export interface IListAskBid {
     askPrice: string;
     numberAsks: string;
     totalAsks: string;
+    tradableAsk: boolean;
+    tradableBid: boolean;
+    volumeAsk: string;
+    volumeBid: string;
 }

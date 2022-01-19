@@ -1,14 +1,28 @@
 import { useEffect, useState } from 'react';
 import { MARKET_DEPTH_LENGTH } from '../../../../constants/general.constant';
 import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
-import { ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
+import { IAskAndBidPrice, ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import './OrderBoolListBidsAsk.css';
+import * as tdpb from '../../../../models/proto/trading_model_pb';
 
-const defaultAskBidList: IListAskBid[] = []
+const defaultAskBidList: IListAskBid[] = [
+    {
+        totalBids: '',
+        numberBids: '',
+        bidPrice: '',
+        askPrice: '',
+        numberAsks: '',
+        totalAsks: '',
+        tradableAsk: false,
+        tradableBid: false,
+        volumeAsk: '',
+        volumeBid: ''
+    }
+]
 const OrderBookList = (props: IPropsListBidsAsk) => {
-    const { styleListBidsAsk, getTickerDetail } = props;
-    console.log(7, getTickerDetail);
+    const { styleListBidsAsk, getTickerDetail, getTicerLastQuote } = props;
     const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
+    const tradingModel: any = tdpb;
     const getListAsksBids = (itemTickerDetail: ILastQuote) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
@@ -16,31 +30,73 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         let bidList = itemTickerDetail.bidsList;
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
+                const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
+                const volumeBid = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume : '-';
+                const tradableAsk = (askList[counter] && askList[counter].tradable) ? askList[counter].tradable : false;
+                const volumeAsk = (askList[counter] && askList[counter].volume) ? askList[counter].volume : '-';
+                const askPrice = (askList[counter] && askList[counter].price) ? askList[counter].price : '-';
+                const bidPrice = (bidList[counter] && bidList[counter].price) ? bidList[counter].price : '-';
+                const numberAsks = (askList[counter] && askList[counter].numOrders) ? askList[counter].numOrders.toString() : '-';
+                const numberBids = (bidList[counter] && bidList[counter]) ? bidList[counter].numOrders.toString() : '-';
+                const isAskNumOrder = askList[counter] && askList[counter].numOrders;
+                const isBidNumOrder = bidList[counter] && bidList[counter].numOrders;
                 assgnListAsksBids.push(
                     {
-                        askPrice: askList[counter].price ? askList[counter].price : '0',
-                        bidPrice: bidList[counter].price ? bidList[counter].price : '0',
-                        numberAsks: askList[counter].numOrders ? askList[counter].numOrders.toString() : '',
-                        numberBids: bidList[counter] ? bidList[counter].numOrders.toString() : '',
-                        totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ? askList[counter].numOrders.toString() : (Number(askList[counter].numOrders) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString(),
-                        totalBids: counter === (MARKET_DEPTH_LENGTH - 1) ? bidList[counter].numOrders.toString() : (Number(bidList[counter].numOrders) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString(),
+                        tradableBid: tradableBid,
+                        volumeBid: volumeBid,
+                        tradableAsk: tradableAsk,
+                        volumeAsk: volumeAsk,
+                        askPrice: askPrice,
+                        bidPrice: bidPrice,
+                        numberAsks: numberAsks,
+                        numberBids: numberBids,
+                        totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ?
+                            numberAsks : isAskNumOrder ? (Number(numberAsks) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString() : numberAsks,
+                        totalBids: counter === (MARKET_DEPTH_LENGTH - 1) ?
+                            numberBids : isBidNumOrder ? (Number(numberBids) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString() : numberBids,
                     }
                 )
             } else {
                 assgnListAsksBids.push(
                     {
-                        askPrice: '',
-                        bidPrice: '',
-                        numberAsks: '',
-                        numberBids: '',
-                        totalAsks: '',
-                        totalBids: ''
+                        askPrice: '-',
+                        bidPrice: '-',
+                        numberAsks: '-',
+                        numberBids: '-',
+                        totalAsks: '-',
+                        totalBids: '-',
+                        tradableAsk: false,
+                        volumeAsk: '-',
+                        tradableBid: false,
+                        volumeBid: '-'
                     }
                 )
             }
             counter--;
         }
         setListAsksBids(assgnListAsksBids);
+    }
+    const handleTicker = (itemTicker: IListAskBid, side: string) => {
+        if (side === tradingModel.OrderType.OP_BUY) {
+            const itemAssign: IAskAndBidPrice = {
+                numOrders: Number(itemTicker.numberAsks),
+                price: itemTicker.askPrice,
+                tradable: itemTicker.tradableAsk,
+                volume: itemTicker.volumeAsk,
+                side: side,
+            }
+            getTicerLastQuote(itemAssign);
+            return;
+        }
+        const itemAssign: IAskAndBidPrice = {
+            numOrders: Number(itemTicker.numberBids),
+            price: itemTicker.bidPrice,
+            tradable: itemTicker.tradableBid,
+            volume: itemTicker.volumeBid,
+            side: side,
+        }
+        getTicerLastQuote(itemAssign);
+        return;
     }
     const listDataAsksBids = listAsksBids;
     useEffect(() => {
@@ -54,12 +110,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleEarmarkSpreadSheet = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end border-end border-bottom-0">{item.totalBids}</td>
-                <td className="text-end border-end border-bottom-0">{item.numberBids}</td>
-                <td className="text-end border-end border-bottom-0 text-danger">{item.bidPrice}</td>
-                <td className="text-end border-end border-bottom-0 text-info">{item.askPrice}</td>
-                <td className="text-end border-end border-bottom-0">{item.numberAsks}</td>
-                <td className="text-end border-end border-bottom-0">{item.totalAsks}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.totalBids}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.numberBids}</td>
+                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.bidPrice}</td>
+                <td className="text-end border-end border-bottom-0 text-info" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.askPrice}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.numberAsks}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.totalAsks}</td>
             </tr>
         })
     )
@@ -134,7 +190,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
             <tr>
                 <td className="text-end border-end border-bottom-0">
-                    <strong>113</strong>
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{listDataAsksBids[listDataAsksBids.length - 1].totalBids}</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>{listDataAsksBids[listDataAsksBids.length - 1].totalAsks}</strong>}
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
@@ -145,7 +202,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
-                    <strong>113</strong>
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{listDataAsksBids[listDataAsksBids.length - 1].totalAsks}</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>{listDataAsksBids[listDataAsksBids.length - 1].totalBids}</strong>}
                 </td>
             </tr>
         </>
@@ -170,7 +228,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <th className="text-end">{item}</th>
         })
     )
-    const _renderDataStyleGirdAsk = () => (
+    const _renderDataStyleGirdBid = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalBids}</td>
@@ -184,7 +242,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <th key={index} className="text-end">{item}</th>
         })
     )
-    const _renderDataStyleGirdBids = () => (
+    const _renderDataStyleGirdAsk = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end">{item.totalAsks}</td>
@@ -193,7 +251,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
-    const _renderTable2 = () => (
+    const _renderTableGidBids = () => (
         <div className="order-block table-responsive">
             <table className="table table-sm border table-borderless table-hover mb-0">
                 <thead>
@@ -203,19 +261,19 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="text-end"><strong>144</strong></td>
+                        <td className="text-end"><strong></strong></td>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">OVER</td>
                     </tr>
-                    {_renderDataStyleGirdBids()}
+                    {_renderDataStyleGirdAsk()}
                     <tr>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end"><span className="text-info">&nbsp;</span></td>
                     </tr>
                     <tr>
-                        <td className="text-end">23</td>
-                        <td className="text-end">23</td>
+                        <td className="text-end">{listDataAsksBids[listDataAsksBids.length - 1].totalAsks}</td>
+                        <td className="text-end"></td>
                         <td className="text-end"><span className="text-info">&nbsp;</span></td>
                     </tr>
                 </tbody>
@@ -227,13 +285,15 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {_renderDataStyleGirdAsk()}
+                    {_renderDataStyleGirdBid()}
                     <tr>
                         <td className="text-end" colSpan={2}>&nbsp;</td>
                         <td className="text-end"><span className="text-info">&nbsp;</span></td>
                     </tr>
                     <tr>
-                        <td className="text-end">113</td>
+                        <td className="text-end">
+                            {listDataAsksBids[listDataAsksBids.length - 1].totalBids}
+                        </td>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">UNDER</td>
                     </tr>
@@ -255,21 +315,21 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         : ((index + 1) === listDataAsksBids.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
                     {item.askPrice}</td>
                 <td className="text-end">{item.numberAsks}</td>
-                <td className="text-end">{item.numberBids}</td>
+                <td className="text-end">{item.totalAsks}</td>
             </tr>
         })
     )
     const _renderDataStyleColumnsBids = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">{item.totalAsks}</td>
+                <td className="text-end">{item.totalBids}</td>
                 <td className="text-end">{item.numberBids}</td>
                 <td className="text-end">{item.bidPrice}</td>
                 <td className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
         })
     )
-    const _renderTable4 = () => (
+    const _renderTableColumns = () => (
         <table className="table table-sm table-borderless table-hover border  mb-0">
             <thead>
                 <tr>
@@ -288,12 +348,16 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </tr>
                 <tr>
                     <td className="text-end" colSpan={4}>&nbsp;</td>
-                    <td className="text-end">144</td>
+                    <td className="text-end">
+                        {listDataAsksBids[listDataAsksBids.length - 1].totalAsks}
+                    </td>
                 </tr>
                 {_renderDataStyleColumnsAsk()}
                 {_renderDataStyleColumnsBids()}
                 <tr>
-                    <td className="text-end"><strong>113</strong></td>
+                    <td className="text-end">
+                        <strong>{listDataAsksBids[listDataAsksBids.length - 1].totalBids}</strong>
+                    </td>
                     <td className="text-end" colSpan={4}>&nbsp; </td>
                 </tr>
                 <tr>
@@ -309,8 +373,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
     return <div className="order-block table-responsive">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
-        {styleListBidsAsk.grid && _renderTable2()}
-        {(styleListBidsAsk.columns || styleListBidsAsk.columnsGap) && _renderTable4()}
+        {styleListBidsAsk.grid && _renderTableGidBids()}
+        {(styleListBidsAsk.columns || styleListBidsAsk.columnsGap) && _renderTableColumns()}
     </div>
 };
 export default OrderBookList;

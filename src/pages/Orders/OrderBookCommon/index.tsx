@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks';
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -33,19 +33,48 @@ const defaultDataTicker: ILastQuote = {
     tickPerDay: 0,
     volumePerDay: '',
 }
-
+const defaultTickerInf = {
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+}
+const defaultCurrentTicker: ITickerInfo | any = {
+    symbolId: 0,
+        tickerName: '',
+        ticker: '',
+        stockPrice: '',
+        previousClose: '',
+        open: '',
+        high: '',
+        low: '',
+        lastPrice: '',
+        volume: '',
+        change: '',
+        changePrecent: '',
+        side: '',
+}
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
-    
+
     const [getDataTradeHistory, setGetDataTradeHistory] = useState<ITradeHistory[]>([]);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
-    const [currentTicker, setCurrentTicker] = useState<ITickerInfo>();
+    const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
     const [symbolCode, setSymbolCode] = useState<string>('');
+    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerInfo>(defaultTickerInf);
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -63,12 +92,12 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        return () => renderDataToScreen.unsubscribe();  
-    })
+        return () => renderDataToScreen.unsubscribe();
+    }, [])
 
-    useEffect(() => { 
-        callWsSendMessTrad(); 
-    });
+    useEffect(() => {
+        callWsSendMessTrad();
+    }, []);
 
     const callWsSendMessTrad = () => {
         setTimeout(() => {
@@ -76,12 +105,12 @@ const OrderBookCommon = () => {
         }, 200)
     }
 
-    const prepareMessagee = (accountId: string ) => {
+    const prepareMessagee = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
 
@@ -90,14 +119,14 @@ const OrderBookCommon = () => {
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());  
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
     const sendMessage = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
-        let accountId: string = '' ;
+        let accountId: string = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
@@ -196,13 +225,28 @@ const OrderBookCommon = () => {
     }
     const getTickerSearch = (itemTicker: any) => {
         const itemTickerInfor = LIST_TICKER_INFOR_MOCK_DATA.find(item => item.ticker === itemTicker.target.value);
+        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
         setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
     }
     const searchTicker = () => {
         if (symbolCode !== '') {
             callWs();
             handleDataFromWs();
+            return;
         }
+        setItemTickerDetail(defaultDataTicker);
+    }
+    const assTickerInfor = itemTickerInfor;
+    const assgnDataFormNewOrder = (item: IAskAndBidPrice) => {
+        const itemTicker = {
+            tickerName: assTickerInfor?.tickerName,
+            ticker: assTickerInfor?.ticker,
+            lastPrice: item.price,
+            volume: item.volume,
+            side: item.side,
+            symbolId: assTickerInfor?.symbolId
+        }
+        setCurrentTicker(itemTicker);
     }
     return <div className="site-main">
         <div className="container">
@@ -233,9 +277,9 @@ const OrderBookCommon = () => {
                         <div id="layout-1">
                             <div className="row align-items-stretch g-2">
                                 <div className="col-md-9">
-                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} />
+                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} getTicerLastQuote={assgnDataFormNewOrder} />
                                     <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
-                                        <OrderBookTickerDetail  getTickerDetail={itemTickerDetail} />
+                                        <OrderBookTickerDetail getTickerDetail={itemTickerDetail} />
                                     </div>
                                 </div>
                                 <div className="col-md-3">
@@ -244,7 +288,7 @@ const OrderBookCommon = () => {
                                             <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                         </div>
                                         <div className="card-body">
-                                            <OrderForm  isOrderBook = {true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                            <OrderForm isOrderBook={true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
                                         </div>
                                     </div>
                                 </div>

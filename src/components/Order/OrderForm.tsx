@@ -32,7 +32,6 @@ const defaultProps = {
 
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard, messageSuccess, isOrderBook } = props;
-    console.log(35, isOrderBook);
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
     ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
