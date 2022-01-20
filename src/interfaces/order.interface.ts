@@ -11,6 +11,7 @@ export interface ITickerInfo {
     volume: string,
     change: string,
     changePrecent: string,
+    side?: string,
 }
 
 export interface IParamOrder {
@@ -23,7 +24,6 @@ export interface IParamOrder {
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
-
 }
 
 export interface IOrderBook {
@@ -130,24 +130,18 @@ export interface TickerInfo {
     change: string,
     changePrecent: string,
 }
-
-export interface IBidPrice {
-    numOrders: number;
-    price: string;
-    tradable: boolean;
-    volume: string;
-}
-
-export interface IAskPrice {
+export interface IAskAndBidPrice {
     price: string;
     volume: string;
     tradable: boolean;
     numOrders: number;
+    symbolCode?: string;
+    side?: string;
 }
 
 export interface ILastQuote {
-    asksList: IAskPrice[];
-    bidsList: IBidPrice[];
+    asksList: IAskAndBidPrice[];
+    bidsList: IAskAndBidPrice[];
     close: string;
     currentPrice: string;
     high: string;
@@ -243,4 +237,34 @@ export interface IParamHistorySearch {
 export interface IHistorySearchStatus {
     code: number,
     name: string
+}
+
+export interface IStyleBidsAsk {
+    earmarkSpreadSheet: boolean;
+    spreadsheet: boolean;
+    grid: boolean;
+    columns: boolean;
+    columnsGap: boolean;
+}
+
+export interface IPropsListBidsAsk {
+    styleListBidsAsk: IStyleBidsAsk;
+    getTickerDetail: ILastQuote;
+    getTicerLastQuote: (item: IAskAndBidPrice) => void;
+}
+
+export interface IPropsDetail {
+    getTickerDetail: ILastQuote;
+}
+export interface IListAskBid {
+    totalBids: string;
+    numberBids: string;
+    bidPrice: string;
+    askPrice: string;
+    numberAsks: string;
+    totalAsks: string;
+    tradableAsk: boolean;
+    tradableBid: boolean;
+    volumeAsk: string;
+    volumeBid: string;
 }

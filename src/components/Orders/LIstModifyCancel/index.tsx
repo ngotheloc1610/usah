@@ -167,6 +167,7 @@ const ListModifyCancel = () => {
     const getListModifyCancelData = () => (
         listOrderSortDate.map((item, index) => {
             return <tr key={index}>
+                <td>{item.orderId}</td>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                 <td className="text-center">{ORDER_TYPE_NAME.limit}</td>
@@ -192,6 +193,7 @@ const ListModifyCancel = () => {
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
                     <thead>
                         <tr>
+                            <th><span>Order ID</span></th>
                             <th><span>Ticker</span></th>
                             <th className="text-center"><span>Side</span></th>
                             <th className="text-center"><span>Type</span></th>

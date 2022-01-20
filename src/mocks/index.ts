@@ -5,12 +5,6 @@ import * as tdpb from '../models/proto/trading_model_pb';
 
 export const TradingModel: any = tdpb;
 
-const test = ''
-export default {
-    test
-}
-
-
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
         symbolId: 1,
@@ -1394,3 +1388,88 @@ export const NOTIFICATION_DETAIL: INotificationDetail[] = [
         content: ' Inceptos suspendisse fringilla ultricies ut nam orci dictum commodo sociosqu netus efficitur facilisi aptent, platea lacus mus aliquam potenti ad eu turpis vitae quisque gravida eleifend.'
     }
 ]
+export const Mock_Bids_Ask = [
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    },
+    {
+        totalBids: 42,
+        numberBids: 23,
+        bidPrice: 157.66,
+        askPrice: 157.69,
+        numberAsk: 18,
+        totalAsk: 41,
+    },
+    {
+        totalBids: 74,
+        numberBids: 32,
+        bidPrice: 157.65,
+        askPrice: 157.70,
+        numberAsk: 42,
+        totalAsk: 83,
+    },
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    },
+    {
+        totalBids: 19,
+        numberBids: 19,
+        bidPrice: 157.67,
+        askPrice: 157.68,
+        numberAsk: 23,
+        totalAsk: 23,
+    }
+]
+export const MOCKDATA_TRADE_HISTORY = [
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    },
+    {
+        dateTime: '10:26:30',
+        volume: '1,200',
+        price: '157.54'
+    }
+]
+export const MOCKDATA_ORDER_BOOK_DETAIL = {
+
+    tickerName: 'AAPL',
+    lastPrice: '157.67',
+    open: '158.67',
+    high: '159.63',
+    low: '160.67',
+    change: '4.56',
+    changePercent: '3.89',
+    dailyTradingVol: '1,452,798',
+    averageTradingVol: '3,283,932',
+    vwap: '156.38',
+    lotSize: '100',
+    floor: '162.87',
+    ceiling: '151.72',
+}

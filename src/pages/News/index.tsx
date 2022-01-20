@@ -130,13 +130,11 @@ function News() {
     )
 
     const _renderNewsTemplate = () => (
-        <div className="site">
-            <div className="site-main">
-                <div className="container">
-                    <div className="card shadow-sm mb-3">
-                        {_renderNewsHeader()}
-                        {_renderNewsBody()}
-                    </div>
+        <div className="site-main">
+            <div className="container">
+                <div className="card shadow-sm mb-3">
+                    {_renderNewsHeader()}
+                    {_renderNewsBody()}
                 </div>
             </div>
         </div>
