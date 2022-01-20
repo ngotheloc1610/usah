@@ -50,7 +50,8 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             </tr>
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
-                                <td className="text-end"></td>
+                                {/* Waiting Proto */}
+                                <td className="text-end">{}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -60,18 +61,22 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
+                                {/* Waiting Proto */}
                                 <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
+                                {/* Waiting Proto */}
                                 <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
+                                {/* Waiting Proto */}
                                 <td className="text-end">{}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Ceiling</strong></td>
+                                {/* Waiting Proto */}
                                 <td className="text-end">{}</td>
                             </tr>
                         </tbody>
