@@ -1,5 +1,5 @@
 import { ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, formatOrderId } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../../../Common/Pagination'
@@ -7,8 +7,6 @@ import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/or
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
-
-    console.log(11, listOrderHistory);
     
 
     const tradingModelPb: any = tspb;
@@ -64,7 +62,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{formatOrderId(item.orderId)}</a></span></td>
+                <td><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>

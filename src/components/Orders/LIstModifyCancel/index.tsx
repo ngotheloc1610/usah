@@ -10,7 +10,7 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
 import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { calcPendingVolume, formatNumber, formatOrderId, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { IAuthen } from "../../../interfaces";
@@ -167,7 +167,7 @@ const ListModifyCancel = () => {
     const getListModifyCancelData = () => (
         listOrderSortDate.map((item, index) => {
             return <tr key={index}>
-                <td>{formatOrderId(item.orderId)}</td>
+                <td className="fm">{item.orderId}</td>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                 <td className="text-center">{ORDER_TYPE_NAME.limit}</td>

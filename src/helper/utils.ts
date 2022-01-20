@@ -23,7 +23,3 @@ export function formatNumber(item: string): string {
 export function formatCurrency(item: string): string {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
 }
-
-export function formatOrderId(item: string) {
-    return (item.length > 8) ? item.slice(item.length - 8) : item;
-}
