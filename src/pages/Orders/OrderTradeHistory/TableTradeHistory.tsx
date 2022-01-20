@@ -44,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+                <td><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.tickerCode.toString())}</div>

@@ -231,7 +231,7 @@ const ListOrder = (props: IPropsListOrder) => {
         listOrderSortDate.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td>{item.orderId}</td>
+                    <td className="fm">{item.orderId}</td>
                     <td>{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
