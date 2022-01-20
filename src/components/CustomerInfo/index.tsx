@@ -23,27 +23,11 @@ const CustomerInfomation = () => {
         </div>
     )
 
-    const _renderContactUs = () => (
-        <>
-            {_renderNomalContent('Person in charge', 'Mark Twain')}
-            {_renderLinkContent('Email', 'markt@phillip.com.sg', 'mailto:markt@phillip.com.sg')}
-            {_renderLinkContent('Phone', '(+65) 349 723 34', 'tel:+6534972334')}
-        </>
-    )
-
     const _renderCustomerInfor = () => (
         <>
             {_renderNomalContent('Account holder', 'Deng Ming')}
             {_renderLinkContent('Email', 'dengmi@amir.broker', 'mailto:dengmi@amir.broker')}
             {_renderLinkContent('Phone', '(+65) 955 599 52', 'tel:+6595559952')}
-        </>
-    )
-
-    const _renderMaintenanceCenter = () => (
-        <>
-            {_renderNomalContent('Account holder', 'TDT Asia')}
-            {_renderLinkContent('Email', 'maintenace@tdt.asia', 'mailto:maintenace@tdt.asia')}
-            {_renderLinkContent('Phone', '(+84) 24 7734 8572', 'tel:+842477348572')}
         </>
     )
 
@@ -53,14 +37,6 @@ const CustomerInfomation = () => {
                 <div className="mb-4">
                     <h6 className="c-title text-primary bg-light px-2 py-1">Customer Infomation</h6>
                     {_renderCustomerInfor()}
-                </div>
-                <div className="mb-4">
-                    <h6 className="c-title text-primary bg-light px-2 py-1">Maintenance Center</h6>
-                    {_renderMaintenanceCenter()}
-                </div>
-                <div className="mb-4">
-                    <h6 className="c-title text-primary bg-light px-2 py-1">Contact Us</h6>
-                    {_renderContactUs()}
                 </div>
             </div>
         </div>
