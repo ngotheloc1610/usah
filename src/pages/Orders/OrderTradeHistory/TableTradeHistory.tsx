@@ -1,5 +1,5 @@
 import { SIDE, ORDER_TYPE_NAME } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
+import { formatOrderTime, formatCurrency, formatNumber, formatOrderId } from "../../../helper/utils";
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
@@ -44,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{formatOrderId(item.orderId)}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.tickerCode.toString())}</div>

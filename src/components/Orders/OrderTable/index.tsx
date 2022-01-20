@@ -1,5 +1,5 @@
 import { ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, formatOrderId } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../../../Common/Pagination'
@@ -35,23 +35,23 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14">Order ID</th>
-            <th className='w-120'>
+            <th>
                 <div className="text-ellipsis text-start fz-14">Ticker Code</div>
                 <div className="text-ellipsis text-start fz-14">Ticker Name</div>
             </th >
-            <th className="text-center fz-14 w-120" >Order Side</th>
-            <th className="text-center fz-14 w-120" > Order Status</th>
-            <th className="text-center fz-14 w-120" >Order Type</th>
-            <th className='w-120'>
+            <th className="text-center fz-14" >Order Side</th>
+            <th className="text-center fz-14" > Order Status</th>
+            <th className="text-center fz-14" >Order Type</th>
+            <th>
                 <div className="text-ellipsis text-end fz-14">Order Volume</div>
                 <div className="text-ellipsis text-end fz-14">Remaining Volume</div>
             </th>
-            <th className="text-end fz-14 w-140"> Executed Volume </th>
-            <th className='w-120'>
+            <th className="text-end fz-14"> Executed Volume </th>
+            <th>
                 <div className="text-ellipsis text-end fz-14">Order Price</div>
                 <div className="text-ellipsis text-end fz-14">Last Price</div>
             </th>
-            <th className='w-180'>
+            <th>
                 <div className="text-ellipsis text-end fz-14"> Order Datetime </div>
                 <div className="text-ellipsis text-end fz-14"> Executed Datetime </div>
             </th>
@@ -61,7 +61,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index}>
-                <td><span className="text-ellipsis"><a href="#">{item.orderId}</a></span></td>
+                <td><span className="text-ellipsis"><a href="#">{formatOrderId(item.orderId)}</a></span></td>
 
                 <td>
                     <div className="text-ellipsis text-start">{getTickerCode(item.symbolCode.toString())}</div>

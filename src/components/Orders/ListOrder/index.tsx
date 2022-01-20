@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, formatCurrency, formatOrderId, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -231,7 +231,7 @@ const ListOrder = (props: IPropsListOrder) => {
         listOrderSortDate.map((item, index) => {
             return (
                 <tr key={index} className="odd">
-                    <td>{item.orderId}</td>
+                    <td>{formatOrderId(item.orderId)}</td>
                     <td>{getTickerName(item.symbolCode.toString())}</td>
                     <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
