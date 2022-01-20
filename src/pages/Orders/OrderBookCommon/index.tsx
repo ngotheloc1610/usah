@@ -49,18 +49,18 @@ const defaultTickerInf = {
 }
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
-        tickerName: '',
-        ticker: '',
-        stockPrice: '',
-        previousClose: '',
-        open: '',
-        high: '',
-        low: '',
-        lastPrice: '',
-        volume: '',
-        change: '',
-        changePrecent: '',
-        side: '',
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+    side: '',
 }
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -248,59 +248,65 @@ const OrderBookCommon = () => {
         }
         setCurrentTicker(itemTicker);
     }
-    return <div className="site-main">
-        <div className="container">
-            <div className="row g-2 align-items-center">
-                <div className="col-md-9">
-                    <div className="row g-2 justify-content-end">
-                        <div className="col-md-3">
-                            <div className="input-group input-group-sm mb-2">
-                                <input type="text" className="form-control border-end-0" onChange={getTickerSearch} placeholder="Search" />
-                                <button className="btn btn-outline-secondary border-start-0" onClick={searchTicker} type="button"><i className="bi bi-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-3">
-                    <ul className="idTabs nav align-items-center justify-content-center mb-2">
-                        {_renderListStyle(isEarmarkSpreadSheet, STYLE_LIST_BIDS_ASK.earmarkSpreadSheet)}
-                        {_renderListStyle(isSpreadsheet, STYLE_LIST_BIDS_ASK.spreadsheet)}
-                        {_renderListStyle(isGrid, STYLE_LIST_BIDS_ASK.grid)}
-                        {_renderListStyle(isColumns, STYLE_LIST_BIDS_ASK.columns)}
-                        {_renderListStyle(isColumnsGap, STYLE_LIST_BIDS_ASK.columnsGap)}
-                    </ul>
-                </div>
-            </div>
-            <div className="row align-items-stretch g-2">
-                <div className="col-md-9">
-                    <div className="equal-target">
-                        <div id="layout-1">
-                            <div className="row align-items-stretch g-2">
-                                <div className="col-md-9">
-                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} getTicerLastQuote={assgnDataFormNewOrder} />
-                                    <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
-                                        <OrderBookTickerDetail getTickerDetail={itemTickerDetail} />
-                                    </div>
-                                </div>
-                                <div className="col-md-3">
-                                    <div className="card card-new-order d-flex flex-column h-100">
-                                        <div className="card-header">
-                                            <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
-                                        </div>
-                                        <div className="card-body">
-                                            <OrderForm isOrderBook={true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-3">
-                    <OrderBookTradeHistory getDataTradeHistory={getDataTradeHistory} />
+    const _renderTemplateSearchTicker = () => (
+        <div className="row g-2 justify-content-end">
+            <div className="col-md-3">
+                <div className="input-group input-group-sm mb-2">
+                    <input type="text" className="form-control border-end-0" onChange={getTickerSearch} placeholder="Search" />
+                    <button className="btn btn-outline-secondary border-start-0" onClick={searchTicker} type="button"><i className="bi bi-search"></i></button>
                 </div>
             </div>
         </div>
-    </div>
+    )
+    const _renderTemplateOrderBookCommon = () => (
+        <div className="site-main">
+            <div className="container">
+                <div className="row g-2 align-items-center">
+                    <div className="col-md-9">
+                        {_renderTemplateSearchTicker()}
+                    </div>
+                    <div className="col-md-3">
+                        <ul className="idTabs nav align-items-center justify-content-center mb-2">
+                            {_renderListStyle(isEarmarkSpreadSheet, STYLE_LIST_BIDS_ASK.earmarkSpreadSheet)}
+                            {_renderListStyle(isSpreadsheet, STYLE_LIST_BIDS_ASK.spreadsheet)}
+                            {_renderListStyle(isGrid, STYLE_LIST_BIDS_ASK.grid)}
+                            {_renderListStyle(isColumns, STYLE_LIST_BIDS_ASK.columns)}
+                            {_renderListStyle(isColumnsGap, STYLE_LIST_BIDS_ASK.columnsGap)}
+                        </ul>
+                    </div>
+                </div>
+                <div className="row align-items-stretch g-2">
+                    <div className="col-md-9">
+                        <div className="equal-target">
+                            <div id="layout-1">
+                                <div className="row align-items-stretch g-2">
+                                    <div className="col-md-9">
+                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} getTicerLastQuote={assgnDataFormNewOrder} />
+                                        <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
+                                            <OrderBookTickerDetail getTickerDetail={itemTickerDetail} />
+                                        </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <div className="card card-new-order d-flex flex-column h-100">
+                                            <div className="card-header">
+                                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                                            </div>
+                                            <div className="card-body">
+                                                <OrderForm isOrderBook={true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-3">
+                        <OrderBookTradeHistory getDataTradeHistory={getDataTradeHistory} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+    return <>{_renderTemplateOrderBookCommon()}</>
 };
 export default OrderBookCommon;
