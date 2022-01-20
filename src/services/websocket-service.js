@@ -10,12 +10,13 @@ const url = process.env.REACT_APP_BASE_URL;
 let token = process.env.REACT_APP_TOKEN;
 var socket = null;
 var wsConnected = false;
-var dataLastQuotes = {quotesList: []};
+// var dataLastQuotes = {quotesList: []};
 
 const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
+const dataLastQuotes = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
 const accountPortfolioSubject = new Subject();
@@ -75,8 +76,7 @@ const startWs = async () => {
         }
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
             const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
-            dataLastQuotes = lastQuoteRes.toObject();
-            orderSubject.next(lastQuoteRes.toObject());
+            dataLastQuotes.next(lastQuoteRes.toObject());
         }
         if (payloadClass === rpc.RpcMessage.Payload.MODIFY_ORDER_RES) {
             const modifyRes = tradingService.ModifyOrderResponse.deserializeBinary(msg.getPayloadData());
@@ -120,5 +120,5 @@ export const wsService = {
     getTradingPinSubject: () => tradingPinSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes
+    getDataLastQuotes: () => dataLastQuotes.asObservable()
 }
