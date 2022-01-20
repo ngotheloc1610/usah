@@ -1,10 +1,13 @@
+import { kMaxLength } from 'buffer'
 import { useEffect, useState } from 'react'
-import { IParamCustomerSetting } from '../../interfaces/customerInfo.interface'
+import { IParamTradingPin, IParamPassword, IParamNoti } from '../../interfaces/customerInfo.interface'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    getParamTradingPin: (item: IParamCustomerSetting) => void
+    getParamTradingPin: (item: IParamTradingPin) => void;
+    getParamPassword: (item: IParamPassword) => void;
+    getParamNoti: (item: IParamNoti) => void;
 }
 
 const defaultProps = {
@@ -14,7 +17,7 @@ const defaultProps = {
 }
 
 const Setting = (props: ISetting) => {
-    const { isTradingPin, isChangePassword, isNotification, getParamTradingPin } = props
+    const { isTradingPin, isChangePassword, isNotification, getParamTradingPin, getParamPassword, getParamNoti } = props
     const [tradingPin, setTradingPin] = useState('')
     const [currentPassword, setCurrentPassword] = useState('')
     const [newTradingPin, setNewTradingPin] = useState('')
@@ -26,15 +29,20 @@ const Setting = (props: ISetting) => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
     const [newsAdmin, setNewsAdmin] = useState(JSON.parse(localStorage.getItem('newsAdmin') || '{}'))
     const [newsNotication, setNewsNotication] = useState(JSON.parse(localStorage.getItem('newsNotication') || '{}'))
-    const paramTradingPin: IParamCustomerSetting = {
+    const paramTradingPin: IParamTradingPin = {
         secretKey: tradingPin,
         newSecretKey: newTradingPin,
+    }
+    const paramPassword: IParamPassword = {
         password: currentPassword,
         newPassword: newPassword,
+    }
+    const paramNoti: IParamNoti = {
         recvAdminNewsFlg: newsAdmin,
         recvMatchNotiFlg: newsNotication
-    }
-
+    }     
+    useEffect(() => getParamNoti(paramNoti), [newsAdmin, newsNotication])
+    
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
             setIsOpenEye(true)
@@ -59,7 +67,39 @@ const Setting = (props: ISetting) => {
     }
 
     const handleSubmit = () => {
-        getParamTradingPin(paramTradingPin)
+        if (isTradingPin) {
+            if (newTradingPin.length > 6 || newTradingPin.length < 6) {
+                alert('Trading PIN must be  a six-digit number')
+            }
+            if (newTradingPin !== confirmTradingPin) {
+                alert('Incorrect confirm trading Pin')
+            } else {
+                alert('Update Done!')
+                getParamTradingPin(paramTradingPin)
+                setTradingPin('')
+                setNewTradingPin('')
+                setConfirmTradingPin('')
+            }
+        }
+        if (isChangePassword) {
+            const isUpperCase = newPassword.match(/[A-Z]/g);
+            const isNumber = /\d/.test(newPassword);
+            var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+            const specialCharacter = format.test(newPassword);
+            if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
+                alert('Create new password FAIL')
+            }
+            if (newPassword !== confirmPassword) {
+                alert('Incorrect CONFIRM new password')
+
+            } else {
+                alert('Update Done!')
+                getParamPassword(paramPassword)
+                setCurrentPassword('')
+                setNewPassword('')
+                setConfirmPassword('')
+            }
+        }
     }
 
     const handleClickEyeTradingPin = (event: any) => {
@@ -104,7 +144,10 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? tradingPin : currentPassword} onChange={(event) => changeTradingPin(event.target.value)}
+                        value={isTradingPin ? tradingPin : currentPassword}
+                        onChange={(event) => changeTradingPin(event.target.value)}
+                        minLength={8}
+                        maxLength={isTradingPin ? 6 : 30}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickEyeTradingPin} className="bi bi-eye-fill opacity-50 pad-12" />
@@ -122,7 +165,10 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='new-trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? newTradingPin : newPassword} onChange={(event) => changeNewTradingPin(event.target.value)}
+                        value={isTradingPin ? newTradingPin : newPassword}
+                        onChange={(event) => changeNewTradingPin(event.target.value)}
+                        minLength={8}
+                        maxLength={isTradingPin ? 6 : 30}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickNewTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>
@@ -140,7 +186,10 @@ const Setting = (props: ISetting) => {
             <div className="col-md-4">
                 <div className="input-group input-group-pw">
                     <input id='confirm-trading-pin' type="password" className="form-control"
-                        value={isTradingPin ? confirmTradingPin : confirmPassword} onChange={(event) => confirmNewTradingPin(event.target.value)}
+                        value={isTradingPin ? confirmTradingPin : confirmPassword}
+                        onChange={(event) => confirmNewTradingPin(event.target.value)}
+                        minLength={8}
+                        maxLength={isTradingPin ? 6 : 30}
                     />
                     <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                         <i onClick={handleClickEyeConfirmTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>
