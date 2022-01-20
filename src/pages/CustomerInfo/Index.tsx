@@ -11,7 +11,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import { OBJ_AUTHEN } from '../../constants/general.constant';
 
 const CustomerInfo = () => {
-    const [listTradingPin, setListTradingPin] = useState([])
+    const [customerInfo, setCustomerInfo] = useState([])
     const [isSetting, setIsSetting] = useState(false)
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
@@ -97,8 +97,8 @@ const CustomerInfo = () => {
     )
 
     useEffect(() => {
-        const renderDataCustomInfoToScreen = wsService.getCustomInfoDetail().subscribe(res => {
-            setListTradingPin(res)
+        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
+            setCustomerInfo(res)
         });
 
         return () => renderDataCustomInfoToScreen.unsubscribe();

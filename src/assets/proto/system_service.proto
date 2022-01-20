@@ -107,13 +107,7 @@ message AccountDetailRequest {
 message AccountDetailResponse {
 	MsgCode msg_code					= 1;
 	string msg_text			= 2;
-	int64 account_id 					= 3;
-	string name 				= 4;
-	int64 group_id 			= 5;
-	bool enable_flg 			= 6;
-	bool trading_flg 			= 7;
-	bool api_flg				= 8;
-	string comment 			= 9;
+	Account account 					= 3;
 }
 
 //Get account balance info

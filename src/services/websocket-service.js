@@ -23,7 +23,7 @@ const accountPortfolioSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
-const customInfoDetailSubject = new Subject();
+const customerInfoDetailSubject = new Subject();
 const tradingPinSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
@@ -100,8 +100,8 @@ const startWs = async () => {
             accountPortfolioSubject.next(accountPortfolio.toObject());
         }
         if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_DETAIL_RES) {
-            const customInfoDetail = systemService.AccountDetailResponse.deserializeBinary(msg.getPayloadData());
-            customInfoDetailSubject.next(customInfoDetail.toObject());
+            const customerInfoDetail = systemService.AccountDetailResponse.deserializeBinary(msg.getPayloadData());
+            customerInfoDetailSubject.next(customerInfoDetail.toObject());
         }
         if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_UPDATE_RES) {
             const tradingPin = systemService.AccountUpdateResponse.deserializeBinary(msg.getPayloadData());
@@ -122,7 +122,7 @@ export const wsService = {
     getAccountPortfolio: () => accountPortfolioSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
-    getCustomInfoDetail: () => customInfoDetailSubject.asObservable(),
+    getCustomerInfoDetail: () => customerInfoDetailSubject.asObservable(),
     getTradingPinSubject: () => tradingPinSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
