@@ -8,6 +8,9 @@ import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/or
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
 
+    console.log(11, listOrderHistory);
+    
+
     const tradingModelPb: any = tspb;
 
     const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
@@ -35,23 +38,23 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14">Order ID</th>
-            <th className='w-120'>
+            <th className=''>
                 <div className="text-ellipsis text-start fz-14">Ticker Code</div>
                 <div className="text-ellipsis text-start fz-14">Ticker Name</div>
             </th >
-            <th className="text-center fz-14 w-120" >Order Side</th>
-            <th className="text-center fz-14 w-120" > Order Status</th>
-            <th className="text-center fz-14 w-120" >Order Type</th>
-            <th className='w-120'>
+            <th className="text-center fz-14 " >Order Side</th>
+            <th className="text-center fz-14 " > Order Status</th>
+            <th className="text-center fz-14 " >Order Type</th>
+            <th className=''>
                 <div className="text-ellipsis text-end fz-14">Order Volume</div>
                 <div className="text-ellipsis text-end fz-14">Remaining Volume</div>
             </th>
-            <th className="text-end fz-14 w-140"> Executed Volume </th>
-            <th className='w-120'>
+            <th className="text-end fz-14 "> Executed Volume </th>
+            <th className=''>
                 <div className="text-ellipsis text-end fz-14">Order Price</div>
                 <div className="text-ellipsis text-end fz-14">Last Price</div>
             </th>
-            <th className='w-180'>
+            <th className=''>
                 <div className="text-ellipsis text-end fz-14"> Order Datetime </div>
                 <div className="text-ellipsis text-end fz-14"> Executed Datetime </div>
             </th>

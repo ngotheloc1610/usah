@@ -10,18 +10,20 @@ const url = process.env.REACT_APP_BASE_URL;
 let token = process.env.REACT_APP_TOKEN;
 var socket = null;
 var wsConnected = false;
-var dataLastQuotes = {quotesList: []};
+// var dataLastQuotes = {quotesList: []};
 
 const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
 const listOrderSubject = new Subject();
+const dataLastQuotes = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
 const accountPortfolioSubject = new Subject();
 const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
+const customerInfoDetailSubject = new Subject();
 const tradingPinSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
@@ -75,8 +77,7 @@ const startWs = async () => {
         }
         if (payloadClass === rpc.RpcMessage.Payload.LAST_QUOTE_RES) {
             const lastQuoteRes = pricingService.GetLastQuotesResponse.deserializeBinary(msg.getPayloadData());
-            dataLastQuotes = lastQuoteRes.toObject();
-            orderSubject.next(lastQuoteRes.toObject());
+            dataLastQuotes.next(lastQuoteRes.toObject());
         }
         if (payloadClass === rpc.RpcMessage.Payload.MODIFY_ORDER_RES) {
             const modifyRes = tradingService.ModifyOrderResponse.deserializeBinary(msg.getPayloadData());
@@ -98,6 +99,10 @@ const startWs = async () => {
             const accountPortfolio = systemService.AccountPortfolioResponse.deserializeBinary(msg.getPayloadData());
             accountPortfolioSubject.next(accountPortfolio.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_DETAIL_RES) {
+            const customerInfoDetail = systemService.AccountDetailResponse.deserializeBinary(msg.getPayloadData());
+            customerInfoDetailSubject.next(customerInfoDetail.toObject());
+        }
         if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_UPDATE_RES) {
             const tradingPin = systemService.AccountUpdateResponse.deserializeBinary(msg.getPayloadData());
             tradingPinSubject.next(tradingPin.toObject());
@@ -117,8 +122,9 @@ export const wsService = {
     getAccountPortfolio: () => accountPortfolioSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
+    getCustomerInfoDetail: () => customerInfoDetailSubject.asObservable(),
     getTradingPinSubject: () => tradingPinSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes
+    getDataLastQuotes: () => dataLastQuotes.asObservable()
 }

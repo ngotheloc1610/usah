@@ -11,7 +11,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import { OBJ_AUTHEN } from '../../constants/general.constant';
 
 const CustomerInfo = () => {
-    const [listTradingPin, setListTradingPin] = useState([])
+    const [customerInfo, setCustomerInfo] = useState([])
     const [isSetting, setIsSetting] = useState(false)
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
@@ -31,8 +31,7 @@ const CustomerInfo = () => {
     const { secretKey, newSecretKey } = paramTradingPin
     const { password, newPassword } = paramPassword
     const { recvAdminNewsFlg, recvMatchNotiFlg } = paramNoti
-console.log(paramNoti);
-
+    
     const getParamTradingPin = (paramTradingPin: IParamTradingPin) => {
         setParamTradingPin(paramTradingPin)
     }
@@ -117,19 +116,36 @@ console.log(paramNoti);
     )
 
     useEffect(() => {
-        const renderDataToScreen = wsService.getTradingPinSubject().subscribe(res => {
-            setListTradingPin(res)
+        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
+            setCustomerInfo(res)
         });
 
-        return () => renderDataToScreen.unsubscribe();
+        return () => renderDataCustomInfoToScreen.unsubscribe();
     }, [])
 
-    useEffect(() => callWs(), [paramTradingPin, paramPassword, paramNoti]);
+    useEffect(() => callWs(), [isSetting, paramTradingPin, paramPassword, paramNoti]);
 
     const callWs = () => {
         setTimeout(() => {
-            sendMessage();
+            sendMessageCustomerInfor();
         }, 200)
+    }
+
+    const buildMessageCustomInfo = (accountId: string) => {
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let infoDetailRequest = new SystemServicePb.AccountDetailRequest();
+            infoDetailRequest.setAccountId(Number(accountId));
+            
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_DETAIL_REQ);
+            rpcMsg.setPayloadData(infoDetailRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
     const buildMessageTradingPin = (accountId: string) => {
@@ -189,7 +205,7 @@ console.log(paramNoti);
         }
     }
 
-    const sendMessage = () => {
+    const sendMessageCustomerInfor = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId = '';
@@ -197,6 +213,7 @@ console.log(paramNoti);
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                !isSetting && buildMessageCustomInfo(accountId)
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);;
                 isNotification && buildMessageNoti(accountId);
@@ -207,12 +224,14 @@ console.log(paramNoti);
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
+                !isSetting &&buildMessageCustomInfo(accountId)
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
                 isNotification && buildMessageNoti(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                !isSetting &&buildMessageCustomInfo(accountId)
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
                 isNotification && buildMessageNoti(accountId);

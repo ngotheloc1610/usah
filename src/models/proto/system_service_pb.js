@@ -3185,13 +3185,7 @@ proto.AccountDetailResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     msgCode: jspb.Message.getFieldWithDefault(msg, 1, 0),
     msgText: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accountId: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    name: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    groupId: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    enableFlg: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
-    tradingFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
-    apiFlg: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
-    comment: jspb.Message.getFieldWithDefault(msg, 9, "")
+    account: (f = msg.getAccount()) && system_model_pb.Account.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -3237,32 +3231,9 @@ proto.AccountDetailResponse.deserializeBinaryFromReader = function(msg, reader) 
       msg.setMsgText(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccountId(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
-      break;
-    case 5:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setGroupId(value);
-      break;
-    case 6:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setEnableFlg(value);
-      break;
-    case 7:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setTradingFlg(value);
-      break;
-    case 8:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setApiFlg(value);
-      break;
-    case 9:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setComment(value);
+      var value = new system_model_pb.Account;
+      reader.readMessage(value,system_model_pb.Account.deserializeBinaryFromReader);
+      msg.setAccount(value);
       break;
     default:
       reader.skipField();
@@ -3307,53 +3278,12 @@ proto.AccountDetailResponse.serializeBinaryToWriter = function(message, writer) 
       f
     );
   }
-  f = message.getAccountId();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getAccount();
+  if (f != null) {
+    writer.writeMessage(
       3,
-      f
-    );
-  }
-  f = message.getName();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
-  f = message.getGroupId();
-  if (f !== 0) {
-    writer.writeInt64(
-      5,
-      f
-    );
-  }
-  f = message.getEnableFlg();
-  if (f) {
-    writer.writeBool(
-      6,
-      f
-    );
-  }
-  f = message.getTradingFlg();
-  if (f) {
-    writer.writeBool(
-      7,
-      f
-    );
-  }
-  f = message.getApiFlg();
-  if (f) {
-    writer.writeBool(
-      8,
-      f
-    );
-  }
-  f = message.getComment();
-  if (f.length > 0) {
-    writer.writeString(
-      9,
-      f
+      f,
+      system_model_pb.Account.serializeBinaryToWriter
     );
   }
 };
@@ -3396,128 +3326,39 @@ proto.AccountDetailResponse.prototype.setMsgText = function(value) {
 
 
 /**
- * optional int64 account_id = 3;
- * @return {number}
+ * optional Account account = 3;
+ * @return {?proto.Account}
  */
-proto.AccountDetailResponse.prototype.getAccountId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+proto.AccountDetailResponse.prototype.getAccount = function() {
+  return /** @type{?proto.Account} */ (
+    jspb.Message.getWrapperField(this, system_model_pb.Account, 3));
 };
 
 
 /**
- * @param {number} value
+ * @param {?proto.Account|undefined} value
+ * @return {!proto.AccountDetailResponse} returns this
+*/
+proto.AccountDetailResponse.prototype.setAccount = function(value) {
+  return jspb.Message.setWrapperField(this, 3, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
  * @return {!proto.AccountDetailResponse} returns this
  */
-proto.AccountDetailResponse.prototype.setAccountId = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
+proto.AccountDetailResponse.prototype.clearAccount = function() {
+  return this.setAccount(undefined);
 };
 
 
 /**
- * optional string name = 4;
- * @return {string}
- */
-proto.AccountDetailResponse.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setName = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
-
-/**
- * optional int64 group_id = 5;
- * @return {number}
- */
-proto.AccountDetailResponse.prototype.getGroupId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setGroupId = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
-};
-
-
-/**
- * optional bool enable_flg = 6;
+ * Returns whether this field is set.
  * @return {boolean}
  */
-proto.AccountDetailResponse.prototype.getEnableFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setEnableFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 6, value);
-};
-
-
-/**
- * optional bool trading_flg = 7;
- * @return {boolean}
- */
-proto.AccountDetailResponse.prototype.getTradingFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setTradingFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 7, value);
-};
-
-
-/**
- * optional bool api_flg = 8;
- * @return {boolean}
- */
-proto.AccountDetailResponse.prototype.getApiFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setApiFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 8, value);
-};
-
-
-/**
- * optional string comment = 9;
- * @return {string}
- */
-proto.AccountDetailResponse.prototype.getComment = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.AccountDetailResponse} returns this
- */
-proto.AccountDetailResponse.prototype.setComment = function(value) {
-  return jspb.Message.setProto3StringField(this, 9, value);
+proto.AccountDetailResponse.prototype.hasAccount = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 
