@@ -97,11 +97,11 @@ const CustomerInfo = () => {
     )
 
     useEffect(() => {
-        const renderDataToScreen = wsService.getTradingPinSubject().subscribe(res => {
-            setListTradingPin(res.account)
+        const renderDataCustomInfoToScreen = wsService.getCustomInfoDetail().subscribe(res => {
+            setListTradingPin(res)
         });
 
-        return () => renderDataToScreen.unsubscribe();
+        return () => renderDataCustomInfoToScreen.unsubscribe();
     }, [])
 
     useEffect(() => callWs(), []);
@@ -112,20 +112,18 @@ const CustomerInfo = () => {
         }, 200)
     }
 
-    const buildMessage = (accountId: string) => {
+    const buildMessageCustomInfo = (accountId: string) => {
         const SystemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradingPinRequest = new SystemServicePb.AccountUpdateRequest();
-            tradingPinRequest.setAccountId(Number(accountId));
-            tradingPinRequest.setSecretKey(secretKey);
-            tradingPinRequest.setNewSecretKey(newSecretKey);
+            let infoDetailRequest = new SystemServicePb.AccountDetailRequest();
+            infoDetailRequest.setAccountId(Number(accountId));
             
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(tradingPinRequest.serializeBinary());
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_DETAIL_REQ);
+            rpcMsg.setPayloadData(infoDetailRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
@@ -139,7 +137,7 @@ const CustomerInfo = () => {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                buildMessage(accountId);
+                buildMessageCustomInfo(accountId);
                 return;
             }
         }
@@ -147,11 +145,11 @@ const CustomerInfo = () => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                buildMessage(accountId);
+                buildMessageCustomInfo(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                buildMessage(accountId);
+                buildMessageCustomInfo(accountId);
                 return;
             }
         });
