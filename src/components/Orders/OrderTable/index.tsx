@@ -8,6 +8,9 @@ import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/or
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
 
+    console.log(11, listOrderHistory);
+    
+
     const tradingModelPb: any = tspb;
 
     const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
