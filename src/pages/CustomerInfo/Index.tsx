@@ -8,7 +8,9 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { OBJ_AUTHEN } from '../../constants/general.constant';
+import {  OBJ_AUTHEN } from '../../constants/general.constant';
+import { log } from 'console';
+
 
 const CustomerInfo = () => {
     const [customerInfo, setCustomerInfo] = useState([])
@@ -31,7 +33,7 @@ const CustomerInfo = () => {
     const { secretKey, newSecretKey } = paramTradingPin
     const { password, newPassword } = paramPassword
     const { recvAdminNewsFlg, recvMatchNotiFlg } = paramNoti
-    
+
     const getParamTradingPin = (paramTradingPin: IParamTradingPin) => {
         setParamTradingPin(paramTradingPin)
     }
@@ -114,7 +116,7 @@ const CustomerInfo = () => {
             {isSetting && _renderNavSettingActive()}
         </>
     )
-
+    
     useEffect(() => {
         const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
             setCustomerInfo(res)
@@ -122,6 +124,7 @@ const CustomerInfo = () => {
 
         return () => renderDataCustomInfoToScreen.unsubscribe();
     }, [])
+
 
     useEffect(() => callWs(), [isSetting, paramTradingPin, paramPassword, paramNoti]);
 
@@ -138,7 +141,7 @@ const CustomerInfo = () => {
             let currentDate = new Date();
             let infoDetailRequest = new SystemServicePb.AccountDetailRequest();
             infoDetailRequest.setAccountId(Number(accountId));
-            
+
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_DETAIL_REQ);
@@ -148,62 +151,6 @@ const CustomerInfo = () => {
         }
     }
 
-    const buildMessageTradingPin = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setSecretKey(secretKey);
-            customerInfoRequest.setNewSecretKey(newSecretKey);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const buildMessagePassword = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setPassword(password);
-            customerInfoRequest.setNewPassword(newPassword);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const buildMessageNoti = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setRecvAdminNewsFlg(recvAdminNewsFlg);
-            customerInfoRequest.setRecvMatchNotiFlg(recvMatchNotiFlg);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
 
     const sendMessageCustomerInfor = () => {
         const paramStr = window.location.search;
@@ -213,10 +160,7 @@ const CustomerInfo = () => {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                !isSetting && buildMessageCustomInfo(accountId)
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);;
-                isNotification && buildMessageNoti(accountId);
+                isSetting === false && buildMessageCustomInfo(accountId)
                 return;
             }
         }
@@ -224,17 +168,11 @@ const CustomerInfo = () => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                !isSetting &&buildMessageCustomInfo(accountId)
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);
-                isNotification && buildMessageNoti(accountId);
+                isSetting === false && buildMessageCustomInfo(accountId)
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                !isSetting &&buildMessageCustomInfo(accountId)
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);
-                isNotification && buildMessageNoti(accountId);
+                isSetting === false && buildMessageCustomInfo(accountId)
                 return;
             }
         });
@@ -249,10 +187,11 @@ const CustomerInfo = () => {
                     </div>
                     <div className="col-md-9">
                         {!isSetting && <CustomerInfomation />}
-                        {(isSetting) && <Setting isTradingPin={isTradingPin} isChangePassword={isChangePassword} isNotification={isNotification}
+                        {(isSetting) && <Setting isTradingPin={isTradingPin} 
+                                        isChangePassword={isChangePassword} isNotification={isNotification}
                             getParamTradingPin={getParamTradingPin}
-                            getParamPassword={getParamPassword}
-                            getParamNoti={getParamNoti}
+                                        getParamPassword={getParamPassword}
+                                        getParamNoti={getParamNoti}
                         />}
                     </div>
                 </div>
