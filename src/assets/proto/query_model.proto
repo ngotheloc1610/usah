@@ -10,6 +10,9 @@ message Symbol {
   string exchange					= 7;
   string currency_code			= 8;
   string description				= 9;
+  string tick_size					= 10;
+  string lot_size					= 11;
+  string min_lot				= 12;
 }
 
 enum CalculationMode {
