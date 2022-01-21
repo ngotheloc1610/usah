@@ -46,6 +46,7 @@ deploy_test_env:
   image: centos:centos7
   before_script:
     - yum install sshpass zip unzip -y
+    - mkdir -p ~/.ssh
     - ssh-keyscan -H $PIX_DEV_SERVER_IP >> ~/.ssh/known_hosts
   script:
     - sshpass -p "$PIX_DEV_SERVER_SSHPASS" ssh pix@$PIX_DEV_SERVER_IP sh /opt/deploy/01.Deploy_Pix_TDS.sh
