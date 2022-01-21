@@ -68,11 +68,7 @@ const Setting = (props: ISetting) => {
 
     const handleSubmit = () => {
         if (isTradingPin) {
-            const elConfirmTrading: any = document.querySelector('.confirm-trading')
             validateTradingPin(tradingPin, newTradingPin, confirmTradingPin)
-            if (newTradingPin === confirmTradingPin) {
-                elConfirmTrading.style.display = 'none'
-            }
             if (newTradingPin.length === 6 && newTradingPin === confirmTradingPin) {
                 getParamTradingPin(paramTradingPin)
                 setTradingPin('')
@@ -81,16 +77,8 @@ const Setting = (props: ISetting) => {
             }
         }
         if (isChangePassword) {
-            const elConfirmPassword: any = document.querySelector('.confirm-password')
-            validationPassword(currentPassword, newPassword)
-            if (newPassword !== confirmPassword) {
-                elConfirmPassword.style.display = 'block'
-                elConfirmPassword.innerHTML = 'Incorrect confirm new password'
-            }
-            if (newPassword === confirmPassword) {
-                elConfirmPassword.style.display = 'none'
-            }
-            if (validationPassword(currentPassword, newPassword) === true && newPassword === confirmPassword) {
+            validationPassword(currentPassword, newPassword, confirmPassword)
+            if (validationPassword(currentPassword, newPassword, confirmPassword) === true && newPassword === confirmPassword) {
                 getParamPassword(paramPassword)
                 setCurrentPassword('')
                 setNewPassword('')
@@ -100,7 +88,6 @@ const Setting = (props: ISetting) => {
     }
 
     const handleClickEyeTradingPin = (event: any) => {
-
         setIsOpenEye(!isOpenEye)
         const elCurrent = document.getElementById('trading-pin')
         isOpenEye ? elCurrent?.setAttribute('type', 'text') : elCurrent?.setAttribute('type', 'password')

@@ -39,22 +39,29 @@ export function validateTradingPin(crrTradingPin: string, newTradingPin: string,
     if (crrTradingPin !== newTradingPin) {
         elTrading.style.display = 'none'
     }
-    if (newTradingPin.length > 6 || newTradingPin.length < 6) {
-        elNewTrading.style.display = 'block'
-        elNewTrading.innerHTML = 'Trading PIN must be  a six-digit number'
-    }
-    if (newTradingPin.length === 6) {
-        elNewTrading.style.display = 'none'
-    }
+
     if (newTradingPin !== confirmTradingPin) {
         elConfirmTrading.style.display = 'block'
         elConfirmTrading.innerHTML = 'Incorrect confirm trading Pin'
     }
+    if (newTradingPin.length > 6 || newTradingPin.length < 6) {
+        elNewTrading.style.display = 'block'
+        elNewTrading.innerHTML = 'Trading PIN must be  a six-digit number'
+        elConfirmTrading.style.display = 'none'
+    }
+    if (newTradingPin.length === 6) {
+        elNewTrading.style.display = 'none'
+    }
+
+    if (newTradingPin === confirmTradingPin) {
+        elConfirmTrading.style.display = 'none'
+    }
 }
 
-export function validationPassword(currentPassword: string, newPassword: string) {
+export function validationPassword(currentPassword: string, newPassword: string, confirmPassword: string) {
     const elPassword: any = document.querySelector('.password')
     const elNewPw: any = document.querySelector('.new-trading')
+    const elConfirmPassword: any = document.querySelector('.confirm-password')
     const isUpperCase = newPassword.match(/[A-Z]/g);
     const isNumber = /\d/.test(newPassword);
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
@@ -66,8 +73,13 @@ export function validationPassword(currentPassword: string, newPassword: string)
     if (currentPassword !== newPassword) {
         elPassword.style.display = 'none'
     }
+    if (newPassword !== confirmPassword) {
+        elConfirmPassword.style.display = 'block'
+        elConfirmPassword.innerHTML = 'Incorrect confirm new password'
+    }
     if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
         elNewPw.style.display = 'block'
+        elConfirmPassword.style.display = 'none'
         elNewPw.innerHTML = `New password must contain: <ul> 
         <li> from 8-30 character </li>
         <li> at least one uppercase letter </li>
@@ -75,6 +87,9 @@ export function validationPassword(currentPassword: string, newPassword: string)
         <li> at least one special character (e.g ! @ # ...) </li>
     </ul>`
         return false
+    }
+    if (newPassword === confirmPassword) {
+        elConfirmPassword.style.display = 'none'
     }
     else {
         elNewPw.style.display = 'none'
