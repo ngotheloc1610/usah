@@ -63,3 +63,9 @@
 .no-pad{
     padding: 0 !important;
 }
+.trading, .new-trading, .confirm-trading, 
+.password, .new-password, .confirm-password{
+    color: red;
+    font-size: 12px;
+    margin-left: 8px;
+}
