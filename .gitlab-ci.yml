@@ -44,7 +44,7 @@ build:
   only:
     - 47905_Integrate_CICD_Test_Env
 
-deploy:
+deploy_test_env:
   stage: deploy_test
   image: centos:centos7.7.1908
   before_script:
