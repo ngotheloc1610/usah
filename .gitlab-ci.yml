@@ -1,27 +1,24 @@
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
 # Use the same key to share cached across branchs and jobs
-image: node:16.13
-
-cache:
-  key: one-key-to-rule-them-all
-  paths:
-  - node_modules/
-  - .yarn
-
-before_script:
-  - yarn install --cache-folder .yarn
-
 stages:
   - build
   - deploy_test
 
 build:
   stage: build
+  image: node:16.13
   variables:
     FILE_SERVER_IP: "$FILE_SERVER_IP"
     FILE_SERVER_PRIVATE_SSH_KEY: "$FILE_SERVER_PRIVATE_SSH_KEY"
     FILE_SERVER_BUILD_DIR: "$FILE_SERVER_BUILD_DIR"
+  cache:
+    key: one-key-to-rule-them-all
+    paths:
+    - node_modules/
+    - .yarn
+  before_script:
+    - yarn install --cache-folder .yarn
   script:
     - apt-get update && apt-get install -y zip unzip sshpass
     - mkdir -p ~/.ssh
@@ -46,9 +43,9 @@ build:
 
 deploy_test_env:
   stage: deploy_test
-  image: centos:centos7.7.1908
+  image: centos:centos7
   before_script:
-    - yum install sshpass zip unzip
+    - yum install sshpass zip unzip -y
     - ssh-keyscan -H $PIX_DEV_SERVER_IP >> ~/.ssh/known_hosts
   script:
     - sshpass -p "$PIX_DEV_SERVER_SSHPASS" ssh pix@$PIX_DEV_SERVER_IP sh /opt/deploy/01.Deploy_Pix_TDS.sh
