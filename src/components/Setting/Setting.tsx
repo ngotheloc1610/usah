@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { IParamTradingPin, IParamPassword, IParamNoti } from '../../interfaces/customerInfo.interface'
-import { validationPassword, validateTradingPin } from '../../helper/utils'
+import { validationPassword } from '../../helper/utils'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
@@ -66,9 +66,51 @@ const Setting = (props: ISetting) => {
         isChangePassword && setConfirmPassword(value)
     }
 
+    const _renderMsgError = () => (
+        ` New password must contain:<ul>
+                <li> from 8-30 character </li>
+                <li> at least one uppercase letter </li>
+                <li> at least one number </li>
+                <li> at least one special character (e.g ! @ # ...) </li>
+            </ul>`
+    )
+
+    const setDisplayBlock = (item: any) => {
+        item.style.display = 'block'
+    }
+
+    const setDisplayNone = (item: any) => {
+        item.style.display = 'none'
+    }
+
     const handleSubmit = () => {
         if (isTradingPin) {
-            validateTradingPin(tradingPin, newTradingPin, confirmTradingPin)
+            const elTrading: any = document.querySelector('.trading')
+            const elNewTrading: any = document.querySelector('.new-trading')
+            const elConfirmTrading: any = document.querySelector('.confirm-trading')
+            if (tradingPin === newTradingPin) {
+                setDisplayBlock(elTrading)
+                elTrading.innerHTML = 'Trading PIN already exist'
+            }
+            if (tradingPin !== newTradingPin) {
+                setDisplayNone(elTrading)
+            }
+
+            if (newTradingPin !== confirmTradingPin) {
+                setDisplayBlock(elConfirmTrading)
+                elConfirmTrading.innerHTML = 'Incorrect confirm trading Pin'
+            }
+            if (newTradingPin.length > 6 || newTradingPin.length < 6) {
+                setDisplayBlock(elNewTrading)
+                elNewTrading.innerHTML = 'Trading PIN must be  a six-digit number'
+                setDisplayNone(elConfirmTrading)
+            }
+            if (newTradingPin.length === 6) {
+                setDisplayNone(elNewTrading)
+            }
+            if (newTradingPin === confirmTradingPin) {
+                setDisplayNone(elConfirmTrading)
+            }
             if (newTradingPin.length === 6 && newTradingPin === confirmTradingPin) {
                 getParamTradingPin(paramTradingPin)
                 setTradingPin('')
@@ -77,8 +119,32 @@ const Setting = (props: ISetting) => {
             }
         }
         if (isChangePassword) {
-            validationPassword(currentPassword, newPassword, confirmPassword)
-            if (validationPassword(currentPassword, newPassword, confirmPassword) === true && newPassword === confirmPassword) {
+            const elPassword: any = document.querySelector('.password')
+            const elNewPw: any = document.querySelector('.new-trading')
+            const elConfirmPassword: any = document.querySelector('.confirm-password')
+            if (currentPassword === newPassword) {
+                setDisplayBlock(elPassword)
+                elPassword.innerHTML = 'Password already exist'
+            }
+            if (currentPassword !== newPassword) {
+                setDisplayNone(elPassword)
+            }
+            if (newPassword !== confirmPassword) {
+                setDisplayBlock(elConfirmPassword)
+                elConfirmPassword.innerHTML = 'Incorrect confirm new password'
+            }
+            if (validationPassword(newPassword) === false) {
+                setDisplayBlock(elNewPw)
+                setDisplayNone(elConfirmPassword)
+                elNewPw.innerHTML = _renderMsgError()
+            }
+            if (validationPassword(newPassword) === true) {
+                setDisplayNone(elNewPw)
+            }
+            if (newPassword === confirmPassword) {
+                setDisplayNone(elConfirmPassword)
+            }
+            if (validationPassword(newPassword) === true && newPassword === confirmPassword) {
                 getParamPassword(paramPassword)
                 setCurrentPassword('')
                 setNewPassword('')
