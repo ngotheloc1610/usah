@@ -211,7 +211,7 @@ const OrderForm = (props: IOrderForm) => {
     const _renderResetButton = () => (
         <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
     )
-    
+
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
@@ -228,8 +228,6 @@ const OrderForm = (props: IOrderForm) => {
 
             {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
             {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
-
-            {/* {_renderOwnVol()} */}
 
             <div className="border-top">
                 {validForm && _renderPlaceButtonEnable()}
