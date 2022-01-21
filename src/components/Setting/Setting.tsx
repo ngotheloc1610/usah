@@ -70,8 +70,10 @@ const Setting = (props: ISetting) => {
         if (isTradingPin) {
             const elConfirmTrading: any = document.querySelector('.confirm-trading')
             validateTradingPin(tradingPin, newTradingPin, confirmTradingPin)
-            if (newTradingPin.length === 6 && newTradingPin === confirmTradingPin) {
+            if (newTradingPin === confirmTradingPin) {
                 elConfirmTrading.style.display = 'none'
+            }
+            if (newTradingPin.length === 6 && newTradingPin === confirmTradingPin) {
                 getParamTradingPin(paramTradingPin)
                 setTradingPin('')
                 setNewTradingPin('')
@@ -83,10 +85,12 @@ const Setting = (props: ISetting) => {
             validationPassword(currentPassword, newPassword)
             if (newPassword !== confirmPassword) {
                 elConfirmPassword.style.display = 'block'
-                elConfirmPassword.innerHTML = 'Incorrect CONFIRM new password'
+                elConfirmPassword.innerHTML = 'Incorrect confirm new password'
+            }
+            if (newPassword === confirmPassword) {
+                elConfirmPassword.style.display = 'none'
             }
             if (validationPassword(currentPassword, newPassword) === true && newPassword === confirmPassword) {
-                elConfirmPassword.style.display = 'none'
                 getParamPassword(paramPassword)
                 setCurrentPassword('')
                 setNewPassword('')
@@ -152,7 +156,6 @@ const Setting = (props: ISetting) => {
             <div className="row mb-3 align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-4">
-                    <div className='trading password'></div>
                 </div>
             </div>
         </>
@@ -181,6 +184,7 @@ const Setting = (props: ISetting) => {
             <div className="row mb-3 align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-4">
+                    <div className='trading password'></div>
                     <div className='new-trading new-password'></div>
                 </div>
             </div>

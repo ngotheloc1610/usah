@@ -47,6 +47,7 @@ export function validateTradingPin(crrTradingPin: string, newTradingPin: string,
         elNewTrading.style.display = 'none'
     }
     if (newTradingPin !== confirmTradingPin) {
+        elConfirmTrading.style.display = 'block'
         elConfirmTrading.innerHTML = 'Incorrect confirm trading Pin'
     }
 }
@@ -67,7 +68,12 @@ export function validationPassword(currentPassword: string, newPassword: string)
     }
     if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
         elNewPw.style.display = 'block'
-        elNewPw.innerHTML = 'Create new password FAIL'
+        elNewPw.innerHTML = `New password must contain: <ul> 
+        <li> from 8-30 character </li>
+        <li> at least one uppercase letter </li>
+        <li> at least one number </li>
+        <li> at least one special character (e.g ! @ # ...) </li>
+    </ul>`
         return false
     }
     else {
