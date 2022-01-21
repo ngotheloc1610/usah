@@ -49,7 +49,7 @@ export const ROUTER = [
             {
                 navigation: '/orders/new',
                 icon: '',
-                title: 'New',
+                title: 'New Order',
                 subTab: []
             },
             {
