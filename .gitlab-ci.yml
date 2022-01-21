@@ -1,44 +1,55 @@
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
 # Use the same key to share cached across branchs and jobs
-image: node:16.13
-
-cache:
-  key: one-key-to-rule-them-all
-  paths:
-  - node_modules/
-  - .yarn
-
-before_script:
-  - yarn install --cache-folder .yarn
-
 stages:
   - build
-  - test
+  - deploy_test
 
 build:
   stage: build
+  image: node:16.13
   variables:
     FILE_SERVER_IP: "$FILE_SERVER_IP"
     FILE_SERVER_PRIVATE_SSH_KEY: "$FILE_SERVER_PRIVATE_SSH_KEY"
     FILE_SERVER_BUILD_DIR: "$FILE_SERVER_BUILD_DIR"
+  cache:
+    key: one-key-to-rule-them-all
+    paths:
+    - node_modules/
+    - .yarn
+  before_script:
+    - yarn install --cache-folder .yarn
   script:
-    - apt-get update && apt-get install -y zip unzip
+    - apt-get update && apt-get install -y zip unzip sshpass
     - mkdir -p ~/.ssh
     - echo "$FILE_SERVER_PRIVATE_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
     - ssh-keyscan -H $FILE_SERVER_IP >> ~/.ssh/known_hosts
+    - ssh-keyscan -H $PIX_DEV_SERVER_IP >> ~/.ssh/known_hosts
     - yarn --version
 
     - CI=false yarn build
     - zip build.zip -r build/
     - ls -lh build.zip
     - scp build.zip root@$FILE_SERVER_IP:$FILE_SERVER_BUILD_DIR
+    - sshpass -p "$PIX_DEV_SERVER_SSHPASS" scp build.zip pix@$PIX_DEV_SERVER_IP:/opt/newsource/
     - SUCCESS_MSG="$(TZ=Asia/Ho_Chi_Minh date +'%F %T %Z') - Build Success, commit $(git rev-parse HEAD)"
     - ssh root@$FILE_SERVER_IP "echo $SUCCESS_MSG >> $FILE_SERVER_BUILD_DIR/build.log"
 
+  only:
+    - master
+
+deploy_test_env:
+  stage: deploy_test
+  image: centos:centos7
+  before_script:
+    - yum install openssh openssh-clients sshpass -y
+    - mkdir -p ~/.ssh
+    - ssh-keyscan -H $PIX_DEV_SERVER_IP >> ~/.ssh/known_hosts
+  script:
+    - sshpass -p "$PIX_DEV_SERVER_SSHPASS" ssh pix@$PIX_DEV_SERVER_IP sh /opt/deploy/01.Deploy_Pix_TDS.sh
   only:
     - master
 
