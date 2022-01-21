@@ -39,7 +39,7 @@ build:
     - ssh root@$FILE_SERVER_IP "echo $SUCCESS_MSG >> $FILE_SERVER_BUILD_DIR/build.log"
 
   only:
-    - 47905_Integrate_CICD_Test_Env
+    - master
 
 deploy_test_env:
   stage: deploy_test
@@ -51,5 +51,5 @@ deploy_test_env:
   script:
     - sshpass -p "$PIX_DEV_SERVER_SSHPASS" ssh pix@$PIX_DEV_SERVER_IP sh /opt/deploy/01.Deploy_Pix_TDS.sh
   only:
-    - 47905_Integrate_CICD_Test_Env
+    - master
 
