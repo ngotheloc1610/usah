@@ -71,6 +71,12 @@ export const MODIFY_CANCEL_STATUS = {
     error: false
 }
 
+export const VALIDATE_TRADING_PIN = {
+    tradingPinExist: 'Trading PIN already exist',
+    incorrectTradingPin: 'Incorrect confirm trading Pin',
+    checkTradingPin: 'Trading PIN must be  a six-digit number'
+}
+
 export const VALIDATE_PASSWORD = {
     passwordExist: 'Password already exist',
     incorrectPassword: 'Incorrect confirm new password'

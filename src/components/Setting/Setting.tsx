@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IParamTradingPin, IParamPassword, IParamNoti } from '../../interfaces/customerInfo.interface'
 import { validationPassword } from '../../helper/utils'
-import { VALIDATE_PASSWORD } from '../../constants/general.constant'
+import { VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
@@ -91,18 +91,18 @@ const Setting = (props: ISetting) => {
             const elConfirmTrading: any = document.querySelector('.confirm-trading')
             if (tradingPin === newTradingPin) {
                 setDisplayBlock(elTrading)
-                elTrading.innerHTML = 'Trading PIN already exist'
+                elTrading.innerHTML = VALIDATE_TRADING_PIN.tradingPinExist
             }
             if (tradingPin !== newTradingPin) {
                 setDisplayNone(elTrading)
             }
             if (newTradingPin !== confirmTradingPin) {
                 setDisplayBlock(elConfirmTrading)
-                elConfirmTrading.innerHTML = 'Incorrect confirm trading Pin'
+                elConfirmTrading.innerHTML = VALIDATE_TRADING_PIN.incorrectTradingPin
             }
             if (newTradingPin.length > 6 || newTradingPin.length < 6) {
                 setDisplayBlock(elNewTrading)
-                elNewTrading.innerHTML = 'Trading PIN must be  a six-digit number'
+                elNewTrading.innerHTML = VALIDATE_TRADING_PIN.checkTradingPin
                 setDisplayNone(elConfirmTrading)
             }
             if (newTradingPin.length === 6) {
