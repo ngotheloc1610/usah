@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IParamTradingPin, IParamPassword, IParamNoti } from '../../interfaces/customerInfo.interface'
 import { validationPassword } from '../../helper/utils'
+import { VALIDATE_PASSWORD } from '../../constants/general.constant'
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
@@ -95,7 +96,6 @@ const Setting = (props: ISetting) => {
             if (tradingPin !== newTradingPin) {
                 setDisplayNone(elTrading)
             }
-
             if (newTradingPin !== confirmTradingPin) {
                 setDisplayBlock(elConfirmTrading)
                 elConfirmTrading.innerHTML = 'Incorrect confirm trading Pin'
@@ -124,27 +124,27 @@ const Setting = (props: ISetting) => {
             const elConfirmPassword: any = document.querySelector('.confirm-password')
             if (currentPassword === newPassword) {
                 setDisplayBlock(elPassword)
-                elPassword.innerHTML = 'Password already exist'
+                elPassword.innerHTML = VALIDATE_PASSWORD.passwordExist
             }
             if (currentPassword !== newPassword) {
                 setDisplayNone(elPassword)
             }
             if (newPassword !== confirmPassword) {
                 setDisplayBlock(elConfirmPassword)
-                elConfirmPassword.innerHTML = 'Incorrect confirm new password'
+                elConfirmPassword.innerHTML = VALIDATE_PASSWORD.incorrectPassword
             }
-            if (validationPassword(newPassword) === false) {
+            if (!validationPassword(newPassword)) {
                 setDisplayBlock(elNewPw)
                 setDisplayNone(elConfirmPassword)
                 elNewPw.innerHTML = _renderMsgError()
             }
-            if (validationPassword(newPassword) === true) {
+            if (validationPassword(newPassword) ) {
                 setDisplayNone(elNewPw)
             }
             if (newPassword === confirmPassword) {
                 setDisplayNone(elConfirmPassword)
             }
-            if (validationPassword(newPassword) === true && newPassword === confirmPassword) {
+            if (validationPassword(newPassword) && newPassword === confirmPassword) {
                 getParamPassword(paramPassword)
                 setCurrentPassword('')
                 setNewPassword('')
@@ -197,7 +197,7 @@ const Setting = (props: ISetting) => {
                         <input id='trading-pin' type="password" className="form-control"
                             value={isTradingPin ? tradingPin : currentPassword}
                             onChange={(event) => changeTradingPin(event.target.value)}
-                            minLength={8}
+                            minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
@@ -225,7 +225,7 @@ const Setting = (props: ISetting) => {
                         <input id='new-trading-pin' type="password" className="form-control"
                             value={isTradingPin ? newTradingPin : newPassword}
                             onChange={(event) => changeNewTradingPin(event.target.value)}
-                            minLength={8}
+                            minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
@@ -255,7 +255,7 @@ const Setting = (props: ISetting) => {
                         <input id='confirm-trading-pin' type="password" className="form-control"
                             value={isTradingPin ? confirmTradingPin : confirmPassword}
                             onChange={(event) => confirmNewTradingPin(event.target.value)}
-                            minLength={8}
+                            minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >

@@ -70,3 +70,8 @@ export const MODIFY_CANCEL_STATUS = {
     success: true,
     error: false
 }
+
+export const VALIDATE_PASSWORD = {
+    passwordExist: 'Password already exist',
+    incorrectPassword: 'Incorrect confirm new password'
+}
