@@ -25,7 +25,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="text-nowrap  sorting_disabled header-cell w-px-150">
                 Company Name
             </th>
-            <th className="text-center sorting_disabled header-cell w-px-80">
+            <th className="text-left sorting_disabled header-cell w-px-80">
                 Ticker
             </th>
             <th className="text-nowrap text-end sorting_disabled header-cell w-px-100">
@@ -61,8 +61,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataListCompany = () => (
         LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="w-px-150">{item.tickerName}</td>
-                <td className="text-center w-px-80">{item.ticker}</td>
+                <td className="w-px-150 fw-600">{item.tickerName}</td>
+                <td className="text-left w-px-80 fw-600">{item.ticker}</td>
                 <td className="text-end w-px-100 fw-600">{formatCurrency(item.previousClose.replace(',', ''))}</td>
                 <td className="text-end w-px-80 fw-600">{formatCurrency(item.open.replace(',', ''))}</td>
                 <td className="text-end w-px-80 fw-600">{formatCurrency(item.high.replace(',', ''))}</td>

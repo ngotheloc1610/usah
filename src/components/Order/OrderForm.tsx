@@ -211,28 +211,7 @@ const OrderForm = (props: IOrderForm) => {
     const _renderResetButton = () => (
         <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
     )
-
-    const _renderOwnVol = () => {
-        const elementOwnVolMinLot = <>
-        <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="text-secondary">Owned Volume</div>
-            <div><strong>10,000</strong></div>
-        </div>
-        <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="text-secondary">Min lot</div>
-            <div><strong>10,000</strong></div>
-        </div>
-        </>
-
-        const elementOwnVol = <div className="d-flex justify-content-between align-items-center mb-2">
-            <div className="text-secondary">Owned Volume</div>
-            <div><strong>10,000</strong></div>
-        </div>
-        return <>
-            {isOrderBook && elementOwnVolMinLot}
-            {!isOrderBook && elementOwnVol}
-        </>
-    }
+    
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
@@ -250,7 +229,7 @@ const OrderForm = (props: IOrderForm) => {
             {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
             {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
 
-            {_renderOwnVol()}
+            {/* {_renderOwnVol()} */}
 
             <div className="border-top">
                 {validForm && _renderPlaceButtonEnable()}
