@@ -36,7 +36,7 @@ const Dashboard = () => {
                     <div>36</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
-                    <div className="small fw-bold">% Unrealized P/L</div>
+                    <div className="small fw-bold">% P/L</div>
                     <div className="text-success">4.56%</div>
                 </div>
             </div>

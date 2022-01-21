@@ -78,7 +78,10 @@ proto.Symbol.toObject = function(includeInstance, msg) {
     digits: jspb.Message.getFieldWithDefault(msg, 6, 0),
     exchange: jspb.Message.getFieldWithDefault(msg, 7, ""),
     currencyCode: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    description: jspb.Message.getFieldWithDefault(msg, 9, "")
+    description: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    tickSize: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    lotSize: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    minLot: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -150,6 +153,18 @@ proto.Symbol.deserializeBinaryFromReader = function(msg, reader) {
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setDescription(value);
+      break;
+    case 10:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTickSize(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setLotSize(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMinLot(value);
       break;
     default:
       reader.skipField();
@@ -240,6 +255,27 @@ proto.Symbol.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       9,
+      f
+    );
+  }
+  f = message.getTickSize();
+  if (f.length > 0) {
+    writer.writeString(
+      10,
+      f
+    );
+  }
+  f = message.getLotSize();
+  if (f.length > 0) {
+    writer.writeString(
+      11,
+      f
+    );
+  }
+  f = message.getMinLot();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
       f
     );
   }
@@ -405,6 +441,60 @@ proto.Symbol.prototype.getDescription = function() {
  */
 proto.Symbol.prototype.setDescription = function(value) {
   return jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * optional string tick_size = 10;
+ * @return {string}
+ */
+proto.Symbol.prototype.getTickSize = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setTickSize = function(value) {
+  return jspb.Message.setProto3StringField(this, 10, value);
+};
+
+
+/**
+ * optional string lot_size = 11;
+ * @return {string}
+ */
+proto.Symbol.prototype.getLotSize = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setLotSize = function(value) {
+  return jspb.Message.setProto3StringField(this, 11, value);
+};
+
+
+/**
+ * optional string min_lot = 12;
+ * @return {string}
+ */
+proto.Symbol.prototype.getMinLot = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setMinLot = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 
