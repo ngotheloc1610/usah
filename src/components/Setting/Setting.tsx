@@ -238,7 +238,7 @@ const Setting = (props: ISetting) => {
             }
         }
     }
-    const sendMsgUpdateTRradingPin = () => {
+    const sendMsgUpdateTradingPin = () => {
         sendMessageCustomerInfor()
         setSecretKey('')
         setNewSecretKey('')
@@ -274,7 +274,7 @@ const Setting = (props: ISetting) => {
     const _renderMessageError = () => (
         <div>{toast.success('Update error')}</div>
     )
-    
+
     const _renderMessageSuccess = () => {
         return <div>{toast.success('Update successfully')}</div>
     }
