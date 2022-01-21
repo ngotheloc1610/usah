@@ -45,7 +45,7 @@ deploy_test_env:
   stage: deploy_test
   image: centos:centos7
   before_script:
-    - yum install sshpass zip unzip -y
+    - yum install openssh openssh-clients sshpass -y
     - mkdir -p ~/.ssh
     - ssh-keyscan -H $PIX_DEV_SERVER_IP >> ~/.ssh/known_hosts
   script:
