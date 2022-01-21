@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
 import { KEY_LOCAL_STORAGE } from './constants/general.constant';
+import Footer from './components/Footer';
 
 const App = () => {
   const [isLogin, setIsLogin] = useState(false)
@@ -32,6 +33,7 @@ const App = () => {
     <>
       <Header />
       <RouterDom/>
+      <Footer />
     </>
   )
 
