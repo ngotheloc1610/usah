@@ -19,8 +19,8 @@ export interface IParamOrder {
     tickerCode: string;
     tickerName: string;
     orderType: string;
-    volume: number;
-    price: number;
+    volume: string;
+    price: string;
     side: string;
     confirmationConfig: boolean;
     tickerId: string;

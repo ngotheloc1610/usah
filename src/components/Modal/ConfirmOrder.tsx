@@ -30,7 +30,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
     const [volumeModify, setVolumeModify] = useState(params.volume);
-    const [priceModify, setPriceModify] = useState(params.price);
+    const [priceModify, setPriceModify] = useState(formatCurrency(params.price));
     
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
@@ -38,7 +38,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     
     const handleVolumeModify = (event: any) => {
-        if (Number(event.target.value) > params.volume) {
+        if (Number(event.target.value.replace(',', '')) > Number(params.volume)) {
             setVolumeModify(params.volume);
             return;
         }
@@ -46,7 +46,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const handlePriceModify = (event: any) => {
-        setPriceModify(event.target.value);
+        const formatChangePrice = formatCurrency(event.target.value.replace(',', ''));
+        setPriceModify(formatChangePrice);
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -252,7 +253,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {(title === 'Volume' && isModify) ?
                     <input type="number" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={volumeModify} />
                     : (title === 'Price' && isModify) ?
-                        <input type="number" className="m-100" width={"100%"} onChange={handlePriceModify} min={0} value={priceModify} />
+                        <input type="text" className="m-100" width={"100%"} onChange={handlePriceModify} value={priceModify.toString()} />
                         : value}</td>
         </tr>
     )
@@ -273,7 +274,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
-                    {_renderConfirmOrder('Value ($)', `${formatNumber((volumeModify * priceModify).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify) * Number(priceModify)).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>

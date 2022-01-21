@@ -18,8 +18,8 @@ const defaultData: IParamOrder = {
     tickerCode: '',
     tickerName: '',
     orderType: '',
-    volume: 0,
-    price: 0,
+    volume: '',
+    price: '',
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -166,8 +166,8 @@ const OrderForm = (props: IOrderForm) => {
             tickerCode: currentTicker.ticker,
             tickerName: currentTicker.tickerName,
             orderType: ORDER_TYPE_NAME.limit,
-            volume: volume,
-            price: price,
+            volume: volume.toString(),
+            price: price.toString(),
             side: currentSide,
             confirmationConfig: false,
             tickerId: currentTicker.symbolId?.toString()

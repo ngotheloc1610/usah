@@ -25,8 +25,8 @@ const ListModifyCancel = () => {
         tickerCode: '',
         tickerName: '',
         orderType: '',
-        volume: 0,
-        price: 0,
+        volume: '',
+        price: '',
         side: '',
         confirmationConfig: false,
         tickerId: ''
@@ -93,18 +93,18 @@ const ListModifyCancel = () => {
 
             orderRequest.setAccountId(uid);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
-            
+
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
-    const getTickerCode = (sympleId: string) : string => {
+    const getTickerCode = (sympleId: string): string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
     }
 
-    const getTickerName = (sympleId: string) : string => {
+    const getTickerName = (sympleId: string): string => {
         return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName || '';
     }
 
@@ -118,8 +118,8 @@ const ListModifyCancel = () => {
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
-            volume: Number(calcPendingVolume(item.amount, item.filledAmount)),
-            price: Number(item.price),
+            volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
+            price: item.price,
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
@@ -131,7 +131,7 @@ const ListModifyCancel = () => {
         }
         setIsCancel(true);
     }
-    
+
     const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
@@ -212,16 +212,16 @@ const ListModifyCancel = () => {
             </div>
         </div>
         <Pagination />
-        {isCancel && <ConfirmOrder isCancel={isCancel} 
-                                   handleCloseConfirmPopup={togglePopup}
-                                   handleOrderResponse={getStatusOrderResponse}
-                                   params={paramModifyCancel} 
-                                   handleStatusModifyCancel={getStatusModifyCancel}/>}
-        {isModify && <ConfirmOrder isModify={isModify} 
-                                    handleCloseConfirmPopup={togglePopup} 
-                                    handleOrderResponse={getStatusOrderResponse} 
-                                    params={paramModifyCancel} 
-                                    handleStatusModifyCancel={getStatusModifyCancel}/>}
+        {isCancel && <ConfirmOrder isCancel={isCancel}
+            handleCloseConfirmPopup={togglePopup}
+            handleOrderResponse={getStatusOrderResponse}
+            params={paramModifyCancel}
+            handleStatusModifyCancel={getStatusModifyCancel} />}
+        {isModify && <ConfirmOrder isModify={isModify}
+            handleCloseConfirmPopup={togglePopup}
+            handleOrderResponse={getStatusOrderResponse}
+            params={paramModifyCancel}
+            handleStatusModifyCancel={getStatusModifyCancel} />}
     </div>
 }
 export default ListModifyCancel;
