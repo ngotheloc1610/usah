@@ -23,3 +23,19 @@ export function formatNumber(item: string): string {
 export function formatCurrency(item: string): string {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
 }
+
+export function formatIdNumber(item: string) {
+    return Number(item.slice(0, 6))
+}
+
+export function validationPassword(newPassword: string) {
+    const isUpperCase = newPassword.match(/[A-Z]/g);
+    const isNumber = /\d/.test(newPassword);
+    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+    const specialCharacter = format.test(newPassword);
+    if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
+        return false
+    }else {
+        return true
+    }
+}
