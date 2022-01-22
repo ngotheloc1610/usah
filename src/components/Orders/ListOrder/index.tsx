@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -60,9 +60,11 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [msgSuccess]);
 
     const callWs = () => {
-        setTimeout(() => {
-            sendListOrder();
-        }, 200);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
     }
 
     const sendListOrder = () => {

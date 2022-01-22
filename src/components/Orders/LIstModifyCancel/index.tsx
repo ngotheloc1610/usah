@@ -36,24 +36,23 @@ const ListModifyCancel = () => {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            console.log(39, resp);
             if (resp === SOCKET_CONNECTED) {
                 sendListOrder();
             }
         });
-    }, []);
 
-    useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
-        return () => listOrder.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            listOrder.unsubscribe();
+        }
     }, []);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            console.log(54, resp);
-            if (resp = SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED) {
                 sendListOrder();
             }
         });
