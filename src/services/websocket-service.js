@@ -25,6 +25,7 @@ const modifySubject = new Subject();
 const cancelSubject = new Subject();
 const customerInfoDetailSubject = new Subject();
 const customerSettingSubject = new Subject();
+const socketSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     if (objAuthen.access_token) {
@@ -43,6 +44,7 @@ const startWs = async () => {
     socket.onopen = () =>{
         console.log("websocket connected");
         wsConnected = true;
+        socketSubject.next('SOCKET_CONNECTED');
     }
     
     socket.onerror = () => {
@@ -126,5 +128,6 @@ export const wsService = {
     getCustomerSettingSubject: () => customerSettingSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
-    getDataLastQuotes: () => dataLastQuotes.asObservable()
+    getDataLastQuotes: () => dataLastQuotes.asObservable(),
+    getSocketSubject: () => socketSubject.asObservable()
 }

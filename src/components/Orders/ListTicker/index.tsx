@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -25,18 +25,14 @@ const ListTicker = (props: IListTickerProps) => {
     const tradingModel: any = tdpb;
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            handleDataFromWs();
-            callWs();
-        }, 500);
-        return () => clearInterval(interval);
-    }, []);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp = SOCKET_CONNECTED) {
+                getOrderBooks();
+            }
+        });
 
-    const callWs = () => {
-        setTimeout(() => {
-            getOrderBooks();
-        }, 200);
-    }
+        return () => ws.unsubscribe();
+    }, []);
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
