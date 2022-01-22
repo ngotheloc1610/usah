@@ -9,7 +9,7 @@ import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 interface IListTickerProps {
-    getTicerLastQuote: (item: IAskAndBidPrice) => void;
+    getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
 }
 
 const defaultProps = {
@@ -62,9 +62,9 @@ const ListTicker = (props: IListTickerProps) => {
         setItemSearch(event.target.value);
     }
 
-    const handleTicker = (item: IAskAndBidPrice, side: string, symbolCode: string) => {
-        const itemTicker = {...item, side: side, symbolCode: symbolCode};
-        getTicerLastQuote(itemTicker);
+    const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
+        const itemTicker = {...item, side: side, symbolCode: lastQuote.symbolCode};
+        getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
 
     const _renderSearchForm = () => (
@@ -104,7 +104,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData.symbolCode)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -148,7 +148,7 @@ const ListTicker = (props: IListTickerProps) => {
             symbolCode: '-'
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData.symbolCode)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     { item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
