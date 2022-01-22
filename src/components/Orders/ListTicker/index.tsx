@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -9,7 +9,7 @@ import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 interface IListTickerProps {
-    getTicerLastQuote: (item: IAskAndBidPrice) => void;
+    getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
 }
 
 const defaultProps = {
@@ -25,18 +25,21 @@ const ListTicker = (props: IListTickerProps) => {
     const tradingModel: any = tdpb;
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            handleDataFromWs();
-            callWs();
-        }, 500);
-        return () => clearInterval(interval);
-    }, []);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp = SOCKET_CONNECTED) {
+                getOrderBooks();
+            }
+        });
 
-    const callWs = () => {
-        setTimeout(() => {
-            getOrderBooks();
-        }, 200);
-    }
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+            setLastQoutes(resp.quotesList);
+        });
+
+        return () => {
+            ws.unsubscribe();
+            lastQuotesRes.unsubscribe();
+        }
+    }, []);
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -59,15 +62,9 @@ const ListTicker = (props: IListTickerProps) => {
         setItemSearch(event.target.value);
     }
 
-    const handleDataFromWs = () => {
-        wsService.getDataLastQuotes().subscribe(resp => {
-            setLastQoutes(resp.quotesList);
-        });
-    }
-
-    const handleTicker = (item: IAskAndBidPrice, side: string) => {
-        const itemTicker = {...item, side: side};
-        getTicerLastQuote(itemTicker);
+    const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
+        const itemTicker = {...item, side: side, symbolCode: lastQuote.symbolCode};
+        getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
 
     const _renderSearchForm = () => (
@@ -107,7 +104,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -119,8 +116,8 @@ const ListTicker = (props: IListTickerProps) => {
         ));
     }
 
-    const _renderBidPrice = (itemĐata: ILastQuote) => {
-        let bidItems: IAskAndBidPrice[] = itemĐata.bidsList;
+    const _renderBidPrice = (itemData: ILastQuote) => {
+        let bidItems: IAskAndBidPrice[] = itemData.bidsList;
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
         while (counter < MARKET_DEPTH_LENGTH) {
@@ -130,7 +127,7 @@ const ListTicker = (props: IListTickerProps) => {
                     price: bidItems[counter].price,
                     tradable: bidItems[counter].tradable,
                     volume: bidItems[counter].volume,
-                    symbolCode: itemĐata.symbolCode
+                    symbolCode: itemData.symbolCode
                 });
             } else {
                 arr.push({
@@ -151,7 +148,7 @@ const ListTicker = (props: IListTickerProps) => {
             symbolCode: '-'
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     { item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
