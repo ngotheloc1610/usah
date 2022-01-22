@@ -30,8 +30,8 @@ const OrderMonitoring = () => {
         const assignItemTicker = {
             tickerName: tickerData?.tickerName,
             ticker: tickerData?.ticker,
-            lastPrice: itemTicker.price,
-            volume: itemTicker.volume,
+            lastPrice: itemTicker.price === '-' ? '0' : itemTicker.price,
+            volume: itemTicker.volume === '-' ? '0' : itemTicker.volume,
             side: itemTicker.side,
             symbolId: itemTicker.symbolCode
         }
