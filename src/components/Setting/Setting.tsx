@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { IParamTradingPin, IParamPassword, IParamNoti } from '../../interfaces/customerInfo.interface'
 import { validationPassword } from '../../helper/utils'
 import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
@@ -9,14 +8,13 @@ import * as rspb from "../../models/proto/rpc_pb";
 import { wsService } from '../../services/websocket-service'
 import ReduxPersist from '../../config/ReduxPersist'
 import queryString from 'query-string';
+import { IAccountDetail } from '../../interfaces/customerInfo.interface'
 
 interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    getParamTradingPin: (item: IParamTradingPin) => void;
-    getParamPassword: (item: IParamPassword) => void;
-    getParamNoti: (item: IParamNoti) => void;
+    customerInfoDetail: IAccountDetail
 }
 
 const defaultProps = {
@@ -26,7 +24,7 @@ const defaultProps = {
 }
 
 const Setting = (props: ISetting) => {
-    const { isTradingPin, isChangePassword, isNotification, getParamTradingPin, getParamPassword, getParamNoti } = props
+    const { isTradingPin, isChangePassword, isNotification, customerInfoDetail } = props
     const [secretKey, setSecretKey] = useState('')
     const [password, setPassword] = useState('')
     const [newSecretKey, setNewSecretKey] = useState('')
@@ -36,15 +34,10 @@ const Setting = (props: ISetting) => {
     const [isOpenEye, setIsOpenEye] = useState(true)
     const [isOpenEyeNew, setIsOpenEyeNew] = useState(true)
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
-    const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(JSON.parse(localStorage.getItem('newsAdmin') || '{}'))
-    const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(JSON.parse(localStorage.getItem('newsNotication') || '{}'))
+    const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
+    const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
+    const [customerInfoSetting, setCustomerInfoSetting] = useState([])
     const [statusOrder, setStatusOrder] = useState(0);
-
-    const paramNoti: IParamNoti = {
-        recvAdminNewsFlg,
-        recvMatchNotiFlg
-    }
-    useEffect(() => getParamNoti(paramNoti), [recvAdminNewsFlg, recvMatchNotiFlg])
 
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
@@ -88,7 +81,7 @@ const Setting = (props: ISetting) => {
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
             rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());            
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
@@ -120,8 +113,7 @@ const Setting = (props: ISetting) => {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
                 isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);;
-                isNotification && buildMessageNoti(accountId);
+                isChangePassword && buildMessagePassword(accountId);
                 return;
             }
         }
@@ -131,12 +123,36 @@ const Setting = (props: ISetting) => {
                 accountId = obj.account_id;
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
-                isNotification && buildMessageNoti(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
+                return;
+            }
+        });
+    }
+
+    const sendMessageCustomerInforNoti = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                isNotification && buildMessageNoti(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                isNotification && buildMessageNoti(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
                 isNotification && buildMessageNoti(accountId);
                 return;
             }
@@ -238,21 +254,12 @@ const Setting = (props: ISetting) => {
             }
         }
     }
+
     const sendMsgUpdateTradingPin = () => {
         sendMessageCustomerInfor()
         setSecretKey('')
         setNewSecretKey('')
         setConfirmTradingPin('')
-
-        const systemModelPb: any = smpb
-        wsService.getCustomerSettingSubject().subscribe(res => {
-            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                _renderMessageSuccess();
-            } else {
-                _renderMessageError();
-            }
-            return;
-        });
     }
 
     const sendMsgUpdatePassword = () => {
@@ -260,19 +267,25 @@ const Setting = (props: ISetting) => {
         setPassword('')
         setNewPassword('')
         setConfirmPassword('')
+    }
 
+    useEffect(() => {
         const systemModelPb: any = smpb
-        wsService.getCustomerSettingSubject().subscribe(res => {
+        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
             if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                setCustomerInfoSetting(res)
                 _renderMessageSuccess();
-
             } else {
                 _renderMessageError();
             }
+            return;
         });
-    }
+
+        return () => renderDataCustomInfoToScreen.unsubscribe();
+    }, [])
+
     const _renderMessageError = () => (
-        <div>{toast.success('Update error')}</div>
+        <div>{toast.error('Update error')}</div>
     )
 
     const _renderMessageSuccess = () => {
@@ -301,15 +314,17 @@ const Setting = (props: ISetting) => {
     }
 
     const changeNewsAdmin = (checked: boolean) => {
-        localStorage.setItem('newsAdmin', JSON.stringify(checked))
-        const newsAdminJson = JSON.parse(localStorage.getItem('newsAdmin') || '{}')
-        setRecvAdminNewsFlg(newsAdminJson)
+        let newsAdmin: number = 0
+        checked ? newsAdmin = 1 : newsAdmin = 0
+        setRecvAdminNewsFlg(newsAdmin)
+        sendMessageCustomerInforNoti();
     }
 
     const changeNewsNotication = (checked: boolean) => {
-        localStorage.setItem('newsNotication', JSON.stringify(checked))
-        const newsNoticationJson = JSON.parse(localStorage.getItem('newsNotication') || '{}')
-        setRecvMatchNotiFlg(newsNoticationJson)
+        let newsNotication: number = 0
+        checked ? newsNotication = 1 : newsNotication = 0
+        setRecvMatchNotiFlg(newsNotication)
+        sendMessageCustomerInforNoti();
     }
 
     const _renderChanngeTraddingPin = (isTradingPin: boolean) => (
@@ -429,14 +444,14 @@ const Setting = (props: ISetting) => {
                     <h6 className="c-title text-primary mb-3">Notification</h6>
                     <div className="form-check form-switch mb-2">
                         <input className="form-check-input" type="checkbox" role="switch" id="news_admin"
-                            checked={recvAdminNewsFlg}
+                            checked={recvAdminNewsFlg === 1 ? true : false}
                             onChange={(event) => changeNewsAdmin(event.target.checked)}
                         />
                         <label className="form-check-label" htmlFor="news_admin">Receive admin news</label>
                     </div>
                     <div className="form-check form-switch mb-2">
                         <input className="form-check-input" type="checkbox" role="switch" id="news_notication"
-                            checked={recvMatchNotiFlg}
+                            checked={recvMatchNotiFlg === 1 ? true : false}
                             onChange={(event) => changeNewsNotication(event.target.checked)}
                         />
                         <label className="form-check-label" htmlFor="news_notication">Receive matched results notification</label>

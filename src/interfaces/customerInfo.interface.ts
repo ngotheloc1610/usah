@@ -1,16 +1,17 @@
-export interface IParamTradingPin {
-    secretKey: string,
-    newSecretKey: string,
-    
-   
-}
-
-export interface IParamPassword {
+export interface IAccountDetail {
+    accountId: number,
+    apiFlg: boolean,
+    apiKey: string,
+    comment: string,
+    email: string,
+    enableFlg: boolean,
+    groupId: number,
+    name: string,
     password: string,
-    newPassword: string
-}
-
-export interface IParamNoti {
-    recvAdminNewsFlg: boolean,
-    recvMatchNotiFlg: boolean
+    phone: string,
+    recvAdminNewsFlg: number,
+    recvMatchNotiFlg: number,
+    registeredDate: number,
+    secretKey: string,
+    tradingRights: number
 }

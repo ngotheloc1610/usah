@@ -1,5 +1,11 @@
 import '../../pages/CustomerInfo/CustomerInfo.scss';
-const CustomerInfomation = () => {
+import { IAccountDetail } from '../../interfaces/customerInfo.interface'
+interface IPropsCustomerInfo {
+    customerInfoDetail: IAccountDetail
+}
+
+const CustomerInfomation = (props: IPropsCustomerInfo) => {
+    const { customerInfoDetail } = props
 
     const _renderNomalContent = (title: string, content: string) => (
         <div className="row mb-2 mb-md-0">
@@ -25,9 +31,9 @@ const CustomerInfomation = () => {
 
     const _renderCustomerInfor = () => (
         <>
-            {_renderNomalContent('Account holder', 'Deng Ming')}
-            {_renderLinkContent('Email', 'dengmi@amir.broker', 'mailto:dengmi@amir.broker')}
-            {_renderLinkContent('Phone', '(+65) 955 599 52', 'tel:+6595559952')}
+            {_renderNomalContent('Account holder', customerInfoDetail.name)}
+            {_renderLinkContent('Email', customerInfoDetail.email, `mailto:${customerInfoDetail.email}`)}
+            {_renderLinkContent('Phone', customerInfoDetail.phone, `tel:${customerInfoDetail.phone}`)}
         </>
     )
 
