@@ -38,7 +38,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     
     const handleVolumeModify = (event: any) => {
-        debugger;
         if (Number(event.target.value.replace(',', '')) > Number(params.volume)) {
             setVolumeModify(formatNumber(params.volume));
             return;

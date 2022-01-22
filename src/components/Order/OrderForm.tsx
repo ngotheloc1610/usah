@@ -80,21 +80,21 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handlePrice = (event: any) => {
-        const value = event.target.value
+        const value = event.target.value.replace(',', '');
         setPrice(value)
-        setValidForm(Number(event.target.value) > 0 && volume > 0);
+        setValidForm(Number(value) > 0 && volume > 0);
 
         const position: number = value.indexOf(".", 0);
         const lengthFromDecimal: number = value.slice(position).length
         if (position !== -1 && lengthFromDecimal > 2) {
-            const valueAfterFormat = value.slice(0, position + 3)
-            setPrice(valueAfterFormat)
+            const valueAfterFormat = value;
+            setPrice(valueAfterFormat);
         }
     }
 
     const handleVolume = (event: any) => {
-        setVolume(event.target.value);
-        setValidForm(price > 0 && Number(event.target.value) > 0);
+        setVolume(event.target.value.replace(',',''));
+        setValidForm(price > 0 && Number(event.target.value.replace(',', '')) > 0);
     }
 
     const handelUpperVolume = () => {
