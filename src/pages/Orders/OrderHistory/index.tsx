@@ -6,7 +6,7 @@ import * as rspb from "../../../models/proto/rpc_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import { useEffect, useState } from 'react';
-import { OBJ_AUTHEN } from '../../../constants/general.constant';
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
 import { IParamHistorySearch } from '../../../interfaces/order.interface'
 
 const OrderHistory = () => {
@@ -28,20 +28,21 @@ const OrderHistory = () => {
     }
 
     useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();;
+            }
+        });
+
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
             setListOrderHistory(res.orderList)
         });
 
-        return () => renderDataToScreen.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            renderDataToScreen.unsubscribe();
+        }
     }, [])
-
-    useEffect(() => callWs(), []);
-
-    const callWs = () => {
-        setTimeout(() => {
-            sendListOrder();
-        }, 200)
-    }
 
     const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
