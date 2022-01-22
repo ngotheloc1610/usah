@@ -202,8 +202,8 @@ const Setting = (props: ISetting) => {
             if (newSecretKey === confirmTradingPin) {
                 setDisplayNone(elConfirmTrading)
             }
-            if (newSecretKey.length === 6 && newSecretKey === confirmTradingPin) {
-                sendMsgUpdateTRradingPin();
+            if (secretKey !== newSecretKey && newSecretKey.length === 6 && newSecretKey === confirmTradingPin) {
+                sendMsgUpdateTradingPin();
             }
         }
 
@@ -233,7 +233,7 @@ const Setting = (props: ISetting) => {
             if (newPassword === confirmPassword) {
                 setDisplayNone(elConfirmPassword)
             }
-            if (validationPassword(newPassword) && newPassword === confirmPassword) {
+            if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
                 sendMsgUpdatePassword()
             }
         }
