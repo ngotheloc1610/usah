@@ -6,6 +6,7 @@ import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
 import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
+import { formatCurrency, formatNumber } from '../../helper/utils';
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
@@ -184,7 +185,7 @@ const OrderForm = (props: IOrderForm) => {
         </button>
     )
 
-    const _renderInputControl = (title: string, value: number, handleUpperValue: () => void, handleLowerValue: () => void) => (
+    const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
@@ -247,8 +248,8 @@ const OrderForm = (props: IOrderForm) => {
             </div>
 
 
-            {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
+            {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
+            {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             {_renderOwnVol()}
 
