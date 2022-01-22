@@ -26,7 +26,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp = SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
             }
         });
