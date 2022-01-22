@@ -14,8 +14,9 @@ const CustomerInfo = () => {
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
     const [isNotification, setIsNotification] = useState(false)
+    const [accountIdForParam, setAaccountIdForParam] = useState('')
     const [customerInfoDetail, setCustomerInfoDetail] = useState({
-        accountId: 200001,
+        accountId: Number(accountIdForParam),
         apiFlg: false,
         apiKey: "",
         comment: "",
@@ -24,11 +25,11 @@ const CustomerInfo = () => {
         groupId: 0,
         name: "",
         password: "",
-        phone: "123456789",
+        phone: "",
         recvAdminNewsFlg: 0,
         recvMatchNotiFlg: 0,
         registeredDate: 0,
-        secretKey: "200001",
+        secretKey: "",
         tradingRights: 0,
     })
 
@@ -73,7 +74,8 @@ const CustomerInfo = () => {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                isSetting === false && buildMessageCustomInfo(accountId)
+                !isSetting && buildMessageCustomInfo(accountId)
+                setAaccountIdForParam(accountId)
                 return;
             }
         }
@@ -81,11 +83,13 @@ const CustomerInfo = () => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                isSetting === false && buildMessageCustomInfo(accountId)
+                !isSetting && buildMessageCustomInfo(accountId)
+                setAaccountIdForParam(accountId)
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                isSetting === false && buildMessageCustomInfo(accountId)
+                !isSetting && buildMessageCustomInfo(accountId)
+                setAaccountIdForParam(accountId)
                 return;
             }
         });
