@@ -18,7 +18,7 @@ const OrderTradeHistory = () => {
         fromDatetime: '',
         toDatetime: '',
     })
-    
+
     const { ticker, orderType, fromDatetime, toDatetime } = tradeSearch
 
     const getDataFromTradeSearch = (getDataFromTradeSearch: IParamTradeSearch) => {
@@ -30,11 +30,11 @@ const OrderTradeHistory = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        return () => renderDataToScreen.unsubscribe();  
-    }, [tradeSearch] )
+        return () => renderDataToScreen.unsubscribe();
+    }, [tradeSearch])
 
-    useEffect(() => { 
-        callWs(); 
+    useEffect(() => {
+        callWs();
     }, [tradeSearch]);
 
     const callWs = () => {
@@ -43,12 +43,12 @@ const OrderTradeHistory = () => {
         }, 200)
     }
 
-    const prepareMessagee = (accountId: string ) => {
+    const prepareMessagee = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();  
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
 
@@ -62,14 +62,14 @@ const OrderTradeHistory = () => {
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());  
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
     const sendMessage = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
-        let accountId: string = '' ;
+        let accountId: string = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
@@ -95,13 +95,11 @@ const OrderTradeHistory = () => {
 
     const _renderTradeHistory = () => {
         return (
-            <div className='site'>
-                <div className="site-main">
-                    <div className="container">
-                        <div className="card shadow-sm mb-3">
-                            <SearchTradeHistory getDataFromTradeSearch = { getDataFromTradeSearch } />
-                            <TableTradeHistory getDataTradeHistory = { getDataTradeHistory } />
-                        </div>
+            <div className="site-main">
+                <div className="container">
+                    <div className="card shadow-sm mb-3">
+                        <SearchTradeHistory getDataFromTradeSearch={getDataFromTradeSearch} />
+                        <TableTradeHistory getDataTradeHistory={getDataTradeHistory} />
                     </div>
                 </div>
             </div>
