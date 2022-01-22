@@ -1,0 +1,35 @@
+.fs-12 {
+    font-size: 12px;
+}
+.copyright {
+    color: #757575;
+    font-size: 14px;
+    line-height: 120%;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+.width_common {
+    width: 100%;
+    float: left;
+}
+
+.footer .copyright .flexbox {
+    align-items: center;
+}
+.flexbox {
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+.mt10 {
+    margin-top: 10px;
+}
+.mb20 {
+    margin-bottom: 5px !important;
+}
+.fs-12 {
+    font-size: 12px !important;
+}
