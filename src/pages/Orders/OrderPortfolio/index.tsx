@@ -4,7 +4,7 @@ import * as rspb from "../../../models/proto/rpc_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import { useEffect, useState } from 'react';
-import { OBJ_AUTHEN } from '../../../constants/general.constant';
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
 import PortfolioTable from './PortfoioTable'
 import './orderPortfolio.scss'
 
@@ -12,20 +12,21 @@ function OrderPortfolio() {
     const [accountPortfolio, setAccountPortfolio] = useState([]);
 
     useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendAccountPortfolio();;
+            }
+        });
+
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
             setAccountPortfolio(res.accountPortfolioList)
         });
 
-        return () => renderDataToScreen.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            renderDataToScreen.unsubscribe();
+        }
     }, [])
-
-    useEffect(() => callWs(), []);
-
-    const callWs = () => {
-        setTimeout(() => {
-            sendAccountPortfolio();
-        }, 200)
-    }
 
     const buildMessage = (accountId: string) => {
         const systemServicePb: any = sspb;

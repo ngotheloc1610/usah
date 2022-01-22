@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -94,7 +94,6 @@ const Setting = (props: ISetting) => {
             customerInfoRequest.setAccountId(Number(accountId));
             customerInfoRequest.setRecvAdminNewsFlg(recvAdminNewsFlg);
             customerInfoRequest.setRecvMatchNotiFlg(recvMatchNotiFlg);
-
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
@@ -314,17 +313,19 @@ const Setting = (props: ISetting) => {
     }
 
     const changeNewsAdmin = (checked: boolean) => {
+        const systemServicePb: any = sspb
         let newsAdmin: number = 0
-        checked ? newsAdmin = 1 : newsAdmin = 0
+        checked ? newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
         setRecvAdminNewsFlg(newsAdmin)
-        sendMessageCustomerInforNoti();
+        sendMessageCustomerInforNoti()
     }
-
+    
     const changeNewsNotication = (checked: boolean) => {
+        const systemServicePb: any = sspb
         let newsNotication: number = 0
-        checked ? newsNotication = 1 : newsNotication = 0
+        checked ? newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
         setRecvMatchNotiFlg(newsNotication)
-        sendMessageCustomerInforNoti();
+        sendMessageCustomerInforNoti()
     }
 
     const _renderChanngeTraddingPin = (isTradingPin: boolean) => (

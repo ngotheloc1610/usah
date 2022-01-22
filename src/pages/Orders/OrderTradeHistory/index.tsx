@@ -10,6 +10,7 @@ import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { Enum } from 'protobufjs';
+import { SOCKET_CONNECTED } from '../../../constants/general.constant';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [tradeSearch, setTradeSearch] = useState({
@@ -26,22 +27,21 @@ const OrderTradeHistory = () => {
     }
 
     useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessage();;
+            }
+        });
+
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        return () => renderDataToScreen.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            renderDataToScreen.unsubscribe();
+        };  
     }, [tradeSearch])
-
-    useEffect(() => {
-        callWs();
-    }, [tradeSearch]);
-
-    const callWs = () => {
-        setTimeout(() => {
-            sendMessage();
-        }, 200)
-    }
 
     const prepareMessagee = (accountId: string) => {
         const queryServicePb: any = qspb;

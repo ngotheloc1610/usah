@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { OBJ_AUTHEN } from '../../constants/general.constant';
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const CustomerInfo = () => {
@@ -33,20 +33,21 @@ const CustomerInfo = () => {
     })
 
     useEffect(() => {
-        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageCustomerInfor();;
+            }
+        });
+
+        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {            
             setCustomerInfoDetail(res.account)
         });
 
-        return () => renderDataCustomInfoToScreen.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            renderDataCustomInfoToScreen.unsubscribe();
+        }
     }, [])
-
-    useEffect(() => callWs(), [isSetting]);
-
-    const callWs = () => {
-        setTimeout(() => {
-            sendMessageCustomerInfor();
-        }, 200)
-    }
 
     const buildMessageCustomInfo = (accountId: string) => {
         const SystemServicePb: any = sspb;
