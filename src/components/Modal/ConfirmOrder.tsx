@@ -29,8 +29,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
-    const [volumeModify, setVolumeModify] = useState(params.volume);
-    const [priceModify, setPriceModify] = useState(params.price);
+    const [volumeModify, setVolumeModify] = useState(formatNumber(params.volume));
+    const [priceModify, setPriceModify] = useState(formatCurrency(params.price));
     
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
@@ -38,15 +38,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     
     const handleVolumeModify = (event: any) => {
-        if (Number(event.target.value) > params.volume) {
-            setVolumeModify(params.volume);
+        if (Number(event.target.value.replace(',', '')) > Number(params.volume)) {
+            setVolumeModify(formatNumber(params.volume));
             return;
         }
-        setVolumeModify(event.target.value);
+        setVolumeModify(formatNumber(event.target.value.replace(',', '')));
     }
 
     const handlePriceModify = (event: any) => {
-        setPriceModify(event.target.value);
+        const formatChangePrice = formatCurrency(event.target.value.replace(',', ''));
+        setPriceModify(formatChangePrice);
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -61,8 +62,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify}`);
-            order.setPrice(`${priceModify}`);
+            order.setAmount(`${volumeModify.replace(',', '')}`);
+            order.setPrice(`${priceModify.replace(',', '')}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -70,7 +71,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             modifyOrder.addOrder(order);
-
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
             rpcMsg.setPayloadData(modifyOrder.serializeBinary());
@@ -148,8 +148,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify}`);
-            order.setPrice(`${priceModify}`);
+            order.setAmount(`${volumeModify.replace(',', '')}`);
+            order.setPrice(`${priceModify.replace(',', '')}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -240,7 +240,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _checkChangeVolumeOrPrice = () => {
         let isDisable = true;
         if (isModify) {
-            isDisable = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+            isDisable = Number(params.volume) !== Number(volumeModify.replace(',', '')) || Number(params.price) !== Number(priceModify.replace(',', ''));
         }
         return isDisable;
     }
@@ -250,9 +250,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-                    <input type="number" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={volumeModify} />
+                    <input type="text" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={volumeModify.toString()} />
                     : (title === 'Price' && isModify) ?
-                        <input type="number" className="m-100" width={"100%"} onChange={handlePriceModify} min={0} value={priceModify} />
+                        <input type="text" className="m-100" width={"100%"} onChange={handlePriceModify} value={priceModify.toString()} />
                         : value}</td>
         </tr>
     )
@@ -273,7 +273,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
-                    {_renderConfirmOrder('Value ($)', `${formatNumber((volumeModify * priceModify).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replace(',','')) * Number(priceModify.replace(',',''))).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>

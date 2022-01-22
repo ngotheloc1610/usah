@@ -6,6 +6,7 @@ import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
 import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
+import { formatCurrency, formatNumber } from '../../helper/utils';
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
@@ -18,8 +19,8 @@ const defaultData: IParamOrder = {
     tickerCode: '',
     tickerName: '',
     orderType: '',
-    volume: 0,
-    price: 0,
+    volume: '',
+    price: '',
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -79,21 +80,21 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handlePrice = (event: any) => {
-        const value = event.target.value
+        const value = event.target.value.replace(',', '');
         setPrice(value)
-        setValidForm(Number(event.target.value) > 0 && volume > 0);
+        setValidForm(Number(value) > 0 && volume > 0);
 
         const position: number = value.indexOf(".", 0);
         const lengthFromDecimal: number = value.slice(position).length
         if (position !== -1 && lengthFromDecimal > 2) {
-            const valueAfterFormat = value.slice(0, position + 3)
-            setPrice(valueAfterFormat)
+            const valueAfterFormat = value;
+            setPrice(valueAfterFormat);
         }
     }
 
     const handleVolume = (event: any) => {
-        setVolume(event.target.value);
-        setValidForm(price > 0 && Number(event.target.value) > 0);
+        setVolume(event.target.value.replace(',',''));
+        setValidForm(price > 0 && Number(event.target.value.replace(',', '')) > 0);
     }
 
     const handelUpperVolume = () => {
@@ -166,8 +167,8 @@ const OrderForm = (props: IOrderForm) => {
             tickerCode: currentTicker.ticker,
             tickerName: currentTicker.tickerName,
             orderType: ORDER_TYPE_NAME.limit,
-            volume: volume,
-            price: price,
+            volume: volume.toString(),
+            price: price.toString(),
             side: currentSide,
             confirmationConfig: false,
             tickerId: currentTicker.symbolId?.toString()
@@ -184,7 +185,7 @@ const OrderForm = (props: IOrderForm) => {
         </button>
     )
 
-    const _renderInputControl = (title: string, value: number, handleUpperValue: () => void, handleLowerValue: () => void) => (
+    const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
@@ -226,8 +227,8 @@ const OrderForm = (props: IOrderForm) => {
             </div>
 
 
-            {_renderInputControl('Price', price, handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Volume', volume, handelUpperVolume, handelLowerVolume)}
+            {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
+            {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             <div className="border-top">
                 {validForm && _renderPlaceButtonEnable()}
