@@ -14,6 +14,7 @@ import './OrderBookCommon.css';
 import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
+import { SOCKET_CONNECTED } from '../../../constants/general.constant';
 
 const defaultDataTicker: ILastQuote = {
     asksList: [],
@@ -100,9 +101,11 @@ const OrderBookCommon = () => {
     }, []);
 
     const callWsSendMessTrad = () => {
-        setTimeout(() => {
-            sendMessage();
-        }, 200)
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessage();
+            }
+        });
     }
 
     const prepareMessagee = (accountId: string) => {
@@ -151,9 +154,11 @@ const OrderBookCommon = () => {
 
 
     const callWs = () => {
-        setTimeout(() => {
-            getOrderBooks();
-        }, 200);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                getOrderBooks();
+            }
+        });
     }
     const handleDataFromWs = () => {
         wsService.getDataLastQuotes().subscribe(response => {

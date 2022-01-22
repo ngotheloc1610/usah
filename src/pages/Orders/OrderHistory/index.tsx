@@ -21,7 +21,7 @@ const OrderHistory = () => {
         }
     )
 
-    const {ticker, orderState, orderType, fromDatetime, toDatetime} = dataFromOrderHistorySearch
+    const { ticker, orderState, orderType, fromDatetime, toDatetime } = dataFromOrderHistorySearch
 
     const getDataFromOrderHistorySearch = (dataParam: IParamHistorySearch) => {
         setDataFromOrderHistorySearch(dataParam)
@@ -95,13 +95,11 @@ const OrderHistory = () => {
 
     const _renderOrderHistory = () => {
         return (
-            <div className='site'>
-                <div className="site-main">
-                    <div className="container">
-                        <div className="card shadow-sm mb-3">
-                            <OrderHistorySearch getDataFromOrderHistorySearch = {getDataFromOrderHistorySearch}/>
-                            <OrderTable listOrderHistory = {listOrderHistory} />
-                        </div>
+            <div className="site-main">
+                <div className="container">
+                    <div className="card shadow-sm mb-3">
+                        <OrderHistorySearch getDataFromOrderHistorySearch={getDataFromOrderHistorySearch} />
+                        <OrderTable listOrderHistory={listOrderHistory} />
                     </div>
                 </div>
             </div>

@@ -14,9 +14,8 @@ const CustomerInfo = () => {
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
     const [isNotification, setIsNotification] = useState(false)
-    const [accountIdForParam, setAaccountIdForParam] = useState('')
     const [customerInfoDetail, setCustomerInfoDetail] = useState({
-        accountId: Number(accountIdForParam),
+        accountId: 0,
         apiFlg: false,
         apiKey: "",
         comment: "",
@@ -76,7 +75,6 @@ const CustomerInfo = () => {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
                 ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
                 !isSetting && buildMessageCustomInfo(accountId)
-                setAaccountIdForParam(accountId)
                 return;
             }
         }
@@ -85,12 +83,10 @@ const CustomerInfo = () => {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
                 !isSetting && buildMessageCustomInfo(accountId)
-                setAaccountIdForParam(accountId)
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
                 !isSetting && buildMessageCustomInfo(accountId)
-                setAaccountIdForParam(accountId)
                 return;
             }
         });
