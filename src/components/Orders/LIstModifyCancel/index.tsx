@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -35,26 +35,27 @@ const ListModifyCancel = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
     useEffect(() => {
-        callWs();
-    }, []);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
 
-    useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
-        return () => listOrder.unsubscribe();
+        return () => {
+            ws.unsubscribe();
+            listOrder.unsubscribe();
+        }
     }, []);
 
-    const callWs = () => {
-        setTimeout(() => {
-            sendListOrder();
-        }, 200);
-    }
     useEffect(() => {
-        callWs();
-        setTimeout(() => {
-            sendListOrder();
-        }, 200);
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
     }, [msgSuccess]);
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
     const sendListOrder = () => {
