@@ -30,15 +30,15 @@ const Dashboard = () => {
             <div className="d-flex justify-content-center align-items-center col-md-4">
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Matched Orders</div>
-                    <div>36</div>
+                    <div className="fw-600">36</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Pending Order</div>
-                    <div>36</div>
+                    <div className="fw-600">36</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className="text-success">4.56%</div>
+                    <div className="text-success fw-600">4.56%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>
