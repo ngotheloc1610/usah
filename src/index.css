@@ -21,3 +21,7 @@ code {
       max-width: 1540px !important;
   }
 }
+
+.fw-600 {
+  font-weight: 600;
+}

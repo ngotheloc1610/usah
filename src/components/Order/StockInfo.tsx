@@ -10,23 +10,23 @@ const StockInfo = () => {
                                         <tbody>
                                             <tr>
                                                 <th>Mininum bid size</th>
-                                                <td className="text-end">0.01</td>
+                                                <td className="text-end fw-600">0.01</td>
                                             </tr>
                                             <tr>
                                                 <th>Lot size</th>
-                                                <td className="text-end">0.01</td>
+                                                <td className="text-end fw-600">0.01</td>
                                             </tr>
                                             <tr>
                                                 <th>Volume</th>
-                                                <td className="text-end">1,267,500</td>
+                                                <td className="text-end fw-600">1,267,500</td>
                                             </tr>
                                             <tr>
                                                 <th>52w High</th>
-                                                <td className="text-end">174.34</td>
+                                                <td className="text-end fw-600">174.34</td>
                                             </tr>
                                             <tr>
                                                 <th>52w Low</th>
-                                                <td className="text-end">142.89</td>
+                                                <td className="text-end fw-600">142.89</td>
                                             </tr>
                                         </tbody>
                                     </table>
