@@ -51,11 +51,11 @@ const ListModifyCancel = () => {
     }, []);
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendListOrder();
-            }
+        sendListOrder();
+        const listOrder = wsService.getListOrder().subscribe(response => {
+            setGetDataOrder(response.orderList);
         });
+        return () => listOrder.unsubscribe();
     }, [msgSuccess]);
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
     const sendListOrder = () => {

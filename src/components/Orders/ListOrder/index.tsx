@@ -52,7 +52,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }, []);
 
     useEffect(() => {
-        callWs();
+        sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
@@ -103,7 +103,6 @@ const ListOrder = (props: IPropsListOrder) => {
 
             orderRequest.setAccountId(uid);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
-
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
