@@ -1276,7 +1276,7 @@ export const ORDER_PORTFOLIO: ITickerPortfolio[] = [
 
 export const REPORT_LIST: IReportList[] = [
     {
-        name: 'Daily_Report_20211201',
+        name: 'Monthly_Report_20211201',
         type: 'Monthly',
         date: '12/1/2021',
         status: 'Done'
