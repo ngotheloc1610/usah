@@ -49,11 +49,11 @@ function Report() {
 
     const _renderReportBodyTop = () => (
         <tr>
-            <th className="sorting_disabled fz-14 w-260" rowSpan={1} colSpan={1}>Name</th>
-            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1}>File Type</th>
-            <th className="text-end sorting_disabled fz-14" rowSpan={1} colSpan={1}>Report Date</th>
-            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1}>Status</th>
-            <th className="sorting_disabled fz-14" rowSpan={1} colSpan={1}>
+            <th className="sorting_disabled fz-14 w-260">Name</th>
+            <th className="text-center sorting_disabled fz-14  w-260">File Type</th>
+            <th className="text-end sorting_disabled fz-14 w-200">Report Date</th>
+            <th className="text-center sorting_disabled fz-14 w-500">Status</th>
+            <th className="sorting_disabled fz-14 w-30">
                 &nbsp;
             </th>
         </tr>
@@ -61,7 +61,7 @@ function Report() {
 
     const _renderReportBodyContent = () => (
         REPORT_LIST.map((item: IReportList, index: number) => (
-            <tr className="align-middle odd">
+            <tr className="align-middle odd" key={index}>
                 <td className="text-start">{item.name}</td>
                 <td className="text-center">{item.type}</td>
                 <td className="text-end">{item.date}</td>
