@@ -1,6 +1,6 @@
 import { REPORT_LIST } from '../../mocks'
 import { IReportList } from '../../interfaces/report.interface'
-import './Report.css'
+import './Report.scss'
 import Pagination from "../../Common/Pagination"
 
 function Report() {
@@ -49,11 +49,11 @@ function Report() {
 
     const _renderReportBodyTop = () => (
         <tr>
-            <th className="sorting_disabled fz-14" rowSpan={1} colSpan={1} style={{ width: 532.281 }}>Name</th>
-            <th className="sorting_disabled fz-14" rowSpan={1} colSpan={1} style={{ width: 254.828 }}>Report Date</th>
-            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1} style={{ width: 190.219 }} >File Type</th>
-            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1} style={{ width: 184.547 }} >Status</th>
-            <th className="sorting_disabled fz-14" rowSpan={1} colSpan={1} style={{ width: 128.125 }}>
+            <th className="sorting_disabled fz-14 w-260" rowSpan={1} colSpan={1}>Name</th>
+            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1}>File Type</th>
+            <th className="text-end sorting_disabled fz-14" rowSpan={1} colSpan={1}>Report Date</th>
+            <th className="text-center sorting_disabled fz-14" rowSpan={1} colSpan={1}>Status</th>
+            <th className="sorting_disabled fz-14" rowSpan={1} colSpan={1}>
                 &nbsp;
             </th>
         </tr>
@@ -62,9 +62,9 @@ function Report() {
     const _renderReportBodyContent = () => (
         REPORT_LIST.map((item: IReportList, index: number) => (
             <tr className="align-middle odd">
-                <td>{item.name}</td>
-                <td>{item.date}</td>
-                <td className="text-center"><i className="bi bi-file-pdf-fill text-danger fs-6"></i></td>
+                <td className="text-start">{item.name}</td>
+                <td className="text-center">{item.type}</td>
+                <td className="text-end">{item.date}</td>
                 <td className="text-center">{item.status}</td>
                 <td className="text-end">
                     <a href="#" className="btn btn-success text-white btn-sm"><i className="bi bi-download"></i></a>

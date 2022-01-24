@@ -1274,34 +1274,49 @@ export const ORDER_PORTFOLIO: ITickerPortfolio[] = [
 
 ]
 
-export const REPORT_THEAH = ['Name', 'Report Date', 'File Type', 'Status']
-
 export const REPORT_LIST: IReportList[] = [
     {
         name: 'Daily_Report_20211201',
-        date: ' Dec 1 2021	',
+        type: 'Monthly',
+        date: '12/1/2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211202',
-        date: 'Dec 2 2021',
+        type: 'Daily',
+        date: '12/2/2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211203',
-        date: 'Dec 3 2021',
-        status: 'Not Yet'
+        type: 'Daily',
+        date: '12/3/2021',
+        status: 'Done'
     },
     {
         name: 'Daily_Report_20211204',
-        date: 'Dec 4 2021',
+        type: 'Daily',
+        date: '12/4/2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211205',
-        date: 'Dec 5 2021',
-        status: 'Not Yet'
+        type: 'Daily',
+        date: '12/5/2021',
+        status: 'Done'
     },
+    {
+        name: 'Daily_Report_20211206',
+        type: 'Daily',
+        date: '12/6/2021',
+        status: 'Done'
+    },
+    {
+        name: 'Daily_Report_20211207',
+        type: 'Daily',
+        date: '12/7/2021',
+        status: 'Not Yet'
+    }
 
 ]
 
