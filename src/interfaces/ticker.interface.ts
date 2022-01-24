@@ -14,3 +14,15 @@ export interface ITickerDetail {
     lotSize: string,
     minimumBizSize: string
 }
+
+export interface ISymbolList {
+    symbolId: number;
+    symbolCode: string;
+    symbolName: string;
+    calculationMode: number;
+    contractSize: string;
+    digits: number;
+    exchange: string;
+    currencyCode: string;
+    description: string;
+}

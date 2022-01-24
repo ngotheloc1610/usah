@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { OBJ_AUTHEN, SOCKET_CONNECTED } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
 import { ITickerInfo } from "../../interfaces/order.interface"
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../mocks"
 import { wsService } from "../../services/websocket-service"
 import * as qspb from '../../models/proto/query_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
@@ -19,9 +18,8 @@ const defaultProps = {
 }
 
 const TickerDashboard = (props: ITickerDashboard) => {
-    const [symbolList, setSymbolList] = useState([])
     const { handleTickerInfo } = props;
-
+    const [symbolList, setSymbolList] = useState([])
     const onClickTickerInfo = (item: ITickerInfo) => {
         handleTickerInfo(item);
     }
@@ -125,7 +123,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     )
 
     const renderDataListCompany = () => (
-        LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo, index: number) => (
+        symbolList.map((item: ITickerInfo, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="w-px-150 fw-600">{item.tickerName}</td>
                 <td className="text-left w-px-80 fw-600">{item.ticker}</td>

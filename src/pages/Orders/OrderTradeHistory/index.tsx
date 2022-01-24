@@ -1,5 +1,4 @@
-import { ITickerInfo, IParamTradeSearch } from '../../../interfaces/order.interface'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { IParamTradeSearch } from '../../../interfaces/order.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
@@ -9,7 +8,6 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
-import { Enum } from 'protobufjs';
 import { SOCKET_CONNECTED } from '../../../constants/general.constant';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);

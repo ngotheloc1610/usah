@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react'
-import { IParamHistorySearch, ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
-import { ORDER_HISTORY_SEARCH_STATUS, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { IParamHistorySearch, IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
+import * as qspb from '../../../models/proto/query_service_pb'
+import * as rspb from "../../../models/proto/rpc_pb";
+import queryString from 'query-string';
+import ReduxPersist from "../../../config/ReduxPersist"
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant'
+
 
 function OrderHistorySearch(props: any) {
     const { getDataFromOrderHistorySearch } = props
@@ -13,6 +21,7 @@ function OrderHistorySearch(props: any) {
     const [orderType, setOrderType] = useState(0)
     const [fromDatetime, setFromDatetime] = useState('')
     const [toDatetime, setToDatetime] = useState('')
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     const dataParam: IParamHistorySearch = {
         ticker,
@@ -21,6 +30,68 @@ function OrderHistorySearch(props: any) {
         fromDatetime,
         toDatetime
     }
+
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageSymbolList();;
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    const buildMessage = (accountId: string) => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let symbolListRequest = new queryServicePb.SymbolListRequest();
+            symbolListRequest.setAccountId(Number(accountId));
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
+            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendMessageSymbolList = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId)
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId)
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId)
+                return;
+            }
+        });
+    }
+
 
     const handleSearch = () => {
         getDataFromOrderHistorySearch(dataParam)
@@ -31,7 +102,7 @@ function OrderHistorySearch(props: any) {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
                 <option value=''></option>
-                {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
+                {symbolList.map(item => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
     )
