@@ -50,7 +50,7 @@ const _renderElementFooter = () => (
             <div className="copyright width_common d-flex justify-content-between mb20">
                 <img src={LOGO_ICON.default} />
                 <div className="right d-flex">
-                    <span className="txt-follow">2022 @Pix</span>
+                    <span className="txt-follow">2022 @Pi-X</span>
                 </div>
             </div>
             <div className="copyright-footer flexbox width_common">
