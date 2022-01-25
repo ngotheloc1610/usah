@@ -23,13 +23,13 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const headerTable = () => (
         <>
             <th className="text-nowrap  sorting_disabled header-cell w-px-150">
-                Company Name
+                Ticker Name
             </th>
             <th className="text-left sorting_disabled header-cell w-ss">
-                Ticker
+                Ticker Code
             </th>
             <th className=" text-end sorting_disabled header-cell w-ss ">
-                Previous Close
+                Prvs Close
             </th>
             <th className="text-end sorting_disabled header-cell w-ss ">
                 Open
@@ -68,7 +68,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end fw-600 w-ss">{formatCurrency(item.high.replace(',', ''))}</td>
                 <td className="text-end fw-600 w-ss">{formatCurrency(item.low.replace(',', ''))}</td>
                 <td className="text-end fw-600 w-ss"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice.replace(',', ''))}</span></td>
-                <td className="text-end fw-600 w-ss"><span className={Number(item.volume) >= 0 ? 'text-success' : 'text-danger'}>{formatNumber(item.volume.replace(',', ''))}</span></td>
+                <td className="text-end fw-600 w-ss"><span>{formatNumber(item.volume.replace(',', ''))}</span></td>
                 <td className="text-end fw-600 w-ss"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change.replace(',', ''))}</span></td>
                 <td className="text-end fw-600 w-ss"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent.replace(',', ''))}%</span></td>
             </tr>
