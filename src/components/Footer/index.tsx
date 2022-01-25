@@ -52,7 +52,7 @@ const _renderElementFooter = () => (
                     <h1 className='fw-700 fs-xx-large'>Pi-X</h1>
                 </a>
                 <div className="right d-flex">
-                    <span className="txt-follow">2022 @Pix</span>
+                    <span className="txt-follow">2022 @Pi-X</span>
                 </div>
             </div>
             <div className="copyright-footer flexbox width_common">

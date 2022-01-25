@@ -23,7 +23,7 @@ code {
 }
 
 .fw-600 {
-  font-weight: 600;
+  font-weight: 600 !important;
 }
 /* format logo */
 .fw-700 {
