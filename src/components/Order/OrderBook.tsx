@@ -25,9 +25,9 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderAskPrice = () => (
         DATA_BID_PRICE.map((item: IOrderBook, index: number) => (
             <tr key={index}>
-                <td className="text-end fw-bold">{item.askVol}</td>
-                <td className="fw-bold text-center">{item.price}</td>
-                <td className="text-end bg-danger-light fw-bold">{item.bidPrice}</td>
+                <td className="text-end fw-600">{item.askVol}</td>
+                <td className="fw-bold text-center fw-600">{item.price}</td>
+                <td className="text-end bg-danger-light fw-600">{item.bidPrice}</td>
             </tr>
         ))
     )
