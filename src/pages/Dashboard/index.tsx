@@ -4,6 +4,7 @@ import OrderForm from "../../components/Order/OrderForm"
 import StockInfo from "../../components/Order/StockInfo"
 import TickerDashboard from "../../components/TickerDashboard"
 import { ITickerInfo } from "../../interfaces/order.interface"
+import './Dashboard.css'
 
 const defaultTickerInfo: ITickerInfo = {
     symbolId: 0,
@@ -29,15 +30,15 @@ const Dashboard = () => {
             <div className="d-flex justify-content-center align-items-center col-md-4">
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Matched Orders</div>
-                    <div>36</div>
+                    <div className="fw-600">36</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Pending Order</div>
-                    <div>36</div>
+                    <div className="fw-600">36</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className="text-success">4.56%</div>
+                    <div className="text-success fw-600">4.56%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>
@@ -66,28 +67,36 @@ const Dashboard = () => {
         <div className="site-main">
             <div className="container">
                 {setGeneralTemplate()}
-                <div className="row">
-                    <div className="col-lg-7">
+                <div className="d-flex">
+
+                    <div className="col-xs-7 col-sm-7 col-md-7 col-lg-7 mr-12">
                         <TickerDashboard handleTickerInfo={getTickerInfo} />
                     </div>
-                    <div className="col-lg-2">
-                        <div>
-                            <OrderBook isDashboard={isDashboard}/>
-                        </div>
-                        <div>
-                            <StockInfo />
-                        </div>
-                    </div>
-                    <div className="col-lg-3">
-                    <div className="card flex-grow-1">
-                            <div className="card-header">
-                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+
+                    <div className="col-xs-5 col-sm-5 col-md-5 col-lg-5 d-flex">
+                        <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6 mr-12">
+                            <div>
+                                <OrderBook isDashboard={isDashboard} />
                             </div>
-                            <div className="card-body" style={{height: '500px'}}>
-                                <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
+                            <div>
+                                <StockInfo />
                             </div>
                         </div>
+
+                        <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <div className="card flex-grow-1">
+                                <div className="card-header">
+                                    <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                                </div>
+                                <div className="card-body" style={{ height: '500px' }}>
+                                    <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    {/* <div className="col-lg-3">
+
+                    </div> */}
                 </div>
             </div>
         </div>
