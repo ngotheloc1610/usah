@@ -27,7 +27,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res)
+            setSymbolList(res.symbolList)
         });
 
         return () => {

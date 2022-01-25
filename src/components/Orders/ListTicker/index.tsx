@@ -31,7 +31,7 @@ const ListTicker = (props: IListTickerProps) => {
             }
         });
 
-        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {            
             setLastQoutes(resp.quotesList);
         });
 

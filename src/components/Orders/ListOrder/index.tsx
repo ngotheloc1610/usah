@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
 import { wsService } from "../../../services/websocket-service";
@@ -14,6 +13,7 @@ import { formatNumber } from "../../../helper/utils";
 import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -39,6 +39,7 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
     const [statusOrder, setStatusOrder] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => {
         callWs();
@@ -110,10 +111,70 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageSymbolList();;
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    const buildMessage = (accountId: string) => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let symbolListRequest = new queryServicePb.SymbolListRequest();
+            symbolListRequest.setAccountId(Number(accountId));
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
+            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendMessageSymbolList = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId)
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId)
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId)
+                return;
+            }
+        });
+    }
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
     const getTickerName = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+        return symbolList.find(item => item.symbolId.toString() === sympleId)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -125,7 +186,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const getTickerCode = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+        return symbolList.find(item => item.symbolId.toString() === sympleId)?.symbolCode || '';
     }
 
     const handleModify = (item: IListOrder) => {

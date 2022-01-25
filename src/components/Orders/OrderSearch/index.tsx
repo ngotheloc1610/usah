@@ -40,7 +40,7 @@ function OrderHistorySearch(props: any) {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res)
+            setSymbolList(res.symbolList)
         });
 
         return () => {

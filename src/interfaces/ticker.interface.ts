@@ -16,13 +16,30 @@ export interface ITickerDetail {
 }
 
 export interface ISymbolList {
-    symbolId: number;
-    symbolCode: string;
-    symbolName: string;
-    calculationMode: number;
-    contractSize: string;
-    digits: number;
-    exchange: string;
-    currencyCode: string;
-    description: string;
+    calculationMode: number,
+    contractSize: number,
+    currencyCode: string,
+    description: string,
+    digits: number,
+    exchange: string,
+    lotSize: string,
+    minLot: string,
+    symbolCode: string,
+    symbolId: number,
+    symbolName: string,
+    tickSize: string
+}
+
+export interface IListDashboard {
+    symbolName: string,
+    symbolCode: string,
+    previousClose?: string,
+    open?: string,
+    high?: string,
+    low?: string,
+    lastPrice?: string,
+    volume?: string,
+    change: number,
+    percentChange: number,
+
 }

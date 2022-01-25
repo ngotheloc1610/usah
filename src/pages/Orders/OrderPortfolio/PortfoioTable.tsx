@@ -1,17 +1,85 @@
 import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
 import { formatCurrency } from '../../../helper/utils'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from '../../../models/proto/query_service_pb'
+import * as rspb from "../../../models/proto/rpc_pb";
+import queryString from 'query-string';
+import ReduxPersist from "../../../config/ReduxPersist"
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { useEffect, useState } from 'react';
 
 function PortfolioTable(props: IPropsListPortfolio) {
-
     const { accountPortfolio } = props
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
-    const getTickerCode = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageSymbolList();;
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    const buildMessage = (accountId: string) => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let symbolListRequest = new queryServicePb.SymbolListRequest();
+            symbolListRequest.setAccountId(Number(accountId));
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
+            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
-    const getTickerName = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
+    const sendMessageSymbolList = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId)
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId)
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId)
+                return;
+            }
+        });
+    }
+    
+    const getTickerCode = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
+    }
+
+    const getTickerName = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
     }
 
     const _rederPortfolioInvest = () => {

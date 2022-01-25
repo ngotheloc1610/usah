@@ -1,38 +1,91 @@
 import { useEffect, useState } from "react"
 import { OBJ_AUTHEN, SOCKET_CONNECTED } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
-import { ITickerInfo } from "../../interfaces/order.interface"
+import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
 import * as qspb from '../../models/proto/query_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
+import * as pspb from '../../models/proto/pricing_service_pb'
 import queryString from 'query-string';
 import './TickerDashboard.scss'
 import ReduxPersist from "../../config/ReduxPersist"
+import { IListDashboard, ISymbolList } from "../../interfaces/ticker.interface"
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void
 }
 
 const defaultProps = {
-    handleTickerInfo: null
+    handleTickerInfo: null,
 }
+
+const dafaultLastQuotesData: ILastQuote[] = []
 
 const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo } = props;
-    const [symbolList, setSymbolList] = useState([])
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
+    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
+
     const onClickTickerInfo = (item: ITickerInfo) => {
         handleTickerInfo(item);
+    }
+
+    const calculateChange = (lastPrice?: string, open?: string) => {
+        return Number(lastPrice) - Number(open)
+    }
+
+    useEffect(() => mapArrayDashboardList(), [lastQuotes])
+
+    const mapArrayDashboardList = () => {
+    
+        const getItemSymbolData = (symbolCode: string) => {
+            return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
+        }
+
+        let listData: IListDashboard[] = [];
+
+        let itemData: IListDashboard = {
+            symbolName: '',
+            symbolCode: '',
+            previousClose: '',
+            open: '',
+            high: '',
+            low: '',
+            lastPrice: '',
+            volume: '',
+            change: 0,
+            percentChange: 0,
+        };
+
+        symbolList.forEach(item => {
+            itemData = {
+                symbolName: item.symbolName,
+                symbolCode: item.symbolCode,
+                previousClose: getItemSymbolData(item.symbolId.toString())?.close,
+                open: getItemSymbolData(item.symbolId.toString())?.open,
+                high: getItemSymbolData(item.symbolId.toString())?.high,
+                low: getItemSymbolData(item.symbolId.toString())?.low,
+                lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
+                volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
+                change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
+                percentChange: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/100,
+            }
+            listData.push(itemData);
+        })
+
+        setDataDashboard(listData)
     }
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMessage();;
+                sendMessage();
             }
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res)
+            setSymbolList(res.symbolList)
         });
 
         return () => {
@@ -40,6 +93,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
             renderDataSymbolList.unsubscribe();
         }
     }, [])
+
+    useEffect(() => {
+        sendMessageQuotes()
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
+            setLastQuotes(res.quotesList);
+        });
+        return () => {
+            lastQuotesRes.unsubscribe();
+        }
+    }, [symbolList])
 
     const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
@@ -84,6 +147,24 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
     }
 
+    const sendMessageQuotes = () => {
+        const pricingServicePb: any = pspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+            symbolList.forEach(item => {
+                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
+            });
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
     const headerTable = () => (
         <>
             <th className="text-nowrap  sorting_disabled header-cell w-px-150">
@@ -121,20 +202,20 @@ const TickerDashboard = (props: ITickerDashboard) => {
             </th>
         </>
     )
-
+    
     const renderDataListCompany = () => (
-        symbolList.map((item: ITickerInfo, index: number) => (
+        listDataDashboard.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="w-px-150 fw-600">{item.tickerName}</td>
-                <td className="text-left w-px-80 fw-600">{item.ticker}</td>
-                <td className="text-end w-px-100 fw-600">{formatCurrency(item.previousClose.replace(',', ''))}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.open.replace(',', ''))}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.high.replace(',', ''))}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.low.replace(',', ''))}</td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice.replace(',', ''))}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.volume) >= 0 ? 'text-success' : 'text-danger'}>{formatNumber(item.volume.replace(',', ''))}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change.replace(',', ''))}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent.replace(',', ''))}%</span></td>
+                <td className="w-px-150 fw-600">{item.symbolName}</td>
+                <td className="text-left w-px-80 fw-600">{item.symbolCode}</td>
+                <td className="text-end w-px-100 fw-600">{formatCurrency(item.previousClose)}</td>
+                <td className="text-end w-px-80 fw-600">{formatCurrency(item.open)}</td>
+                <td className="text-end w-px-80 fw-600">{formatCurrency(item.high)}</td>
+                <td className="text-end w-px-80 fw-600">{formatCurrency(item.low)}</td>
+                <td className="text-end w-px-80 fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-px-80 fw-600"><span className={Number(item.volume) >= 0 ? 'text-success' : 'text-danger'}>{formatNumber(item.volume)}</span></td>
+                <td className="text-end w-px-80 fw-600"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
+                <td className="text-end w-px-80 fw-600"><span className={item.percentChange >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.percentChange)}%</span></td>
             </tr>
         ))
     )

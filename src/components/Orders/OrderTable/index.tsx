@@ -25,7 +25,7 @@ function OrderTable(props: IPropListOrderHistory) {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res)
+            setSymbolList(res.symbolList)
         });
 
         return () => {
