@@ -25,3 +25,13 @@ code {
 .fw-600 {
   font-weight: 600;
 }
+/* format logo */
+.fw-700 {
+  font-weight: 700 !important;
+}
+.fs-xxx-large {
+  font-size: xxx-large !important;
+}
+.fs-xx-large {
+  font-size: xx-large !important;
+}
