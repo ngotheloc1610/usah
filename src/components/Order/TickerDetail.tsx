@@ -48,12 +48,12 @@ const TickerDetail = (props: ITickerDetailProps) => {
             textColor = 'text-success';
         }
         return (
-            <td className="text-end">
-                <div className={`${textColor} fs-20 fw-bold lastPriceStyle`}>
+            <td className="text-end w-precent-19">
+                <div className={`${textColor} fs-20 fw-bold lastPriceStyle fw-600`}>
                     {Number(changeDisplay) !== 0 && _renderIconTicker(Number(changeDisplay))}
                     {lastPriceDisplay}
                 </div>
-                <div className={textColor}>
+                <div className={`${textColor} fw-600`}>
                     {changeDisplay}
                     ({changePercentDisplay}%)
                 </div>
@@ -64,22 +64,22 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const _renderLastPrice = () => (
         <tr className="align-middle">
-            <th >
+            <th className='w-precent-15'>
                 <div>Last Price</div>
                 <div className='mt-10'>Change</div>
             </th>
             {_renderLastPriceTemplate(currentTicker.lastPrice, currentTicker.change, currentTicker.changePrecent)}
-            <th >Open</th>
-            <td className="text-end">{currentTicker.open ? currentTicker.open : defaultTickerDetails.open}</td>
+            <th className='w-precent-15'>Open</th>
+            <td className="text-end fw-600">{currentTicker.open ? currentTicker.open : defaultTickerDetails.open}</td>
         </tr>
     )
 
     const _renderGeneralTemplate = (title1: string, value1: string, title2: string, value2: string) => (
         <tr>
             <th >{title1}</th>
-            <td className="text-end">{currentTicker.ticker ? value1 : '0'}</td>
+            <td className="text-end fw-600 w-precent-41">{currentTicker.ticker ? value1 : '0'}</td>
             <th >{title2}</th>
-            <td className="text-end">{currentTicker.ticker ? value2 : '0'}</td>
+            <td className="text-end fw-600">{currentTicker.ticker ? value2 : '0'}</td>
         </tr>
     )
 
@@ -91,6 +91,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     <tbody className='fs-17'>
                         {_renderLastPrice()}
                         {_renderGeneralTemplate('Lot Size', '100', 'High', '145.75')}
+                        {_renderGeneralTemplate('Minimum Lot Size', '0.01', 'Low', '140.00')}
                         {_renderGeneralTemplate('Minimum Bid Size', '0.01', 'Low', '140.00')}
                     </tbody>
                 </table>
