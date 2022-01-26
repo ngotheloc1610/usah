@@ -11,12 +11,10 @@ import queryString from 'query-string';
 import ReduxPersist from "../../../config/ReduxPersist"
 import { useEffect, useState } from "react";
 
-
-
 function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
     const tradingModelPb: any = tspb;
-    const listOrderHistorySortDate: ITradeHistory[] = getDataTradeHistory.sort((a: any, b: any) => b.executedDatetime - a.executedDatetime);
+    const listOrderHistorySortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => Number(b.executedDatetime) - Number(a.executedDatetime));
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => {

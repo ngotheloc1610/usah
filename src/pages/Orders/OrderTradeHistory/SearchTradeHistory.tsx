@@ -9,7 +9,11 @@ import queryString from 'query-string';
 import ReduxPersist from "../../../config/ReduxPersist"
 import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant'
 
-function SearchTradeHistory(props: any) {
+interface IPropsSearchTrade {
+    getDataFromTradeSearch: (item: IParamTradeSearch) => void
+}
+
+function SearchTradeHistory(props: IPropsSearchTrade) {
     const { getDataFromTradeSearch } = props
 
     const [ticker, setTicker] = useState('')
