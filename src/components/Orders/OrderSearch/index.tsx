@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { IParamHistorySearch, ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import { ORDER_HISTORY_SEARCH_STATUS, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
-
-function OrderHistorySearch(props: any) {
-    const { getDataFromOrderHistorySearch } = props
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from "../../../models/proto/query_service_pb"
+import * as rpcpb from "../../../models/proto/rpc_pb";
+function OrderHistorySearch() {
 
     const [ticker, setTicker] = useState('')
     const [orderState, setOrderState] = useState(0)
@@ -14,16 +15,42 @@ function OrderHistorySearch(props: any) {
     const [fromDatetime, setFromDatetime] = useState('')
     const [toDatetime, setToDatetime] = useState('')
 
-    const dataParam: IParamHistorySearch = {
-        ticker,
-        orderState,
-        orderType,
-        fromDatetime,
-        toDatetime
+    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
+
+    const handleChangeFromDate = (value: string) => {
+        var formatTime = value.split("-").join('');
+        setFromDatetime(formatTime)
+    }
+
+    const handleChangeToDate = (value: string) => {
+        var formatTime = value.split("-").join('');
+        setToDatetime(formatTime)
+    }
+
+    const sendMessageOrderHistory = () => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
+
+            orderHistoryRequest.setSymbolCode(ticker);
+            orderHistoryRequest.setOrderType(orderType);
+            orderHistoryRequest.setFromDatetime(Number(fromDatetime));
+            orderHistoryRequest.setToDatetime(Number(toDatetime));
+            orderHistoryRequest.setOrderState(orderState);
+
+            const rpcModel: any = rpcpb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
+            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
     const handleSearch = () => {
-        getDataFromOrderHistorySearch(dataParam)
+        sendMessageOrderHistory()
     }
 
     const _renderTicker = () => (
@@ -44,8 +71,6 @@ function OrderHistorySearch(props: any) {
             </select>
         </div>
     )
-
-    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
@@ -76,27 +101,26 @@ function OrderHistorySearch(props: any) {
             </div>
         </div>
     )
+
     const _renderDateTime = () => (
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={fromDatetime}
-                            onChange={(event) => setFromDatetime(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={toDatetime}
-                            onChange={(event) => setToDatetime(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeToDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
             </div>

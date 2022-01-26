@@ -11,21 +11,6 @@ import { IParamHistorySearch } from '../../../interfaces/order.interface'
 
 const OrderHistory = () => {
     const [listOrderHistory, setListOrderHistory] = useState([]);
-    const [dataFromOrderHistorySearch, setDataFromOrderHistorySearch] = useState(
-        {
-            ticker: '',
-            orderState: 0,
-            orderType: 0,
-            fromDatetime: '',
-            toDatetime: ''
-        }
-    )
-
-    const { ticker, orderState, orderType, fromDatetime, toDatetime } = dataFromOrderHistorySearch
-
-    const getDataFromOrderHistorySearch = (dataParam: IParamHistorySearch) => {
-        setDataFromOrderHistorySearch(dataParam)
-    }
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -51,13 +36,6 @@ const OrderHistory = () => {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
             orderHistoryRequest.setAccountId(Number(accountId));
-
-            orderHistoryRequest.setSymbolCode(ticker);
-            orderHistoryRequest.setOrderType(orderType);
-            orderHistoryRequest.setFromDatetime(Number(fromDatetime));
-            orderHistoryRequest.setToDatetime(Number(toDatetime));
-            orderHistoryRequest.setOrderState(orderState);
-
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
@@ -98,7 +76,7 @@ const OrderHistory = () => {
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch getDataFromOrderHistorySearch={getDataFromOrderHistorySearch} />
+                        <OrderHistorySearch />
                         <OrderTable listOrderHistory={listOrderHistory} />
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { IParamTradeSearch, ITickerInfo } from '../../../interfaces/order.interface'
+import { ITickerInfo } from '../../../interfaces/order.interface'
 import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import { wsService } from "../../../services/websocket-service";
@@ -17,6 +17,16 @@ function SearchTradeHistory(props: any) {
     const [toDatetime, setDateTimeTo] = useState('')
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
+
+    const handleChangeFromDate = (value: string) => {
+        var formatTime = value.split("-").join('');
+        setDateTimeFrom(formatTime)
+    }
+
+    const handleChangeToDate = (value: string) => {
+        var formatTime = value.split("-").join('');
+        setDateTimeTo(formatTime)
+    }
 
     const sendMessageTradeSearch = () => {
         const queryServicePb: any = qspb;
@@ -84,14 +94,6 @@ function SearchTradeHistory(props: any) {
         </div>
     )
 
-    const handleChangeFromDate = (value: string) => {
-        var parts = value.split("-").join('');
-        setDateTimeFrom(parts)
-    }
-    const handleChangeToDate =(value: string) => {
-        var parts = value.split("-").join('');
-        setDateTimeTo(parts)
-    }
     const _renderDateTime = () => (
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
@@ -99,6 +101,7 @@ function SearchTradeHistory(props: any) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
                     </div>
@@ -106,7 +109,8 @@ function SearchTradeHistory(props: any) {
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
                     </div>
