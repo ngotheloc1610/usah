@@ -168,33 +168,33 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const headerTable = () => (
         <>
             <th className="text-nowrap  sorting_disabled header-cell w-px-150">
-                Company Name
+                Ticker Name
             </th>
-            <th className="text-left sorting_disabled header-cell w-px-80">
-                Ticker
+            <th className="text-left sorting_disabled header-cell w-ss">
+                Ticker Code
             </th>
-            <th className="text-nowrap text-end sorting_disabled header-cell w-px-100">
-                Previous Close
+            <th className=" text-end sorting_disabled header-cell w-ss ">
+                Prvs Close
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 Open
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 High
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 Low
             </th>
-            <th className="text-nowrap text-end sorting_disabled header-cell w-px-80">
+            <th className=" text-end sorting_disabled header-cell w-ss ">
                 Last price
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 Volume
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 Change
             </th>
-            <th className="text-end sorting_disabled header-cell w-px-80">
+            <th className="text-end sorting_disabled header-cell w-ss ">
                 Change%
             </th>
             <th className="w-px-15">
@@ -206,16 +206,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataListCompany = () => (
         listDataDashboard.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="w-px-150 fw-600">{item.symbolName}</td>
-                <td className="text-left w-px-80 fw-600">{item.symbolCode}</td>
-                <td className="text-end w-px-100 fw-600">{formatCurrency(item.previousClose)}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.open)}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.high)}</td>
-                <td className="text-end w-px-80 fw-600">{formatCurrency(item.low)}</td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={Number(item.volume) >= 0 ? 'text-success' : 'text-danger'}>{formatNumber(item.volume)}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-px-80 fw-600"><span className={item.percentChange >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.percentChange)}%</span></td>
+                <td className="text-left w-px-150 fw-600">{item.symbolName}</td>
+                <td className="text-left w-ss fw-600">{item.symbolCode}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.previousClose)}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.open)}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.high)}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.low)}</td>
+                <td className="text-end w-ss fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-ss fw-600">{formatNumber(item.volume)}</td>
+                <td className="text-end w-ss fw-600"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
+                <td className="text-end w-ss fw-600"><span className={item.percentChange >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.percentChange)}%</span></td>
             </tr>
         ))
     )
@@ -227,11 +227,11 @@ const TickerDashboard = (props: ITickerDashboard) => {
             </div>
             <div className="dataTables_scrollBody">
                 <table id="table" className="table table-sm table-hover mb-0 dataTable no-footer fixed_headers" >
-                    <thead>
+                    <thead className="thead">
                         {headerTable()}
                     </thead>
 
-                    <tbody className="bt-none fs-14 scroll-tbody">
+                    <tbody className="bt-none fs-14 scroll scroll-tbody">
                         {renderDataListCompany()}
                     </tbody>
                 </table>

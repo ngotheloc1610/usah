@@ -189,7 +189,7 @@ const OrderForm = (props: IOrderForm) => {
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <input type="text" className="form-control text-end border-0 p-0 fs-5 lh-1" value={currentTicker.tickerName ? value : 0} placeholder=""
+                <input type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" value={currentTicker.tickerName ? value : 0} placeholder=""
                     onChange={title.toLocaleLowerCase() === 'price' ? handlePrice : handleVolume} />
             </div>
             <div className="border-start d-flex flex-column">

@@ -48,9 +48,11 @@ const _renderElementFooter = () => (
     <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
         <div className="container">
             <div className="copyright width_common d-flex justify-content-between mb20">
-                <img src={LOGO_ICON.default} />
+                <a href="" className="site-link text-decoration-none">
+                    <h1 className='fw-700 fs-xx-large'>Pi-X</h1>
+                </a>
                 <div className="right d-flex">
-                    <span className="txt-follow">2022 @Pix</span>
+                    <span className="txt-follow">2022 @Pi-X</span>
                 </div>
             </div>
             <div className="copyright-footer flexbox width_common">

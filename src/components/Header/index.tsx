@@ -101,8 +101,8 @@ const Header = () => {
       <div className="container d-flex align-items-end">
         <div className="site-brand">
           <h1 className="site-title mb-0">
-            <a href="" className="site-link">
-              <img src={LOGO_ICON.default} />
+            <a href="" className="site-link text-decoration-none">
+              <h1 className='fw-700 fs-large'>Pi-X</h1>
             </a>
           </h1>
         </div>
