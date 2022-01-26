@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react"
-import { OBJ_AUTHEN, SOCKET_CONNECTED } from "../../constants/general.constant"
+import { SOCKET_CONNECTED } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
-import * as qspb from '../../models/proto/query_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb'
-import queryString from 'query-string';
 import './TickerDashboard.scss'
-import ReduxPersist from "../../config/ReduxPersist"
 import { IListDashboard, ISymbolList } from "../../interfaces/ticker.interface"
+import SendMsgSymbolList from "../../Common/SendMsgSymbolList"
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void
@@ -80,12 +78,13 @@ const TickerDashboard = (props: ITickerDashboard) => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMessage();
+                SendMsgSymbolList();
             }
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
+            localStorage.setItem('symbolList', JSON.stringify(res.symbolList))
         });
 
         return () => {
@@ -103,49 +102,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
             lastQuotesRes.unsubscribe();
         }
     }, [symbolList])
-
-    const buildMessage = (accountId: string) => {
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let symbolListRequest = new queryServicePb.SymbolListRequest();
-            symbolListRequest.setAccountId(Number(accountId));
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
-            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendMessage = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                buildMessage(accountId)
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                buildMessage(accountId)
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                buildMessage(accountId)
-                return;
-            }
-        });
-    }
 
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;
