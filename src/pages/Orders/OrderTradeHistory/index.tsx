@@ -7,14 +7,14 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
-import { SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMessage();;
+                sendTradeHistoryReq();;
             }
         });
 
@@ -28,7 +28,7 @@ const OrderTradeHistory = () => {
         };  
     }, [])
 
-    const prepareMessage = (accountId: string) => {
+    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -44,27 +44,27 @@ const OrderTradeHistory = () => {
         }
     }
 
-    const sendMessage = () => {
+    const sendTradeHistoryReq = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId: string = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
-                prepareMessage(accountId);
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId);
                 return;
             }
         }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(res => {
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(res => {
             if (res) {
                 const obj = JSON.parse(res);
                 accountId = obj.account_id;
-                prepareMessage(accountId);
+                buildMessage(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ?? '';
-                prepareMessage(accountId);
+                buildMessage(accountId);
                 return;
             }
         });
