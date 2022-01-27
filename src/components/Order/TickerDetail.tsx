@@ -75,11 +75,28 @@ const TickerDetail = (props: ITickerDetailProps) => {
     )
 
     const _renderGeneralTemplate = (title1: string, value1: string, title2: string, value2: string) => (
-        <tr>
-            <th >{title1}</th>
+        <tr className="align-middle">
+            <th>
+                <div className="h-50px">{title1}</div>
+            </th>
             <td className="text-end fw-600 w-precent-41">{currentTicker.ticker ? value1 : '0'}</td>
-            <th >{title2}</th>
+            <th className='w-precent-15'>{title2}</th>
             <td className="text-end fw-600">{currentTicker.ticker ? value2 : '0'}</td>
+        </tr>
+    )
+
+    const _renderMiniumSize = () => (
+        <tr className="align-middle">
+            <th className='w-precent-15'>
+                <div>Minimum Lot Size</div>
+                <div className='mt-10'>Minimum Bid Size</div>
+            </th>
+            <td className="text-end fw-600 w-precent-41">
+                <div>0</div>
+                <div>0</div>
+            </td>
+            <th className='w-precent-15'>Low</th>
+            <td className="text-end fw-600">0</td>
         </tr>
     )
 
@@ -91,8 +108,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     <tbody className='fs-17'>
                         {_renderLastPrice()}
                         {_renderGeneralTemplate('Lot Size', '100', 'High', '145.75')}
-                        {_renderGeneralTemplate('Minimum Lot Size', '0.01', 'Low', '140.00')}
-                        {_renderGeneralTemplate('Minimum Bid Size', '0.01', 'Low', '140.00')}
+                        {_renderMiniumSize()}
                     </tbody>
                 </table>
             </div>
