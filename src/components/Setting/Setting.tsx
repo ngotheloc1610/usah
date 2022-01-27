@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -36,6 +36,7 @@ const Setting = (props: ISetting) => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
     const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
     const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
+    const [tradingPinFlg, setTradingPinFlg] = useState(true)
     const [customerInfoSetting, setCustomerInfoSetting] = useState([])
     const [statusOrder, setStatusOrder] = useState(0);
 
@@ -319,7 +320,7 @@ const Setting = (props: ISetting) => {
         setRecvAdminNewsFlg(newsAdmin)
         sendMessageCustomerInforNoti()
     }
-    
+
     const changeNewsNotication = (checked: boolean) => {
         const systemServicePb: any = sspb
         let newsNotication: number = 0
@@ -415,12 +416,32 @@ const Setting = (props: ISetting) => {
         </>
     )
 
+    const changeTradingPinFlg = (checked: boolean) => {
+        const el: any = document.querySelector('.trading-pin-form')
+        !checked ? el.style.display = 'none' : el.style.display = 'block'
+        setTradingPinFlg(checked)
+    }
+
     const _renderSettingTemplate = () => (
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <div className="mb-4">
-                    <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
+                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
+                {isTradingPin && <div className="mb-4">
+                    <div className="row mb-3 align-items-center">
+                        <div className="col-md-3 text-secondary">Trading PIN</div>
+                        <div className="col-md-4">
+                            <div className='form-check form-switch'>
+                                <input className="form-check-input" type="checkbox" role="switch" id="trading_pin"
+                                    checked={tradingPinFlg}
+                                    onChange={(event) => changeTradingPinFlg(event.target.checked)}
+                                />
+                                <label className='trading-pin-flg'>{tradingPinFlg ? 'On' : 'Off'}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>}
+                <div className="mb-4 trading-pin-form">
                     {_renderChanngeTraddingPin(isTradingPin)}
                     {_renderNewTradingPin(isTradingPin)}
                     {_renderConfirmTradingPin(isTradingPin)}
