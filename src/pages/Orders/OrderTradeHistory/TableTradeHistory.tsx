@@ -44,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td className="td w-160"><a href="#">{item.orderId}</a></td>
-                <td className="td text-start w-100px">{getTickerCode(item.tickerCode.toString())}</td>
+                <td className="td text-start w-120">{getTickerCode(item.tickerCode.toString())}</td>
                 <td className="td text-start w-180">{getTickerName(item.tickerCode.toString())}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>

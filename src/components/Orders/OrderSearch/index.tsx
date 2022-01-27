@@ -12,19 +12,23 @@ function OrderHistorySearch() {
     const [orderBuy, setOrderBuy] = useState(false)
     const [orderSell, setOrderSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setFromDatetime] = useState('')
-    const [toDatetime, setToDatetime] = useState('')
+    const [fromDatetime, setFromDatetime] = useState(0)
+    const [toDatetime, setToDatetime] = useState(0)
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
     const handleChangeFromDate = (value: string) => {
-        var formatTime = value.split("-").join('');
-        setFromDatetime(formatTime)
+        const fromDate = " 00:00:00";
+        const newDate = value.concat(fromDate);
+        const newDateConvert = Date.parse(newDate) / 1000
+        setFromDatetime(newDateConvert)
     }
 
     const handleChangeToDate = (value: string) => {
-        var formatTime = value.split("-").join('');
-        setToDatetime(formatTime)
+        const toDate = " 23:59:59";
+        const newDate = value.concat(toDate);
+        const newDateConvert = Date.parse(newDate) / 1000
+        setToDatetime(newDateConvert)
     }
 
     const sendMessageOrderHistory = () => {
@@ -36,8 +40,8 @@ function OrderHistorySearch() {
 
             orderHistoryRequest.setSymbolCode(ticker);
             orderHistoryRequest.setOrderType(orderType);
-            orderHistoryRequest.setFromDatetime(Number(fromDatetime));
-            orderHistoryRequest.setToDatetime(Number(toDatetime));
+            orderHistoryRequest.setFromDatetime(fromDatetime);
+            orderHistoryRequest.setToDatetime(toDatetime);
             orderHistoryRequest.setOrderState(orderState);
 
             const rpcModel: any = rpcpb;

@@ -419,8 +419,8 @@ const Setting = (props: ISetting) => {
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <div className="mb-4">
                     <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
+                <div className="mb-4">
                     {_renderChanngeTraddingPin(isTradingPin)}
                     {_renderNewTradingPin(isTradingPin)}
                     {_renderConfirmTradingPin(isTradingPin)}

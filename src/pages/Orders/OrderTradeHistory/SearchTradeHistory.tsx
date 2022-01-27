@@ -6,26 +6,29 @@ import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import '../OrderHistory/orderHistory.scss'
-function SearchTradeHistory(props: any) {
-    const { getDataFromTradeSearch } = props
+function SearchTradeHistory() {
 
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setDateTimeFrom] = useState('')
-    const [toDatetime, setDateTimeTo] = useState('')
+    const [fromDatetime, setDateTimeFrom] = useState(0)
+    const [toDatetime, setDateTimeTo] = useState(0)
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     const handleChangeFromDate = (value: string) => {
-        var formatTime = value.split("-").join('');
-        setDateTimeFrom(formatTime)
+        const fromDate = " 00:00:00";
+        const newDate = value.concat(fromDate);
+        const newDateConvert = Date.parse(newDate) / 1000
+        setDateTimeFrom(newDateConvert)
     }
 
     const handleChangeToDate = (value: string) => {
-        var formatTime = value.split("-").join('');
-        setDateTimeTo(formatTime)
+        const toDate = " 23:59:59";
+        const newDate = value.concat(toDate);
+        const newDateConvert = Date.parse(newDate) / 1000
+        setDateTimeTo(newDateConvert)
     }
 
     const sendMessageTradeSearch = () => {
@@ -37,8 +40,8 @@ function SearchTradeHistory(props: any) {
 
             tradeHistoryRequest.setSymbolCode(ticker)
             tradeHistoryRequest.setOrderType(orderType)
-            tradeHistoryRequest.setFromDatetime(Number(fromDatetime))
-            tradeHistoryRequest.setToDatetime(Number(toDatetime))
+            tradeHistoryRequest.setFromDatetime(fromDatetime)
+            tradeHistoryRequest.setToDatetime(toDatetime)
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
