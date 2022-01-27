@@ -70,7 +70,7 @@ const ListTicker = (props: IListTickerProps) => {
     const _renderSearchForm = () => (
         <div className="row mb-2">
             <div className="col-lg-6">
-                <div className="input-group input-group-sm">
+                <div className="input-group input-group-sm input-search">
                     <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
                         onChange={handleItemSearch} placeholder="Add a ticker" />
                     <button className="btn btn-primary">Add</button>
