@@ -27,24 +27,24 @@ function TableTradeHistory(props: IPropListTradeHistory) {
 
     const _renderTradeHistoryTableHeader = () =>
     (<tr>
-        <th className="text-left fz-14 w-140">Order ID</th>
-        <th className="text-start fz-14 w-80">Ticker Code</th >
+        <th className="text-left fz-14 w-160">Order ID</th>
+        <th className="text-start fz-14 w-120">Ticker Code</th >
         <th className="text-start fz-14 w-180" >Ticker Name</th>
         <th className="text-center fz-14 w-80" > Order Side </th>
         <th className="text-center fz-14 w-80" >Order Type </th>
-        <th className="text-end fz-14 w-80 "> Order Volume </th>
+        <th className="text-end fz-14 w-120 "> Order Volume </th>
         <th className="text-end fz-14 w-80 " >Order Price  </th>
-        <th className="text-end fz-14 w-80" > Executed Volume</th>
-        <th className="text-end fz-14 w-80">Executed Price</th>
-        <th className="text-end fz-14 w-80"> Matched Value</th>
+        <th className="text-end fz-14 w-120" > Executed Volume</th>
+        <th className="text-end fz-14 w-120">Executed Price</th>
+        <th className="text-end fz-14 w-120"> Matched Value</th>
         <th className="text-end fz-14 w-180"> Executed Datetime</th>
     </tr>)
 
     const _renderTradeHistoryTableBody = () => (
         listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td className="td w-140"><a href="#">{item.orderId}</a></td>
-                <td className="td text-start w-80">{getTickerCode(item.tickerCode.toString())}</td>
+                <td className="td w-160"><a href="#">{item.orderId}</a></td>
+                <td className="td text-start w-100px">{getTickerCode(item.tickerCode.toString())}</td>
                 <td className="td text-start w-180">{getTickerName(item.tickerCode.toString())}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>
@@ -52,11 +52,11 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     </span>
                 </td>
                 <td className="text-center w-80">{ORDER_TYPE_NAME.limit}</td>
-                <td className="td text-end w-80">{formatNumber(item.amount)}</td>
+                <td className="td text-end w-120">{formatNumber(item.amount)}</td>
                 <td className="td text-end w-80">{formatCurrency(item.price)}</td>
-                <td className="td text-end w-80" >{formatNumber(item.executedVolume)}</td>
-                <td className="td text-end w-80">{formatCurrency(item.executedPrice)}</td>
-                <td className="td text-end w-80">{formatCurrency(item.matchedValue)}</td>
+                <td className="td text-end w-120" >{formatNumber(item.executedVolume)}</td>
+                <td className="td text-end w-120">{formatCurrency(item.executedPrice)}</td>
+                <td className="td text-end w-120">{formatCurrency(item.matchedValue)}</td>
                 <td className="td text-end w-180">{formatOrderTime(Number(item.executedDatetime))}</td>
             </tr>
         ))
