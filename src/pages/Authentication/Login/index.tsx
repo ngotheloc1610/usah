@@ -11,7 +11,6 @@ const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isRemeber, setIsRemeber] = useState(false)
-    const [isLogin, setIsLogin] = useState(false)
     useEffect(() => {
         const loginRes = wsService.getLoginResponse().subscribe(resp => {
             console.log('login response:', resp)
@@ -31,7 +30,7 @@ const Login = () => {
         setIsRemeber(checked)
     }
 
-    const handleSubmit = () => {
+    const sendMessageReq = () => {
         let systemServicePb: any = sspb;
         let rProtoBuff: any = rpc;
         const currentDate = new Date();
@@ -59,30 +58,33 @@ const Login = () => {
         window.location.href = './dashboard'
     }
 
-    useEffect(() => login(), [email, password])
+    useEffect(() => unLogin(), [email, password])
 
-    const login = () => {
+    const unLogin = () => {
         const el: any = document.querySelector('.btn-login')
         if (email !== '' && password !== '') {
-            setIsLogin(true)
             el?.classList.remove('unclick')
-            el.addEventListener('click', handleSubmit)
-            window.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    handleSubmit()
-                }
-            })
-            if (email === '' || password === '') {
-                el.removeEventListener('click', handleSubmit)
-            }
         } else {
-            setIsLogin(false)
             el?.classList.add('unclick')
         }
     }
 
+    const handleSubmit = () => {
+        if (email !== '' && password !== ''){
+            sendMessageReq()
+        }
+    }
+
+    const handlekeyDown = (event: any) => {
+        if (email !== '' && password !== '') {
+            if (event.key === 'Enter') {
+                sendMessageReq()
+            }
+        }
+    }
+
     const _renderLoginTemplate = () => (
-        <div className="h-full page login">
+        <div className="h-full page login" onKeyDown={handlekeyDown}>
             <div className="h-full site-main d-flex align-items-center">
                 <div className="container">
                     <div className="row justify-content-center">
@@ -118,7 +120,7 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="mt-1">
-                                        <a className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase btn-login mb-2 unclick"><strong>Login</strong></a>
+                                        <a className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase btn-login mb-2 unclick" onClick={handleSubmit}><strong>Login</strong></a>
                                         <p className="text-center"><a href="#">Forgot Password</a></p>
                                     </div>
                                 </div>
