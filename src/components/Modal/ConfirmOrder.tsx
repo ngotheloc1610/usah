@@ -38,15 +38,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     
     const handleVolumeModify = (event: any) => {
-        if (Number(event.target.value.replace(',', '')) > Number(params.volume)) {
+        if (Number(event.target.value.replaceAll(',', '')) > Number(params.volume)) {
             setVolumeModify(formatNumber(params.volume));
             return;
         }
-        setVolumeModify(formatNumber(event.target.value.replace(',', '')));
+        setVolumeModify(formatNumber(event.target.value.replaceAll(',', '')));
     }
 
     const handlePriceModify = (event: any) => {
-        const formatChangePrice = formatCurrency(event.target.value.replace(',', ''));
+        const formatChangePrice = formatCurrency(event.target.value.replaceAll(',', ''));
         setPriceModify(formatChangePrice);
     }
 
@@ -62,8 +62,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify.replace(',', '')}`);
-            order.setPrice(`${priceModify.replace(',', '')}`);
+            order.setAmount(`${volumeModify.replaceAll(',', '')}`);
+            order.setPrice(`${priceModify.replaceAll(',', '')}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -148,8 +148,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify.replace(',', '')}`);
-            order.setPrice(`${priceModify.replace(',', '')}`);
+            order.setAmount(`${volumeModify.replaceAll(',', '')}`);
+            order.setPrice(`${priceModify.replaceAll(',', '')}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -240,7 +240,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _checkChangeVolumeOrPrice = () => {
         let isDisable = true;
         if (isModify) {
-            isDisable = Number(params.volume) !== Number(volumeModify.replace(',', '')) || Number(params.price) !== Number(priceModify.replace(',', ''));
+            isDisable = Number(params.volume) !== Number(volumeModify.replaceAll(',', '')) || Number(params.price) !== Number(priceModify.replaceAll(',', ''));
         }
         return isDisable;
     }
@@ -273,7 +273,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
-                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replace(',','')) * Number(priceModify.replace(',',''))).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',','')) * Number(priceModify.replaceAll(',',''))).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>

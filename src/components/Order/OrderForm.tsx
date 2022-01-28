@@ -8,6 +8,7 @@ import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.consta
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
 import NumberFormat from 'react-number-format';
+
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
@@ -43,7 +44,7 @@ const OrderForm = (props: IOrderForm) => {
     const [paramOrder, setParamOrder] = useState(defaultData);
     const [tradingUnit, setTradingUnit] = useState(100);
     const [tickerSize, setTickerSize] = useState(0.01)
-    const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replace(',', '')));
+    const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
     const [volume, setVolume] = useState(Number(currentTicker.volume));
     const [statusOrder, setStatusOrder] = useState(0);
 
@@ -55,7 +56,7 @@ const OrderForm = (props: IOrderForm) => {
     }, [currentTicker])
 
     const handleSetPrice = () => {
-        setPrice(Number(currentTicker.lastPrice?.replace(',', '')));
+        setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
         setValidForm(currentTicker.lastPrice !== undefined);
     }
     const handleSetVolume = () => {
@@ -82,14 +83,15 @@ const OrderForm = (props: IOrderForm) => {
         setCurrentSide(value);
     }
 
-    const handlePrice = (event: any) => {
+    const handlePrice = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value.replaceAll(',', '');
-        setPrice(value);
+        setPrice(Number(value));
     }
 
-    const handleVolume = (event: any) => {
-        setVolume(event.target.value.replaceAll(',',''));
-        setValidForm(price > 0 && Number(event.target.value.replace(',', '')) > 0);
+    const handleVolume = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value.replaceAll(',','');
+        setVolume(Number(value));
+        setValidForm(price > 0 && Number(event.target.value.replaceAll(',', '')) > 0);
     }
 
     const handelUpperVolume = () => {
@@ -190,14 +192,14 @@ const OrderForm = (props: IOrderForm) => {
         setVolume(0);
         setTickerName('');
     }
-
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <NumberFormat type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                <NumberFormat type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                decimalScale={title.toLocaleLowerCase() === 'price' ? 2 : 0}
                 displayType={'input'} thousandSeparator={true} value={currentTicker.tickerName ? value : 0} placeholder=""
-                    onChange={title.toLocaleLowerCase() === 'price' ? handlePrice : handleVolume} />
+                onChange={title.toLocaleLowerCase() === 'price' ? handlePrice : handleVolume} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>

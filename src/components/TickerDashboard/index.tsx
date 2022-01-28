@@ -63,14 +63,14 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="text-left fw-600 w-px-150">{item.tickerName}</td>
                 <td className="text-left fw-600 w-ss">{item.ticker}</td>
-                <td className="text-end fw-600 w-ss">{formatCurrency(item.previousClose.replace(',', ''))}</td>
-                <td className="text-end fw-600 w-ss">{formatCurrency(item.open.replace(',', ''))}</td>
-                <td className="text-end fw-600 w-ss">{formatCurrency(item.high.replace(',', ''))}</td>
-                <td className="text-end fw-600 w-ss">{formatCurrency(item.low.replace(',', ''))}</td>
-                <td className="text-end fw-600 w-ss"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice.replace(',', ''))}</span></td>
-                <td className="text-end fw-600 w-ss"><span>{formatNumber(item.volume.replace(',', ''))}</span></td>
-                <td className="text-end fw-600 w-ss"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change.replace(',', ''))}</span></td>
-                <td className="text-end fw-600 w-ss"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent.replace(',', ''))}%</span></td>
+                <td className="text-end fw-600 w-ss">{formatCurrency(item.previousClose.replaceAll(',', ''))}</td>
+                <td className="text-end fw-600 w-ss">{formatCurrency(item.open.replaceAll(',', ''))}</td>
+                <td className="text-end fw-600 w-ss">{formatCurrency(item.high.replaceAll(',', ''))}</td>
+                <td className="text-end fw-600 w-ss">{formatCurrency(item.low.replaceAll(',', ''))}</td>
+                <td className="text-end fw-600 w-ss"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice.replaceAll(',', ''))}</span></td>
+                <td className="text-end fw-600 w-ss"><span>{formatNumber(item.volume.replaceAll(',', ''))}</span></td>
+                <td className="text-end fw-600 w-ss"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change.replaceAll(',', ''))}</span></td>
+                <td className="text-end fw-600 w-ss"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent.replaceAll(',', ''))}%</span></td>
             </tr>
         ))
     )
