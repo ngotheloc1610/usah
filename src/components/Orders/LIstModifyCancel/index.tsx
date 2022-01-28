@@ -40,7 +40,7 @@ const ListModifyCancel = () => {
                 sendListOrder();
             }
         });
-
+        
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
