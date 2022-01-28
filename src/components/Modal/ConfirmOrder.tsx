@@ -28,7 +28,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
-    console.log(31, params.price, params.volume, Number(params.volume)*Number(params.price))
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
