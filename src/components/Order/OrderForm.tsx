@@ -8,6 +8,7 @@ import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.consta
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
 import NumberFormat from 'react-number-format';
+import CurrencyInput from 'react-currency-masked-input';
 
 toast.configure()
 interface IOrderForm {
@@ -22,7 +23,7 @@ const defaultData: IParamOrder = {
     tickerName: '',
     orderType: '',
     volume: '',
-    price: '',
+    price: 0,
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -81,17 +82,6 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
-    }
-
-    const handlePrice = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value.replaceAll(',', '');
-        setPrice(Number(value));
-    }
-
-    const handleVolume = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value.replaceAll(',','');
-        setVolume(Number(value));
-        setValidForm(price > 0 && Number(event.target.value.replaceAll(',', '')) > 0);
     }
 
     const handelUpperVolume = () => {
@@ -165,7 +155,7 @@ const OrderForm = (props: IOrderForm) => {
             tickerName: currentTicker.tickerName,
             orderType: ORDER_TYPE_NAME.limit,
             volume: volume.toString(),
-            price: price.toString(),
+            price: price,
             side: currentSide,
             confirmationConfig: false,
             tickerId: currentTicker.symbolId?.toString()
@@ -196,10 +186,10 @@ const OrderForm = (props: IOrderForm) => {
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <NumberFormat type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                decimalScale={title.toLocaleLowerCase() === 'price' ? 2 : 0}
+                <CurrencyInput precision={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                pattern="\d*(\.\d{2})?" inputMode="numeric"
                 displayType={'input'} thousandSeparator={true} value={currentTicker.tickerName ? value : 0} placeholder=""
-                onChange={title.toLocaleLowerCase() === 'price' ? handlePrice : handleVolume} />
+                onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e, maskedVal) => {setVolume(e.target.value.replaceAll(',',''))}} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>

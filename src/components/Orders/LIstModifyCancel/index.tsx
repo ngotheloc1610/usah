@@ -15,6 +15,7 @@ import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { IAuthen } from "../../../interfaces";
 
+
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
@@ -26,7 +27,7 @@ const ListModifyCancel = () => {
         tickerName: '',
         orderType: '',
         volume: '',
-        price: '',
+        price: 0,
         side: '',
         confirmationConfig: false,
         tickerId: ''
@@ -120,7 +121,7 @@ const ListModifyCancel = () => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),

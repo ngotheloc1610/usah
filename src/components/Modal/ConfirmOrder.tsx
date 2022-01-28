@@ -12,7 +12,8 @@ import * as smpb from '../../models/proto/system_model_pb';
 import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
 import { formatNumber, formatCurrency } from '../../helper/utils'
 import { IAuthen } from '../../interfaces'
-import NumberFormat from 'react-number-format';
+import CurrencyInput from 'react-currency-masked-input';
+import NumberFormat from 'react-number-format'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -27,11 +28,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
+    console.log(31, params.price, params.volume, Number(params.volume)*Number(params.price))
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [isValidOrder, setIsValidOrder] = useState(false);
-    const [volumeModify, setVolumeModify] = useState(formatNumber(params.volume));
-    const [priceModify, setPriceModify] = useState(formatCurrency(params.price));
+    const [volumeModify, setVolumeModify] = useState(params.volume);
+    const [priceModify, setPriceModify] = useState(params.price);
 
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
@@ -40,7 +42,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleVolumeModify = (event: any) => {
         if (Number(event.target.value.replaceAll(',', '')) > Number(params.volume)) {
-            setVolumeModify(params.volume);
+            setVolumeModify(formatNumber(params.volume));
             return;
         }
         setVolumeModify(event.target.value);
@@ -63,8 +65,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify.replaceAll(',', '')}`);
-            order.setPrice(`${priceModify.replaceAll(',', '')}`);
+            order.setAmount(`${volumeModify}`);
+            order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -149,8 +151,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify.replaceAll(',', '')}`);
-            order.setPrice(`${priceModify.replaceAll(',', '')}`);
+            order.setAmount(`${volumeModify}`);
+            order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
             order.setOrderType(params.side);
@@ -241,7 +243,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _checkChangeVolumeOrPrice = () => {
         let isDisable = true;
         if (isModify) {
-            isDisable = Number(params.volume) !== Number(volumeModify.replaceAll(',', '')) || Number(params.price) !== Number(priceModify.replaceAll(',', ''));
+            isDisable = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
         }
         return isDisable;
     }
@@ -251,10 +253,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-
-                <NumberFormat type="text" className="m-100" onChange={handleVolumeModify} decimalScale={0} thousandSeparator={true}  max={Number(params.volume)} min={0} value={volumeModify} />
+                <input name='volume_format' type="text" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={formatNumber(volumeModify.replaceAll(',',''))} />
                     : (title === 'Price' && isModify) ?
-                <NumberFormat type="text" className="m-100" width={"100%"} decimalScale={2} thousandSeparator={true} onChange={handlePriceModify} value={priceModify}/>
+                <CurrencyInput type="text" className="m-100" width={"100%"} decimalScale={2} thousandSeparator={true}  onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={priceModify}/>
                     : value}</td>
         </tr>
     )
@@ -273,9 +274,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderConfirmOrder('Volume', `${params.volume.toString()}`)}
-                    {_renderConfirmOrder('Price', `${params.price.toString()}`)}
-                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify.replaceAll(',', ''))).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
+                    {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
+                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
                     {_renderTradingPin()}
                 </tbody>
             </table>
