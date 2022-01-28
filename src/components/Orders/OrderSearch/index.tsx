@@ -32,7 +32,7 @@ function OrderHistorySearch(props: any) {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();;
+                SendMsgSymbolList();
             }
         });
 

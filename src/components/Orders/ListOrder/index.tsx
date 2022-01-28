@@ -130,8 +130,8 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
-    const getTickerName = (sympleId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === sympleId)?.symbolName || '';
+    const getTickerName = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -142,8 +142,8 @@ const ListOrder = (props: IPropsListOrder) => {
         setShowFullData(!isShowFullData);
     }
 
-    const getTickerCode = (sympleId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === sympleId)?.symbolCode || '';
+    const getTickerCode = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
     }
 
     const handleModify = (item: IListOrder) => {

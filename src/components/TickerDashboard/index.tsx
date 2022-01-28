@@ -84,7 +84,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
-            localStorage.setItem('symbolList', JSON.stringify(res.symbolList))
         });
 
         return () => {
