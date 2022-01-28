@@ -29,7 +29,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 Ticker Code
             </th>
             <th className=" text-end sorting_disabled header-cell w-ss fz-14">
-                Prvs. Close
+                Prev. Close
             </th>
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Open
