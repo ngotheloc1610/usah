@@ -57,6 +57,14 @@ function OrderHistorySearch() {
         sendMessageOrderHistory()
     }
 
+    const handlKeyDown = (event: any) => {
+        if (ticker !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+            if (event.key === 'Enter') {
+                sendMessageOrderHistory()
+            }
+        }
+    }
+
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
@@ -79,10 +87,10 @@ function OrderHistorySearch() {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSell === true && orderBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
         }
         else if (orderSell === false && orderBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
         }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
@@ -137,7 +145,7 @@ function OrderHistorySearch() {
             <div className="card-header">
                 <h6 className="card-title fs-6 mb-0">Order History</h6>
             </div>
-            <div className="card-body bg-gradient-light">
+            <div className="card-body bg-gradient-light" onKeyDown={handlKeyDown}>
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderStatus()}
