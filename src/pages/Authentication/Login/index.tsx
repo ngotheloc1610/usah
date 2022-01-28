@@ -101,7 +101,7 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="mb-3">
-                                        <label className="d-block mb-1 text-secondary">Passwords</label>
+                                        <label className="d-block mb-1 text-secondary">Password</label>
                                         <div className="input-group">
                                             <input type="password" name="password" className="form-control border-end-0" value={password}
                                                 onChange={(event) => handlePassword(event.target.value)}
