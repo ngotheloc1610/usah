@@ -24,6 +24,21 @@ function SearchTradeHistory() {
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
+    useEffect(() => sendMessageTradeSearch(), [ticker, orderType, fromDatetime, toDatetime])
+
+    useEffect(() => {
+        const systemModelPb: any = smpb;
+        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+            let tmp = 0;
+            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.error;
+            }
+            getTradeHistoryResponse(tmp, res[MSG_TEXT]);
+        });
+
+        return () => tradeHistoryRes.unsubscribe()
+    }, [])
+
     const handleChangeFromDate = (value: string) => {
         setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -76,22 +91,9 @@ function SearchTradeHistory() {
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());     
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
-
-    useEffect(()=>{
-        const systemModelPb: any = smpb;
-        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            let tmp = 0;
-            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
-                tmp = RESPONSE_RESULT.error;
-            }
-            getTradeHistoryResponse(tmp, res[MSG_TEXT]);
-        });
-
-        return () => tradeHistoryRes.unsubscribe()
-    },[])
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -102,8 +104,6 @@ function SearchTradeHistory() {
             {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
         </>
     )
-
-    useEffect(() => sendMessageTradeSearch(), [ticker, orderType, fromDatetime, toDatetime])
 
     const handleSearch = () => {
         sendMessageTradeSearch()

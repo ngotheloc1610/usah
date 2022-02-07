@@ -25,6 +25,22 @@ function OrderHistorySearch() {
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
+    useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
+
+
+    useEffect(() => {
+        const systemModelPb: any = smpb;
+        const orderHistoryRes = wsService.getListOrderHistory().subscribe(res => {
+            let tmp = 0;
+            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.error;
+            }
+            getOrderHistoryResponse(tmp, res[MSG_TEXT]);
+        });
+
+        return () => orderHistoryRes.unsubscribe()
+    }, [])
+
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -79,22 +95,9 @@ function OrderHistorySearch() {
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            
+
         }
     }
-
-    useEffect(() => {
-        const systemModelPb: any = smpb;
-        const orderHistoryRes = wsService.getListOrderHistory().subscribe(res => {
-            let tmp = 0;
-            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
-                tmp = RESPONSE_RESULT.error;
-            }
-            getOrderHistoryResponse(tmp, res[MSG_TEXT]);
-        });
-
-        return () => orderHistoryRes.unsubscribe()
-    })
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -105,8 +108,6 @@ function OrderHistorySearch() {
             {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
         </>
     )
-
-    useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
 
     const handleSearch = () => {
         sendMessageOrderHistory()
