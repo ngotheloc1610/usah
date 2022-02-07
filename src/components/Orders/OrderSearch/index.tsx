@@ -20,14 +20,14 @@ function OrderHistorySearch() {
 
     const handleChangeFromDate = (value: string) => {
         const fromDate = FROM_DATE_TIME;
-        const newDate = value.concat(fromDate);
+        const newDate = `${value} ${fromDate}`
         const newDateConvert = Date.parse(newDate) / 1000
         setFromDatetime(newDateConvert)
     }
 
     const handleChangeToDate = (value: string) => {
         const toDate = TO_DATE_TIME;
-        const newDate = value.concat(toDate);
+        const newDate = `${value} ${toDate}`
         const newDateConvert = Date.parse(newDate) / 1000
         setToDatetime(newDateConvert)
     }
