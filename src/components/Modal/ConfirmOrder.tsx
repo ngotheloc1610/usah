@@ -30,13 +30,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
-    const [isValidOrder, setIsValidOrder] = useState(false);
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
 
     const handleTradingPin = (event: any) => {
         setTradingPin(event.target.value);
-        setIsValidOrder(event.target.value !== '');
     }
 
     const handleVolumeModify = (event: any) => {
@@ -271,7 +269,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </div>
     );
     const _renderBtnConfirmOrder = () => (
-        <button className='btn-primary-custom w-px-100' onClick={sendOrder} disabled={!isValidOrder}>Place</button>
+        <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
     )
     const _renderListConfirm = () => (
         <div>
