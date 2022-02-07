@@ -6,6 +6,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import '../OrderHistory/orderHistory.scss'
+import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
 function SearchTradeHistory() {
 
     const [ticker, setTicker] = useState('')
@@ -18,14 +19,14 @@ function SearchTradeHistory() {
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     const handleChangeFromDate = (value: string) => {
-        const fromDate = " 00:00:00";
+        const fromDate = FROM_DATE_TIME;
         const newDate = value.concat(fromDate);
         const newDateConvert = Date.parse(newDate) / 1000
         setDateTimeFrom(newDateConvert)
     }
 
     const handleChangeToDate = (value: string) => {
-        const toDate = " 23:59:59";
+        const toDate = TO_DATE_TIME;
         const newDate = value.concat(toDate);
         const newDateConvert = Date.parse(newDate) / 1000
         setDateTimeTo(newDateConvert)
