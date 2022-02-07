@@ -7,6 +7,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import '../OrderHistory/orderHistory.scss'
 import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 function SearchTradeHistory() {
 
     const [ticker, setTicker] = useState('')
@@ -19,17 +20,11 @@ function SearchTradeHistory() {
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     const handleChangeFromDate = (value: string) => {
-        const fromDate = FROM_DATE_TIME;
-        const newDate = `${value} ${fromDate}`;
-        const newDateConvert = Date.parse(newDate) / 1000
-        setDateTimeFrom(newDateConvert)
+        setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
 
     const handleChangeToDate = (value: string) => {
-        const toDate = TO_DATE_TIME;
-        const newDate = `${value} ${toDate}`;
-        const newDateConvert = Date.parse(newDate) / 1000
-        setDateTimeTo(newDateConvert)
+        setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
 
     const sendMessageTradeSearch = () => {

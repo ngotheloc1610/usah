@@ -6,6 +6,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 function OrderHistorySearch() {
 
     const [ticker, setTicker] = useState('')
@@ -15,21 +16,16 @@ function OrderHistorySearch() {
     const [orderType, setOrderType] = useState(0)
     const [fromDatetime, setFromDatetime] = useState(0)
     const [toDatetime, setToDatetime] = useState(0)
+console.log(19,toDatetime);
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
     const handleChangeFromDate = (value: string) => {
-        const fromDate = FROM_DATE_TIME;
-        const newDate = `${value} ${fromDate}`
-        const newDateConvert = Date.parse(newDate) / 1000
-        setFromDatetime(newDateConvert)
+        setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
 
     const handleChangeToDate = (value: string) => {
-        const toDate = TO_DATE_TIME;
-        const newDate = `${value} ${toDate}`
-        const newDateConvert = Date.parse(newDate) / 1000
-        setToDatetime(newDateConvert)
+        setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
 
     const sendMessageOrderHistory = () => {
