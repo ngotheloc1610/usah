@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { ERROR_MESSAGE, MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, SUCCESS_MESSAGE, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -284,11 +284,11 @@ const Setting = (props: ISetting) => {
     }, [])
 
     const _renderMessageError = () => (
-        <div>{toast.error('Update error')}</div>
+        <div>{toast.error(ERROR_MESSAGE.updateError)}</div>
     )
 
     const _renderMessageSuccess = () => {
-        return <div>{toast.success('Update successfully')}</div>
+        return <div>{toast.success(SUCCESS_MESSAGE.updateSuccess)}</div>
     }
 
     const handleClickEyeTradingPin = (event: any) => {

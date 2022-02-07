@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SUCCESS_MESSAGE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
@@ -165,7 +165,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const _rendetMessageSuccess = () => (
-        <div>{toast.success('Place order successfully')}</div>
+        <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
     )
 
     const _rendetMessageError = (message: string) => (

@@ -7,7 +7,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { toast } from 'react-toastify';
 function SearchTradeHistory() {
@@ -67,7 +67,7 @@ function SearchTradeHistory() {
     })
 
     const _rendetMessageSuccess = () => (
-        <div>{toast.success('Search successfully')}</div>
+        <div>{toast.success(SUCCESS_MESSAGE.searchSuccess)}</div>
     )
 
     const _rendetMessageError = (message: string) => (
