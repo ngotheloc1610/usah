@@ -67,7 +67,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
                 volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
                 change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
-                percentChange: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/100,
+                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/Number(getItemSymbolData(item.symbolId.toString())?.open))*100,
             }
             listData.push(itemData);
         })
