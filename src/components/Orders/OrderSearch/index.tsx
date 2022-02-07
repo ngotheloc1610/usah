@@ -16,7 +16,6 @@ function OrderHistorySearch() {
     const [orderType, setOrderType] = useState(0)
     const [fromDatetime, setFromDatetime] = useState(0)
     const [toDatetime, setToDatetime] = useState(0)
-console.log(19,toDatetime);
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
