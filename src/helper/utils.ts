@@ -42,5 +42,5 @@ export function validationPassword(newPassword: string) {
 
 export function convertDatetoTimeStamp(value: string, time: string) {
     const newDate = `${value} ${time}`
-    return Date.parse(newDate) / 1000;
+    return Date.parse(newDate);
 }
