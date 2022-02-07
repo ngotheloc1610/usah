@@ -24,7 +24,7 @@ const paramModifiCancelDefault: IParamOrder = {
     tickerName: '',
     orderType: '',
     volume: '',
-    price: '',
+    price: 0,
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -134,7 +134,7 @@ const ListOrder = (props: IPropsListOrder) => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
@@ -150,7 +150,7 @@ const ListOrder = (props: IPropsListOrder) => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: item.amount,
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
@@ -254,7 +254,7 @@ const ListOrder = (props: IPropsListOrder) => {
     )
     return (
         <>
-            <div className="card">
+            <div className="card order-list">
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
                     <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>

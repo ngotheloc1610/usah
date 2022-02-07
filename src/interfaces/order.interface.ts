@@ -20,7 +20,7 @@ export interface IParamOrder {
     tickerName: string;
     orderType: string;
     volume: string;
-    price: string;
+    price: number;
     side: string;
     confirmationConfig: boolean;
     tickerId: string;
