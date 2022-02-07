@@ -6,7 +6,7 @@ import Pagination from '../../../Common/Pagination'
 import { wsService } from "../../../services/websocket-service";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
-import SendMsgSymbolList from "../../../Common/SendMsgSymbolList";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const {getDataTradeHistory} = props
@@ -17,7 +17,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();;
+                sendMsgSymbolList();;
             }
         });
 

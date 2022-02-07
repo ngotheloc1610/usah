@@ -6,7 +6,7 @@ import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/or
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import SendMsgSymbolList from "../../../Common/SendMsgSymbolList";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
@@ -17,7 +17,7 @@ function OrderTable(props: IPropListOrderHistory) {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();
+                sendMsgSymbolList();
             }
         });
 

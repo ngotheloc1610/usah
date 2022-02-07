@@ -13,7 +13,7 @@ import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { IAuthen } from "../../../interfaces";
-import SendMsgSymbolList from "../../../Common/SendMsgSymbolList";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 
 const ListModifyCancel = () => {
@@ -42,7 +42,7 @@ const ListModifyCancel = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendListOrder();
-                SendMsgSymbolList();
+                sendMsgSymbolList();
             }
         });
 

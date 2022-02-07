@@ -4,7 +4,7 @@ import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import { SOCKET_CONNECTED } from '../../../constants/general.constant'
-import SendMsgSymbolList from '../../../Common/SendMsgSymbolList';
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 
 interface IPropsSearchTrade {
     getDataFromTradeSearch: (item: IParamTradeSearch) => void
@@ -31,7 +31,7 @@ function SearchTradeHistory(props: IPropsSearchTrade) {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();;
+                sendMsgSymbolList();;
             }
         });
 

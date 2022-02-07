@@ -3,7 +3,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { wsService } from "../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { SOCKET_CONNECTED } from '../../constants/general.constant';
-import SendMsgSymbolList from '../../Common/SendMsgSymbolList';
+import sendMsgSymbolList from '../../Common/sendMsgSymbolList';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
 }
@@ -31,7 +31,7 @@ const TickerSearch = (props: ITickerSearch) => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();
+                sendMsgSymbolList();
             }
         });
 

@@ -14,7 +14,7 @@ import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
-import SendMsgSymbolList from "../../../Common/SendMsgSymbolList";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -112,7 +112,7 @@ const ListOrder = (props: IPropsListOrder) => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();
+                sendMsgSymbolList();
             }
         });
 

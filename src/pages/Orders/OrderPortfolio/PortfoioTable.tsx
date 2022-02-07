@@ -4,7 +4,7 @@ import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import { SOCKET_CONNECTED } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
-import SendMsgSymbolList from '../../../Common/SendMsgSymbolList'
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList'
 function PortfolioTable(props: IPropsListPortfolio) {
     const { accountPortfolio } = props
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
@@ -12,7 +12,7 @@ function PortfolioTable(props: IPropsListPortfolio) {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();;
+                sendMsgSymbolList();;
             }
         });
 

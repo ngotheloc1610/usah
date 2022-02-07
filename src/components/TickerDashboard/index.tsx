@@ -7,7 +7,7 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb'
 import './TickerDashboard.scss'
 import { IListDashboard, ISymbolList } from "../../interfaces/ticker.interface"
-import SendMsgSymbolList from "../../Common/SendMsgSymbolList"
+import sendMsgSymbolList from "../../Common/sendMsgSymbolList"
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void
@@ -78,7 +78,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                SendMsgSymbolList();
+                sendMsgSymbolList();
             }
         });
 

@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import ReduxPersist from "../config/ReduxPersist"
 import { OBJ_AUTHEN } from '../constants/general.constant';
 
-function SendMsgSymbolList() {
+function sendMsgSymbolList() {
 
     const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
@@ -53,4 +53,4 @@ function SendMsgSymbolList() {
     return sendMessageSymbolList()
 }
 
-export default SendMsgSymbolList
+export default sendMsgSymbolList
