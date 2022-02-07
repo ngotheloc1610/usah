@@ -16,6 +16,7 @@ import { IAuthen } from "../../../interfaces";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 
+
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
@@ -29,7 +30,7 @@ const ListModifyCancel = () => {
         tickerName: '',
         orderType: '',
         volume: '',
-        price: '',
+        price: 0,
         side: '',
         confirmationConfig: false,
         tickerId: ''
@@ -45,7 +46,7 @@ const ListModifyCancel = () => {
                 sendMsgSymbolList();
             }
         });
-
+        
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
@@ -131,7 +132,7 @@ const ListModifyCancel = () => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
