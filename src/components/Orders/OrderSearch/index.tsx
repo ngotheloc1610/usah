@@ -1,29 +1,64 @@
 import { useState, useEffect } from 'react'
-import { IParamHistorySearch, ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import { ORDER_HISTORY_SEARCH_STATUS, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
-
-function OrderHistorySearch(props: any) {
-    const { getDataFromOrderHistorySearch } = props
+import { wsService } from "../../../services/websocket-service";
+import * as qspb from "../../../models/proto/query_service_pb"
+import * as rpcpb from "../../../models/proto/rpc_pb";
+import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
+function OrderHistorySearch() {
 
     const [ticker, setTicker] = useState('')
     const [orderState, setOrderState] = useState(0)
     const [orderBuy, setOrderBuy] = useState(false)
     const [orderSell, setOrderSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setFromDatetime] = useState('')
-    const [toDatetime, setToDatetime] = useState('')
+    const [fromDatetime, setFromDatetime] = useState(0)
+    const [toDatetime, setToDatetime] = useState(0)
 
-    const dataParam: IParamHistorySearch = {
-        ticker,
-        orderState,
-        orderType,
-        fromDatetime,
-        toDatetime
+    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
+
+    const handleChangeFromDate = (value: string) => {
+        setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
+    }
+
+    const handleChangeToDate = (value: string) => {
+        setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME))
+    }
+
+    const sendMessageOrderHistory = () => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
+
+            orderHistoryRequest.setSymbolCode(ticker);
+            orderHistoryRequest.setOrderType(orderType);
+            orderHistoryRequest.setFromDatetime(fromDatetime);
+            orderHistoryRequest.setToDatetime(toDatetime);
+            orderHistoryRequest.setOrderState(orderState);
+
+            const rpcModel: any = rpcpb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
+            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
     const handleSearch = () => {
-        getDataFromOrderHistorySearch(dataParam)
+        sendMessageOrderHistory()
+    }
+
+    const handlKeyDown = (event: any) => {
+        if (ticker !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+            if (event.key === 'Enter') {
+                sendMessageOrderHistory()
+            }
+        }
     }
 
     const _renderTicker = () => (
@@ -45,15 +80,13 @@ function OrderHistorySearch(props: any) {
         </div>
     )
 
-    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
-
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSell === true && orderBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
         }
         else if (orderSell === false && orderBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
         }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
@@ -76,27 +109,26 @@ function OrderHistorySearch(props: any) {
             </div>
         </div>
     )
+
     const _renderDateTime = () => (
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={fromDatetime}
-                            onChange={(event) => setFromDatetime(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={toDatetime}
-                            onChange={(event) => setToDatetime(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeToDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
             </div>
@@ -109,7 +141,7 @@ function OrderHistorySearch(props: any) {
             <div className="card-header">
                 <h6 className="card-title fs-6 mb-0">Order History</h6>
             </div>
-            <div className="card-body bg-gradient-light">
+            <div className="card-body bg-gradient-light" onKeyDown={handlKeyDown}>
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderStatus()}
