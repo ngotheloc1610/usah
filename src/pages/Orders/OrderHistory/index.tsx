@@ -26,7 +26,7 @@ const OrderHistory = () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
         }
-    })
+    }, [])
 
     const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
