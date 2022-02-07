@@ -43,7 +43,13 @@ const ListOrder = (props: IPropsListOrder) => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => {
-        callWs();
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
+
+        return () => ws.unsubscribe()
     }, []);
 
     useEffect(() => {
@@ -60,14 +66,6 @@ const ListOrder = (props: IPropsListOrder) => {
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess]);
-
-    const callWs = () => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendListOrder();
-            }
-        });
-    }
 
     const sendListOrder = () => {
         const paramStr = window.location.search;
