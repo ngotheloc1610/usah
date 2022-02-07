@@ -122,34 +122,34 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const headerTable = () => (
         <>
-            <th className="text-nowrap  sorting_disabled header-cell w-px-150">
+            <th className="text-nowrap  sorting_disabled header-cell w-px-150 fz-14">
                 Ticker Name
             </th>
-            <th className="text-left sorting_disabled header-cell w-ss">
+            <th className="text-left sorting_disabled header-cell w-ss fz-14">
                 Ticker Code
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss ">
-                Prvs Close
+            <th className=" text-end sorting_disabled header-cell w-ss fz-14">
+                Prev. Close
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Open
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 High
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Low
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss ">
+            <th className=" text-end sorting_disabled header-cell w-ss fz-14">
                 Last price
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Volume
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Change
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss ">
+            <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Change%
             </th>
             <th className="w-px-15">

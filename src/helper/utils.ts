@@ -39,3 +39,8 @@ export function validationPassword(newPassword: string) {
         return true
     }
 }
+
+export function convertDatetoTimeStamp(value: string, time: string) {
+    const newDate = `${value} ${time}`
+    return Date.parse(newDate);
+}
