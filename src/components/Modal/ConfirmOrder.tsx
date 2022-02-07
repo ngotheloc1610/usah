@@ -40,16 +40,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const handleVolumeModify = (event: any) => {
-        if (Number(event.target.value.replaceAll(',', '')) > Number(params.volume)) {
+        const onlyNumberVolumeChange = event.target.value.replaceAll(/[^0-9]/g, "");
+        if (onlyNumberVolumeChange > Number(params.volume)) {
             setVolumeModify(formatNumber(params.volume));
             return;
         }
-        setVolumeModify(event.target.value);
-    }
-
-    const handlePriceModify = (event: any) => {
-        const formatChangePrice = event.target.value.replaceAll(',', '');
-        setPriceModify(formatChangePrice);
+        setVolumeModify(onlyNumberVolumeChange);
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -239,12 +235,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
-    const _checkChangeVolumeOrPrice = () => {
+    const _disableBtnConfirm = () => {
         let isDisable = true;
+        let isConditionPrice = Number(priceModify) > 0;
+        let isConditionVolume = Number(volumeModify.replaceAll(',', '')) > 0;
         let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
         let isInvalidTradingPin = tradingPin.trim() === '';
         if (isModify) {
-            isDisable = (!isInvalidTradingPin) && isChangePriceOrModify;
+            isDisable = isConditionPrice && isConditionVolume && (!isInvalidTradingPin) && isChangePriceOrModify;
         }
         if (isCancel) {
             isDisable = !isInvalidTradingPin;
@@ -257,16 +255,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-                <input name='volume_format' type="text" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={formatNumber(volumeModify.replaceAll(',',''))} />
+                <CurrencyInput type="text" className="m-100" decimalScale={0} thousandSeparator={true}
+                               onChange={handleVolumeModify} value={formatNumber(volumeModify.replaceAll(',',''))} />
                     : (title === 'Price' && isModify) ?
-                <CurrencyInput type="text" className="m-100" width={"100%"} decimalScale={2} thousandSeparator={true}  onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={priceModify}/>
+                <CurrencyInput type="text" className="m-100" decimalScale={2} thousandSeparator={true}
+                               onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={formatCurrency(priceModify.toString())}/>
                     : value}</td>
         </tr>
     )
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" disabled={!_checkChangeVolumeOrPrice()} onClick={sendOrder}>CONFIRM</button>
+            <button className="btn btn-primary" disabled={!_disableBtnConfirm()} onClick={sendOrder}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
@@ -307,11 +307,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderTamplate = () => (
         <div>
-            <div className="box">
-                <div>
+            <div className="box d-flex">
                     {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
                     <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
-                </div>
             </div>
             <div className='content text-center'>
                 {_renderHeaderFormConfirm()}

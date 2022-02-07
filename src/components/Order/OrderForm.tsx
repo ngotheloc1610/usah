@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
-import NumberFormat from 'react-number-format';
 import CurrencyInput from 'react-currency-masked-input';
 
 toast.configure()
