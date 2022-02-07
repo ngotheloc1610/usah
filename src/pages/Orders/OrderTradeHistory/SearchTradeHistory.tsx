@@ -7,9 +7,12 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { toast } from 'react-toastify';
+import ReduxPersist from '../../../config/ReduxPersist';
+import queryString from 'query-string';
+
 function SearchTradeHistory() {
 
     const [ticker, setTicker] = useState('')
@@ -30,13 +33,39 @@ function SearchTradeHistory() {
     }
 
     const sendMessageTradeSearch = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId);
+                return;
+            }
+        });
+    }
+
+    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
-        const systemModelPb: any = smpb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
+            tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(ticker)
             tradeHistoryRequest.setOrderType(orderType)
             tradeHistoryRequest.setFromDatetime(fromDatetime)
@@ -47,28 +76,22 @@ function SearchTradeHistory() {
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-            const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-                let tmp = 0;
-                if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
-                } else {
-                    tmp = RESPONSE_RESULT.error;
-                }
-                getTradeHistoryResponse(tmp, res[MSG_TEXT]);
-            });
-
-            return () => tradeHistoryRes.unsubscribe()
+            wsService.sendMessage(rpcMsg.serializeBinary());     
         }
     }
 
     useEffect(()=>{
-        
-    })
+        const systemModelPb: any = smpb;
+        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+            let tmp = 0;
+            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.error;
+            }
+            getTradeHistoryResponse(tmp, res[MSG_TEXT]);
+        });
 
-    const _rendetMessageSuccess = () => (
-        <div>{toast.success(SUCCESS_MESSAGE.searchSuccess)}</div>
-    )
+        return () => tradeHistoryRes.unsubscribe()
+    },[])
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -76,7 +99,6 @@ function SearchTradeHistory() {
 
     const getTradeHistoryResponse = (value: number, content: string) => (
         <>
-            {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess()}
             {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
         </>
     )
