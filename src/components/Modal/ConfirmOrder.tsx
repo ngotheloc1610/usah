@@ -241,8 +241,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _checkChangeVolumeOrPrice = () => {
         let isDisable = true;
+        let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+        let isInvalidTradingPin = tradingPin.trim() === '';
         if (isModify) {
-            isDisable = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+            isDisable = (!isInvalidTradingPin) && isChangePriceOrModify;
+        }
+        if (isCancel) {
+            isDisable = !isInvalidTradingPin;
         }
         return isDisable;
     }
