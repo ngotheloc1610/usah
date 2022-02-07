@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import { ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import { ORDER_HISTORY_SEARCH_STATUS, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
-import { wsService } from "../../../services/websocket-service";
+import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
+import { wsService } from "../../../services/websocket-service";
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { toast } from 'react-toastify';
+
 function OrderHistorySearch() {
 
     const [ticker, setTicker] = useState('')
@@ -29,6 +32,7 @@ function OrderHistorySearch() {
 
     const sendMessageOrderHistory = () => {
         const queryServicePb: any = qspb;
+        const systemModelPb: any = smpb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
@@ -46,8 +50,36 @@ function OrderHistorySearch() {
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            const orderHistoryRes = wsService.getListOrderHistory().subscribe(res => {
+                let tmp = 0;
+                if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                getOrderHistoryResponse(tmp, res[MSG_TEXT]);
+            });
+
+            return () => orderHistoryRes.unsubscribe()
         }
     }
+
+    const _rendetMessageSuccess = () => (
+        <div>{toast.success('Search successfully')}</div>
+    )
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+
+    const getOrderHistoryResponse = (value: number, content: string) => (
+        <>
+            {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess()}
+            {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+        </>
+    )
+
+    useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
 
     const handleSearch = () => {
         sendMessageOrderHistory()

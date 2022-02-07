@@ -7,7 +7,6 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import queryString from 'query-string';
 import { useEffect, useState } from 'react';
 import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
-import { IParamHistorySearch } from '../../../interfaces/order.interface'
 
 const OrderHistory = () => {
     const [listOrderHistory, setListOrderHistory] = useState([]);
@@ -90,4 +89,5 @@ const OrderHistory = () => {
         </div>
     )
 }
+
 export default OrderHistory

@@ -5,9 +5,11 @@ import * as tmpb from "../../../models/proto/trading_model_pb"
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { toast } from 'react-toastify';
 function SearchTradeHistory() {
 
     const [ticker, setTicker] = useState('')
@@ -29,6 +31,7 @@ function SearchTradeHistory() {
 
     const sendMessageTradeSearch = () => {
         const queryServicePb: any = qspb;
+        const systemModelPb: any = smpb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
@@ -45,8 +48,40 @@ function SearchTradeHistory() {
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+                let tmp = 0;
+                if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                getTradeHistoryResponse(tmp, res[MSG_TEXT]);
+            });
+
+            return () => tradeHistoryRes.unsubscribe()
         }
     }
+
+    useEffect(()=>{
+        
+    })
+
+    const _rendetMessageSuccess = () => (
+        <div>{toast.success('Search successfully')}</div>
+    )
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+
+    const getTradeHistoryResponse = (value: number, content: string) => (
+        <>
+            {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess()}
+            {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+        </>
+    )
+
+    useEffect(() => sendMessageTradeSearch(), [ticker, orderType, fromDatetime, toDatetime])
 
     const handleSearch = () => {
         sendMessageTradeSearch()
