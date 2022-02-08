@@ -37,14 +37,11 @@
     content: 'x';
     cursor: pointer;
     position: fixed;
-    right: calc(36% - 30px);
-    top: calc(100vh - 85vh - 33px);
+    right: calc(36% - 4px);
     width: 25px;
     height: 25px;
-    border-radius: 50%;
     line-height: 20px;
     text-align: center;
-    border: 1px solid #999999;
     font-size: 20px;
   }
 

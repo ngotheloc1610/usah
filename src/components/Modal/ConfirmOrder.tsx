@@ -1,19 +1,18 @@
-import './Modal.scss'
-import '../../pages/Orders/OrderNew/OrderNew.scss'
-import { IParamOrder } from '../../interfaces/order.interface'
-import { useState } from 'react'
-import { wsService } from '../../services/websocket-service'
+import './Modal.scss';
+import '../../pages/Orders/OrderNew/OrderNew.scss';
+import { IParamOrder } from '../../interfaces/order.interface';
+import { useState } from 'react';
+import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
-import { formatNumber, formatCurrency } from '../../helper/utils'
-import { IAuthen } from '../../interfaces'
+import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { formatNumber, formatCurrency } from '../../helper/utils';
+import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
-import NumberFormat from 'react-number-format'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -30,26 +29,20 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
-    const [isValidOrder, setIsValidOrder] = useState(false);
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
 
-    const handleTradingPin = (event: any) => {
-        setTradingPin(event.target.value);
-        setIsValidOrder(event.target.value !== '');
+    const handleTradingPin = (valueTradingPin: string) => {
+        setTradingPin(valueTradingPin);
     }
 
-    const handleVolumeModify = (event: any) => {
-        if (Number(event.target.value.replaceAll(',', '')) > Number(params.volume)) {
+    const handleVolumeModify = (valueVolume: string) => {
+        const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
+        if (Number(onlyNumberVolumeChange) > Number(params.volume)) {
             setVolumeModify(formatNumber(params.volume));
             return;
         }
-        setVolumeModify(event.target.value);
-    }
-
-    const handlePriceModify = (event: any) => {
-        const formatChangePrice = event.target.value.replaceAll(',', '');
-        setPriceModify(formatChangePrice);
+        setVolumeModify(onlyNumberVolumeChange);
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -235,14 +228,21 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr className='h-100'>
             <td className='text-left '><b>Trading PIN</b></td>
             <td></td>
-            <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
+            <td><input type="password" value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
         </tr>
     )
 
-    const _checkChangeVolumeOrPrice = () => {
+    const _disableBtnConfirm = () => {
         let isDisable = true;
+        let isConditionPrice = Number(priceModify) > 0;
+        let isConditionVolume = Number(volumeModify.replaceAll(',', '')) > 0;
+        let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+        let isInvalidTradingPin = tradingPin.trim() === '';
         if (isModify) {
-            isDisable = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+            isDisable = isConditionPrice && isConditionVolume && (!isInvalidTradingPin) && isChangePriceOrModify;
+        }
+        if (isCancel) {
+            isDisable = !isInvalidTradingPin;
         }
         return isDisable;
     }
@@ -252,21 +252,23 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-                <input name='volume_format' type="text" className="m-100" onChange={handleVolumeModify} max={Number(params.volume)} min={0} value={formatNumber(volumeModify.replaceAll(',',''))} />
+                <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
+                               onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',',''))} />
                     : (title === 'Price' && isModify) ?
-                <CurrencyInput type="text" className="m-100" width={"100%"} decimalScale={2} thousandSeparator={true}  onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={priceModify}/>
+                <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
+                               onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={formatCurrency(priceModify.toString())}/>
                     : value}</td>
         </tr>
     )
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" disabled={!_checkChangeVolumeOrPrice()} onClick={sendOrder}>CONFIRM</button>
+            <button className="btn btn-primary" disabled={!_disableBtnConfirm()} onClick={sendOrder}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
     const _renderBtnConfirmOrder = () => (
-        <button className='btn-primary-custom w-px-100' onClick={sendOrder} disabled={!isValidOrder}>Place</button>
+        <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
     )
     const _renderListConfirm = () => (
         <div>
@@ -302,11 +304,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderTamplate = () => (
         <div>
-            <div className="box">
-                <div>
+            <div className="box d-flex">
                     {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
                     <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
-                </div>
             </div>
             <div className='content text-center'>
                 {_renderHeaderFormConfirm()}

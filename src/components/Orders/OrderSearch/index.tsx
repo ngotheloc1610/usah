@@ -144,7 +144,7 @@ function OrderHistorySearch() {
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
-            <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
+            <select className="form-select form-select-sm" onChange={(e) => setTicker(e.target.value)}>
                 <option value=''></option>
                 {symbolList.map(item => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
@@ -154,7 +154,7 @@ function OrderHistorySearch() {
     const _renderOrderStatus = () => (
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
-            <select className="form-select form-select-sm" onChange={(event: any) => setOrderState(parseInt(event.target.value))}>
+            <select className="form-select form-select-sm" onChange={(e) => setOrderState(parseInt(e.target.value))}>
                 {ORDER_HISTORY_SEARCH_STATUS.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
             </select>
         </div>
@@ -179,11 +179,11 @@ function OrderHistorySearch() {
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={(event: any) => setOrderSell(event.target.checked)} />
+                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={(e) => setOrderSell(e.target.checked)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={(event: any) => setOrderBuy(event.target.checked)} />
+                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={(e) => setOrderBuy(e.target.checked)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>
