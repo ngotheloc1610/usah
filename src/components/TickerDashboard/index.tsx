@@ -140,8 +140,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Low
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss fz-14">
-                Last price
+            <th className=" text-end sorting_disabled header-cell w-ss fz-14 pl-6">
+                Last Price
             </th>
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Volume

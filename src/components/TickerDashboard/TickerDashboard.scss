@@ -47,9 +47,14 @@
 }
 
 .w-ss{
-    width: 78px;
+    width: 74px;
     vertical-align: middle;
 }
+
+.pl-6{
+    padding-left: 9px !important;
+}
+
 @media (max-width: 1599px) {
     .w-px-150 {
         width: 180px;
@@ -68,10 +73,10 @@
 }
 @media (max-width: 1199px) {
     .w-px-150 {
-        width: 118px;
+        width: 176px;
     }
     .w-ss{
-        max-width: 50px;
+        min-width: 54px;
     }
 }
 
