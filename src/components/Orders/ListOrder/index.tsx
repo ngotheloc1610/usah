@@ -146,7 +146,6 @@ ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleModify = (item: IListOrder) => {
-        console.log(131, item);
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
