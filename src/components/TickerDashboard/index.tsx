@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { SOCKET_CONNECTED } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
-import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
+import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb'
@@ -25,8 +25,18 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
     const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
 
-    const onClickTickerInfo = (item: ITickerInfo) => {
-        handleTickerInfo(item);
+    const onClickTickerInfo = (item: IDetailTickerInfo) => {
+        const assignTickerInfo: ITickerInfo = {
+            symbolId: Number(item.symbolId),
+            tickerName: item.symbolName,
+            ticker: item.symbolCode,
+            lastPrice: item.lastPrice,
+            volume: item.volume,
+            change: item.change.toString(),
+            changePrecent: item.percentChange.toString(),
+            side: item?.side,
+        }
+        handleTickerInfo(assignTickerInfo);
     }
 
     const calculateChange = (lastPrice?: string, open?: string) => {
@@ -83,6 +93,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 

@@ -2,11 +2,11 @@ export interface ITickerInfo {
     symbolId: number;
     tickerName: string;
     ticker: string;
-    stockPrice: string;
-    previousClose: string;
-    open: string;
-    high: string;
-    low: string;
+    stockPrice?: string;
+    previousClose?: string;
+    open?: string;
+    high?: string;
+    low?: string;
     lastPrice: string;
     volume: string;
     change: string;
@@ -14,6 +14,20 @@ export interface ITickerInfo {
     side?: string;
 }
 
+export interface IDetailTickerInfo {
+    symbolId: number;
+    change: number;
+    high: string;
+    lastPrice: string;
+    low: string;
+    open: string;
+    percentChange: number;
+    previousClose: string;
+    symbolCode: string;
+    symbolName: string;
+    volume: string;
+    side?: string;
+}
 export interface IParamOrder {
     orderId?: string;
     tickerCode: string;
@@ -142,21 +156,21 @@ export interface IAskAndBidPrice {
 export interface ILastQuote {
     asksList: IAskAndBidPrice[];
     bidsList: IAskAndBidPrice[];
-    close: string;
+    close?: string;
     currentPrice: string;
-    high: string;
-    id: number;
-    low: string;
-    netChange: string;
-    open: string;
+    high?: string;
+    low?: string;
+    netChange?: string;
+    open?: string;
     pctChange: string;
     quoteTime: number;
     scale: number;
     symbolCode: string;
-    symbolId: number;
+    symbolId?: number;
     tickPerDay: number;
     volumePerDay: string;
 }
+
 
 export interface IOrderHistory {
     orderId: string;
