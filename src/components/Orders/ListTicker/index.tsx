@@ -177,7 +177,6 @@ const ListTicker = (props: IListTickerProps) => {
                 close: element.previousClose,
                 currentPrice: element.lastPrice,
                 high: element.high,
-                id: element.symbolId.toString(),
                 low: element.low,
                 netChange: element.change,
                 open: element.open,
@@ -185,7 +184,7 @@ const ListTicker = (props: IListTickerProps) => {
                 quoteTime: 0,
                 scale: 0,
                 symbolCode: element.symbolId.toString(),
-                symbolId: element.symbolId,
+                symbolId: Number(element.symbolId),
                 tickPerDay: 0,
                 volumePerDay: '0'
             };

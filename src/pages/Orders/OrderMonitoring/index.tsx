@@ -27,7 +27,7 @@ const OrderMonitoring = () => {
 
     const handleTicker = (itemTicker: IAskAndBidPrice, curentPrice: string) => {
         
-        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === itemTicker.symbolCode);
+        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(itemTicker.symbolCode));
         const assignItemTicker = {
             tickerName: tickerData?.tickerName,
             ticker: tickerData?.ticker,

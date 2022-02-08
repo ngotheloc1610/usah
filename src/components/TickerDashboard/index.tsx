@@ -27,7 +27,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const onClickTickerInfo = (item: IDetailTickerInfo) => {
         const assignTickerInfo: ITickerInfo = {
-            symbolId: item.symbolCode.toString(),
+            symbolId: Number(item.symbolId),
             tickerName: item.symbolName,
             ticker: item.symbolCode,
             lastPrice: item.lastPrice,
@@ -93,6 +93,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 

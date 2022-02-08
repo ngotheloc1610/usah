@@ -7,7 +7,7 @@ import { ITickerInfo } from "../../interfaces/order.interface"
 import './Dashboard.css'
 
 const defaultTickerInfo: ITickerInfo = {
-    symbolId: '',
+    symbolId: 0,
     tickerName: '',
     ticker: '',
     stockPrice: '',

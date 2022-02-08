@@ -3,7 +3,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { useState } from "react";
 interface ITickerSearch {
     handleTicker: (event: any) => void;
-    symbolList: ISymbolList[];
+    listTicker: ISymbolList[];
 }
 
 const defaultProps = {
@@ -11,7 +11,7 @@ const defaultProps = {
 }
 
 const TickerSearch = (props: ITickerSearch) => {
-    const { handleTicker, symbolList } = props;
+    const { handleTicker, listTicker } = props;
     const [ticker, setTicker] = useState('')
 
     const _renderRecentSearch = () => (
@@ -26,7 +26,7 @@ const TickerSearch = (props: ITickerSearch) => {
     )
 
     const renderOptionTicker = () => (
-        symbolList.map((item: ISymbolList, index: number) => (
+        listTicker.map((item: ISymbolList, index: number) => (
             <option key={index} value={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>
         ))
     )

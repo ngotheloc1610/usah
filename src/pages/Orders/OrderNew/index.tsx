@@ -79,9 +79,10 @@ const OrderNew = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-            symbolList.forEach(item => {
-                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
-            });
+            
+            const symbolCodes: string[] = symbolList.map(item => item.symbolId.toString());
+            lastQuotesRequest.setSymbolCodeList(symbolCodes);
+
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -108,12 +109,13 @@ const OrderNew = () => {
     const getTicker = (value: string) => {
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
-        const currentPrice = getItemSymbolData(item.symbolId.toString())?.currentPrice.toString();
-        const currentVolume = getItemSymbolData(item.symbolId.toString())?.volumePerDay;
-        const currentChange = calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open);
-        const changePercent = (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/Number(getItemSymbolData(item.symbolId.toString())?.open))*100;
+        const itemSymbolData = getItemSymbolData(item.symbolId.toString());
+        const currentPrice = itemSymbolData?.currentPrice.toString();
+        const currentVolume = itemSymbolData?.volumePerDay;
+        const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
+        const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open)/Number(itemSymbolData?.open))*100;
         const assignTickerInfo: ITickerInfo = {
-            symbolId: item.symbolCode.toString(),
+            symbolId: Number(item.symbolCode),
             tickerName: item.symbolName,
             ticker: item.symbolCode,
             lastPrice: currentPrice ? currentPrice : '',
@@ -133,7 +135,7 @@ const OrderNew = () => {
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">New Order</h6>
                 </div>
-                <TickerSearch handleTicker={getTicker} symbolList={symbolList} />
+                <TickerSearch handleTicker={getTicker} listTicker={symbolList} />
                 <div className="card-body">
                     <div className="row align-items-stretch">
                         <div className="col-lg-9 col-md-8 border-end">
