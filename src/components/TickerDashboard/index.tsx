@@ -21,7 +21,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     }
 
     const headerTable = () => (
-        <>
+        <tr>
             <th className="text-nowrap  sorting_disabled header-cell w-px-150">
                 Ticker Name
             </th>
@@ -55,7 +55,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="w-px-15">
                 &nbsp;
             </th>
-        </>
+        </tr>
     )
 
     const renderDataListCompany = () => (

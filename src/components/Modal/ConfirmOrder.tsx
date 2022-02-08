@@ -1,19 +1,18 @@
-import './Modal.scss'
-import '../../pages/Orders/OrderNew/OrderNew.scss'
-import { IParamOrder } from '../../interfaces/order.interface'
-import { useState } from 'react'
-import { wsService } from '../../services/websocket-service'
+import './Modal.scss';
+import '../../pages/Orders/OrderNew/OrderNew.scss';
+import { IParamOrder } from '../../interfaces/order.interface';
+import { useState } from 'react';
+import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant'
-import { formatNumber, formatCurrency } from '../../helper/utils'
-import { IAuthen } from '../../interfaces'
+import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { formatNumber, formatCurrency } from '../../helper/utils';
+import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
-import NumberFormat from 'react-number-format'
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string) => void;
@@ -253,10 +252,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-                <CurrencyInput type="text" className="m-100" decimalScale={0} thousandSeparator={true}
+                <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
                                onChange={handleVolumeModify} value={formatNumber(volumeModify.replaceAll(',',''))} />
                     : (title === 'Price' && isModify) ?
-                <CurrencyInput type="text" className="m-100" decimalScale={2} thousandSeparator={true}
+                <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
                                onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={formatCurrency(priceModify.toString())}/>
                     : value}</td>
         </tr>

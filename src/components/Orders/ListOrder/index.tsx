@@ -30,7 +30,8 @@ const paramModifiCancelDefault: IParamOrder = {
     tickerId: ''
 }
 
-const ListOrder = (props: IPropsListOrder) => {
+const 
+ListOrder = (props: IPropsListOrder) => {
     const { msgSuccess } = props;
     const tradingModelPb: any = tspb;
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
@@ -128,6 +129,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleModify = (item: IListOrder) => {
+        console.log(131, item);
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
@@ -139,8 +141,8 @@ const ListOrder = (props: IPropsListOrder) => {
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
         }
-        setParamModifyCancel(param)
-        setIsModify(true)
+        setParamModifyCancel(param);
+        setIsModify(true);
     }
 
     const handleCancel = (item: IListOrder) => {

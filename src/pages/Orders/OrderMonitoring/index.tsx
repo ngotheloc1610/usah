@@ -65,7 +65,7 @@ const OrderMonitoring = () => {
                             </div>
                         </div>
                     </div>
-                    <ListOrder  msgSuccess={msgSuccess} />
+                    <ListOrder msgSuccess={msgSuccess} />
                 </div>
             </div>
         </div>
