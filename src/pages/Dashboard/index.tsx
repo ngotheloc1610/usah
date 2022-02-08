@@ -67,36 +67,28 @@ const Dashboard = () => {
         <div className="site-main">
             <div className="container">
                 {setGeneralTemplate()}
-                <div className="d-flex">
-
-                    <div className="col-xs-7 col-sm-7 col-md-7 col-lg-7 mr-12">
+                <div className="row">
+                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
                         <TickerDashboard handleTickerInfo={getTickerInfo} />
                     </div>
-
-                    <div className="col-xs-5 col-sm-5 col-md-5 col-lg-5 d-flex">
-                        <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6 mr-12">
-                            <div>
-                                <OrderBook isDashboard={isDashboard} />
-                            </div>
-                            <div>
-                                <StockInfo />
-                            </div>
+                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
+                        <div>
+                            <OrderBook isDashboard={isDashboard} />
                         </div>
-
-                        <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <div className="card flex-grow-1">
-                                <div className="card-header">
-                                    <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
-                                </div>
-                                <div className="card-body" style={{ height: '500px' }}>
-                                    <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
-                                </div>
+                        <div>
+                            <StockInfo />
+                        </div>
+                    </div>
+                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
+                        <div className="card flex-grow-1">
+                            <div className="card-header">
+                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                            </div>
+                            <div className="card-body h-500" >
+                                <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
                             </div>
                         </div>
                     </div>
-                    {/* <div className="col-lg-3">
-
-                    </div> */}
                 </div>
             </div>
         </div>
