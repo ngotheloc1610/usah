@@ -48,6 +48,28 @@ const Setting = (props: ISetting) => {
         }
     }, [isTradingPin, isChangePassword])
 
+    useEffect(() => {
+        if (isTradingPin) {
+            const el: any = document.querySelector('.trading-pin-form')
+            !tradingPinFlg ? el.style.display = 'none' : el.style.display = 'block'
+        }
+    }, [isTradingPin])
+
+    useEffect(() => {
+        const systemModelPb: any = smpb
+        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
+            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                setCustomerInfoSetting(res)
+                _renderMessageSuccess();
+            } else {
+                _renderMessageError();
+            }
+            return;
+        });
+
+        return () => renderDataCustomInfoToScreen.unsubscribe();
+    }, [])
+
     const buildMessageTradingPin = (accountId: string) => {
         const SystemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
@@ -269,21 +291,6 @@ const Setting = (props: ISetting) => {
         setConfirmPassword('')
     }
 
-    useEffect(() => {
-        const systemModelPb: any = smpb
-        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
-            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                setCustomerInfoSetting(res)
-                _renderMessageSuccess();
-            } else {
-                _renderMessageError();
-            }
-            return;
-        });
-
-        return () => renderDataCustomInfoToScreen.unsubscribe();
-    }, [])
-
     const _renderMessageError = () => (
         <div>{toast.error(ERROR_MESSAGE.updateError)}</div>
     )
@@ -421,13 +428,6 @@ const Setting = (props: ISetting) => {
         !checked ? el.style.display = 'none' : el.style.display = 'block'
         setTradingPinFlg(checked)
     }
-
-    useEffect(() => {
-        if (isTradingPin) {
-            const el: any = document.querySelector('.trading-pin-form')
-            !tradingPinFlg ? el.style.display = 'none' : el.style.display = 'block'
-        }
-    }, [isTradingPin])
 
     const _renderSettingTemplate = () => (
         <div className="card">
