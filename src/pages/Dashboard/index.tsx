@@ -72,7 +72,7 @@ const Dashboard = () => {
                         <TickerDashboard handleTickerInfo={getTickerInfo} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
-                        <div className="mb-35">
+                        <div>
                             <OrderBook isDashboard={isDashboard} />
                         </div>
                         <div>

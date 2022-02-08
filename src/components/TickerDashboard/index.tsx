@@ -122,7 +122,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const headerTable = () => (
         <tr>
-            <th className="text-nowrap  sorting_disabled header-cell w-px-150">
+            <th className="text-nowrap  sorting_disabled header-cell fz-14 w-px-150">
                 Ticker Name
             </th>
             <th className="text-left sorting_disabled header-cell w-ss fz-14">
