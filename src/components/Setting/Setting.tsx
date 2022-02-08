@@ -422,11 +422,18 @@ const Setting = (props: ISetting) => {
         setTradingPinFlg(checked)
     }
 
+    useEffect(() => {
+        if (isTradingPin) {
+            const el: any = document.querySelector('.trading-pin-form')
+            !tradingPinFlg ? el.style.display = 'none' : el.style.display = 'block'
+        }
+    }, [isTradingPin])
+
     const _renderSettingTemplate = () => (
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
+                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Change Trading PIN' : 'Change Password'}</h6>
                 {isTradingPin && <div className="mb-4">
                     <div className="row mb-3 align-items-center">
                         <div className="col-md-3 text-secondary">Trading PIN</div>
