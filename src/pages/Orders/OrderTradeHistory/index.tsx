@@ -1,3 +1,4 @@
+import { IParamTradeSearch } from '../../../interfaces/order.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";

@@ -1276,45 +1276,45 @@ export const ORDER_PORTFOLIO: ITickerPortfolio[] = [
 
 export const REPORT_LIST: IReportList[] = [
     {
-        name: 'Daily_Report_20211201',
+        name: 'Monthly_Report_20211201',
         type: 'Monthly',
-        date: '12/1/2021',
+        date: 'Dec 01 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211202',
         type: 'Daily',
-        date: '12/2/2021',
+        date: 'Dec 02 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211203',
         type: 'Daily',
-        date: '12/3/2021',
+        date: 'Dec 03 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211204',
         type: 'Daily',
-        date: '12/4/2021',
+        date: 'Dec 04 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211205',
         type: 'Daily',
-        date: '12/5/2021',
+        date: 'Dec 05 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211206',
         type: 'Daily',
-        date: '12/6/2021',
+        date: 'Dec 06 2021',
         status: 'Done'
     },
     {
         name: 'Daily_Report_20211207',
         type: 'Daily',
-        date: '12/7/2021',
+        date: 'Dec 07 2021',
         status: 'Not Yet'
     }
 

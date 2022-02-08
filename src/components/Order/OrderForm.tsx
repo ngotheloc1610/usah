@@ -7,6 +7,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ORDER_TYPE_NAME, RESPONSE_RESULT, SUCCESS_MESSAGE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
+import NumberFormat from 'react-number-format';
+import CurrencyInput from 'react-currency-masked-input';
+
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
@@ -20,7 +23,7 @@ const defaultData: IParamOrder = {
     tickerName: '',
     orderType: '',
     volume: '',
-    price: '',
+    price: 0,
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -33,6 +36,7 @@ const defaultProps = {
 
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard, messageSuccess, isOrderBook } = props;
+    const [tickerName, setTickerName] = useState(currentTicker.tickerName || '');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
     ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
@@ -41,7 +45,7 @@ const OrderForm = (props: IOrderForm) => {
     const [paramOrder, setParamOrder] = useState(defaultData);
     const [tradingUnit, setTradingUnit] = useState(100);
     const [tickerSize, setTickerSize] = useState(0.01)
-    const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replace(',', '')));
+    const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
     const [volume, setVolume] = useState(Number(currentTicker.volume));
     const [statusOrder, setStatusOrder] = useState(0);
 
@@ -49,10 +53,11 @@ const OrderForm = (props: IOrderForm) => {
         handleSetPrice();
         handleSetVolume();
         handleSetSide();
+        setTickerName(currentTicker.tickerName)
     }, [currentTicker])
 
     const handleSetPrice = () => {
-        setPrice(Number(currentTicker.lastPrice?.replace(',', '')));
+        setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
         setValidForm(currentTicker.lastPrice !== undefined);
     }
     const handleSetVolume = () => {
@@ -77,24 +82,6 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
-    }
-
-    const handlePrice = (event: any) => {
-        const value = event.target.value.replace(',', '');
-        setPrice(value)
-        setValidForm(Number(value) > 0 && volume > 0);
-
-        const position: number = value.indexOf(".", 0);
-        const lengthFromDecimal: number = value.slice(position).length
-        if (position !== -1 && lengthFromDecimal > 2) {
-            const valueAfterFormat = value;
-            setPrice(valueAfterFormat);
-        }
-    }
-
-    const handleVolume = (event: any) => {
-        setVolume(event.target.value.replace(',',''));
-        setValidForm(price > 0 && Number(event.target.value.replace(',', '')) > 0);
     }
 
     const handelUpperVolume = () => {
@@ -168,13 +155,18 @@ const OrderForm = (props: IOrderForm) => {
             tickerName: currentTicker.tickerName,
             orderType: ORDER_TYPE_NAME.limit,
             volume: volume.toString(),
-            price: price.toString(),
+            price: price,
             side: currentSide,
             confirmationConfig: false,
             tickerId: currentTicker.symbolId?.toString()
         }
         setParamOrder(param);
         setIsConfirm(true);
+    }
+
+    const disableButtonPlace = (): boolean => {
+        const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
+        return isDisable;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -185,12 +177,18 @@ const OrderForm = (props: IOrderForm) => {
         </button>
     )
 
+    const resetFormNewOrder = () => {
+        setPrice(0);
+        setVolume(0);
+        setTickerName('');
+    }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <input type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" value={currentTicker.tickerName ? value : 0} placeholder=""
-                    onChange={title.toLocaleLowerCase() === 'price' ? handlePrice : handleVolume} />
+                <CurrencyInput decimalScale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                displayType={'input'} thousandSeparator={true} value={currentTicker.tickerName ? value : 0} placeholder=""
+                onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
@@ -199,18 +197,16 @@ const OrderForm = (props: IOrderForm) => {
         </div>
     )
 
-    const _renderPlaceButtonDisable = () => (
+    const _renderPlaceButton = () => (
         <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
-            onClick={handlePlaceOrder} disabled>Place</button>
-    )
-
-    const _renderPlaceButtonEnable = () => (
-        <a className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
-            onClick={handlePlaceOrder}>Place</a>
+            disabled={disableButtonPlace()}
+            onClick={handlePlaceOrder} >Place</button>
     )
 
     const _renderResetButton = () => (
-        <a href="#" className="btn btn-reset btn-outline-secondary d-block fw-bold">Reset</a>
+        <button className="btn btn-reset btn-outline-secondary d-block fw-bold mb-1 w-100"
+            onClick={resetFormNewOrder}
+        >Reset</button>
     )
 
     const _renderForm = () => (
@@ -222,7 +218,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
                 <div className="fs-18 mr-3">
-                    <b>{currentTicker.tickerName ? `${currentTicker.ticker}` : ''}</b>
+                    <b>{tickerName ? `${currentTicker.ticker}` : ''}</b>
                 </div>
             </div>
 
@@ -231,8 +227,7 @@ const OrderForm = (props: IOrderForm) => {
             {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             <div className="border-top">
-                {validForm && _renderPlaceButtonEnable()}
-                {!validForm && _renderPlaceButtonDisable()}
+                {_renderPlaceButton()}
                 {isDashboard && _renderResetButton()}
             </div>
             {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}

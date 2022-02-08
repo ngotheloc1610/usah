@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react'
-import { ITickerInfo } from '../../../interfaces/order.interface'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
-import * as tmpb from "../../../models/proto/trading_model_pb"
+import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
+import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
 import queryString from 'query-string';
 
 function SearchTradeHistory() {
-
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
     const [fromDatetime, setDateTimeFrom] = useState(0)
     const [toDatetime, setDateTimeTo] = useState(0)
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -39,6 +39,8 @@ function SearchTradeHistory() {
         return () => tradeHistoryRes.unsubscribe()
     }, [])
 
+    useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
+
     const handleChangeFromDate = (value: string) => {
         setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -46,6 +48,23 @@ function SearchTradeHistory() {
     const handleChangeToDate = (value: string) => {
         setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
 
     const sendMessageTradeSearch = () => {
         const paramStr = window.location.search;
@@ -135,7 +154,7 @@ function SearchTradeHistory() {
             <label className="d-block text-secondary mb-1">Ticker Code</label>
             <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
                 <option value=''></option>
-                {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
+                {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
 

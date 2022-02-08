@@ -1,32 +1,34 @@
 import { useState, useEffect } from 'react'
-import { ITickerInfo, IHistorySearchStatus } from '../../../interfaces/order.interface'
-import { ORDER_HISTORY_SEARCH_STATUS, LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { ISymbolList } from '../../../interfaces/ticker.interface';
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
+
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
 import queryString from 'query-string';
 
 
 function OrderHistorySearch() {
-
     const [ticker, setTicker] = useState('')
     const [orderState, setOrderState] = useState(0)
     const [orderBuy, setOrderBuy] = useState(false)
     const [orderSell, setOrderSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [fromDatetime, setFromDatetime] = useState(0)
     const [toDatetime, setToDatetime] = useState(0)
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
     useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
-
 
     useEffect(() => {
         const systemModelPb: any = smpb;
@@ -99,6 +101,24 @@ function OrderHistorySearch() {
         }
     }
 
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
@@ -126,7 +146,7 @@ function OrderHistorySearch() {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
                 <option value=''></option>
-                {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
+                {symbolList.map(item => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
     )

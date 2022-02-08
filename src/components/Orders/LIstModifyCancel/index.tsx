@@ -1,4 +1,3 @@
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import Pagination from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
@@ -14,6 +13,9 @@ import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { IAuthen } from "../../../interfaces";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
+
 
 const ListModifyCancel = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
@@ -21,32 +23,42 @@ const ListModifyCancel = () => {
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+
     const defaultData: IParamOrder = {
         tickerCode: '',
         tickerName: '',
         orderType: '',
         volume: '',
-        price: '',
+        price: 0,
         side: '',
         confirmationConfig: false,
         tickerId: ''
     }
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
+    const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendListOrder();
+                sendMsgSymbolList();
             }
         });
-
+        
         const listOrder = wsService.getListOrder().subscribe(response => {
             setGetDataOrder(response.orderList);
         });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
+            renderDataSymbolList.unsubscribe();
         }
     }, []);
 
@@ -57,7 +69,7 @@ const ListModifyCancel = () => {
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess]);
-    const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
+
     const sendListOrder = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
@@ -65,24 +77,24 @@ const ListModifyCancel = () => {
         if (objAuthen.access_token) {
             accountId = objAuthen.account_id;
             ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            prepareMessagee(accountId);
+            prepareMessage(accountId);
             return;
         }
         ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
             if (resp) {
                 const obj: IAuthen = JSON.parse(resp);
                 accountId = obj.account_id;
-                prepareMessagee(accountId);
+                prepareMessage(accountId);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessagee(accountId);
+                prepareMessage(accountId);
                 return;
             }
         });
     }
 
-    const prepareMessagee = (accountId: string) => {
+    const prepareMessage = (accountId: string) => {
         const uid = accountId;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -101,12 +113,12 @@ const ListModifyCancel = () => {
         }
     }
 
-    const getTickerCode = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    const getTickerCode = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
     }
 
-    const getTickerName = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName || '';
+    const getTickerName = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -120,7 +132,7 @@ const ListModifyCancel = () => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
