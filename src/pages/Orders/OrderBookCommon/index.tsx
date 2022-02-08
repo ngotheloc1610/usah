@@ -22,7 +22,7 @@ const defaultDataTicker: ILastQuote = {
     close: '',
     currentPrice: '',
     high: '',
-    id: 0,
+    id: '',
     low: '',
     netChange: '',
     open: '',
@@ -30,12 +30,12 @@ const defaultDataTicker: ILastQuote = {
     quoteTime: 0,
     scale: 0,
     symbolCode: '',
-    symbolId: 0,
+    symbolId: '',
     tickPerDay: 0,
     volumePerDay: '',
 }
 const defaultTickerInf = {
-    symbolId: 0,
+    symbolId: '',
     tickerName: '',
     ticker: '',
     stockPrice: '',

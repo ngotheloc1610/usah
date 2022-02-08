@@ -1,5 +1,5 @@
 export interface ITickerInfo {
-    symbolId: number | string;
+    symbolId: string;
     tickerName: string;
     ticker: string;
     stockPrice?: string;
@@ -158,7 +158,7 @@ export interface ILastQuote {
     close?: string;
     currentPrice: string;
     high?: string;
-    id?: number | string;
+    id?: string;
     low?: string;
     netChange?: string;
     open?: string;
@@ -166,7 +166,7 @@ export interface ILastQuote {
     quoteTime: number;
     scale: number;
     symbolCode: string;
-    symbolId?: number | string;
+    symbolId?: string;
     tickPerDay: number;
     volumePerDay: string;
 }

@@ -7,7 +7,7 @@ export const TradingModel: any = tdpb;
 
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
-        symbolId: 1,
+        symbolId: '1',
         tickerName: 'Apple Inc.',
         ticker: 'AAPL',
         stockPrice: '142.83',
@@ -21,7 +21,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.13',
     },
     {
-        symbolId: 2,
+        symbolId: '2',
         tickerName: 'Adobe Inc.',
         ticker: 'ADBE',
         stockPrice: '577.70',
@@ -35,7 +35,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-3.56',
     },
     {
-        symbolId: 3,
+        symbolId: '3',
         tickerName: 'Advanced Micro Devices, Inc.',
         ticker: 'AMD',
         stockPrice: '100.35',
@@ -49,7 +49,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '2.39',
     },
     {
-        symbolId: 4,
+        symbolId: '4',
         tickerName: 'Alibaba Gr. Ho. Ltd.',
         ticker: 'BABA',
         stockPrice: '151.19',
@@ -63,7 +63,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.21',
     },
     {
-        symbolId: 5,
+        symbolId: '5',
         tickerName: 'Amazon.com, Inc.',
         ticker: 'AMZN',
         stockPrice: '3301.12',
@@ -77,7 +77,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.17',
     },
     {
-        symbolId: 6,
+        symbolId: '6',
         tickerName: 'The Boeing Company',
         ticker: 'BA',
         stockPrice: '225.36',
@@ -91,7 +91,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.77',
     },
     {
-        symbolId: 7,
+        symbolId: '7',
         tickerName: 'salesforce.com, inc.',
         ticker: 'CRM',
         stockPrice: '270.50',
@@ -105,7 +105,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.89',
     },
     {
-        symbolId: 8,
+        symbolId: '8',
         tickerName: 'The Walt Disney Company',
         ticker: 'DIS',
         stockPrice: '172.68',
@@ -119,7 +119,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.91',
     },
     {
-        symbolId: 9,
+        symbolId: '9',
         tickerName: 'Meta Platforms, Inc.',
         ticker: 'FB',
         stockPrice: '339.61',
@@ -133,7 +133,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.23',
     },
     {
-        symbolId: 10,
+        symbolId: '10',
         tickerName: 'Alphabet Inc.',
         ticker: 'GOOGL',
         stockPrice: '2,687.07',
@@ -147,7 +147,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-0.24',
     },
     {
-        symbolId: 11,
+        symbolId: '11',
         tickerName: 'Intel Corporation',
         ticker: 'INTC',
         stockPrice: '53.49',
@@ -161,7 +161,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.66',
     },
     {
-        symbolId: 12,
+        symbolId: '12',
         tickerName: 'Johnson & Johnson',
         ticker: 'JNJ',
         stockPrice: '164.02',
@@ -175,7 +175,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-1.09',
     },
     {
-        symbolId: 13,
+        symbolId: '13',
         tickerName: 'JPMorgan Chase & Co.',
         ticker: 'JPM',
         stockPrice: '165.95',
@@ -189,7 +189,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '2.42',
     },
     {
-        symbolId: 14,
+        symbolId: '14',
         tickerName: 'The Coca-Cola Company',
         ticker: 'KO',
         stockPrice: '52.96',
@@ -203,7 +203,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '3.88',
     },
     {
-        symbolId: 15,
+        symbolId: '15',
         tickerName: 'Moderna, Inc.',
         ticker: 'MRNA',
         stockPrice: '378.90',
@@ -217,7 +217,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.29',
     },
     {
-        symbolId: 16,
+        symbolId: '16',
         tickerName: 'Microsoft Corporation',
         ticker: 'MSFT',
         stockPrice: '284.00',
@@ -231,7 +231,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.02',
     },
     {
-        symbolId: 17,
+        symbolId: '17',
         tickerName: 'Netflix, Inc.',
         ticker: 'NFLX',
         stockPrice: '599.06',
@@ -245,7 +245,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-2.20',
     },
     {
-        symbolId: 18,
+        symbolId: '18',
         tickerName: 'NVIDIA Corporation',
         ticker: 'NVDA',
         stockPrice: '205.17',
@@ -259,7 +259,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '2.12',
     },
     {
-        symbolId: 19,
+        symbolId: '19',
         tickerName: 'Pfizer Inc.',
         ticker: 'PFE',
         stockPrice: '43.53',
@@ -273,7 +273,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-4.88',
     },
     {
-        symbolId: 20,
+        symbolId: '20',
         tickerName: 'The Procter & Gamble Company',
         ticker: 'PG',
         stockPrice: '142.02',
@@ -287,7 +287,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '1.85',
     },
     {
-        symbolId: 21,
+        symbolId: '21',
         tickerName: 'PayPal Holdings, Inc.',
         ticker: 'PYPL',
         stockPrice: '259.00',
@@ -301,7 +301,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-0.80',
     },
     {
-        symbolId: 22,
+        symbolId: '22',
         tickerName: 'QUALCOMM Incorporated',
         ticker: 'QCOM',
         stockPrice: '129.28',
@@ -315,7 +315,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-0.05',
     },
     {
-        symbolId: 23,
+        symbolId: '23',
         tickerName: 'Invesco QQQ Trust (ETF)',
         ticker: 'QQQ',
         stockPrice: '359.28',
@@ -329,7 +329,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '3.81',
     },
     {
-        symbolId: 24,
+        symbolId: '24',
         tickerName: 'SPDR S&P 500 ETF Trust (ETF)',
         ticker: 'SPY',
         stockPrice: '434.45',
@@ -343,7 +343,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.41',
     },
     {
-        symbolId: 25,
+        symbolId: '25',
         tickerName: 'Square, Inc.',
         ticker: 'SQ',
         stockPrice: '236.04',
@@ -357,7 +357,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.43',
     },
     {
-        symbolId: 26,
+        symbolId: '26',
         tickerName: 'AT&T Inc.',
         ticker: 'T',
         stockPrice: '27.40',
@@ -371,7 +371,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-1.56',
     },
     {
-        symbolId: 27,
+        symbolId: '27',
         tickerName: 'Tesla, Inc.',
         ticker: 'TSLA',
         stockPrice: '781.31',
@@ -385,7 +385,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '2.09',
     },
     {
-        symbolId: 28,
+        symbolId: '28',
         tickerName: 'Visa Inc.',
         ticker: 'V',
         stockPrice: '226.68',
@@ -399,7 +399,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.19',
     },
     {
-        symbolId: 29,
+        symbolId: '29',
         tickerName: 'Verizon Communications Inc.',
         ticker: 'VZ',
         stockPrice: '54.38',
@@ -413,7 +413,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.64',
     },
     {
-        symbolId: 30,
+        symbolId: '30',
         tickerName: 'Walmart Inc.',
         ticker: 'WMT',
         stockPrice: '140.44',
@@ -427,7 +427,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.71',
     },
     {
-        symbolId: 31,
+        symbolId: '31',
         tickerName: 'Exxon',
         ticker: 'XOM',
         stockPrice: '59.88',
@@ -441,7 +441,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '-0.61',
     },
     {
-        symbolId: 32,
+        symbolId: '32',
         tickerName: 'Baidu,Inc.',
         ticker: 'BIDU',
         stockPrice: '171.27',
@@ -455,7 +455,7 @@ export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
         changePrecent: '0.12',
     },
     {
-        symbolId: 33,
+        symbolId: '33',
         tickerName: 'JD.com.Inc.',
         ticker: 'JD',
         stockPrice: '85.73',
