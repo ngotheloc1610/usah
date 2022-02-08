@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss'
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css';
-import { ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { ORDER_TYPE_NAME, RESPONSE_RESULT, SUCCESS_MESSAGE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
 import NumberFormat from 'react-number-format';
@@ -72,8 +72,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const _rendetMessageSuccess = (message: string) => {
         // To handle when order success then update new data without having to press f5
-        messageSuccess('Place order successfully');
-        return <div>{toast.success('Place order successfully')}</div>
+        messageSuccess(SUCCESS_MESSAGE.placeSuccess);
+        return <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
     }
 
     const _rendetMessageError = (message: string) => (

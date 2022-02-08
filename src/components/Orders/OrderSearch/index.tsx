@@ -2,13 +2,19 @@ import { useState, useEffect } from 'react'
 import { IHistorySearchStatus } from '../../../interfaces/order.interface'
 import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
-import { wsService } from "../../../services/websocket-service";
+import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import { FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { wsService } from "../../../services/websocket-service";
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, SUCCESS_MESSAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
+
+import { toast } from 'react-toastify';
+import ReduxPersist from '../../../config/ReduxPersist';
+import queryString from 'query-string';
+
 
 function OrderHistorySearch() {
     const [ticker, setTicker] = useState('')
@@ -22,6 +28,21 @@ function OrderHistorySearch() {
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
+    useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
+
+    useEffect(() => {
+        const systemModelPb: any = smpb;
+        const orderHistoryRes = wsService.getListOrderHistory().subscribe(res => {
+            let tmp = 0;
+            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.error;
+            }
+            getOrderHistoryResponse(tmp, res[MSG_TEXT]);
+        });
+
+        return () => orderHistoryRes.unsubscribe()
+    }, [])
+
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -31,12 +52,39 @@ function OrderHistorySearch() {
     }
 
     const sendMessageOrderHistory = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId);
+                return;
+            }
+        });
+    }
+
+    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
 
+            orderHistoryRequest.setAccountId(Number(accountId));
             orderHistoryRequest.setSymbolCode(ticker);
             orderHistoryRequest.setOrderType(orderType);
             orderHistoryRequest.setFromDatetime(fromDatetime);
@@ -49,6 +97,7 @@ function OrderHistorySearch() {
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+
         }
     }
 
@@ -69,6 +118,16 @@ function OrderHistorySearch() {
             renderDataSymbolList.unsubscribe();
         }
     }, [])
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+
+    const getOrderHistoryResponse = (value: number, content: string) => (
+        <>
+            {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+        </>
+    )
 
     const handleSearch = () => {
         sendMessageOrderHistory()

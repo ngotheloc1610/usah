@@ -3,11 +3,15 @@ import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
-import * as rpcpb from "../../../models/proto/rpc_pb"
-import { FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant'
+import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as smpb from '../../../models/proto/system_model_pb';
+import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
-
+import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { toast } from 'react-toastify';
+import ReduxPersist from '../../../config/ReduxPersist';
+import queryString from 'query-string';
 
 function SearchTradeHistory() {
     const [ticker, setTicker] = useState('')
@@ -17,7 +21,24 @@ function SearchTradeHistory() {
     const [fromDatetime, setDateTimeFrom] = useState(0)
     const [toDatetime, setDateTimeTo] = useState(0)
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    
+
+    useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
+
+    useEffect(() => sendMessageTradeSearch(), [ticker, orderType, fromDatetime, toDatetime])
+
+    useEffect(() => {
+        const systemModelPb: any = smpb;
+        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+            let tmp = 0;
+            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.error;
+            }
+            getTradeHistoryResponse(tmp, res[MSG_TEXT]);
+        });
+
+        return () => tradeHistoryRes.unsubscribe()
+    }, [])
+
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     const handleChangeFromDate = (value: string) => {
@@ -46,12 +67,39 @@ function SearchTradeHistory() {
     }, [])
 
     const sendMessageTradeSearch = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                buildMessage(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessage(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessage(accountId);
+                return;
+            }
+        });
+    }
+
+    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
+            tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(ticker)
             tradeHistoryRequest.setOrderType(orderType)
             tradeHistoryRequest.setFromDatetime(fromDatetime)
@@ -65,7 +113,17 @@ function SearchTradeHistory() {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
-    useEffect(() => getParamOrderSide(),[orderSideBuy, orderSideSell])
+
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+
+    const getTradeHistoryResponse = (value: number, content: string) => (
+        <>
+            {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+        </>
+    )
+
     const handleSearch = () => {
         sendMessageTradeSearch()
     }
