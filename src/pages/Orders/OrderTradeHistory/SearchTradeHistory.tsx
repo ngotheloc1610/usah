@@ -1,37 +1,91 @@
 import { useState, useEffect } from 'react'
-import { IParamTradeSearch, ITickerInfo } from '../../../interfaces/order.interface'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
+import * as qspb from "../../../models/proto/query_service_pb"
+import * as rpcpb from "../../../models/proto/rpc_pb"
+import { FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant'
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 
-function SearchTradeHistory(props: any) {
-    const { getDataFromTradeSearch } = props
 
+function SearchTradeHistory() {
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setDateTimeFrom] = useState('')
-    const [toDatetime, setDateTimeTo] = useState('')
+    const [fromDatetime, setDateTimeFrom] = useState(0)
+    const [toDatetime, setDateTimeTo] = useState(0)
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    
+    useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
-    const dataParam: IParamTradeSearch = {
-        ticker,
-        orderType,
-        fromDatetime,
-        toDatetime,
+    const handleChangeFromDate = (value: string) => {
+        setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
+    }
+
+    const handleChangeToDate = (value: string) => {
+        setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
+    }
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    const sendMessageTradeSearch = () => {
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
+
+            tradeHistoryRequest.setSymbolCode(ticker)
+            tradeHistoryRequest.setOrderType(orderType)
+            tradeHistoryRequest.setFromDatetime(fromDatetime)
+            tradeHistoryRequest.setToDatetime(toDatetime)
+
+            const rpcPb: any = rpcpb;
+            let rpcMsg = new rpcPb.RpcMessage();
+            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
     useEffect(() => getParamOrderSide(),[orderSideBuy, orderSideSell])
     const handleSearch = () => {
-        getDataFromTradeSearch(dataParam)
+        sendMessageTradeSearch()
+    }
+
+    const handlKeyDown = (event: any) => {
+        if (ticker !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+            if (event.key === 'Enter') {
+                sendMessageTradeSearch()
+            }
+        }
     }
 
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
-        }        
+            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
+        }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
         }
@@ -42,10 +96,10 @@ function SearchTradeHistory(props: any) {
             <label className="d-block text-secondary mb-1">Ticker Code</label>
             <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
                 <option value=''></option>
-                {LIST_TICKER_INFOR_MOCK_DATA.map((item: ITickerInfo) => <option value={item.symbolId} key={item.symbolId}>{item.tickerName} ({item.ticker})</option>)}
+                {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
-       
+
     )
 
     const _renderOrderSide = () => (
@@ -64,27 +118,26 @@ function SearchTradeHistory(props: any) {
             </div>
         </div>
     )
+
     const _renderDateTime = () => (
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={fromDatetime}
-                            onChange={(event) => setDateTimeFrom(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="text" className="form-control form-control-sm border-end-0 date-picker" placeholder="MM/DD/YYYY"
-                            value={toDatetime}
-                            onChange={(event) => setDateTimeTo(event.target.value)}
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                            onChange={(event) => handleChangeToDate(event.target.value)}
                         />
-                        <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
                     </div>
                 </div>
             </div>
@@ -96,7 +149,7 @@ function SearchTradeHistory(props: any) {
             <div className="card-header">
                 <h6 className="card-title fs-6 mb-0">Trade History</h6>
             </div>
-            <div className="card-body bg-gradient-light">
+            <div className="card-body bg-gradient-light" onKeyDown={handlKeyDown}>
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderSide()}

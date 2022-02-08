@@ -63,14 +63,14 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
-        const itemTicker = {...item, side: side, symbolCode: lastQuote.symbolCode};
+        const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
 
     const _renderSearchForm = () => (
         <div className="row mb-2">
             <div className="col-lg-6">
-                <div className="input-group input-group-sm">
+                <div className="input-group input-group-sm input-search">
                     <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
                         onChange={handleItemSearch} placeholder="Add a ticker" />
                     <button className="btn btn-primary">Add</button>
@@ -151,10 +151,10 @@ const ListTicker = (props: IListTickerProps) => {
             <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
-                    { item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
+                    {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
-                    <div>{ item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
+                    <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
             </tr>
         ));

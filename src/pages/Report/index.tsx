@@ -85,10 +85,8 @@ function Report() {
                             {_renderReportBodyContent()}
                         </tbody>
                     </table>
-
-
-                    <Pagination />
                 </div>
+                    <Pagination />
             </div>
         </div>
     )
@@ -104,6 +102,7 @@ function Report() {
             </div>
         </div>
     )
+    
     return (
         _renderReportTemplate()
     )

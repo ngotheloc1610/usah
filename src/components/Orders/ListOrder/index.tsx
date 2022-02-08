@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
 import { wsService } from "../../../services/websocket-service";
@@ -14,6 +13,8 @@ import { formatNumber } from "../../../helper/utils";
 import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -24,7 +25,7 @@ const paramModifiCancelDefault: IParamOrder = {
     tickerName: '',
     orderType: '',
     volume: '',
-    price: '',
+    price: 0,
     side: '',
     confirmationConfig: false,
     tickerId: ''
@@ -39,9 +40,16 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
     const [statusOrder, setStatusOrder] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => {
-        callWs();
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
+
+        return () => ws.unsubscribe()
     }, []);
 
     useEffect(() => {
@@ -58,14 +66,6 @@ const ListOrder = (props: IPropsListOrder) => {
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess]);
-
-    const callWs = () => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendListOrder();
-            }
-        });
-    }
 
     const sendListOrder = () => {
         const paramStr = window.location.search;
@@ -109,10 +109,27 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
-    const getTickerName = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    const getTickerName = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -123,8 +140,8 @@ const ListOrder = (props: IPropsListOrder) => {
         setShowFullData(!isShowFullData);
     }
 
-    const getTickerCode = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    const getTickerCode = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
     }
 
     const handleModify = (item: IListOrder) => {
@@ -134,7 +151,7 @@ const ListOrder = (props: IPropsListOrder) => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
@@ -150,7 +167,7 @@ const ListOrder = (props: IPropsListOrder) => {
             tickerName: getTickerName(item.symbolCode.toString())?.toString(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: item.amount,
-            price: item.price,
+            price: Number(item.price),
             side: item.orderType.toString(),
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
@@ -254,7 +271,7 @@ const ListOrder = (props: IPropsListOrder) => {
     )
     return (
         <>
-            <div className="card">
+            <div className="card order-list">
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
                     <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>

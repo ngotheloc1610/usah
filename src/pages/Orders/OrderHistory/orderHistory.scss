@@ -578,8 +578,20 @@ a{
 .w-140{
     width: 140px;
 }
+.w-160{
+    width: 160px;
+}
 .w-180{
     width: 180px;
+}
+.w-100{
+    width: 100px;
+}
+.w-80{
+   width: 80px;
+}
+.w-200{
+    width: 200px;
 }
 .seperate{
     width: 2% !important;
@@ -592,3 +604,14 @@ a{
         display: none;
     }
 }
+table.tableBodyScroll tbody {
+    display: block;
+    min-height: 330px;
+    overflow-x: auto;
+  }
+  
+  table.tableBodyScroll thead, table.tableBodyScroll tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
