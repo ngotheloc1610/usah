@@ -1,17 +1,38 @@
 import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
 import { formatCurrency } from '../../../helper/utils'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
-
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { wsService } from "../../../services/websocket-service";
+import { SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { useEffect, useState } from 'react';
+import sendMsgSymbolList from '../../../Common/sendMsgSymbolList'
 function PortfolioTable(props: IPropsListPortfolio) {
-
     const { accountPortfolio } = props
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
-    const getTickerCode = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();;
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    
+    const getTickerCode = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
     }
 
-    const getTickerName = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
+    const getTickerName = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
     }
 
     const _rederPortfolioInvest = () => {

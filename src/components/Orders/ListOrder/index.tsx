@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SUCCESS_MESSAGE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.css';
 import { wsService } from "../../../services/websocket-service";
@@ -14,6 +13,8 @@ import { formatNumber } from "../../../helper/utils";
 import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -40,9 +41,16 @@ ListOrder = (props: IPropsListOrder) => {
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
     const [statusOrder, setStatusOrder] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => {
-        callWs();
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder();
+            }
+        });
+
+        return () => ws.unsubscribe()
     }, []);
 
     useEffect(() => {
@@ -59,14 +67,6 @@ ListOrder = (props: IPropsListOrder) => {
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess]);
-
-    const callWs = () => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendListOrder();
-            }
-        });
-    }
 
     const sendListOrder = () => {
         const paramStr = window.location.search;
@@ -110,10 +110,27 @@ ListOrder = (props: IPropsListOrder) => {
         }
     }
 
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
-    const getTickerName = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    const getTickerName = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -124,8 +141,8 @@ ListOrder = (props: IPropsListOrder) => {
         setShowFullData(!isShowFullData);
     }
 
-    const getTickerCode = (sympleId: string): string => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker || '';
+    const getTickerCode = (symbolId: string): string => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
     }
 
     const handleModify = (item: IListOrder) => {
@@ -167,7 +184,7 @@ ListOrder = (props: IPropsListOrder) => {
     }
 
     const _rendetMessageSuccess = () => (
-        <div>{toast.success('Place order successfully')}</div>
+        <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
     )
 
     const _rendetMessageError = (message: string) => (

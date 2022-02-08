@@ -83,3 +83,17 @@ export const VALIDATE_PASSWORD = {
 };
 
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
+
+export const FROM_DATE_TIME = '00:00:00';
+
+export const TO_DATE_TIME = '23:59:59';
+
+export const SUCCESS_MESSAGE = {
+    searchSuccess: 'Search successfully',
+    placeSuccess: 'Place order successfully',
+    updateSuccess: 'Update successfully'
+}
+
+export const ERROR_MESSAGE = {
+    updateError: 'Update error'
+}

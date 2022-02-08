@@ -1,17 +1,17 @@
 export interface ITickerInfo {
-    symbolId: number,
-    tickerName: string,
-    ticker: string,
-    stockPrice: string,
-    previousClose: string,
-    open: string,
-    high: string,
-    low: string,
-    lastPrice: string,
-    volume: string,
-    change: string,
-    changePrecent: string,
-    side?: string,
+    symbolId: number;
+    tickerName: string;
+    ticker: string;
+    stockPrice: string;
+    previousClose: string;
+    open: string;
+    high: string;
+    low: string;
+    lastPrice: string;
+    volume: string;
+    change: string;
+    changePrecent: string;
+    side?: string;
 }
 
 export interface IParamOrder {
@@ -117,18 +117,18 @@ export interface ITradeHistory {
 }
 
 export interface TickerInfo {
-    symbolId: number,
-    tickerName: string,
-    ticker: string,
-    stockPrice: string,
-    previousClose: string,
-    open: string,
-    high: string,
-    low: string,
-    lastPrice: string,
-    volume: string,
-    change: string,
-    changePrecent: string,
+    symbolId: number;
+    tickerName: string;
+    ticker: string;
+    stockPrice: string;
+    previousClose: string;
+    open: string;
+    high: string;
+    low: string;
+    lastPrice: string;
+    volume: string;
+    change: string;
+    changePrecent: string;
 }
 export interface IAskAndBidPrice {
     price: string;
@@ -159,40 +159,40 @@ export interface ILastQuote {
 }
 
 export interface IOrderHistory {
-    orderId: string,
-    ticker: string,
-    companyName: string,
-    side: string,
-    orderStatus: string,
-    orderType: string,
-    orderVolume: string,
-    remainVolume: string,
-    executedVolume: string,
-    orderPrice: string,
-    lastPrice: string,
-    orderDatetime: string,
-    excutedDatetime: string
+    orderId: string;
+    ticker: string;
+    companyName: string;
+    side: string;
+    orderStatus: string;
+    orderType: string;
+    orderVolume: string;
+    remainVolume: string;
+    executedVolume: string;
+    orderPrice: string;
+    lastPrice: string;
+    orderDatetime: string;
+    excutedDatetime: string;
 }
 
 export interface IOrderTradeHistory {
-    oderId: string,
-    tickerCode: string,
-    tickerName: string,
-    side: string,
-    orderType: string,
-    orderVolume: string,
-    orderPrice: string,
-    executedVolume: string,
-    executedPrice: string,
-    matchedValue: string,
-    excutedDatetime: string
+    oderId: string;
+    tickerCode: string;
+    tickerName: string;
+    side: string;
+    orderType: string;
+    orderVolume: string;
+    orderPrice: string;
+    executedVolume: string;
+    executedPrice: string;
+    matchedValue: string;
+    excutedDatetime: string;
 }
 
 export interface IParamTradeSearch {
-    ticker: string,
-    orderType: number,
-    fromDatetime: string,
-    toDatetime: string,
+    ticker: string;
+    orderType: number;
+    fromDatetime: string;
+    toDatetime: string;
 }
 
 export interface IPropsListPortfolio {
@@ -200,43 +200,43 @@ export interface IPropsListPortfolio {
 }
 
 export interface IListPortfolio {
-    accountId: number,
-    avgPrice: string,
-    currencyCode: string,
-    currentValue: string,
-    investedValue: string,
-    marketPrice: string,
-    ownedVolume: string,
-    pendingVolume: string,
-    realizedPl: string,
-    symbolCode: string,
-    unrealizedPl: string
+    accountId: number;
+    avgPrice: string;
+    currencyCode: string;
+    currentValue: string;
+    investedValue: string;
+    marketPrice: string;
+    ownedVolume: string;
+    pendingVolume: string;
+    realizedPl: string;
+    symbolCode: string;
+    unrealizedPl: string;
 }
 
 export interface ITickerPortfolio {
-    companyName: string,
-    ticker: string,
-    ownedVolume: string,
-    orderPendingVolume: number,
-    avgPrice: string,
-    investedValue: string,
-    marketPrice: string,
-    curentValue: string,
-    pl: string,
-    plPercent: number
+    companyName: string;
+    ticker: string;
+    ownedVolume: string;
+    orderPendingVolume: number;
+    avgPrice: string;
+    investedValue: string;
+    marketPrice: string;
+    curentValue: string;
+    pl: string;
+    plPercent: number;
 }
 
 export interface IParamHistorySearch {
-    ticker: string,
+    ticker: string;
     orderState: number
-    orderType: number,
-    fromDatetime: string,
-    toDatetime: string,
+    orderType: number;
+    fromDatetime: string;
+    toDatetime: string;
 }
 
 export interface IHistorySearchStatus {
-    code: number,
-    name: string
+    code: number;
+    name: string;
 }
 
 export interface IStyleBidsAsk {

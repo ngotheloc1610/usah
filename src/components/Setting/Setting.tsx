@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { ERROR_MESSAGE, MSG_CODE, OBJ_AUTHEN, SUCCESS_MESSAGE, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -284,11 +284,11 @@ const Setting = (props: ISetting) => {
     }, [])
 
     const _renderMessageError = () => (
-        <div>{toast.error('Update error')}</div>
+        <div>{toast.error(ERROR_MESSAGE.updateError)}</div>
     )
 
     const _renderMessageSuccess = () => {
-        return <div>{toast.success('Update successfully')}</div>
+        return <div>{toast.success(SUCCESS_MESSAGE.updateSuccess)}</div>
     }
 
     const handleClickEyeTradingPin = (event: any) => {
@@ -319,7 +319,7 @@ const Setting = (props: ISetting) => {
         setRecvAdminNewsFlg(newsAdmin)
         sendMessageCustomerInforNoti()
     }
-    
+
     const changeNewsNotication = (checked: boolean) => {
         const systemServicePb: any = sspb
         let newsNotication: number = 0
@@ -419,8 +419,8 @@ const Setting = (props: ISetting) => {
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
+                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
                 <div className="mb-4">
-                    <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
                     {_renderChanngeTraddingPin(isTradingPin)}
                     {_renderNewTradingPin(isTradingPin)}
                     {_renderConfirmTradingPin(isTradingPin)}
