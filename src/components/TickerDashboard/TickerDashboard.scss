@@ -55,12 +55,23 @@
     padding-left: 9px !important;
 }
 
+.mb-35{
+    margin-bottom: 35px;
+}
+
+.h-500{
+    height: 525px;
+}
+
 @media (max-width: 1599px) {
     .w-px-150 {
         width: 180px;
     }
     .w-ss{
-        width: 62px;
+        width: 60px;
+    }
+    .mb-35{
+        margin-bottom: 16px;
     }
 }
 @media (max-width: 1399px) {
@@ -68,15 +79,18 @@
         width: 118px;
     }
     .w-ss{
-        max-width: 58px;
+        max-width: 56px;
     }
 }
 @media (max-width: 1199px) {
     .w-px-150 {
-        width: 176px;
+        min-width: 159px;
     }
     .w-ss{
-        min-width: 54px;
+        min-width: 84px;
+    }
+    .h-500{
+        height: auto;
     }
 }
 

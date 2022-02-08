@@ -36,7 +36,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     useEffect(() => mapArrayDashboardList(), [lastQuotes])
 
     const mapArrayDashboardList = () => {
-    
+
         const getItemSymbolData = (symbolCode: string) => {
             return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
         }
@@ -67,7 +67,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
                 volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
                 change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
-                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/Number(getItemSymbolData(item.symbolId.toString())?.open))*100,
+                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100,
             }
             listData.push(itemData);
         })
@@ -140,8 +140,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Low
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss fz-14 pl-6">
-                Last Price
+            <th className=" text-end sorting_disabled header-cell w-ss">
+                <span className="fz-14 pl-6">Last Price</span>
             </th>
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Volume
@@ -157,7 +157,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             </th>
         </tr>
     )
-    
+
     const renderDataListCompany = () => (
         listDataDashboard.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
