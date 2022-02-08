@@ -58,8 +58,8 @@ const ListTicker = (props: IListTickerProps) => {
 
     }
 
-    const handleItemSearch = (event: any) => {
-        setItemSearch(event.target.value);
+    const handleItemSearch = (itemValue: string) => {
+        setItemSearch(itemValue);
     }
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
@@ -72,7 +72,7 @@ const ListTicker = (props: IListTickerProps) => {
             <div className="col-lg-6">
                 <div className="input-group input-group-sm input-search">
                     <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
-                        onChange={handleItemSearch} placeholder="Add a ticker" />
+                        onChange={(e) => handleItemSearch(e.target.value)} placeholder="Add a ticker" />
                     <button className="btn btn-primary">Add</button>
                 </div>
             </div>

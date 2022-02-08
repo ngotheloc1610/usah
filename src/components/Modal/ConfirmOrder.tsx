@@ -32,13 +32,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
 
-    const handleTradingPin = (event: any) => {
-        setTradingPin(event.target.value);
+    const handleTradingPin = (valueTradingPin: string) => {
+        setTradingPin(valueTradingPin);
     }
 
-    const handleVolumeModify = (event: any) => {
-        const onlyNumberVolumeChange = event.target.value.replaceAll(/[^0-9]/g, "");
-        if (onlyNumberVolumeChange > Number(params.volume)) {
+    const handleVolumeModify = (valueVolume: string) => {
+        const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
+        if (Number(onlyNumberVolumeChange) > Number(params.volume)) {
             setVolumeModify(formatNumber(params.volume));
             return;
         }
@@ -228,7 +228,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr className='h-100'>
             <td className='text-left '><b>Trading PIN</b></td>
             <td></td>
-            <td><input type="password" value={tradingPin} onChange={handleTradingPin} /></td>
+            <td><input type="password" value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
         </tr>
     )
 
@@ -253,7 +253,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
                 <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
-                               onChange={handleVolumeModify} value={formatNumber(volumeModify.replaceAll(',',''))} />
+                               onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',',''))} />
                     : (title === 'Price' && isModify) ?
                 <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
                                onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={formatCurrency(priceModify.toString())}/>

@@ -51,9 +51,9 @@ const TickerSearch = (props: ITickerSearch) => {
         ))
     )
 
-    const handleSelectTicker = (event: any) => {
-        setTicker(event.target.value);
-        handleTicker(event.target.value);
+    const handleSelectTicker = (dataTicker: string) => {
+        setTicker(dataTicker);
+        handleTicker(dataTicker);
     }
 
     const _renderTemplate = () => (
@@ -62,7 +62,7 @@ const TickerSearch = (props: ITickerSearch) => {
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
             <div className="col-lg-3 col-md-6">
-                <select className="form-select form-select-sm" value={ticker} onChange={handleSelectTicker}>
+                <select className="form-select form-select-sm" value={ticker} onChange={(e) => handleSelectTicker(e.target.value)}>
                     <option value=''></option>
                     {renderOptionTicker()}
                 </select>
