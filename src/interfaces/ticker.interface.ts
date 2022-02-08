@@ -12,7 +12,7 @@ export interface ITickerDetail {
     change: string;
     changePrecent: string;
     lotSize: string;
-    minimumBizSize: string
+    minimumBizSize: string;
 }
 
 export interface ISymbolList {
@@ -27,7 +27,7 @@ export interface ISymbolList {
     symbolCode: string;
     symbolId: number;
     symbolName: string;
-    tickSize: string
+    tickSize: string;
 }
 
 export interface IListDashboard {
