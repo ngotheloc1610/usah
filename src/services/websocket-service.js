@@ -15,6 +15,7 @@ var wsConnected = false;
 const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
+const symbolListSubject = new Subject();
 const listOrderSubject = new Subject();
 const dataLastQuotes = new Subject();
 const orderHistorySubject = new Subject();
@@ -109,6 +110,10 @@ const startWs = async () => {
             const customerSetting = systemService.AccountUpdateResponse.deserializeBinary(msg.getPayloadData());
             customerSettingSubject.next(customerSetting.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.SYMBOL_LIST_RES) {
+            const symbolListRes = queryService.SymbolListResponse.deserializeBinary(msg.getPayloadData());
+            symbolListSubject.next(symbolListRes.toObject());
+        }
     }
 }
 
@@ -117,6 +122,7 @@ startWs();
 export const wsService = {
     getLoginResponse: () => loginSubject.asObservable(),
     getQuoteSubject: () => quoteSubject.asObservable(),
+    getSymbolListSubject: () => symbolListSubject.asObservable(),
     getOrderSubject: () => orderSubject.asObservable(),
     getListOrder: () => listOrderSubject.asObservable(),
     getListOrderHistory: () => orderHistorySubject.asObservable(),

@@ -1,24 +1,42 @@
-import { ORDER_TYPE_NAME, SIDE, STATE } from "../../../constants/general.constant";
+import { ORDER_TYPE_NAME, SIDE, SOCKET_CONNECTED, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import Pagination from '../../../Common/Pagination'
 import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { wsService } from "../../../services/websocket-service";
+import { useEffect, useState } from "react";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
-    
-
     const tradingModelPb: any = tspb;
-
     const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
-    const getTickerCode = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.ticker;
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    const getTickerCode = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
     }
 
-    const getTickerName = (sympleId: string) => {
-        return LIST_TICKER_INFOR_MOCK_DATA.find(item => item.symbolId.toString() === sympleId)?.tickerName;
+    const getTickerName = (symbolId: string) => {
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
     }
 
     const getSideName = (sideId: number) => {

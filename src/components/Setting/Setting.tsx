@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
