@@ -47,6 +47,15 @@ const Setting = (props: ISetting) => {
         }
     }, [isTradingPin, isChangePassword])
 
+    useEffect(() => {
+        setSecretKey('')
+        setNewSecretKey('')
+        setConfirmTradingPin('')
+        setPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+    }, [isTradingPin, isChangePassword])
+
     const buildMessageTradingPin = (accountId: string) => {
         const SystemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
