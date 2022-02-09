@@ -190,7 +190,7 @@ const ListModifyCancel = () => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-center">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
+                    <a className="btn-edit-order mr-10px" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
                     <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
@@ -202,7 +202,7 @@ const ListModifyCancel = () => {
     )
     return <div className="card-modify mb-3">
         <div className="card-body p-0 mb-3">
-            <div className="table">
+            <div className="table table-responsive">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
                     <thead>
                         <tr>
