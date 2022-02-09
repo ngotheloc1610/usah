@@ -16,16 +16,31 @@ function Report() {
             <label className="d-block text-secondary mb-1">Type of report</label>
             <select className="form-select form-select-sm">
                 <option value="0">All</option>
+                <option value="1">Daily</option>
+                <option value="2">Yearly</option>
             </select>
         </div>
     )
 
-    const _renderReportSearchForm = (type: string) => (
-        <div className="col-md-6">
-            <label className="d-block text-secondary mb-1">{type === 'from' ? 'From' : 'To'}</label>
-            <div className="input-group input-group-sm">
-                <input type="text" className="form-control border-end-0 date-picker" value="" placeholder="DD/MM/YYYY" />
-                <span className="input-group-text bg-white"><i className="bi bi-calendar"></i></span>
+    const _renderDateTime = () => (
+        <div className="col-xl-5 col-lg-7 col-md-12">
+            <div className="row g-2">
+                <div className="col-md-6">
+                    <label className="d-block text-secondary mb-1">From</label>
+                    <div className="input-group input-group-sm">
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                        />
+                    </div>
+                </div>
+                <div className="col-md-6">
+                    <label className="d-block text-secondary mb-1">To</label>
+                    <div className="input-group input-group-sm">
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                            max="9999-12-31"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     )
@@ -34,14 +49,9 @@ function Report() {
         <div className="card-body bg-gradient-light">
             <div className="row g-2 align-items-end">
                 {_renderReportSearchSelect()}
-                <div className="col-xl-5 col-lg-7 col-md-9">
-                    <div className="row g-2">
-                        {_renderReportSearchForm('from')}
-                        {_renderReportSearchForm('to')}
-                    </div>
-                </div>
-                <div className="col-xl-1 col-lg-2 mb-2 mb-lg-0">
-                    <a href="#" className="btn btn-sm d-block btn-primary">Apply</a>
+                {_renderDateTime()}
+                <div className="col-xl-1 col-lg-2 mb-2 mb-lg-0 mt-3">
+                    <a href="#" className="btn btn-sm d-block btn-primary">Search</a>
                 </div>
             </div>
         </div>
@@ -86,7 +96,7 @@ function Report() {
                         </tbody>
                     </table>
                 </div>
-                    <Pagination />
+                <Pagination />
             </div>
         </div>
     )
@@ -102,7 +112,7 @@ function Report() {
             </div>
         </div>
     )
-    
+
     return (
         _renderReportTemplate()
     )

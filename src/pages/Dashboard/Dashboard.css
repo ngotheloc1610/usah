@@ -5,3 +5,7 @@
 .fw-600 {
     font-weight: 600;
 }
+
+.w-5{
+    width: 5rem !important;
+}

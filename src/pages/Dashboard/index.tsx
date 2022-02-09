@@ -43,9 +43,9 @@ const Dashboard = () => {
             </div>
             <div className="col-md-4"></div>
             <div className="small text-end col-md-4">
-                <div>US 01:19:03 PM</div>
+                <div>US <span className="ms-2">01:19:03 PM</span></div>
                 <div className="d-flex align-items-center justify-content-end">
-                    <select className="form-select form-select-sm lh-1 me-2" style={{ width: '4rem' }}>
+                    <select className="form-select form-select-sm lh-1 me-2 w-5">
                         <option>Zone</option>
                         <option value="1" >SG</option>
                         <option value="2">JP</option>
