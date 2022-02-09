@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SUCCESS_MESSAGE } from "../../../constants/general.constant";
+import { MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -183,7 +183,7 @@ ListOrder = (props: IPropsListOrder) => {
     }
 
     const _rendetMessageSuccess = () => (
-        <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
+        <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
     )
 
     const _rendetMessageError = (message: string) => (

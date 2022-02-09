@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { ERROR_MESSAGE, MSG_CODE, OBJ_AUTHEN, SUCCESS_MESSAGE, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -282,11 +282,11 @@ const Setting = (props: ISetting) => {
     }, [])
 
     const _renderMessageError = () => (
-        <div>{toast.error(ERROR_MESSAGE.updateError)}</div>
+        <div>{toast.error(MESSAGE_TOAST.ERROR_UPDATE)}</div>
     )
 
     const _renderMessageSuccess = () => {
-        return <div>{toast.success(SUCCESS_MESSAGE.updateSuccess)}</div>
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_UPDATE)}</div>
     }
 
     const changeNewsAdmin = (checked: boolean) => {
@@ -361,11 +361,11 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className='trading password'>
-                        {isTradingPin && checkPass ? VALIDATE_TRADING_PIN.tradingPinExist : ''}
-                        {isChangePassword && checkPass ? VALIDATE_PASSWORD.passwordExist : ''}
+                        {isTradingPin && checkPass ? ERROR_MSG_VALIDATE.TRADING_PIN_EXIST : ''}
+                        {isChangePassword && checkPass ? ERROR_MSG_VALIDATE.PASSWORD_EXIST : ''}
                     </div>
                     <div className='new-trading new-password'>
-                        {isTradingPin && checkNewPass ? VALIDATE_TRADING_PIN.checkTradingPin : ''}
+                        {isTradingPin && checkNewPass ? ERROR_MSG_VALIDATE.TRADING_PIN_NOT_VALID : ''}
                         {isChangePassword && checkNewPass ? _renderMsgError() : ''}
                     </div>
                 </div>
@@ -399,8 +399,8 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className='confirm-trading confirm-password'>
-                        {isTradingPin && checkConfirm ? VALIDATE_TRADING_PIN.incorrectTradingPin : ''}
-                        {isChangePassword && checkConfirm ? VALIDATE_PASSWORD.incorrectPassword : ''}
+                        {isTradingPin && checkConfirm ? ERROR_MSG_VALIDATE.TRADING_PIN_INCORRECT : ''}
+                        {isChangePassword && checkConfirm ? ERROR_MSG_VALIDATE.PASSORD_INCORRECT : ''}
                     </div>
                 </div>
             </div>
