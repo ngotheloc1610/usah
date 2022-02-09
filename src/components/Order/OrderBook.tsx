@@ -57,7 +57,7 @@ const OrderBook = (props: IOrderBookProps) => {
         <>
             {!isDashboard && _renderTilte()}
             {isDashboard && _renderSearchBox()}
-            <div className="text-uppercase small text-secondary mb-2">
+            <div className="text-uppercase small text-secondary mb-4">
                 <div className="table-responsive">
                     <table cellPadding="0" cellSpacing="0" className="table border table-sm mb-0">
                         <thead>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { SOCKET_CONNECTED } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
-import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
+import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb'
@@ -25,8 +25,18 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
     const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
 
-    const onClickTickerInfo = (item: ITickerInfo) => {
-        handleTickerInfo(item);
+    const onClickTickerInfo = (item: IDetailTickerInfo) => {
+        const assignTickerInfo: ITickerInfo = {
+            symbolId: Number(item.symbolId),
+            tickerName: item.symbolName,
+            ticker: item.symbolCode,
+            lastPrice: item.lastPrice,
+            volume: item.volume,
+            change: item.change.toString(),
+            changePrecent: item.percentChange.toString(),
+            side: item?.side,
+        }
+        handleTickerInfo(assignTickerInfo);
     }
 
     const calculateChange = (lastPrice?: string, open?: string) => {
@@ -36,7 +46,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     useEffect(() => mapArrayDashboardList(), [lastQuotes])
 
     const mapArrayDashboardList = () => {
-    
+
         const getItemSymbolData = (symbolCode: string) => {
             return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
         }
@@ -67,7 +77,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
                 volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
                 change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
-                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open)/Number(getItemSymbolData(item.symbolId.toString())?.open))*100,
+                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100,
             }
             listData.push(itemData);
         })
@@ -83,6 +93,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 
@@ -121,8 +132,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
     }
 
     const headerTable = () => (
-        <>
-            <th className="text-nowrap  sorting_disabled header-cell w-px-150 fz-14">
+        <tr>
+            <th className="text-nowrap  sorting_disabled header-cell fz-14 w-px-150">
                 Ticker Name
             </th>
             <th className="text-left sorting_disabled header-cell w-ss fz-14">
@@ -140,8 +151,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Low
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss fz-14">
-                Last price
+            <th className=" text-end sorting_disabled header-cell w-ss">
+                <span className="fz-14 pl-6">Last Price</span>
             </th>
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Volume
@@ -155,9 +166,9 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="w-px-15">
                 &nbsp;
             </th>
-        </>
+        </tr>
     )
-    
+
     const renderDataListCompany = () => (
         listDataDashboard.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>

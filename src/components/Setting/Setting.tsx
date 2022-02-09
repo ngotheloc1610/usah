@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { ERROR_MESSAGE, MSG_CODE, OBJ_AUTHEN, SUCCESS_MESSAGE, VALIDATE_PASSWORD, VALIDATE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -39,6 +39,9 @@ const Setting = (props: ISetting) => {
     const [tradingPinFlg, setTradingPinFlg] = useState(true)
     const [customerInfoSetting, setCustomerInfoSetting] = useState([])
     const [statusOrder, setStatusOrder] = useState(0);
+    const [checkPass, setCheckPass] = useState(false)
+    const [checkNewPass, setCheckNewPass] = useState(false)
+    const [checkConfirm, setCheckConfirm] = useState(false)
 
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
@@ -46,6 +49,18 @@ const Setting = (props: ISetting) => {
             setIsOpenEyeNew(true)
             setIsOpenEyeConfirm(true)
         }
+    }, [isTradingPin, isChangePassword])
+
+    useEffect(() => {
+        setSecretKey('')
+        setNewSecretKey('')
+        setConfirmTradingPin('')
+        setPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+        setCheckPass(false)
+        setCheckNewPass(false)
+        setCheckConfirm(false)
     }, [isTradingPin, isChangePassword])
 
     useEffect(() => {
@@ -197,48 +212,37 @@ const Setting = (props: ISetting) => {
     }
 
     const _renderMsgError = () => (
-        ` New password must contain:<ul>
+        <>
+            New password must contain:
+            <ul>
                 <li> from 8-30 character </li>
                 <li> at least one uppercase letter </li>
                 <li> at least one number </li>
                 <li> at least one special character (e.g ! @ # ...) </li>
-            </ul>`
+            </ul>
+        </>
     )
-
-    const setDisplayBlock = (item: any) => {
-        item.style.display = 'block'
-    }
-
-    const setDisplayNone = (item: any) => {
-        item.style.display = 'none'
-    }
 
     const handleSubmit = () => {
         if (isTradingPin) {
-            const elTrading: any = document.querySelector('.trading')
-            const elNewTrading: any = document.querySelector('.new-trading')
-            const elConfirmTrading: any = document.querySelector('.confirm-trading')
             if (secretKey === newSecretKey) {
-                setDisplayBlock(elTrading)
-                elTrading.innerHTML = VALIDATE_TRADING_PIN.tradingPinExist
+                setCheckPass(true)
             }
             if (secretKey !== newSecretKey) {
-                setDisplayNone(elTrading)
+                setCheckPass(false)
             }
             if (newSecretKey !== confirmTradingPin) {
-                setDisplayBlock(elConfirmTrading)
-                elConfirmTrading.innerHTML = VALIDATE_TRADING_PIN.incorrectTradingPin
+                setCheckConfirm(true)
             }
             if (newSecretKey.length > 6 || newSecretKey.length < 6) {
-                setDisplayBlock(elNewTrading)
-                elNewTrading.innerHTML = VALIDATE_TRADING_PIN.checkTradingPin
-                setDisplayNone(elConfirmTrading)
+                setCheckNewPass(true)
+                setCheckConfirm(false)
             }
             if (newSecretKey.length === 6) {
-                setDisplayNone(elNewTrading)
+                setCheckNewPass(false)
             }
             if (newSecretKey === confirmTradingPin) {
-                setDisplayNone(elConfirmTrading)
+                setCheckConfirm(false)
             }
             if (secretKey !== newSecretKey && newSecretKey.length === 6 && newSecretKey === confirmTradingPin) {
                 sendMsgUpdateTradingPin();
@@ -246,30 +250,24 @@ const Setting = (props: ISetting) => {
         }
 
         if (isChangePassword) {
-            const elPassword: any = document.querySelector('.password')
-            const elNewPw: any = document.querySelector('.new-trading')
-            const elConfirmPassword: any = document.querySelector('.confirm-password')
             if (password === newPassword) {
-                setDisplayBlock(elPassword)
-                elPassword.innerHTML = VALIDATE_PASSWORD.passwordExist
+                setCheckPass(true)
             }
             if (password !== newPassword) {
-                setDisplayNone(elPassword)
+                setCheckPass(false)
             }
             if (newPassword !== confirmPassword) {
-                setDisplayBlock(elConfirmPassword)
-                elConfirmPassword.innerHTML = VALIDATE_PASSWORD.incorrectPassword
+                setCheckConfirm(true)
             }
             if (!validationPassword(newPassword)) {
-                setDisplayBlock(elNewPw)
-                setDisplayNone(elConfirmPassword)
-                elNewPw.innerHTML = _renderMsgError()
+                setCheckNewPass(true)
+                setCheckConfirm(false)
             }
             if (validationPassword(newPassword)) {
-                setDisplayNone(elNewPw)
+                setCheckNewPass(false)
             }
             if (newPassword === confirmPassword) {
-                setDisplayNone(elConfirmPassword)
+                setCheckConfirm(false)
             }
             if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
                 sendMsgUpdatePassword()
@@ -292,32 +290,11 @@ const Setting = (props: ISetting) => {
     }
 
     const _renderMessageError = () => (
-        <div>{toast.error(ERROR_MESSAGE.updateError)}</div>
+        <div>{toast.error(MESSAGE_TOAST.ERROR_UPDATE)}</div>
     )
 
     const _renderMessageSuccess = () => {
-        return <div>{toast.success(SUCCESS_MESSAGE.updateSuccess)}</div>
-    }
-
-    const handleClickEyeTradingPin = (event: any) => {
-        setIsOpenEye(!isOpenEye)
-        const elCurrent = document.getElementById('trading-pin')
-        isOpenEye ? elCurrent?.setAttribute('type', 'text') : elCurrent?.setAttribute('type', 'password')
-        event.target?.classList.toggle('bi-eye-slash')
-    }
-
-    const handleClickNewTradingPin = (event: any) => {
-        setIsOpenEyeNew(!isOpenEyeNew)
-        const elNew = document.getElementById('new-trading-pin')
-        isOpenEyeNew ? elNew?.setAttribute('type', 'text') : elNew?.setAttribute('type', 'password')
-        event.target?.classList.toggle('bi-eye-slash')
-    }
-
-    const handleClickEyeConfirmTradingPin = (event: any) => {
-        setIsOpenEyeConfirm(!isOpenEyeConfirm)
-        const elConfirm = document.getElementById('confirm-trading-pin')
-        isOpenEyeConfirm ? elConfirm?.setAttribute('type', 'text') : elConfirm?.setAttribute('type', 'password')
-        event.target?.classList.toggle('bi-eye-slash')
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_UPDATE)}</div>
     }
 
     const changeNewsAdmin = (checked: boolean) => {
@@ -342,16 +319,18 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0">
                     <label className="text-secondary">{isTradingPin ? 'Current Trading PIN' : 'Current Password'}</label>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='trading-pin' type="password" className="form-control"
+                        <input id='trading-pin' type={isOpenEye ? "password" : "text"} className="form-control"
                             value={isTradingPin ? secretKey : password}
                             onChange={(event) => changeTradingPin(event.target.value)}
                             minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
-                            <i onClick={handleClickEyeTradingPin} className="bi bi-eye-fill opacity-50 pad-12" />
+                            <i onClick={() => setIsOpenEye(!isOpenEye)}
+                                className={`bi ${isOpenEye ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`}
+                            />
                         </button>
                     </div>
                 </div>
@@ -370,25 +349,33 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0">
                     <label className="text-secondary">{isTradingPin ? 'New Trading PIN' : 'New Password'}</label>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='new-trading-pin' type="password" className="form-control"
+                        <input id='new-trading-pin' type={isOpenEyeNew ? "password" : "text"} className="form-control"
                             value={isTradingPin ? newSecretKey : newPassword}
                             onChange={(event) => changeNewTradingPin(event.target.value)}
                             minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
-                            <i onClick={handleClickNewTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>
+                            <i onClick={() => setIsOpenEyeNew(!isOpenEyeNew)}
+                                className={`bi ${isOpenEyeNew ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`}
+                            />
                         </button>
                     </div>
                 </div>
             </div>
             <div className="row mb-3 align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0"></div>
-                <div className="col-md-4">
-                    <div className='trading password'></div>
-                    <div className='new-trading new-password'></div>
+                <div className="col-md-6 col-lg-5 col-xl-4">
+                    <div className='trading password'>
+                        {isTradingPin && checkPass ? ERROR_MSG_VALIDATE.TRADING_PIN_EXIST : ''}
+                        {isChangePassword && checkPass ? ERROR_MSG_VALIDATE.PASSWORD_EXIST : ''}
+                    </div>
+                    <div className='new-trading new-password'>
+                        {isTradingPin && checkNewPass ? ERROR_MSG_VALIDATE.TRADING_PIN_NOT_VALID : ''}
+                        {isChangePassword && checkNewPass ? _renderMsgError() : ''}
+                    </div>
                 </div>
             </div>
         </>
@@ -400,24 +387,29 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0">
                     <label className="text-secondary">{isTradingPin ? 'Confirm trading PIN' : 'Confirm Password'}</label>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='confirm-trading-pin' type="password" className="form-control"
+                        <input id='confirm-trading-pin' type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
                             value={isTradingPin ? confirmTradingPin : confirmPassword}
                             onChange={(event) => confirmNewTradingPin(event.target.value)}
                             minLength={isTradingPin ? 0 : 8}
                             maxLength={isTradingPin ? 6 : 30}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
-                            <i onClick={handleClickEyeConfirmTradingPin} className="bi bi-eye-fill opacity-50 pad-12"></i>
+                            <i onClick={() => setIsOpenEyeConfirm(!isOpenEyeConfirm)}
+                                className={`bi ${isOpenEyeConfirm ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`}
+                            />
                         </button>
                     </div>
                 </div>
             </div>
             <div className="row mb-3 align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0"></div>
-                <div className="col-md-4">
-                    <div className='confirm-trading confirm-password'></div>
+                <div className="col-md-6 col-lg-5 col-xl-4">
+                    <div className='confirm-trading confirm-password'>
+                        {isTradingPin && checkConfirm ? ERROR_MSG_VALIDATE.TRADING_PIN_INCORRECT : ''}
+                        {isChangePassword && checkConfirm ? ERROR_MSG_VALIDATE.PASSORD_INCORRECT : ''}
+                    </div>
                 </div>
             </div>
         </>

@@ -1,11 +1,9 @@
 import { ISymbolList } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
-import { wsService } from "../../services/websocket-service";
-import { useEffect, useState } from "react";
-import { SOCKET_CONNECTED } from '../../constants/general.constant';
-import sendMsgSymbolList from '../../Common/sendMsgSymbolList';
+import { useState } from "react";
 interface ITickerSearch {
     handleTicker: (event: any) => void;
+    listTicker: ISymbolList[];
 }
 
 const defaultProps = {
@@ -13,9 +11,8 @@ const defaultProps = {
 }
 
 const TickerSearch = (props: ITickerSearch) => {
-    const { handleTicker } = props;
+    const { handleTicker, listTicker } = props;
     const [ticker, setTicker] = useState('')
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     const _renderRecentSearch = () => (
         <div className="d-md-flex align-items-md-center text-center">
@@ -28,32 +25,15 @@ const TickerSearch = (props: ITickerSearch) => {
         </div>
     )
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
-
     const renderOptionTicker = () => (
-        symbolList.map((item: ISymbolList, index: number) => (
+        listTicker.map((item: ISymbolList, index: number) => (
             <option key={index} value={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>
         ))
     )
 
-    const handleSelectTicker = (event: any) => {
-        setTicker(event.target.value);
-        handleTicker(event.target.value);
+    const handleSelectTicker = (dataTicker: string) => {
+        setTicker(dataTicker);
+        handleTicker(dataTicker);
     }
 
     const _renderTemplate = () => (
@@ -62,7 +42,7 @@ const TickerSearch = (props: ITickerSearch) => {
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
             <div className="col-lg-3 col-md-6">
-                <select className="form-select form-select-sm" value={ticker} onChange={handleSelectTicker}>
+                <select className="form-select form-select-sm" value={ticker} onChange={(e) => handleSelectTicker(e.target.value)}>
                     <option value=''></option>
                     {renderOptionTicker()}
                 </select>

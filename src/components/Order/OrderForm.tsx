@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { IParamOrder, ITickerInfo } from '../../interfaces/order.interface';
-import '../../pages/Orders/OrderNew/OrderNew.scss'
+import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { ORDER_TYPE_NAME, RESPONSE_RESULT, SUCCESS_MESSAGE } from '../../constants/general.constant';
+import { MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from '../../helper/utils';
-import NumberFormat from 'react-number-format';
 import CurrencyInput from 'react-currency-masked-input';
 
 toast.configure()
@@ -72,8 +71,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const _rendetMessageSuccess = (message: string) => {
         // To handle when order success then update new data without having to press f5
-        messageSuccess(SUCCESS_MESSAGE.placeSuccess);
-        return <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
+        messageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
     }
 
     const _rendetMessageError = (message: string) => (
@@ -187,7 +186,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
                 <CurrencyInput decimalScale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                displayType={'input'} thousandSeparator={true} value={currentTicker.tickerName ? value : 0} placeholder=""
+                thousandSeparator="{true}" value={currentTicker.tickerName ? value : 0} placeholder=""
                 onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}} />
             </div>
             <div className="border-start d-flex flex-column">

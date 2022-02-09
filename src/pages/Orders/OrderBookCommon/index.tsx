@@ -22,7 +22,6 @@ const defaultDataTicker: ILastQuote = {
     close: '',
     currentPrice: '',
     high: '',
-    id: 0,
     low: '',
     netChange: '',
     open: '',

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SUCCESS_MESSAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -152,8 +152,8 @@ const ListModifyCancel = () => {
 
     const _rendetMessageSuccess = (message: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
-        setMsgSuccess(SUCCESS_MESSAGE.placeSuccess)
-        return <div>{toast.success(SUCCESS_MESSAGE.placeSuccess)}</div>
+        setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE)
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
     }
 
     const _rendetMessageError = (message: string) => (
@@ -190,7 +190,7 @@ const ListModifyCancel = () => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-center">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
+                    <a className="btn-edit-order mr-10px" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
                     <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
@@ -202,7 +202,7 @@ const ListModifyCancel = () => {
     )
     return <div className="card-modify mb-3">
         <div className="card-body p-0 mb-3">
-            <div className="table">
+            <div className="table table-responsive">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
                     <thead>
                         <tr>
