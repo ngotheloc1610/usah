@@ -33,6 +33,8 @@ function OrderHistorySearch() {
     useEffect(() => {
         const systemModelPb: any = smpb;
         const orderHistoryRes = wsService.getListOrderHistory().subscribe(res => {
+            console.log(36, res);
+            
             let tmp = 0;
             if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
                 tmp = RESPONSE_RESULT.error;
