@@ -27,7 +27,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
         let askList = itemTickerDetail.asksList;
-        let bidList = itemTickerDetail.bidsList;        
+        let bidList = itemTickerDetail.bidsList;
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
                 const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
@@ -73,7 +73,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 )
             }
             counter--;
-        }        
+        }
         setListAsksBids(assgnListAsksBids);
     }
 

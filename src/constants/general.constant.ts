@@ -101,3 +101,5 @@ export enum MESSAGE_TOAST {
 
     ERROR_UPDATE = 'Update error'
 };
+
+export const TICKER_DETAIL = 'tickerDetail';

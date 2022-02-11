@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED } from "../../constants/general.constant"
+import { SOCKET_CONNECTED, TICKER_DETAIL } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
@@ -23,7 +23,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo } = props;
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
-    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])    
+    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
 
     const onClickTickerInfo = (item: IDetailTickerInfo) => {
         const assignTickerInfo: ITickerInfo = {
@@ -85,7 +85,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         })
 
         setDataDashboard(listData)
-        localStorage.setItem('tickerDetail', JSON.stringify(listData).toString())
+        localStorage.setItem(TICKER_DETAIL, JSON.stringify(listData).toString())
     }
 
     useEffect(() => {
