@@ -341,7 +341,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleColumnsBids = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">{item.totalBids === "NaN" ? "-" : item.totalBids}</td>
+                <td className="text-end">{item.totalBids === '0' ? "-" : item.totalBids}</td>
                 <td className="text-end">{item.numberBids}</td>
                 <td className="text-end">{item.bidPrice}</td>
                 <td className="text-end" colSpan={2}>&nbsp;</td>
