@@ -23,7 +23,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo } = props;
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
-    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
+    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])    
 
     const onClickTickerInfo = (item: IDetailTickerInfo) => {
         const assignTickerInfo: ITickerInfo = {
@@ -54,6 +54,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         let listData: IListDashboard[] = [];
 
         let itemData: IListDashboard = {
+            symbolId: 0,
             symbolName: '',
             symbolCode: '',
             previousClose: '',
@@ -68,6 +69,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         symbolList.forEach(item => {
             itemData = {
+                symbolId: item.symbolId,
                 symbolName: item.symbolName,
                 symbolCode: item.symbolCode,
                 previousClose: getItemSymbolData(item.symbolId.toString())?.close,
@@ -83,6 +85,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         })
 
         setDataDashboard(listData)
+        localStorage.setItem('tickerDetail', JSON.stringify(listData).toString())
     }
 
     useEffect(() => {
@@ -93,7 +96,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 

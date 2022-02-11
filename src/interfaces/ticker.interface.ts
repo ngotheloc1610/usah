@@ -31,6 +31,7 @@ export interface ISymbolList {
 }
 
 export interface IListDashboard {
+    symbolId: number;
     symbolName: string;
     symbolCode: string;
     previousClose?: string;
@@ -41,5 +42,4 @@ export interface IListDashboard {
     volume?: string;
     change: number;
     percentChange: number;
-
 }
