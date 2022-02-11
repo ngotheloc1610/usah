@@ -140,13 +140,6 @@ const ListTicker = (props: IListTickerProps) => {
             }
             counter++;
         }
-        const defaultBidPrice: IAskAndBidPrice = {
-            numOrders: 0,
-            price: '-',
-            tradable: false,
-            volume: '-',
-            symbolCode: '-'
-        }
         return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>

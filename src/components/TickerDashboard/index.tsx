@@ -93,7 +93,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 
