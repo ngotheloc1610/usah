@@ -15,7 +15,7 @@ const defaultProps = {
 
 const TickerSearch = (props: ITickerSearch) => {
     const { handleTicker, listTicker } = props;
-    const [ticker, setTicker] = useState<string | undefined>('')
+    const [ticker, setTicker] = useState('')
     const [symbolName, setSymbolName] = useState<string[]>([])
 
     useEffect(() => {
@@ -37,19 +37,17 @@ const TickerSearch = (props: ITickerSearch) => {
         </div>
     )
 
-    const handleChangeTicker = (event: any) => {
-        const string = event.target.innerText
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, listTicker))
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }
     }
 
-    const handleKeyUp = (event: any) => {
-        const string = event.target.value
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, listTicker))
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }
@@ -58,8 +56,8 @@ const TickerSearch = (props: ITickerSearch) => {
     const renderOptionTicker = () => (
         <Autocomplete
             className='ticker-input'
-            onChange={handleChangeTicker}
-            onKeyUp={handleKeyUp}
+            onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+            onKeyUp={(event: any) => handleKeyUp(event.target.value)}
             disablePortal
             options={symbolName}
             renderInput={(params) => <TextField {...params} placeholder="Search" />}

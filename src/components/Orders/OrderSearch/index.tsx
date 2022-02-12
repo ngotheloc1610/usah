@@ -18,7 +18,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 
 function OrderHistorySearch() {
-    const [ticker, setTicker] = useState<string | undefined>('')
+    const [ticker, setTicker] = useState('')
     const [orderState, setOrderState] = useState(0)
     const [orderBuy, setOrderBuy] = useState(false)
     const [orderSell, setOrderSell] = useState(false)
@@ -110,7 +110,7 @@ function OrderHistorySearch() {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
             const listSymbolName: string[] = []
-            res.symbolList.forEach((item: any) => {
+            res.symbolList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
             setSymbolName(listSymbolName)
@@ -146,19 +146,17 @@ function OrderHistorySearch() {
         }
     }
     
-    const handleChangeTicker = (event: any) => {
-        const string = event.target.innerText
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }
     }
 
-    const handleKeyUp = (event: any) => {
-        const string = event.target.value
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }
@@ -169,8 +167,8 @@ function OrderHistorySearch() {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
-                onChange={handleChangeTicker}
-                onKeyUp={handleKeyUp}
+                onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+                onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
                 options={symbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}

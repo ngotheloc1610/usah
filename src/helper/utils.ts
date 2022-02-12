@@ -52,9 +52,9 @@ export const removeFocusInput = (element: any) => {
     });
 }
 
-export const getSymbolId = (string: string, symbolList: ISymbolList[]) => {
-    const positionStartOfString = string.indexOf('(')
-    const positionEndOfString = string.lastIndexOf(')')
-
-    return symbolList.find(item => item.symbolCode === string.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
+export const getSymbolId = (str: string, symbolList: ISymbolList[]) => {
+    const positionStartOfString = str.indexOf('(')
+    const positionEndOfString = str.lastIndexOf(')')
+    const symbolId = symbolList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
+    return symbolId ?? '0'
 }

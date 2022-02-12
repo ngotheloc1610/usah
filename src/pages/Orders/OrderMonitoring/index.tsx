@@ -40,7 +40,7 @@ const OrderMonitoring = () => {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
             const listSymbolName: string[] = []
-            res.symbolList.forEach((item: any) => {
+            res.symbolList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
             setSymbolName(listSymbolName)

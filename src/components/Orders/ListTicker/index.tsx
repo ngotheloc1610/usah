@@ -24,7 +24,7 @@ const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote, symbolName, symbolList } = props;
-    const [ticker, setTicker] = useState<string | undefined>('')
+    const [ticker, setTicker] = useState('')
     const [itemSearch, setItemSearch] = useState<string | undefined>('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
@@ -65,19 +65,17 @@ const ListTicker = (props: IListTickerProps) => {
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
 
-    const handleChangeTicker = (event: any) => {
-        const string = event.target.innerText
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }
     }
 
-    const handleKeyUp = (event: any) => {
-        const string = event.target.value
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }
@@ -88,8 +86,8 @@ const ListTicker = (props: IListTickerProps) => {
             <div className="col-lg-6">
                 <div className="search-order-monitoring">
                     <Autocomplete
-                        onChange={handleChangeTicker}
-                        onKeyUp={handleKeyUp}
+                        onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+                        onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                         sx={{ width: 400 }}
                         disablePortal
                         options={symbolName}

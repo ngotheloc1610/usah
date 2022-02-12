@@ -16,7 +16,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 const ContentSearch = () => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [ticker, setTicker] = useState<string | undefined>('')
+    const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
@@ -34,7 +34,7 @@ const ContentSearch = () => {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
             const listSymbolName: string[] = []
-            res.symbolList.forEach((item: any) => {
+            res.symbolList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
             setSymbolName(listSymbolName)
@@ -139,19 +139,17 @@ const ContentSearch = () => {
         (value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)
     )
 
-    const handleChangeTicker = (event: any) => {
-        const string = event.target.innerText
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))    
         } else {
             setTicker('0')
         }
     }
 
-    const handleKeyUp = (event: any) => {
-        const string = event.target.value
-        if (string !== undefined) {
-            setTicker(getSymbolId(string, symbolList))
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }
@@ -163,8 +161,8 @@ const ContentSearch = () => {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
-                onChange={handleChangeTicker}
-                onKeyUp={handleKeyUp}
+                onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+                onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
                 options={symbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
