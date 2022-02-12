@@ -1,13 +1,20 @@
+import { CURRENT_CHOOSE_TICKER } from '../../../../constants/general.constant';
 import { IPropsDetail } from '../../../../interfaces/order.interface';
 import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
 import './OrderBookTickerDetail.css';
 
 const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
 const OrderBookTickerDetail = (props: IPropsDetail) => {
-    const {getTickerDetail} = props;
+    const { getTickerDetail } = props;
+
+    const getTickerName = (symbolId: string) => {
+        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
+        return tickerDetail.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
+    }
+
     return <>
         <div className="card-header">
-            <h6 className="card-title mb-0">{mockDataTickerDetail.tickerName}</h6>
+            {getTickerDetail.symbolCode !== "" ? <h6 className="card-title mb-0">{getTickerName(getTickerDetail.symbolCode)}</h6> : <h6 className="card-title mb-0">&nbsp;</h6>}
         </div>
         <div className="card-body">
             <div className="row">
@@ -16,7 +23,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end"></td>
+                                <td className="text-end">{getTickerDetail.currentPrice}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
@@ -51,7 +58,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{}</td>
+                                <td className="text-end">{ }</td>
                             </tr>
                         </tbody>
                     </table>
@@ -62,22 +69,22 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{}</td>
+                                <td className="text-end">{ }</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{}</td>
+                                <td className="text-end">{ }</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{}</td>
+                                <td className="text-end">{ }</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Ceiling</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{}</td>
+                                <td className="text-end">{ }</td>
                             </tr>
                         </tbody>
                     </table>

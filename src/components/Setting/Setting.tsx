@@ -36,6 +36,7 @@ const Setting = (props: ISetting) => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
     const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
     const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
+    const [tradingPinFlg, setTradingPinFlg] = useState(true)
     const [customerInfoSetting, setCustomerInfoSetting] = useState([])
     const [statusOrder, setStatusOrder] = useState(0);
     const [checkPass, setCheckPass] = useState(false)
@@ -61,6 +62,28 @@ const Setting = (props: ISetting) => {
         setCheckNewPass(false)
         setCheckConfirm(false)
     }, [isTradingPin, isChangePassword])
+
+    useEffect(() => {
+        if (isTradingPin) {
+            const el: any = document.querySelector('.trading-pin-form')
+            !tradingPinFlg ? el.style.display = 'none' : el.style.display = 'block'
+        }
+    }, [isTradingPin])
+
+    useEffect(() => {
+        const systemModelPb: any = smpb
+        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
+            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                setCustomerInfoSetting(res)
+                _renderMessageSuccess();
+            } else {
+                _renderMessageError();
+            }
+            return;
+        });
+
+        return () => renderDataCustomInfoToScreen.unsubscribe();
+    }, [])
 
     const buildMessageTradingPin = (accountId: string) => {
         const SystemServicePb: any = sspb;
@@ -266,21 +289,6 @@ const Setting = (props: ISetting) => {
         setConfirmPassword('')
     }
 
-    useEffect(() => {
-        const systemModelPb: any = smpb
-        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
-            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                setCustomerInfoSetting(res)
-                _renderMessageSuccess();
-            } else {
-                _renderMessageError();
-            }
-            return;
-        });
-
-        return () => renderDataCustomInfoToScreen.unsubscribe();
-    }, [])
-
     const _renderMessageError = () => (
         <div>{toast.error(MESSAGE_TOAST.ERROR_UPDATE)}</div>
     )
@@ -407,12 +415,32 @@ const Setting = (props: ISetting) => {
         </>
     )
 
+    const changeTradingPinFlg = (checked: boolean) => {
+        const el: any = document.querySelector('.trading-pin-form')
+        !checked ? el.style.display = 'none' : el.style.display = 'block'
+        setTradingPinFlg(checked)
+    }
+
     const _renderSettingTemplate = () => (
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Channge Tradding PIN' : 'Change Password'}</h6>
-                <div className="mb-4">
+                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Change Trading PIN' : 'Change Password'}</h6>
+                {isTradingPin && <div className="mb-4">
+                    <div className="row mb-3 align-items-center">
+                        <div className="col-md-3 text-secondary">Trading PIN</div>
+                        <div className="col-md-4">
+                            <div className='form-check form-switch'>
+                                <input className="form-check-input" type="checkbox" role="switch" id="trading_pin"
+                                    checked={tradingPinFlg}
+                                    onChange={(event) => changeTradingPinFlg(event.target.checked)}
+                                />
+                                <label className='trading-pin-flg'>{tradingPinFlg ? 'On' : 'Off'}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>}
+                <div className="mb-4 trading-pin-form">
                     {_renderChanngeTraddingPin(isTradingPin)}
                     {_renderNewTradingPin(isTradingPin)}
                     {_renderConfirmTradingPin(isTradingPin)}
