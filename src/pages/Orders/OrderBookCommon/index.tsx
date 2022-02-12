@@ -9,7 +9,7 @@ import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
-import './OrderBookCommon.css';
+import './OrderBookCommon.scss';
 import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
@@ -300,7 +300,7 @@ const OrderBookCommon = () => {
                         disablePortal
                         options={listSymbolCode}
                         sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Search" />}
+                        renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />
                 </div>
             </div>
