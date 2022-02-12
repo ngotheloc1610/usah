@@ -10,14 +10,17 @@ import sendMsgSymbolList from "./sendMsgSymbolList";
 import queryString from 'query-string';
 import ReduxPersist from "../config/ReduxPersist";
 import { toast } from "react-toastify";
-import { removeFocusInput } from "../helper/utils";
+import { getSymbolId, removeFocusInput } from "../helper/utils";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const ContentSearch = () => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [ticker, setTicker] = useState('')
+    const [ticker, setTicker] = useState<string | undefined>('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
     const [orderType, setOrderType] = useState(0)
+    const [symbolName, setSymbolName] = useState<string[]>([])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -30,6 +33,11 @@ const ContentSearch = () => {
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
+            const listSymbolName: string[] = []
+            res.symbolList.forEach((item: any) => {
+                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            });
+            setSymbolName(listSymbolName)
         });
 
         return () => {
@@ -131,15 +139,36 @@ const ContentSearch = () => {
         (value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)
     )
 
+    const handleChangeTicker = (event: any) => {
+        const string = event.target.innerText
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
+    const handleKeyUp = (event: any) => {
+        const string = event.target.value
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
+
     const _renderTicker = () => (
         <div className=" col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
-            <select className="form-select form-select-sm input-select"
-                onChange={(event: any) => setTicker(event.target.value)}
-            >
-                <option value=''>All</option>
-                {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
-            </select>
+            <Autocomplete
+                className='ticker-input'
+                onChange={handleChangeTicker}
+                onKeyUp={handleKeyUp}
+                disablePortal
+                options={symbolName}
+                renderInput={(params) => <TextField {...params} placeholder="Search" />}
+            />
         </div>
     )
 

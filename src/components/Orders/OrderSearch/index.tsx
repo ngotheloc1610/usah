@@ -7,17 +7,18 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
 import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
 import queryString from 'query-string';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 
 function OrderHistorySearch() {
-    const [ticker, setTicker] = useState('')
+    const [ticker, setTicker] = useState<string | undefined>('')
     const [orderState, setOrderState] = useState(0)
     const [orderBuy, setOrderBuy] = useState(false)
     const [orderSell, setOrderSell] = useState(false)
@@ -25,6 +26,7 @@ function OrderHistorySearch() {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [fromDatetime, setFromDatetime] = useState(0)
     const [toDatetime, setToDatetime] = useState(0)
+    const [symbolName, setSymbolName] = useState<string[]>([])
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
@@ -95,10 +97,8 @@ function OrderHistorySearch() {
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-
         }
     }
-
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -109,6 +109,11 @@ function OrderHistorySearch() {
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
+            const listSymbolName: string[] = []
+            res.symbolList.forEach((item: any) => {
+                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            });
+            setSymbolName(listSymbolName)
         });
 
         return () => {
@@ -140,14 +145,36 @@ function OrderHistorySearch() {
             }
         }
     }
+    
+    const handleChangeTicker = (event: any) => {
+        const string = event.target.innerText
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
+    const handleKeyUp = (event: any) => {
+        const string = event.target.value
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
 
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
-            <select className="form-select form-select-sm input-select" onChange={(e) => setTicker(e.target.value)}>
-                <option value=''>All</option>
-                {symbolList.map(item => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
-            </select>
+            <Autocomplete
+                className='ticker-input'
+                onChange={handleChangeTicker}
+                onKeyUp={handleKeyUp}
+                disablePortal
+                options={symbolName}
+                renderInput={(params) => <TextField {...params} placeholder="Search" />}
+            />
         </div>
     )
 

@@ -1,36 +1,64 @@
 import "./orderMonitoring.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import { wsService } from "../../../services/websocket-service";
+import { SOCKET_CONNECTED } from "../../../constants/general.constant";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
-        tickerName: '',
-        ticker: '',
-        stockPrice: '',
-        previousClose: '',
-        open: '',
-        high: '',
-        low: '',
-        lastPrice: '',
-        volume: '',
-        change: '',
-        changePrecent: '',
-        side: '',
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+    side: '',
 }
 
 const OrderMonitoring = () => {
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [symbolName, setSymbolName] = useState<string[]>([])
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+            const listSymbolName: string[] = []
+            res.symbolList.forEach((item: any) => {
+                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            });
+            setSymbolName(listSymbolName)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
 
     const handleTicker = (itemTicker: IAskAndBidPrice, curentPrice: string) => {
-        
-        const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(itemTicker.symbolCode));
+
+        const tickerData = symbolList.find((itemData: ISymbolList) => itemData.symbolId === Number(itemTicker.symbolCode));
         const assignItemTicker = {
-            tickerName: tickerData?.tickerName,
-            ticker: tickerData?.ticker,
+            tickerName: tickerData?.symbolName,
+            ticker: tickerData?.symbolCode,
             lastPrice: itemTicker.price === '-' ? '0' : itemTicker.price,
             volume: itemTicker.volume === '-' ? '0' : itemTicker.volume,
             side: itemTicker.side,
@@ -48,7 +76,7 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} />
+                            <ListTicker getTicerLastQuote={handleTicker} symbolName={symbolName} symbolList={symbolList}/>
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="me-2 h-100 d-flex align-items-center">

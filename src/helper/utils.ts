@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE } from '../constants/general.constant';
+import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -35,7 +36,7 @@ export function validationPassword(newPassword: string) {
     const specialCharacter = format.test(newPassword);
     if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
         return false
-    }else {
+    } else {
         return true
     }
 }
@@ -49,4 +50,11 @@ export const removeFocusInput = (element: any) => {
     element.forEach(item => {
         item.blur()
     });
+}
+
+export const getSymbolId = (string: string, symbolList: ISymbolList[]) => {
+    const positionStartOfString = string.indexOf('(')
+    const positionEndOfString = string.lastIndexOf(')')
+
+    return symbolList.find(item => item.symbolCode === string.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
 }

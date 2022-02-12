@@ -1,6 +1,9 @@
 import { ISymbolList } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import { getSymbolId } from '../../helper/utils';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
     listTicker: ISymbolList[];
@@ -12,7 +15,16 @@ const defaultProps = {
 
 const TickerSearch = (props: ITickerSearch) => {
     const { handleTicker, listTicker } = props;
-    const [ticker, setTicker] = useState('')
+    const [ticker, setTicker] = useState<string | undefined>('')
+    const [symbolName, setSymbolName] = useState<string[]>([])
+
+    useEffect(() => {
+        const listSymbolName: string[] = []
+        listTicker.forEach((item: any) => {
+            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+        });
+        setSymbolName(listSymbolName)
+    }, [listTicker])
 
     const _renderRecentSearch = () => (
         <div className="d-md-flex align-items-md-center text-center">
@@ -25,30 +37,49 @@ const TickerSearch = (props: ITickerSearch) => {
         </div>
     )
 
+    const handleChangeTicker = (event: any) => {
+        const string = event.target.innerText
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, listTicker))
+        } else {
+            setTicker('0')
+        }
+    }
+
+    const handleKeyUp = (event: any) => {
+        const string = event.target.value
+        if (string !== undefined) {
+            setTicker(getSymbolId(string, listTicker))
+        } else {
+            setTicker('0')
+        }
+    }
+
     const renderOptionTicker = () => (
-        listTicker.map((item: ISymbolList, index: number) => (
-            <option key={index} value={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>
-        ))
+        <Autocomplete
+            className='ticker-input'
+            onChange={handleChangeTicker}
+            onKeyUp={handleKeyUp}
+            disablePortal
+            options={symbolName}
+            renderInput={(params) => <TextField {...params} placeholder="Search" />}
+        />
     )
 
-    const handleSelectTicker = (dataTicker: string) => {
-        setTicker(dataTicker);
-        handleTicker(dataTicker);
+    const handleSelectTicker = () => {
+        handleTicker(ticker);
     }
 
     const _renderTemplate = () => (
-        <div className="row g-2 align-items-end">
+        <div className="row g-2 align-items-end" onKeyDown={handleSelectTicker}>
             <div className="col-lg-2 col-md-3 mb-1 mb-md-0">
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
             <div className="col-lg-3 col-md-6">
-                <select className="form-select form-select-sm" value={ticker} onChange={(e) => handleSelectTicker(e.target.value)}>
-                    <option value=''></option>
-                    {renderOptionTicker()}
-                </select>
+                {renderOptionTicker()}
             </div>
             <div className="col-lg-1 col-md-3 mb-2 mb-md-0 ">
-                <a href="# " className="btn btn-sm d-block btn-primary-custom "><strong>Search</strong></a>
+                <a href="# " className="btn btn-sm d-block btn-primary-custom" onClick={handleSelectTicker}><strong>Search</strong></a>
             </div>
             <div className="col-lg-6">
                 {_renderRecentSearch()}
