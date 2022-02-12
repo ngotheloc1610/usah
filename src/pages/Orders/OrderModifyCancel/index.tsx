@@ -6,7 +6,7 @@ const OrderModifyCancel = () => {
         <div className="container">
             <div className="card shadow mb-3">
                 <div className="card-header">
-                    <h6 className="card-title fs-6 mb-0">Modify Cancel</h6>
+                    <h6 className="card-title fs-6 mb-0">Modify - Cancel Order</h6>
                 </div>
                 <ContentSearch />
                 <ListModifyCancel />
