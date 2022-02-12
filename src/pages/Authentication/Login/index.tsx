@@ -89,7 +89,7 @@ const Login = () => {
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-lg-4">
-                            <h3 className="text-center text-primary mb-3"><img src={LOGO} alt="" style={{ maxHeight: "6rem" }} /></h3>
+                            <h3 className="text-center text-primary mb-3"><img src={LOGO} alt="" style={{ maxHeight: "7rem" }} /></h3>
                             <div className="card card-login shadow">
                                 <div className="card-body">
                                     <h4 className="text-primary-custom">Login</h4>
