@@ -10,6 +10,7 @@ import sendMsgSymbolList from "./sendMsgSymbolList";
 import queryString from 'query-string';
 import ReduxPersist from "../config/ReduxPersist";
 import { toast } from "react-toastify";
+import { removeFocusInput } from "../helper/utils";
 
 const ContentSearch = () => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
@@ -36,9 +37,6 @@ const ContentSearch = () => {
             renderDataSymbolList.unsubscribe();
         }
     }, [])
-
-    useEffect(() => sendMessageSearch(), [ticker, orderType])
-
 
     useEffect(() => {
         const systemModelPb: any = smpb;
@@ -119,6 +117,8 @@ const ContentSearch = () => {
         if (ticker !== '' || orderType !== 0) {
             if (event.key === 'Enter') {
                 sendMessageSearch()
+                const el: any = document.querySelectorAll('.input-select')
+                removeFocusInput(el)
             }
         }
     }
@@ -134,10 +134,10 @@ const ContentSearch = () => {
     const _renderTicker = () => (
         <div className=" col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
-            <select className="form-select form-select-sm"
+            <select className="form-select form-select-sm input-select"
                 onChange={(event: any) => setTicker(event.target.value)}
             >
-                <option value=''></option>
+                <option value=''>All</option>
                 {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
@@ -148,11 +148,11 @@ const ContentSearch = () => {
             <label className="d-block text-secondary mb-1"> Order Side</label>
             <div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" id="sell" value="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" id="sell" value="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
                     <label className="form-check-label">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" id="buy" value="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" id="buy" value="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
                     <label className="form-check-label">Buy</label>
                 </div>
             </div>

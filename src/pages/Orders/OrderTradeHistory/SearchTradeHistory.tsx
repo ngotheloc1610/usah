@@ -7,7 +7,7 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { convertDatetoTimeStamp, removeFocusInput } from '../../../helper/utils';
 import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
@@ -23,8 +23,6 @@ function SearchTradeHistory() {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
-
-    useEffect(() => sendMessageTradeSearch(), [ticker, orderType, fromDatetime, toDatetime])
 
     useEffect(() => {
         const systemModelPb: any = smpb;
@@ -89,7 +87,7 @@ function SearchTradeHistory() {
                 buildMessage(accountId);
                 return;
             }
-        });
+        });        
     }
 
     const buildMessage = (accountId: string) => {
@@ -132,6 +130,8 @@ function SearchTradeHistory() {
         if (ticker !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageTradeSearch()
+                const el: any = document.querySelectorAll('.input-select')
+                removeFocusInput(el)
             }
         }
     }
@@ -152,8 +152,8 @@ function SearchTradeHistory() {
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker Code</label>
-            <select className="form-select form-select-sm" onChange={(event: any) => setTicker(event.target.value)}>
-                <option value=''></option>
+            <select className="form-select form-select-sm input-select" onChange={(event: any) => setTicker(event.target.value)}>
+                <option value=''>All</option>
                 {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
@@ -166,11 +166,11 @@ function SearchTradeHistory() {
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>
@@ -183,7 +183,7 @@ function SearchTradeHistory() {
             <div className="row g-2">
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
@@ -192,7 +192,7 @@ function SearchTradeHistory() {
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
