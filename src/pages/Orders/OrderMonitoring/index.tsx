@@ -4,7 +4,6 @@ import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import { wsService } from "../../../services/websocket-service";
 import { SOCKET_CONNECTED } from "../../../constants/general.constant";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
