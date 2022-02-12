@@ -7,7 +7,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
 import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { convertDatetoTimeStamp, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 
@@ -27,8 +27,6 @@ function OrderHistorySearch() {
     const [toDatetime, setToDatetime] = useState(0)
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
-
-    useEffect(() => sendMessageOrderHistory(), [ticker, orderType, fromDatetime, toDatetime, orderState])
 
     useEffect(() => {
         const systemModelPb: any = smpb;
@@ -137,6 +135,8 @@ function OrderHistorySearch() {
         if (ticker !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageOrderHistory()
+                const el: any = document.querySelectorAll('.input-select')
+                removeFocusInput(el)
             }
         }
     }
@@ -144,8 +144,8 @@ function OrderHistorySearch() {
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
-            <select className="form-select form-select-sm" onChange={(e) => setTicker(e.target.value)}>
-                <option value=''></option>
+            <select className="form-select form-select-sm input-select" onChange={(e) => setTicker(e.target.value)}>
+                <option value=''>All</option>
                 {symbolList.map(item => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
             </select>
         </div>
@@ -154,7 +154,7 @@ function OrderHistorySearch() {
     const _renderOrderStatus = () => (
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
-            <select className="form-select form-select-sm" onChange={(e) => setOrderState(parseInt(e.target.value))}>
+            <select className="form-select form-select-sm input-select" onChange={(e) => setOrderState(parseInt(e.target.value))}>
                 {ORDER_HISTORY_SEARCH_STATUS.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
             </select>
         </div>
@@ -179,11 +179,11 @@ function OrderHistorySearch() {
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Sell" id="sell" onChange={(e) => setOrderSell(e.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(e) => setOrderSell(e.target.checked)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input" type="checkbox" value="Buy" id="buy" onChange={(e) => setOrderBuy(e.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(e) => setOrderBuy(e.target.checked)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>
@@ -196,7 +196,7 @@ function OrderHistorySearch() {
             <div className="row g-2">
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
@@ -205,7 +205,7 @@ function OrderHistorySearch() {
                 <div className='col-md-1 seperate'>~</div>
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker"
+                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />

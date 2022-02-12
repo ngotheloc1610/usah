@@ -44,3 +44,9 @@ export function convertDatetoTimeStamp(value: string, time: string) {
     const newDate = `${value} ${time}`
     return Date.parse(newDate);
 }
+
+export const removeFocusInput = (element: any) => {
+    element.forEach(item => {
+        item.blur()
+    });
+}
