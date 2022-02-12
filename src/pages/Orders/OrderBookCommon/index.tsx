@@ -15,7 +15,7 @@ import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, CURRENT_CHOOSE_TICKER } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { IListDashboard, ISymbolList } from '../../../interfaces/ticker.interface';
+import { IListDashboard } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -74,7 +74,7 @@ const OrderBookCommon = () => {
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolCode, setSymbolCode] = useState<string>('');
+    const [symbolCode, setSymbolCode] = useState<number>();
     const [itemTickerInfor, setItemTickerInfor] = useState<IListDashboard>(defaultTickerInf);
     const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
@@ -195,7 +195,7 @@ const OrderBookCommon = () => {
         if (wsConnected) {
             let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
             listDataDashboard.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId.toString())
+                lastQoutes.addSymbolCode(item.symbolId)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -254,11 +254,11 @@ const OrderBookCommon = () => {
     const getTickerSearch = (itemTicker: any) => {
         const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (itemTicker.target.innerText).toUpperCase());
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
-        setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
     const searchTicker = () => {
-        if (symbolCode !== '') {
+        if (symbolCode !== 0) {
             getOrderBooks();
             handleDataFromWs();
             return;
@@ -270,7 +270,7 @@ const OrderBookCommon = () => {
         if (event.key === 'Enter') {
             const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (event.target.value).toUpperCase());
             setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
-            setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+            setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId : 0);
 
             searchTicker()
         }
