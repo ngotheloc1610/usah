@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED } from "../../constants/general.constant"
+import { SOCKET_CONNECTED, CURRENT_CHOOSE_TICKER } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { wsService } from "../../services/websocket-service"
@@ -54,6 +54,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         let listData: IListDashboard[] = [];
 
         let itemData: IListDashboard = {
+            symbolId: 0,
             symbolName: '',
             symbolCode: '',
             previousClose: '',
@@ -68,6 +69,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         symbolList.forEach(item => {
             itemData = {
+                symbolId: item.symbolId,
                 symbolName: item.symbolName,
                 symbolCode: item.symbolCode,
                 previousClose: getItemSymbolData(item.symbolId.toString())?.close,
@@ -83,6 +85,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         })
 
         setDataDashboard(listData)
+        localStorage.setItem(CURRENT_CHOOSE_TICKER, JSON.stringify(listData).toString())
     }
 
     useEffect(() => {
@@ -93,7 +96,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            console.log(96, res);
             setSymbolList(res.symbolList)
         });
 

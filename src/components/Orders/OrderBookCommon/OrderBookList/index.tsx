@@ -51,9 +51,9 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         numberAsks: numberAsks,
                         numberBids: numberBids,
                         totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ?
-                            numberAsks : isAskNumOrder ? (Number(numberAsks) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString() : numberAsks,
+                            numberAsks : isAskNumOrder ? (convertNumber(numberAsks) + convertNumber(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString() : numberAsks,
                         totalBids: counter === (MARKET_DEPTH_LENGTH - 1) ?
-                            numberBids : isBidNumOrder ? (Number(numberBids) + Number(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString() : numberBids,
+                            numberBids : isBidNumOrder ? (convertNumber(numberBids) + convertNumber(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString() : numberBids,
                     }
                 )
             } else {
@@ -76,6 +76,11 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         }
         setListAsksBids(assgnListAsksBids);
     }
+
+    const convertNumber = (value: string) => {
+        return isNaN(Number(value)) ? 0 : Number(value);
+    }
+
     const handleTicker = (itemTicker: IListAskBid, side: string) => {
         if (side === tradingModel.OrderType.OP_BUY) {
             const itemAssign: IAskAndBidPrice = {
@@ -98,15 +103,19 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         getTicerLastQuote(itemAssign);
         return;
     }
+
     const listDataAsksBids = listAsksBids;
+    
     useEffect(() => {
         getListAsksBids(getTickerDetail);
     }, [getTickerDetail])
+
     const _renderTitleStyleEarmarkSpreadSheet = () => (
         TITLE_LIST_BID_ASK.map((item, index) => {
             return <th key={index} className="border-end">{item}</th>
         })
     )
+
     const _renderDataStyleEarmarkSpreadSheet = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
@@ -138,6 +147,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
+
     const _renderDataEmp = () => (
         <>
             <tr>
@@ -208,6 +218,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         </>
     )
+
     const _renderTableEarmarkSpreadSheet = () => (
         <table className="table table-sm table-hover border">
             <thead>
@@ -223,11 +234,13 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tbody>
         </table>
     )
+
     const _renderTitleStyleGirdAsk = () => (
         TITLE_LIST_BID_ASK.slice(0, 3).map(item => {
             return <th className="text-end">{item}</th>
         })
     )
+
     const _renderDataStyleGirdBid = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
@@ -237,11 +250,13 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
+
     const _renderTitleStyleGirdBids = () => (
         TITLE_LIST_BID_ASK.slice(3, 6).map((item, index) => {
             return <th key={index} className="text-end">{item}</th>
         })
     )
+
     const _renderDataStyleGirdAsk = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
@@ -251,6 +266,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
+
     const _renderTableGidBids = () => (
         <div className="order-block table-responsive">
             <table className="table table-sm border table-borderless table-hover mb-0">
@@ -301,11 +317,13 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </table>
         </div>
     )
+
     const _renderTitleStyleColumns = () => (
         TITLE_LIST_BID_ASK_COLUMN.map((item, index) => {
             return <th key={index} className='text-end'>{item}</th>
         })
     )
+
     const _renderDataStyleColumnsAsk = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
@@ -319,16 +337,18 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
+    
     const _renderDataStyleColumnsBids = () => (
         listDataAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end">{item.totalBids}</td>
+                <td className="text-end">{item.totalBids === '0' ? "-" : item.totalBids}</td>
                 <td className="text-end">{item.numberBids}</td>
                 <td className="text-end">{item.bidPrice}</td>
                 <td className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
         })
     )
+
     const _renderTableColumns = () => (
         <table className="table table-sm table-borderless table-hover border  mb-0">
             <thead>
@@ -371,6 +391,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tbody>
         </table>
     )
+
     return <div className="order-block table-responsive">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
         {styleListBidsAsk.grid && _renderTableGidBids()}
