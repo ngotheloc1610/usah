@@ -12,6 +12,7 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
+    msgSuccess?: string;
 }
 
 const defaultProps = {
@@ -21,6 +22,7 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
+    const { msgSuccess } = props;
     const { getTicerLastQuote } = props;
     const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
@@ -100,6 +102,18 @@ const ListTicker = (props: IListTickerProps) => {
             renderDataSymbolList.unsubscribe();
         }
     }, [])
+
+    useEffect(() => {
+        console.log(107, 1111);
+        sendMsgSymbolList();
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [msgSuccess]);
 
     const calculateChange = (lastPrice?: string, open?: string) => {
         if (!lastPrice && !open) {
