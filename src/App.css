@@ -54,3 +54,9 @@
 .site-main {
   min-height: calc(100vh - 240px) !important;
 }
+.site-logo {
+  max-height: 5rem !important;
+  margin-top: 10px;
+  float: left;
+  vertical-align: baseline;
+}

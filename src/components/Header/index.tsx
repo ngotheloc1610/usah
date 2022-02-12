@@ -11,6 +11,8 @@ import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
 import { KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
 
+import { LOGO } from '../../assets';
+
 const Header = () => {
   const [accountId, setAccountId] = useState('');
   useEffect(() => {
@@ -102,7 +104,7 @@ const Header = () => {
         <div className="site-brand">
           <h1 className="site-title mb-0">
             <a href="" className="site-link text-decoration-none">
-              <h1 className='fw-700 fs-large'>Pi-X</h1>
+            <img src={LOGO} className="site-logo" alt="" />
             </a>
           </h1>
         </div>
