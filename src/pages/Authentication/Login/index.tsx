@@ -5,7 +5,7 @@ import * as rpc from '../../../models/proto/rpc_pb';
 import './Login.scss';
 import ReduxPersist from '../../../config/ReduxPersist';
 import { KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
-import { LOGO_ICON } from '../../../assets';
+import { LOGO } from '../../../assets';
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -89,7 +89,7 @@ const Login = () => {
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-lg-4">
-                            <h3 className="text-center text-primary mb-3"><img src={LOGO_ICON.default} alt="" /></h3>
+                            <h3 className="text-center text-primary mb-3"><img src={LOGO} alt="" style={{ maxHeight: "6rem" }} /></h3>
                             <div className="card card-login shadow">
                                 <div className="card-body">
                                     <h4 className="text-primary-custom">Login</h4>
