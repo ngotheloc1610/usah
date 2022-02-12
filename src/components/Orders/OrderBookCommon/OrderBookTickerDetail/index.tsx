@@ -1,4 +1,4 @@
-import { TICKER_DETAIL } from '../../../../constants/general.constant';
+import { CURRENT_CHOOSE_TICKER } from '../../../../constants/general.constant';
 import { IPropsDetail } from '../../../../interfaces/order.interface';
 import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
 import './OrderBookTickerDetail.css';
@@ -8,7 +8,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
     const { getTickerDetail } = props;
 
     const getTickerName = (symbolId: string) => {
-        const tickerDetail = JSON.parse(localStorage.getItem(TICKER_DETAIL) || '{}');
+        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
         return tickerDetail.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
     }
 
