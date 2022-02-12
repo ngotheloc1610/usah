@@ -31,7 +31,7 @@ export interface ISymbolList {
 }
 
 export interface IListDashboard {
-    symbolId?: number;
+    symbolId: number;
     symbolName: string;
     symbolCode: string;
     previousClose?: string;

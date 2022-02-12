@@ -74,7 +74,7 @@ const OrderBookCommon = () => {
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolCode, setSymbolCode] = useState<number>();
+    const [symbolId, setSymbolId] = useState<number>();
     const [itemTickerInfor, setItemTickerInfor] = useState<IListDashboard>(defaultTickerInf);
     const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
@@ -183,7 +183,7 @@ const OrderBookCommon = () => {
 
     const handleDataFromWs = () => {
         wsService.getDataLastQuotes().subscribe(response => {
-            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === Number(symbolCode));
+            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === Number(symbolId));
             setItemTickerDetail(tickerDetail);
         });
     }
@@ -254,11 +254,11 @@ const OrderBookCommon = () => {
     const getTickerSearch = (itemTicker: any) => {
         const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (itemTicker.target.innerText).toUpperCase());
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
-        setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId : 0);
+        setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
     const searchTicker = () => {
-        if (symbolCode !== 0) {
+        if (symbolId !== 0) {
             getOrderBooks();
             handleDataFromWs();
             return;
@@ -270,7 +270,7 @@ const OrderBookCommon = () => {
         if (event.key === 'Enter') {
             const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (event.target.value).toUpperCase());
             setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
-            setSymbolCode(itemTickerInfor ? itemTickerInfor.symbolId : 0);
+            setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
 
             searchTicker()
         }
