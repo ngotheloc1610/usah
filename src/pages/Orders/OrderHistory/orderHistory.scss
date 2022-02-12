@@ -218,7 +218,9 @@ HEADER
             align-items: center;
             .site-title {
                 .site-logo {
-                    max-height: 3rem;
+                    max-height: 5rem !important;
+                    margin-top: 10px;
+                    float: left;
                     vertical-align: baseline;
                 }
             }

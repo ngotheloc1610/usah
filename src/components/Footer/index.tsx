@@ -1,5 +1,6 @@
 import { Colors } from '../../themes';
 import './Footer.css';
+import { LOGO } from '../../assets';
 
 const _renderContactUs = () => (
     <div className='fs-12'>
@@ -47,7 +48,7 @@ const _renderElementFooter = () => (
         <div className="container">
             <div className="copyright width_common d-flex justify-content-between mb20">
                 <a href="" className="site-link text-decoration-none">
-                    <h1 className='fw-700 fs-xx-large'>Pi-X</h1>
+                    <img src={LOGO} className="site-logo" alt="" />
                 </a>
                 <div className="right d-flex">
                     <span className="txt-follow">2022 @Pi-X</span>
