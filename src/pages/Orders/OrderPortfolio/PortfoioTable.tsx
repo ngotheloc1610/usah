@@ -1,5 +1,5 @@
 import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
-import { formatCurrency } from '../../../helper/utils'
+import { formatCurrency, formatNumber } from '../../../helper/utils'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import { SOCKET_CONNECTED } from '../../../constants/general.constant';
@@ -26,7 +26,7 @@ function PortfolioTable(props: IPropsListPortfolio) {
         }
     }, [])
 
-    
+
     const getTickerCode = (symbolId: string) => {
         return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
     }
@@ -73,16 +73,15 @@ function PortfolioTable(props: IPropsListPortfolio) {
 
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-start fz-14 w-s" >Ticker Name	</th>
+            <th className="text-start fz-14 w-200" >Ticker Name</th>
             <th className="text-start fz-14 w-s" >Ticker Code</th >
-            <th className="text-end fz-14 w-s" >Owned Volume	</th>
-            <th className="text-end fz-14 w-s" > Pending Volume</th>
+            <th className="text-end fz-14 w-s" >Transactions Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
-            <th className="text-end fz-14 w-s" > Invested Value</th>
+            <th className="text-end fz-14 w-s" >Invested Value</th>
             <th className="text-end fz-14 w-s" >Market Price</th>
-            <th className="text-end fz-14 w-s" > Current Value</th>
-            <th className="text-end fz-14 w-s" > P&amp;L</th>
-            <th className="text-end fz-14 w-s" > % P&amp;L</th>
+            <th className="text-end fz-14 w-s" >Current Value</th>
+            <th className="text-end fz-14 w-s" >P&amp;L</th>
+            <th className="text-end fz-14 w-s" >% P&amp;L</th>
             {accountPortfolio.length > 6 && <th className="text-end fz-14 w-17"></th>}
         </tr>
     )
@@ -90,13 +89,10 @@ function PortfolioTable(props: IPropsListPortfolio) {
     const _renderPortfolioTableBody = () => (
         accountPortfolio.map((item: IListPortfolio, index: number) => (
             <tr className="odd " key={index}>
-                <td className="text-start w-s td" >{getTickerName(item.symbolCode)}</td>
+                <td className="text-start w-200 td" >{getTickerName(item.symbolCode)}</td>
                 <td className="text-start w-s td">{getTickerCode(item.symbolCode)}</td>
                 {
-                    Number(item.ownedVolume) === 0 ? <td className="text-end w-s td" >&nbsp;</td> : <td className="text-end w-s td" >{item.ownedVolume}</td>
-                }
-                {
-                    Number(item.pendingVolume) === 0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{item.pendingVolume}</td>
+                    Number(item.pendingVolume) === 0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{formatNumber(item.pendingVolume)}</td>
                 }
                 <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.investedValue)}</td>
