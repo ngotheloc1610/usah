@@ -9,7 +9,7 @@ import * as rpc from '../../models/proto/rpc_pb';
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { IS_ACTIVE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -31,6 +31,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
+    const isActiveTradingPin = JSON.parse(localStorage.getItem(IS_ACTIVE_TRADING_PIN) || '{}')
 
     const handleTradingPin = (valueTradingPin: string) => {
         setTradingPin(valueTradingPin);
@@ -131,6 +132,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             handleCloseConfirmPopup(true);
         }
     }
+
     const prepareMessageeCancel = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
@@ -177,7 +179,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             handleCloseConfirmPopup(false);
         }
     }
-
 
     const sendOrder = () => {
         const paramStr = window.location.search;
@@ -246,18 +247,19 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
         return isDisable;
     }
+
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'></td>
             <td className='text-end'>
                 {(title === 'Volume' && isModify) ?
-                <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
-                               onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',',''))} />
+                    <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
+                        onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                     : (title === 'Price' && isModify) ?
-                <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
-                               onChange={(e, maskedVal) => {setPriceModify(+maskedVal)}} value={formatCurrency(priceModify.toString())}/>
-                    : value}</td>
+                        <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
+                            onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
+                        : value}</td>
         </tr>
     )
 
@@ -267,6 +269,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
+
     const _renderBtnConfirmOrder = () => (
         <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
     )
@@ -278,7 +281,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
                     {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
-                    {_renderTradingPin()}
+                    {isActiveTradingPin && _renderTradingPin()}
                 </tbody>
             </table>
             <div className='mt-30'>
@@ -305,8 +308,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderTamplate = () => (
         <div>
             <div className="box d-flex">
-                    {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
-                    <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
+                {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
+                <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
             </div>
             <div className='content text-center'>
                 {_renderHeaderFormConfirm()}

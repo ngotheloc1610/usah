@@ -65,7 +65,7 @@ export const TITLE_CONFIRM = {
 };
 
 export const ORDER_TYPE = [
-    { id: 1, name: 'Limit'}
+    { id: 1, name: 'Limit' }
 ];
 
 export const ORDER_TYPE_NAME = {
@@ -105,3 +105,5 @@ export enum MESSAGE_TOAST {
 };
 
 export const CURRENT_CHOOSE_TICKER = 'tickerDetail';
+
+export const IS_ACTIVE_TRADING_PIN = 'isActiveTradingPin';

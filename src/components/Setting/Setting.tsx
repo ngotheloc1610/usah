@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, IS_ACTIVE_TRADING_PIN } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -36,12 +36,12 @@ const Setting = (props: ISetting) => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
     const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
     const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
-    const [tradingPinFlg, setTradingPinFlg] = useState(true)
     const [customerInfoSetting, setCustomerInfoSetting] = useState([])
     const [statusOrder, setStatusOrder] = useState(0);
     const [checkPass, setCheckPass] = useState(false)
     const [checkNewPass, setCheckNewPass] = useState(false)
     const [checkConfirm, setCheckConfirm] = useState(false)
+    const [isActiveTradingPin, setIsActiveTradingPin] = useState(JSON.parse(localStorage.getItem(IS_ACTIVE_TRADING_PIN) || '{}'))
 
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
@@ -66,7 +66,7 @@ const Setting = (props: ISetting) => {
     useEffect(() => {
         if (isTradingPin) {
             const el: any = document.querySelector('.trading-pin-form')
-            !tradingPinFlg ? el.style.display = 'none' : el.style.display = 'block'
+            !isActiveTradingPin ? el.style.display = 'none' : el.style.display = 'block'
         }
     }, [isTradingPin])
 
@@ -418,7 +418,8 @@ const Setting = (props: ISetting) => {
     const changeTradingPinFlg = (checked: boolean) => {
         const el: any = document.querySelector('.trading-pin-form')
         !checked ? el.style.display = 'none' : el.style.display = 'block'
-        setTradingPinFlg(checked)
+        setIsActiveTradingPin(checked)
+        localStorage.setItem(IS_ACTIVE_TRADING_PIN, JSON.stringify(checked))
     }
 
     const _renderSettingTemplate = () => (
@@ -432,10 +433,10 @@ const Setting = (props: ISetting) => {
                         <div className="col-md-4">
                             <div className='form-check form-switch'>
                                 <input className="form-check-input" type="checkbox" role="switch" id="trading_pin"
-                                    checked={tradingPinFlg}
+                                    checked={isActiveTradingPin}
                                     onChange={(event) => changeTradingPinFlg(event.target.checked)}
                                 />
-                                <label className='trading-pin-flg'>{tradingPinFlg ? 'On' : 'Off'}</label>
+                                <label className='trading-pin-flg'>{isActiveTradingPin ? 'On' : 'Off'}</label>
                             </div>
                         </div>
                     </div>
