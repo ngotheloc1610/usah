@@ -129,6 +129,9 @@ const OrderNew = () => {
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
     }
+    const handleItemSearch = (value: string) => {
+
+    } 
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -147,7 +150,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook />
+                            <OrderBook itemTickerSearch={handleItemSearch} />
                         </div>
                     </div>
                 </div>

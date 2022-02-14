@@ -1,9 +1,12 @@
 import { IOrderBook } from "../../interfaces/order.interface"
+import { IListDashboard } from "../../interfaces/ticker.interface"
 import { DATA_ASK_VOLUME, DATA_BID_PRICE, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss'
 
 interface IOrderBookProps {
     isDashboard: boolean;
+    listDataTicker?: IListDashboard[];
+    itemTickerSearch: (item: string) => void;
 }
 
 const defaultProps = {
@@ -11,7 +14,7 @@ const defaultProps = {
 }
 
 const OrderBook = (props: IOrderBookProps) => {
-    const { isDashboard } = props;
+    const { isDashboard, listDataTicker, itemTickerSearch } = props;
     const _renderAskVol = () => (
         DATA_ASK_VOLUME.map((item: IOrderBook, index: number) => (
             <tr key={index}>
@@ -43,12 +46,21 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderTilte = () => (
         <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
     )
-
+    
+    const ssignTickerSearch = (charCode: number, value: any) => {
+        if (charCode === 13) {
+            itemTickerSearch(value.target.value);
+        }
+    }
     const _renderSearchBox = () => (
         <div className="card-header-style">
             <div className="input-group input-group-sm dark">
                 <span className="input-group-text bg-light text-white"><i className="bi bi-search"></i></span>
-                <input type="text" className="form-control bg-light text-white border-start-0" placeholder="Search" />
+                <input
+                    onKeyPress={(e) => ssignTickerSearch(e.charCode, e)}
+                    type="text"
+                    className="form-control bg-light text-white border-start-0"
+                    placeholder="Search" />
             </div>
         </div>
     )

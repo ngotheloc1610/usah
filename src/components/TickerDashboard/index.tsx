@@ -1,29 +1,21 @@
 import { useEffect, useState } from "react"
 import { SOCKET_CONNECTED, CURRENT_CHOOSE_TICKER } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
-import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import { wsService } from "../../services/websocket-service"
-import * as rspb from "../../models/proto/rpc_pb";
-import * as pspb from '../../models/proto/pricing_service_pb'
-import './TickerDashboard.scss'
-import { IListDashboard, ISymbolList } from "../../interfaces/ticker.interface"
-import sendMsgSymbolList from "../../Common/sendMsgSymbolList"
+import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
+import { IListDashboard } from "../../interfaces/ticker.interface";
+import './TickerDashboard.scss';
 
 interface ITickerDashboard {
-    handleTickerInfo: (item: ITickerInfo) => void
+    handleTickerInfo: (item: ITickerInfo) => void;
+    listDataTicker: IListDashboard[];
 }
 
 const defaultProps = {
     handleTickerInfo: null,
 }
 
-const dafaultLastQuotesData: ILastQuote[] = []
-
 const TickerDashboard = (props: ITickerDashboard) => {
-    const { handleTickerInfo } = props;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData)
-    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
+    const { handleTickerInfo, listDataTicker } = props;
 
     const onClickTickerInfo = (item: IDetailTickerInfo) => {
         const assignTickerInfo: ITickerInfo = {
@@ -39,99 +31,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         handleTickerInfo(assignTickerInfo);
     }
 
-    const calculateChange = (lastPrice?: string, open?: string) => {
-        return Number(lastPrice) - Number(open)
-    }
-
-    useEffect(() => mapArrayDashboardList(), [lastQuotes])
-
-    const mapArrayDashboardList = () => {
-
-        const getItemSymbolData = (symbolCode: string) => {
-            return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-        }
-
-        let listData: IListDashboard[] = [];
-
-        let itemData: IListDashboard = {
-            symbolId: 0,
-            symbolName: '',
-            symbolCode: '',
-            previousClose: '',
-            open: '',
-            high: '',
-            low: '',
-            lastPrice: '',
-            volume: '',
-            change: 0,
-            percentChange: 0,
-        };
-
-        symbolList.forEach(item => {
-            itemData = {
-                symbolId: item.symbolId,
-                symbolName: item.symbolName,
-                symbolCode: item.symbolCode,
-                previousClose: getItemSymbolData(item.symbolId.toString())?.close,
-                open: getItemSymbolData(item.symbolId.toString())?.open,
-                high: getItemSymbolData(item.symbolId.toString())?.high,
-                low: getItemSymbolData(item.symbolId.toString())?.low,
-                lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
-                volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
-                change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
-                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100,
-            }
-            listData.push(itemData);
-        })
-
-        setDataDashboard(listData)
-        localStorage.setItem(CURRENT_CHOOSE_TICKER, JSON.stringify(listData).toString())
-    }
-
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
-
-    useEffect(() => {
-        sendMessageQuotes()
-        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
-            setLastQuotes(res.quotesList);
-        });
-        return () => {
-            lastQuotesRes.unsubscribe();
-        }
-    }, [symbolList])
-
-    const sendMessageQuotes = () => {
-        const pricingServicePb: any = pspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-            symbolList.forEach(item => {
-                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
-            });
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
 
     const headerTable = () => (
         <tr>
@@ -172,7 +71,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     )
 
     const renderDataListCompany = () => (
-        listDataDashboard.map((item: any, index: number) => (
+        listDataTicker.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="text-left w-px-150 fw-600">{item.symbolName}</td>
                 <td className="text-left w-ss fw-600">{item.symbolCode}</td>
