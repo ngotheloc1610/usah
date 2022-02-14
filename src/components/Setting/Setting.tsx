@@ -135,7 +135,7 @@ const Setting = (props: ISetting) => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
                 return;
@@ -198,7 +198,7 @@ const Setting = (props: ISetting) => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
                 buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             }
@@ -224,7 +224,7 @@ const Setting = (props: ISetting) => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
                 buildMessageMatchNoti(accountId, matchNoti);
                 return;
             }
@@ -269,7 +269,7 @@ const Setting = (props: ISetting) => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
                 buildMsgEnableTradingPin(accountId, enableFlg);
                 return;
             }
