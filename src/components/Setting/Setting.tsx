@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS, MATCH_NOTI, ENABLE_BUTTON } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, ENABLE_BUTTON } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -45,8 +45,8 @@ const Setting = (props: ISetting) => {
     const [enableSecretKey, setEnableSecretKey] = useState(customerInfoDetail.enableSecretKeyFlg)
 
     localStorage.setItem(ENABLE_TRADING_PIN, JSON.stringify(enableSecretKey))
-    localStorage.setItem(ADMIN_NEWS, JSON.stringify(recvAdminNewsFlg))
-    localStorage.setItem(MATCH_NOTI, JSON.stringify(recvMatchNotiFlg))
+    localStorage.setItem(ADMIN_NEWS_FLAG, JSON.stringify(recvAdminNewsFlg))
+    localStorage.setItem(MATCH_NOTI_FLAG, JSON.stringify(recvMatchNotiFlg))
 
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {

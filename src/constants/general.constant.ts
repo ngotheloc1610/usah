@@ -108,9 +108,9 @@ export const CURRENT_CHOOSE_TICKER = 'tickerDetail';
 
 export const ENABLE_TRADING_PIN = 'ENABLE_TRADING_PIN';
 
-export const ADMIN_NEWS = 'ADMIN_NEWS';
+export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 
-export const MATCH_NOTI = 'MATCH_NOTI'
+export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 
 export enum ENABLE_BUTTON {
     ON = 'On',
