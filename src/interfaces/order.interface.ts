@@ -284,3 +284,8 @@ export interface IListAskBid {
     volumeAsk: string;
     volumeBid: string;
 }
+
+export interface ITickerBindingOrder {
+    symbolCode: string;
+    symbolName: string;
+}

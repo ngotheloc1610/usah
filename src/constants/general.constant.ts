@@ -56,6 +56,8 @@ export const MSG_CODE = 'msgCode';
 
 export const MSG_TEXT = 'msgText';
 
+export const SYMBOL_LIST = 'symbol-list';
+
 export const TITLE_CONFIRM = {
     modify: 'Modify',
     cancel: 'Cancel',
