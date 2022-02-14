@@ -8,25 +8,11 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import { SOCKET_CONNECTED } from "../../../constants/general.constant";
-const defaultCurrentTicker: ITickerInfo | any = {
-    symbolId: 0,
-    tickerName: '',
-    ticker: '',
-    stockPrice: '',
-    previousClose: '',
-    open: '',
-    high: '',
-    low: '',
-    lastPrice: '',
-    volume: '',
-    change: '',
-    changePrecent: '',
-    side: '',
-}
+import { DEFAULT_CURRENT_TICKER } from "../../../mocks";
 
 const OrderMonitoring = () => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
+    const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolName, setSymbolName] = useState<string[]>([])
 

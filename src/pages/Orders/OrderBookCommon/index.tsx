@@ -18,6 +18,7 @@ import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { IListDashboard } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { DEFAULT_CURRENT_TICKER } from '../../../mocks';
 
 const defaultDataTicker: ILastQuote = {
     asksList: [],
@@ -49,21 +50,7 @@ const defaultTickerInf = {
     change: 0,
     percentChange: 0,
 }
-const defaultCurrentTicker: ITickerInfo | any = {
-    symbolId: 0,
-    tickerName: '',
-    ticker: '',
-    stockPrice: '',
-    previousClose: '',
-    open: '',
-    high: '',
-    low: '',
-    lastPrice: '',
-    volume: '',
-    change: '',
-    changePrecent: '',
-    side: '',
-}
+
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
 
@@ -72,7 +59,7 @@ const OrderBookCommon = () => {
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
-    const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
+    const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>();
     const [itemTickerInfor, setItemTickerInfor] = useState<IListDashboard>(defaultTickerInf);

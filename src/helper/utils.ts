@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD } from '../constants/general.constant';
 import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
@@ -34,7 +34,7 @@ export function validationPassword(newPassword: string) {
     const isNumber = /\d/.test(newPassword);
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     const specialCharacter = format.test(newPassword);
-    if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
+    if (newPassword.length < LENGTH_PASSWORD || isUpperCase === null || isNumber === false || specialCharacter === false) {
         return false
     } else {
         return true
