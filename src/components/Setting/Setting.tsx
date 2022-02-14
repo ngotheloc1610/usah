@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS, MATCH_NOTI } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS, MATCH_NOTI, ENABLE_BUTTON } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -527,7 +527,7 @@ const Setting = (props: ISetting) => {
                                     checked={enableSecretKey === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? true : false}
                                     onChange={(event) => handleEnableTradingPin(event.target.checked)}
                                 />
-                                <label className='trading-pin-flg'>{enableSecretKey === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? 'On' : 'Off'}</label>
+                                <label className='trading-pin-flg'>{enableSecretKey === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? ENABLE_BUTTON.ON : ENABLE_BUTTON.OFF}</label>
                             </div>
                         </div>
                     </div>
