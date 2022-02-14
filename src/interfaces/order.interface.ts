@@ -12,6 +12,9 @@ export interface ITickerInfo {
     change: string;
     changePrecent: string;
     side?: string;
+    tickSize?: string;
+    minLot?: string;
+    lotSize?: string;
 }
 
 export interface IDetailTickerInfo {
@@ -170,7 +173,7 @@ export interface ILastQuote {
     tickPerDay: number;
     volumePerDay: string;
     volume: string;
-    ticker?: string
+    ticker?: string;
 }
 
 

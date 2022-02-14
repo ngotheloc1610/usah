@@ -26,6 +26,9 @@ const defaultTickerInfo: ITickerInfo = {
     volume: '',
     change: '',
     changePrecent: '',
+    tickSize: '',
+    lotSize: '',
+    minLot: ''
 }
 const Dashboard = () => {
     const [isDashboard, setIsDashboard] = useState(true);
@@ -65,6 +68,9 @@ const Dashboard = () => {
             change: '',
             changePrecent: '',
             side: '',
+            lotSize: '',
+            minLot: '',
+            tickSize: '',
         };
 
         symbolList.forEach(item => {
@@ -80,7 +86,10 @@ const Dashboard = () => {
                 lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
                 volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
                 change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString()
+                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
+                tickSize: item.tickSize,
+                lotSize: item.lotSize,
+                minLot: item.minLot,
             }
             listData.push(itemData);
         })
@@ -174,17 +183,19 @@ const Dashboard = () => {
     }
 
     const handleTickerSearch = (value: string) => {
-        const assignDataTickerOrder = handleSymbolList.find(item => item.ticker === value.toLocaleUpperCase());
+        const itemTicker = handleSymbolList.find(item => item.ticker === value.toLocaleUpperCase());
         let symbolId = {};
-        if (assignDataTickerOrder) {
-            setTicker(assignDataTickerOrder);
-            symbolId = assignDataTickerOrder.symbolId;
+        if (itemTicker) {
+            setTicker(itemTicker);
+            symbolId = itemTicker.symbolId;
             if (symbolId && lastQuotes) {
                 const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolId);
-                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: assignDataTickerOrder.ticker} : defaultTickerSearch);
+                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: itemTicker.ticker} : defaultTickerSearch);
             }
+            setTicker(defaultTickerInfo);
             return setDataSearchTicker(defaultTickerSearch);
         }
+        setTicker(defaultTickerInfo);
         return setDataSearchTicker(defaultTickerSearch);
     }
     return (
@@ -200,7 +211,7 @@ const Dashboard = () => {
                             <OrderBook isDashboard={isDashboard} listDataTicker={handleSymbolList} itemTickerSearch={handleTickerSearch} dataSearchTicker={dataSearchTicker}/>
                         </div>
                         <div>
-                            <StockInfo listDataTicker={handleSymbolList} dataSearchTicker={dataSearchTicker}/>
+                            <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker}/>
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">

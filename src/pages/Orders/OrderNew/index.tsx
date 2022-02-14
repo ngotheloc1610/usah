@@ -144,6 +144,9 @@ const OrderNew = () => {
             open: itemLocal ? itemLocal.open : '0',
             high: itemLocal ? itemLocal.high : '0',
             low: itemLocal ? itemLocal.low : '0',
+            tickSize: item.tickSize,
+            minLot: item.minLot,
+            lotSize: item.lotSize
         }
         setCurrentTicker(assignTickerInfo);
     }

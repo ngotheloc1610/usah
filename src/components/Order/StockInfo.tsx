@@ -3,11 +3,11 @@ import { IListDashboard } from "../../interfaces/ticker.interface"
 
 interface IStockInfo {
     listDataTicker: ITickerInfo[];
-    dataSearchTicker?: ILastQuote;
+    detailTicker?: ITickerInfo;
 }
 
 const StockInfo = (props: IStockInfo) => {
-    const { dataSearchTicker } = props;
+    const { detailTicker } = props;
     return <>
         <div className="card">
             <div className="card-header">
@@ -19,23 +19,23 @@ const StockInfo = (props: IStockInfo) => {
                         <tbody>
                             <tr>
                                 <th className="fs-14">Mininum bid size</th>
-                                <td className="text-end fw-600">0.01</td>
+                                <td className="text-end fw-600">{detailTicker?.tickSize}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">Lot size</th>
-                                <td className="text-end fw-600">0.01</td>
+                                <td className="text-end fw-600">{detailTicker?.lotSize}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">Volume</th>
-                                <td className="text-end fw-600">{dataSearchTicker?.volumePerDay}</td>
+                                <td className="text-end fw-600">{detailTicker?.volume}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w High</th>
-                                <td className="text-end fw-600">{dataSearchTicker?.high}</td>
+                                <td className="text-end fw-600">{detailTicker?.high}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w Low</th>
-                                <td className="text-end fw-600">{dataSearchTicker?.low}</td>
+                                <td className="text-end fw-600">{detailTicker?.low}</td>
                             </tr>
                         </tbody>
                     </table>
