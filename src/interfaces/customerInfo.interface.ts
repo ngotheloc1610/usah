@@ -5,6 +5,7 @@ export interface IAccountDetail {
     comment: string;
     email: string;
     enableFlg: boolean;
+    enableSecretKeyFlg: number;
     groupId: number;
     name: string;
     password: string;

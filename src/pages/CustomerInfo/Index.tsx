@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
+import { ENABLE_TRADING_PIN, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const CustomerInfo = () => {
@@ -21,6 +21,7 @@ const CustomerInfo = () => {
         comment: "",
         email: "",
         enableFlg: false,
+        enableSecretKeyFlg: 0,
         groupId: 0,
         name: "",
         password: "",
@@ -39,7 +40,7 @@ const CustomerInfo = () => {
             }
         });
 
-        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {            
+        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
             setCustomerInfoDetail(res.account)
         });
 
