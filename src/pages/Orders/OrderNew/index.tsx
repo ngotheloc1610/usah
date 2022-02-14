@@ -138,6 +138,10 @@ const OrderNew = () => {
         const currentVolume = itemSymbolData?.volumePerDay;
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
         const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open)/Number(itemSymbolData?.open))*100;
+        console.log(141, item);
+        const symbolLocalList = JSON.parse(localStorage.getItem('tickerDetail') || '[{}]')
+        const itemLocal = symbolLocalList.find(o => o.symbolId === item.symbolId);
+        console.log(144, itemLocal);
         const assignTickerInfo: ITickerInfo = {
             symbolId: Number(item.symbolId),
             tickerName: item.symbolName,
@@ -146,6 +150,9 @@ const OrderNew = () => {
             volume: currentVolume ? currentVolume : '' ,
             change: currentChange ? currentChange.toString() : '',
             changePrecent: changePercent ? changePercent.toString() : '',
+            open: itemLocal ? itemLocal.open : '0',
+            high: itemLocal ? itemLocal.high : '0',
+            low: itemLocal ? itemLocal.low : '0',
         }
         setCurrentTicker(assignTickerInfo);
     }

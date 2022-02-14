@@ -5,7 +5,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { CURRENT_CHOOSE_TICKER, OBJ_AUTHEN, SYMBOL_LIST } from '../../constants/general.constant';
 import ReduxPersist from '../../config/ReduxPersist';
 import { isTemplateExpression } from 'typescript';
-import { ITickerBindingOrder } from '../../interfaces/order.interface';
+import { ITickerBindingOrder, ITickerInfo } from '../../interfaces/order.interface';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
     listTicker: ISymbolList[];
@@ -23,11 +23,11 @@ const TickerSearch = (props: ITickerSearch) => {
     const [tickerDisplay, setTickerDisplay] = useState('');
 
     useEffect(() => {
-        setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'))
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
+        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
         const listSymbolCode: string[] = [];
-        tickerDetail.forEach((item: IListDashboard) => {
-            const displayText = `${item.symbolCode} - ${item.symbolName}`;
+        tickerDetail.forEach((item: ITickerInfo) => {
+            const displayText = `${item.ticker} - ${item.tickerName}`;
             listSymbolCode.push(displayText);
         });
         setListSymbolCode(listSymbolCode);
@@ -59,6 +59,8 @@ const TickerSearch = (props: ITickerSearch) => {
         setTickerDisplay(event.target.innerText);
         setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
         handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        const listTickerSearch = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '[{}]');
+        
     }
 
     const handleKeyUp = (event: any) => {
