@@ -94,7 +94,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
             </th>
             <td className="text-end fw-600 w-precent-41">
                 <div>0</div>
-                <div>0</div>
+                <div>{formatNumber(currentTicker?.tickSize ? currentTicker.tickSize : '0')}</div>
             </td>
             <th className='w-precent-15'>Low</th>
             <td className="text-end fw-600">{formatNumber(currentTicker?.low ? currentTicker?.low : '0')}</td>
@@ -103,13 +103,14 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const _renderTickerDetail = () => {
         const high = (currentTicker?.high) ? currentTicker.high.toString() : '0';
+        const lotSize = (currentTicker?.lotSize) ? currentTicker.lotSize.toString() : '0';
         return <div>
         <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
         <div className="table-responsive">
             <table cellPadding="0" cellSpacing="0" className="table border table-i table-sm">
                 <tbody className='fs-17'>
                     {_renderLastPrice()}
-                    {_renderGeneralTemplate('Lot Size', '100', 'High', formatNumber(high))}
+                    {_renderGeneralTemplate('Lot Size', lotSize, 'High', formatNumber(high))}
                     {_renderMiniumSize()}
                 </tbody>
             </table>
