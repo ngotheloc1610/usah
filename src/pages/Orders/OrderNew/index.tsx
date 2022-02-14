@@ -7,7 +7,6 @@ import TickerSearch from '../../../components/Order/TickerSearch'
 import { SOCKET_CONNECTED } from '../../../constants/general.constant'
 import { ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
-import { LIST_TICKER_INFOR_MOCK_DATA } from '../../../mocks'
 import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rspb from "../../../models/proto/rpc_pb";

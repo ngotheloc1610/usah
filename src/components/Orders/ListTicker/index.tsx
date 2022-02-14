@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber, getSymbolId } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -10,10 +10,11 @@ import * as tdpb from '../../../models/proto/trading_model_pb';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ISymbolList } from "../../../interfaces/ticker.interface";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
-    symbolName: string[];
-    symbolList: ISymbolList[];
+    msgSuccess?: string;
+    symbolName: string[]; 
 }
 
 const defaultProps = {
@@ -23,22 +24,110 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote, symbolName, symbolList } = props;
+    const { getTicerLastQuote, msgSuccess, symbolName } = props;
     const [ticker, setTicker] = useState('')
-    const [itemSearch, setItemSearch] = useState<string | undefined>('');
+    const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
+
+    useEffect(() => mapArrayDashboardList(), [lastQoutes])
+
+    const mapArrayDashboardList = () => {
+
+        const getItemSymbolData = (symbolCode: string) => {
+            return lastQoutes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
+        }
+
+        let listData: ITickerInfo[] = [];
+
+        let itemData: ITickerInfo = {
+            symbolId: 0,
+            tickerName: '',
+            ticker: '',
+            stockPrice: '',
+            previousClose: '',
+            open: '',
+            high: '',
+            low: '',
+            lastPrice: '',
+            volume: '',
+            change: '',
+            changePrecent: '',
+            side: '',
+        };
+
+        symbolList.forEach(item => {
+            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
+            itemData = {
+                tickerName: item.symbolName,
+                symbolId: item.symbolId,
+                ticker: item.symbolCode,
+                previousClose: itemSymbolData?.close,
+                open: itemSymbolData?.open,
+                high: itemSymbolData?.high,
+                low: itemSymbolData?.low,
+                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
+                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
+                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
+                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
+            }
+            listData.push(itemData);
+        });
+        sethandleSymbolList(listData);
+    }
 
     useEffect(() => {
         getOrderBooks();
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
             setLastQoutes(resp.quotesList);
         });
-
         return () => {
             lastQuotesRes.unsubscribe();
         }
-    }, [symbolList]);
+    }, [symbolList])
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        sendMsgSymbolList();
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [msgSuccess]);
+
+    const calculateChange = (lastPrice?: string, open?: string) => {
+        if (!lastPrice && !open) {
+            return 0;
+        }
+        if (!lastPrice) {
+            return Number(open);
+        }
+        if (!open) {
+            return Number(lastPrice);
+        }
+        return Number(lastPrice) - Number(open)
+    }
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -160,13 +249,6 @@ const ListTicker = (props: IListTickerProps) => {
             }
             counter++;
         }
-        const defaultBidPrice: IAskAndBidPrice = {
-            numOrders: 0,
-            price: '-',
-            tradable: false,
-            volume: '-',
-            symbolCode: '-'
-        }
         return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
@@ -184,7 +266,7 @@ const ListTicker = (props: IListTickerProps) => {
         const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
         const listArr: ITickerInfo[] = [];
         let counter = 0;
-        tickerDetail.forEach(item => {
+        handleSymbolList.forEach(item => {
             if (counter < 12) {
                 listArr.push(item);
                 counter++;

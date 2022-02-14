@@ -42,4 +42,5 @@ export interface IListDashboard {
     volume?: string;
     change: number;
     percentChange: number;
+
 }
