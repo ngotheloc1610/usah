@@ -35,9 +35,9 @@ const TickerSearch = (props: ITickerSearch) => {
 
     const handleSymbols = (symbolCode: string) => {
         const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
-        const element = tickerDetail.find(o => o?.symbolCode === symbolCode);
+        const element = tickerDetail.find(o => o?.ticker === symbolCode);
         if (element) {
-            setTickerDisplay(`${element.symbolCode} - ${element.symbolName}`)
+            setTickerDisplay(`${element.ticker} - ${element.tickerName}`)
             setTicker(element.symbolId.toString());
             handleTicker(element.symbolId.toString());
         }

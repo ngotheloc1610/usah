@@ -46,6 +46,7 @@ const OrderNew = () => {
     }
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
+    const [currentTickerSearch, setCurrentTickerSearch] = useState<string>('');
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -57,7 +58,6 @@ const OrderNew = () => {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList);
         });
-
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
@@ -65,13 +65,22 @@ const OrderNew = () => {
     }, [])
 
     useEffect(() => {
-        sendMessageQuotes()
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
-            setLastQuotes(res.quotesList);
+            if (res.quotesList) {
+                const item = res.quotesList.find(o => o?.symbolCode?.toString() === currentTickerSearch)
+                if (item) {
+                    setDataSearchTicker(item);
+                }
+                setLastQuotes(res.quotesList);
+            }
         });
-        return () => {
-            lastQuotesRes.unsubscribe();
-        }
+
+        return () => lastQuotesRes.unsubscribe();
+
+    }, [currentTickerSearch])
+
+    useEffect(() => {
+        sendMessageQuotes()
     }, [symbolList])
 
     const sendMessageQuotes = () => {
@@ -113,6 +122,7 @@ const OrderNew = () => {
             
     }
     const getTicker = (value: string) => {
+        setCurrentTickerSearch(value);
         assignDataGetLastQuote(Number(value));
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
@@ -140,6 +150,9 @@ const OrderNew = () => {
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
+        sendMessageQuotes();
+        assignDataGetLastQuote(Number(currentTickerSearch));
+        getTicker(currentTickerSearch);
     }
     const handleItemSearch = (value: string) => {
 
