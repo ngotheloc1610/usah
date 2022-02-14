@@ -115,7 +115,7 @@ const OrderNew = () => {
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
         const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open)/Number(itemSymbolData?.open))*100;
         const assignTickerInfo: ITickerInfo = {
-            symbolId: Number(item.symbolCode),
+            symbolId: Number(item.symbolId),
             tickerName: item.symbolName,
             ticker: item.symbolCode,
             lastPrice: currentPrice ? currentPrice : '',
