@@ -248,7 +248,6 @@ const ListTicker = (props: IListTickerProps) => {
             }
         });
         const output: ILastQuote[] = [];
-        console.log(251, output);
         listArr.forEach(element => {
             const obj: ILastQuote = {
                 asksList: [],

@@ -130,7 +130,7 @@ ListOrder = (props: IPropsListOrder) => {
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
     const getTickerName = (symbolId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
+        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
     }
 
     const getSideName = (sideId: number) => {

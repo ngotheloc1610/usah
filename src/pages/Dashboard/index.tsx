@@ -11,6 +11,7 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
 import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
+import { defaultTickerSearch } from "../../mocks";
 
 const defaultTickerInfo: ITickerInfo = {
     symbolId: 0,
@@ -25,24 +26,6 @@ const defaultTickerInfo: ITickerInfo = {
     volume: '',
     change: '',
     changePrecent: '',
-}
-const defaultTickerSearch: ILastQuote = {
-    asksList: [],
-    bidsList: [],
-    close: '',
-    currentPrice: '',
-    high: '',
-    low: '',
-    netChange: '',
-    open: '',
-    pctChange: '',
-    quoteTime: 0,
-    scale: 0,
-    symbolCode: '',
-    symbolId: 0,
-    tickPerDay: 0,
-    volumePerDay: '',
-    volume: ''
 }
 const Dashboard = () => {
     const [isDashboard, setIsDashboard] = useState(true);

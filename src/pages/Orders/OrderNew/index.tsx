@@ -11,6 +11,7 @@ import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rspb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
+import { defaultTickerSearch } from '../../../mocks'
 
 const OrderNew = () => {
 
@@ -42,24 +43,6 @@ const OrderNew = () => {
         symbolId: 0,
         symbolName: '',
         tickSize: '',
-    }
-    const defaultTickerSearch: ILastQuote = {
-        asksList: [],
-        bidsList: [],
-        close: '',
-        currentPrice: '',
-        high: '',
-        low: '',
-        netChange: '',
-        open: '',
-        pctChange: '',
-        quoteTime: 0,
-        scale: 0,
-        symbolCode: '',
-        symbolId: 0,
-        tickPerDay: 0,
-        volumePerDay: '',
-        volume: ''
     }
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
@@ -138,10 +121,8 @@ const OrderNew = () => {
         const currentVolume = itemSymbolData?.volumePerDay;
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
         const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open)/Number(itemSymbolData?.open))*100;
-        console.log(141, item);
         const symbolLocalList = JSON.parse(localStorage.getItem('tickerDetail') || '[{}]')
         const itemLocal = symbolLocalList.find(o => o.symbolId === item.symbolId);
-        console.log(144, itemLocal);
         const assignTickerInfo: ITickerInfo = {
             symbolId: Number(item.symbolId),
             tickerName: item.symbolName,

@@ -1,29 +1,12 @@
 import { MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import {  ORDER_BOOK_HEADER } from "../../mocks"
+import {  defaultTickerSearch, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from "../../helper/utils";
 import { useEffect, useState } from "react";
 
-const defaultTickerSearch: ILastQuote = {
-    asksList: [],
-    bidsList: [],
-    close: '',
-    currentPrice: '',
-    high: '',
-    low: '',
-    netChange: '',
-    open: '',
-    pctChange: '',
-    quoteTime: 0,
-    scale: 0,
-    symbolCode: '',
-    symbolId: 0,
-    tickPerDay: 0,
-    volumePerDay: '',
-    volume: ''
-}
+
 interface IOrderBookProps {
     isDashboard: boolean;
     listDataTicker?: ITickerInfo[];
