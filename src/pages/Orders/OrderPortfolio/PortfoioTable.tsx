@@ -98,10 +98,10 @@ function PortfolioTable(props: IPropsListPortfolio) {
                 <td className="text-end w-s td" >{formatCurrency(item.investedValue)}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(item.currentValue)}</td>
-                <td className="text-end w-s td" ><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
+                <td className="text-end w-s td fw-600" ><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
                     {formatCurrency(item.unrealizedPl)}</span>
                 </td>
-                <td className="text-end w-s td"><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
+                <td className="text-end w-s td fw-600"><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
                     {(Number(item.unrealizedPl) / Number(item.investedValue) * 100).toFixed(2) + '%'}</span></td>
             </tr>
         ))
