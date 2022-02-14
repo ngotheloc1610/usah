@@ -1,10 +1,14 @@
 import "./orderMonitoring.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
 import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
+import { wsService } from "../../../services/websocket-service";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
+import { SOCKET_CONNECTED } from "../../../constants/general.constant";
 const defaultCurrentTicker: ITickerInfo | any = {
     symbolId: 0,
         tickerName: '',
@@ -22,11 +26,28 @@ const defaultCurrentTicker: ITickerInfo | any = {
 }
 
 const OrderMonitoring = () => {
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [currentTicker, setCurrentTicker] = useState(defaultCurrentTicker);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMsgSymbolList();
+            }
+        });
+
+        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            setSymbolList(res.symbolList)
+        });
+
+        return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+        }
+    }, [])
+
     const handleTicker = (itemTicker: IAskAndBidPrice, curentPrice: string) => {
-        
         const tickerData = LIST_TICKER_INFOR_MOCK_DATA.find((itemData: ITickerInfo) => itemData.symbolId === Number(itemTicker.symbolCode));
         const assignItemTicker = {
             tickerName: tickerData?.tickerName,
@@ -48,7 +69,7 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} />
+                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="me-2 h-100 d-flex align-items-center">
