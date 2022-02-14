@@ -80,7 +80,7 @@ const TickerSearch = (props: ITickerSearch) => {
             if (resp) {
                 const lstSymbols = JSON.parse(resp);
                 const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-                if (!item) {
+                if (!item && symbolCode && symbolName) {
                     let newLstSymbols = lstSymbols.length > 2 ? lstSymbols.splice(1, 2) : lstSymbols;
                     newLstSymbols.push({
                         symbolCode: symbolCode,
@@ -116,7 +116,7 @@ const TickerSearch = (props: ITickerSearch) => {
                     value={tickerDisplay}
                     disablePortal
                     options={listSymbolCode}
-                    sx={{ width: 300 }}
+                    sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
             </div>
