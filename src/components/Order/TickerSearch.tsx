@@ -20,7 +20,7 @@ const TickerSearch = (props: ITickerSearch) => {
 
     useEffect(() => {
         const listSymbolName: string[] = []
-        listTicker.forEach((item: any) => {
+        listTicker.forEach((item: ISymbolList) => {
             listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
         setSymbolName(listSymbolName)
