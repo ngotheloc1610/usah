@@ -174,10 +174,10 @@ const ListTicker = (props: IListTickerProps) => {
             if (askItems[counter]) {
                 arr.push({
                     numOrders: askItems[counter].numOrders,
-                    price: askItems[counter].price,
-                    tradable: askItems[counter].tradable,
-                    volume: askItems[counter].volume,
-                    symbolCode: itemData.symbolCode,
+                    price: askItems[counter].numOrders !== 0 ? askItems[counter].price : '-',
+                    tradable: askItems[counter].numOrders !== 0 ? askItems[counter].tradable : false,
+                    volume: askItems[counter].numOrders !== 0 ? askItems[counter].volume : '-',
+                    symbolCode: askItems[counter].numOrders !== 0 ? itemData.symbolCode : '-',
                 });
             } else {
                 arr.push({
@@ -211,10 +211,10 @@ const ListTicker = (props: IListTickerProps) => {
             if (bidItems[counter]) {
                 arr.push({
                     numOrders: bidItems[counter].numOrders,
-                    price: bidItems[counter].price,
-                    tradable: bidItems[counter].tradable,
-                    volume: bidItems[counter].volume,
-                    symbolCode: itemData.symbolCode
+                    price: bidItems[counter].numOrders !== 0 ? bidItems[counter].price : '-',
+                    tradable: bidItems[counter].numOrders !== 0 ? bidItems[counter].tradable : false,
+                    volume: bidItems[counter].numOrders !== 0 ? bidItems[counter].volume : '-',
+                    symbolCode: bidItems[counter].numOrders !== 0 ? itemData.symbolCode : '-'
                 });
             } else {
                 arr.push({
