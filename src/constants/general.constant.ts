@@ -106,13 +106,11 @@ export enum MESSAGE_TOAST {
 
 export const CURRENT_CHOOSE_TICKER = 'tickerDetail';
 
-export const ACCOUNT_DETAIL = 'accountDetail'
+export const ENABLE_TRADING_PIN = 'ENABLE_TRADING_PIN';
 
-export const ENABLE_TRADING_PIN = 'enableTradingPin';
+export const ADMIN_NEWS = 'ADMIN_NEWS';
 
-export const ADMIN_NEWS = 'adminNews';
-
-export const MATCH_NOTI = 'matchNoti'
+export const MATCH_NOTI = 'MATCH_NOTI'
 
 export enum ENABLE_BUTTON {
     ON = 'On',

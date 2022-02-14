@@ -6,10 +6,11 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { ENABLE_TRADING_PIN, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
+import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const CustomerInfo = () => {
+    const systemServicePb: any = sspb
     const [isSetting, setIsSetting] = useState(false)
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
@@ -21,13 +22,13 @@ const CustomerInfo = () => {
         comment: "",
         email: "",
         enableFlg: false,
-        enableSecretKeyFlg: 0,
+        enableSecretKeyFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
         groupId: 0,
         name: "",
         password: "",
         phone: "",
-        recvAdminNewsFlg: 0,
-        recvMatchNotiFlg: 0,
+        recvAdminNewsFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
+        recvMatchNotiFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
         registeredDate: 0,
         secretKey: "",
         tradingRights: 0,
