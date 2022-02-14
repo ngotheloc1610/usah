@@ -4,7 +4,7 @@ import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
 import { CURRENT_CHOOSE_TICKER, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
-import { IListDashboard, ISymbolList } from "../../interfaces/ticker.interface";
+import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.css';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
@@ -26,13 +26,33 @@ const defaultTickerInfo: ITickerInfo = {
     change: '',
     changePrecent: '',
 }
+const defaultTickerSearch: ILastQuote = {
+    asksList: [],
+    bidsList: [],
+    close: '',
+    currentPrice: '',
+    high: '',
+    low: '',
+    netChange: '',
+    open: '',
+    pctChange: '',
+    quoteTime: 0,
+    scale: 0,
+    symbolCode: '',
+    symbolId: 0,
+    tickPerDay: 0,
+    volumePerDay: '',
+    volume: ''
+}
 const Dashboard = () => {
     const [isDashboard, setIsDashboard] = useState(true);
     const [ticker, setTicker] = useState(defaultTickerInfo);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const [listDataTicker, setDataDashboard] = useState<IListDashboard[]>([])
+    // const [listDataTicker, setListDataTicker] = useState<IListDashboard[]>([]);
+    const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
+    const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     
     const calculateChange = (lastPrice?: string, open?: string) => {
         return Number(lastPrice) - Number(open)
@@ -46,40 +66,43 @@ const Dashboard = () => {
             return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
         }
 
-        let listData: IListDashboard[] = [];
+        let listData: ITickerInfo[] = [];
 
-        let itemData: IListDashboard = {
+        let itemData: ITickerInfo = {
             symbolId: 0,
-            symbolName: '',
-            symbolCode: '',
+            tickerName: '',
+            ticker: '',
+            stockPrice: '',
             previousClose: '',
             open: '',
             high: '',
             low: '',
             lastPrice: '',
             volume: '',
-            change: 0,
-            percentChange: 0,
+            change: '',
+            changePrecent: '',
+            side: '',
         };
 
         symbolList.forEach(item => {
+            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
             itemData = {
+                tickerName: item.symbolName,
                 symbolId: item.symbolId,
-                symbolName: item.symbolName,
-                symbolCode: item.symbolCode,
-                previousClose: getItemSymbolData(item.symbolId.toString())?.close,
-                open: getItemSymbolData(item.symbolId.toString())?.open,
-                high: getItemSymbolData(item.symbolId.toString())?.high,
-                low: getItemSymbolData(item.symbolId.toString())?.low,
-                lastPrice: getItemSymbolData(item.symbolId.toString())?.currentPrice,
-                volume: getItemSymbolData(item.symbolId.toString())?.volumePerDay,
-                change: calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open),
-                percentChange: (calculateChange(getItemSymbolData(item.symbolId.toString())?.currentPrice, getItemSymbolData(item.symbolId.toString())?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100,
+                ticker: item.symbolCode,
+                previousClose: itemSymbolData?.close,
+                open: itemSymbolData?.open,
+                high: itemSymbolData?.high,
+                low: itemSymbolData?.low,
+                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
+                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
+                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
+                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString()
             }
             listData.push(itemData);
         })
 
-        setDataDashboard(listData)
+        sethandleSymbolList(listData)
         localStorage.setItem(CURRENT_CHOOSE_TICKER, JSON.stringify(listData).toString())
     }
 
@@ -159,6 +182,7 @@ const Dashboard = () => {
     )
 
     const getTickerInfo = (value: ITickerInfo) => {
+        handleTickerSearch(value.ticker);
         setTicker(value);
     }
 
@@ -167,7 +191,18 @@ const Dashboard = () => {
     }
 
     const handleTickerSearch = (value: string) => {
-        // console.lo
+        const assignDataTickerOrder = handleSymbolList.find(item => item.ticker === value.toLocaleUpperCase());
+        let symbolId = {};
+        if (assignDataTickerOrder) {
+            setTicker(assignDataTickerOrder);
+            symbolId = assignDataTickerOrder.symbolId;
+            if (symbolId && lastQuotes) {
+                const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolId);
+                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: assignDataTickerOrder.ticker} : defaultTickerSearch);
+            }
+            return setDataSearchTicker(defaultTickerSearch);
+        }
+        return setDataSearchTicker(defaultTickerSearch);
     }
     return (
         <div className="site-main">
@@ -175,14 +210,14 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={listDataTicker} />
+                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
-                            <OrderBook isDashboard={isDashboard} listDataTicker={listDataTicker} itemTickerSearch={handleTickerSearch} />
+                            <OrderBook isDashboard={isDashboard} listDataTicker={handleSymbolList} itemTickerSearch={handleTickerSearch} dataSearchTicker={dataSearchTicker}/>
                         </div>
                         <div>
-                            <StockInfo listDataTicker={listDataTicker} />
+                            <StockInfo listDataTicker={handleSymbolList} dataSearchTicker={dataSearchTicker}/>
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">

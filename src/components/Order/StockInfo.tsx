@@ -1,10 +1,13 @@
+import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { IListDashboard } from "../../interfaces/ticker.interface"
 
 interface IStockInfo {
-    listDataTicker: IListDashboard[];
+    listDataTicker: ITickerInfo[];
+    dataSearchTicker?: ILastQuote;
 }
 
 const StockInfo = (props: IStockInfo) => {
+    const { dataSearchTicker } = props;
     return <>
         <div className="card">
             <div className="card-header">
@@ -24,15 +27,15 @@ const StockInfo = (props: IStockInfo) => {
                             </tr>
                             <tr>
                                 <th className="fs-14">Volume</th>
-                                <td className="text-end fw-600">1,267,500</td>
+                                <td className="text-end fw-600">{dataSearchTicker?.volumePerDay}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w High</th>
-                                <td className="text-end fw-600">174.34</td>
+                                <td className="text-end fw-600">{dataSearchTicker?.high}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w Low</th>
-                                <td className="text-end fw-600">142.89</td>
+                                <td className="text-end fw-600">{dataSearchTicker?.low}</td>
                             </tr>
                         </tbody>
                     </table>

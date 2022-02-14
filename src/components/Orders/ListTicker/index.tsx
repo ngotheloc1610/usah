@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
@@ -104,7 +103,6 @@ const ListTicker = (props: IListTickerProps) => {
     }, [])
 
     useEffect(() => {
-        console.log(107, 1111);
         sendMsgSymbolList();
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
@@ -250,6 +248,7 @@ const ListTicker = (props: IListTickerProps) => {
             }
         });
         const output: ILastQuote[] = [];
+        console.log(251, output);
         listArr.forEach(element => {
             const obj: ILastQuote = {
                 asksList: [],
@@ -266,7 +265,8 @@ const ListTicker = (props: IListTickerProps) => {
                 symbolCode: element.symbolId.toString(),
                 symbolId: Number(element.symbolId),
                 tickPerDay: 0,
-                volumePerDay: '0'
+                volumePerDay: '0',
+                volume: element.volume
             };
             output.push(obj);
         })
@@ -301,7 +301,6 @@ const ListTicker = (props: IListTickerProps) => {
                 <tbody>
                     {_renderAskPrice(item)}
                     {_renderBidPrice(item)}
-
                 </tbody>
             </table>
 

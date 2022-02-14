@@ -43,7 +43,26 @@ const OrderNew = () => {
         symbolName: '',
         tickSize: '',
     }
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const defaultTickerSearch: ILastQuote = {
+        asksList: [],
+        bidsList: [],
+        close: '',
+        currentPrice: '',
+        high: '',
+        low: '',
+        netChange: '',
+        open: '',
+        pctChange: '',
+        quoteTime: 0,
+        scale: 0,
+        symbolCode: '',
+        symbolId: 0,
+        tickPerDay: 0,
+        volumePerDay: '',
+        volume: ''
+    }
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -53,7 +72,7 @@ const OrderNew = () => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+            setSymbolList(res.symbolList);
         });
 
         return () => {
@@ -105,7 +124,13 @@ const OrderNew = () => {
         return Number(lastPrice) - Number(open)
     }
 
+    const assignDataGetLastQuote = (symbolCode: number) => {
+        const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolCode);
+        return setDataSearchTicker(dataSearch ? {...dataSearch} : defaultTickerSearch);
+            
+    }
     const getTicker = (value: string) => {
+        assignDataGetLastQuote(Number(value));
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
         const itemSymbolData = getItemSymbolData(item.symbolId.toString());
@@ -149,7 +174,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook itemTickerSearch={handleItemSearch} />
+                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} />
                         </div>
                     </div>
                 </div>

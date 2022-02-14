@@ -7,7 +7,7 @@ import './TickerDashboard.scss';
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void;
-    listDataTicker: IListDashboard[];
+    listDataTicker: ITickerInfo[];
 }
 
 const defaultProps = {
@@ -17,18 +17,8 @@ const defaultProps = {
 const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo, listDataTicker } = props;
 
-    const onClickTickerInfo = (item: IDetailTickerInfo) => {
-        const assignTickerInfo: ITickerInfo = {
-            symbolId: Number(item.symbolId),
-            tickerName: item.symbolName,
-            ticker: item.symbolCode,
-            lastPrice: item.lastPrice,
-            volume: item.volume,
-            change: item.change.toString(),
-            changePrecent: item.percentChange.toString(),
-            side: item?.side,
-        }
-        handleTickerInfo(assignTickerInfo);
+    const onClickTickerInfo = (item: ITickerInfo) => {
+        handleTickerInfo(item);
     }
 
 
@@ -73,8 +63,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataListCompany = () => (
         listDataTicker.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="text-left w-px-150 fw-600">{item.symbolName}</td>
-                <td className="text-left w-ss fw-600">{item.symbolCode}</td>
+                <td className="text-left w-px-150 fw-600">{item.tickerName}</td>
+                <td className="text-left w-ss fw-600">{item.ticker}</td>
                 <td className="text-end w-ss fw-600">{formatCurrency(item.previousClose)}</td>
                 <td className="text-end w-ss fw-600">{formatCurrency(item.open)}</td>
                 <td className="text-end w-ss fw-600">{formatCurrency(item.high)}</td>
@@ -82,7 +72,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-ss fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-ss fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-ss fw-600"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-ss fw-600"><span className={item.percentChange >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.percentChange)}%</span></td>
+                <td className="text-end w-ss fw-600"><span className={item.changePrecent >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent)}%</span></td>
             </tr>
         ))
     )
