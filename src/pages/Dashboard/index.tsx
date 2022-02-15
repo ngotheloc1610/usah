@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { CURRENT_CHOOSE_TICKER, LOT_SIZE, SOCKET_CONNECTED, TICK_SIZE } from "../../constants/general.constant";
+import { CURRENT_CHOOSE_TICKER, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.css';
@@ -106,8 +106,6 @@ const Dashboard = () => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            localStorage.setItem(TICK_SIZE, JSON.stringify(res.symbolList[0].tickSize))
-            localStorage.setItem(LOT_SIZE, JSON.stringify(res.symbolList[0].lotSize))
             setSymbolList(res.symbolList)
         });
 

@@ -1,7 +1,7 @@
 import './Modal.scss';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import { IParamOrder } from '../../interfaces/order.interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
@@ -10,7 +10,7 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ENABLE_TRADING_PIN, LOT_SIZE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TICK_SIZE, TITLE_CONFIRM } from '../../constants/general.constant';
+import { CURRENT_CHOOSE_TICKER, ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -33,10 +33,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
-    const [tickSize, setTickerSize] = useState(Number(JSON.parse(localStorage.getItem(TICK_SIZE) || '{}')));
-    const [lotSize, setLotSize] = useState(Number(JSON.parse(localStorage.getItem(LOT_SIZE) || '{}')));
+    const [tickSize, setTickSize] = useState(0.01);
+    const [lotSize, setLotSize] = useState(100);
 
     const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
+
+    useEffect(() => {
+        const symbolList = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        const tickSize = symbolList.find(item => item.ticker === params.tickerCode)?.tickSize
+        const lotSize = symbolList.find(item => item.ticker === params.tickerCode)?.lotSize
+        setTickSize(Number(tickSize));
+        setLotSize(Number(lotSize));
+    }, [])
 
     const handleTradingPin = (valueTradingPin: string) => {
         setTradingPin(valueTradingPin);
@@ -234,7 +242,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr className='h-100'>
             <td className='text-left '><b>Trading PIN</b></td>
             <td></td>
-            <td><input type="password" value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
+            <td><input type="password" className='border' value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
         </tr>
     )
 
@@ -255,12 +263,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleUpperVolume = () => {
         const currentVol = Number(volumeModify);
-        const nerwVol = currentVol + lotSize;
-        if (nerwVol > currentVol) {
+        let nerwVol = currentVol + lotSize;
+        if (nerwVol > Number(params.volume)) {
             setVolumeModify(currentVol.toString());
             return
         }
         setVolumeModify(nerwVol.toString());
+
     }
 
     const handleLowerVolume = () => {
@@ -291,7 +300,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const _renderConfirmOrder = (title: string, value: string) => (
-        <tr>
+        <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'></td>
             <td className='text-end'>{value}</td>
@@ -299,22 +308,26 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     )
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
-        <tr>
+        <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'></td>
             <td className='text-end'>
-                {(title === 'Volume' && isModify) ?
-                    <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
-                        onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
-                    : (title === 'Price' && isModify) ?
-                        <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
-                            onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
-                        : value}
+                {isModify ? <div className="border d-flex h-46">
+                    <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
+                        {(title === 'Volume') ?
+                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
+                                onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                            :
+                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
+                                onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
+                        }
+                    </div>
+                    <div className="border-start d-flex flex-column">
+                        <button type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
+                        <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
+                    </div>
+                </div> : value}
             </td>
-            {isModify && <td>
-                <button type="button" className="btn border-bottom btn-increase d-flex justify-content-center align-items-center flex-column" onClick={handleUpperValue}>+</button>
-                <button type="button" className="btn btn-increase d-flex justify-content-center align-items-center flex-column" onClick={handleLowerValue}>-</button>
-            </td>}
         </tr>
     )
 
