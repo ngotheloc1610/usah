@@ -1,7 +1,7 @@
 import './Modal.scss';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import { IParamOrder } from '../../interfaces/order.interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
@@ -10,8 +10,8 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency } from '../../helper/utils';
+import { LIST_TICKER_INFO, ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
 interface IConfirmOrder {
@@ -33,7 +33,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
+    const [tickSize, setTickSize] = useState(0.01);
+    const [lotSize, setLotSize] = useState(100);
+
     const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
+
+    useEffect(() => {
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const tickSize = tickerList.find(item => item.ticker === params.tickerCode)?.tickSize
+        const lotSize = tickerList.find(item => item.ticker === params.tickerCode)?.lotSize
+        setTickSize(Number(tickSize));
+        setLotSize(Number(lotSize));
+    }, [])
 
     const handleTradingPin = (valueTradingPin: string) => {
         setTradingPin(valueTradingPin);
@@ -231,7 +242,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr className='h-100'>
             <td className='text-left '><b>Trading PIN</b></td>
             <td></td>
-            <td><input type="password" value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
+            <td><input type="password" className='border' value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
         </tr>
     )
 
@@ -250,18 +261,73 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isDisable;
     }
 
+    const handleUpperVolume = () => {
+        const currentVol = Number(volumeModify);
+        let nerwVol = currentVol + lotSize;
+        if (nerwVol > Number(params.volume)) {
+            setVolumeModify(currentVol.toString());
+            return
+        }
+        setVolumeModify(nerwVol.toString());
+
+    }
+
+    const handleLowerVolume = () => {
+        const currentVol = Number(volumeModify);
+        if (currentVol <= lotSize) {
+            return;
+        }
+        const nerwVol = currentVol - lotSize;
+        setVolumeModify(nerwVol.toString());
+    }
+
+    const handleUpperPrice = () => {
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+        const currentPrice = Number(priceModify);
+        const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        setPriceModify(newPrice);
+    }
+
+    const handleLowerPrice = () => {
+        const currentPrice = Number(priceModify);
+        if (currentPrice <= tickSize) {
+            setPriceModify(tickSize);
+            return;
+        }
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+        const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        setPriceModify(newPrice);
+    }
+
     const _renderConfirmOrder = (title: string, value: string) => (
-        <tr>
+        <tr className='mt-2'>
+            <td className='text-left w-150'><b>{title}</b></td>
+            <td className='text-left w-90'></td>
+            <td className='text-end'>{value}</td>
+        </tr>
+    )
+
+    const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
+        <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-left w-90'></td>
             <td className='text-end'>
-                {(title === 'Volume' && isModify) ?
-                    <CurrencyInput type="text" className="m-100" decimalscale="{0}" thousandseparator="{true}"
-                        onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
-                    : (title === 'Price' && isModify) ?
-                        <CurrencyInput type="text" className="m-100" decimalscale="{2}" thousandseparator="{true}"
-                            onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
-                        : value}</td>
+                {isModify ? <div className="border d-flex h-46">
+                    <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
+                        {(title === 'Volume') ?
+                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
+                                onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                            :
+                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
+                                onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
+                        }
+                    </div>
+                    <div className="border-start d-flex flex-column">
+                        <button type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
+                        <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
+                    </div>
+                </div> : value}
+            </td>
         </tr>
     )
 
@@ -275,13 +341,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderBtnConfirmOrder = () => (
         <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
     )
+
     const _renderListConfirm = () => (
         <div>
             <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
-                    {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
+                    {_renderInputControl('Volume', `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
+                    {_renderInputControl('Price', `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
                     {enableTradingPin === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON && _renderTradingPin()}
                 </tbody>

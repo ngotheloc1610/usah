@@ -13,7 +13,7 @@ import './OrderBookCommon.scss';
 import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
-import { SOCKET_CONNECTED, CURRENT_CHOOSE_TICKER } from '../../../constants/general.constant';
+import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { IListDashboard } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
@@ -92,13 +92,13 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const listSymbolCode: string[] = []
-        tickerDetail.forEach((item: IListDashboard) => {
+        tickerList.forEach((item: IListDashboard) => {
             listSymbolCode.push(item.symbolCode);
         });
         setListSymbolCode(listSymbolCode)
-        setDataDashboard(tickerDetail)
+        setDataDashboard(tickerList)
 
         return () => {
             ws.unsubscribe();

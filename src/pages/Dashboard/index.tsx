@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { CURRENT_CHOOSE_TICKER, SOCKET_CONNECTED } from "../../constants/general.constant";
+import { LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.css';
@@ -95,7 +95,7 @@ const Dashboard = () => {
         })
 
         sethandleSymbolList(listData)
-        localStorage.setItem(CURRENT_CHOOSE_TICKER, JSON.stringify(listData).toString())
+        localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(listData).toString())
     }
 
     useEffect(() => {
