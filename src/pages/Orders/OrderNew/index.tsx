@@ -11,6 +11,7 @@ import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rspb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
+import { defaultTickerSearch } from '../../../mocks'
 
 const OrderNew = () => {
 
@@ -43,7 +44,9 @@ const OrderNew = () => {
         symbolName: '',
         tickSize: '',
     }
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
+    const [currentTickerSearch, setCurrentTickerSearch] = useState<string>('');
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -53,9 +56,8 @@ const OrderNew = () => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+            setSymbolList(res.symbolList);
         });
-
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
@@ -63,13 +65,22 @@ const OrderNew = () => {
     }, [])
 
     useEffect(() => {
-        sendMessageQuotes()
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
-            setLastQuotes(res.quotesList);
+            if (res.quotesList) {
+                const item = res.quotesList.find(o => o?.symbolCode?.toString() === currentTickerSearch)
+                if (item) {
+                    setDataSearchTicker(item);
+                }
+                setLastQuotes(res.quotesList);
+            }
         });
-        return () => {
-            lastQuotesRes.unsubscribe();
-        }
+
+        return () => lastQuotesRes.unsubscribe();
+
+    }, [currentTickerSearch])
+
+    useEffect(() => {
+        sendMessageQuotes()
     }, [symbolList])
 
     const sendMessageQuotes = () => {
@@ -105,7 +116,14 @@ const OrderNew = () => {
         return Number(lastPrice) - Number(open)
     }
 
+    const assignDataGetLastQuote = (symbolCode: number) => {
+        const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolCode);
+        return setDataSearchTicker(dataSearch ? {...dataSearch} : defaultTickerSearch);
+            
+    }
     const getTicker = (value: string) => {
+        setCurrentTickerSearch(value);
+        assignDataGetLastQuote(Number(value));
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
         const itemSymbolData = getItemSymbolData(item.symbolId.toString());
@@ -113,6 +131,8 @@ const OrderNew = () => {
         const currentVolume = itemSymbolData?.volumePerDay;
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
         const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open)/Number(itemSymbolData?.open))*100;
+        const symbolLocalList = JSON.parse(localStorage.getItem('tickerDetail') || '[{}]')
+        const itemLocal = symbolLocalList.find(o => o.symbolId === item.symbolId);
         const assignTickerInfo: ITickerInfo = {
             symbolId: Number(item.symbolId),
             tickerName: item.symbolName,
@@ -121,13 +141,25 @@ const OrderNew = () => {
             volume: currentVolume ? currentVolume : '' ,
             change: currentChange ? currentChange.toString() : '',
             changePrecent: changePercent ? changePercent.toString() : '',
+            open: itemLocal ? itemLocal.open : '0',
+            high: itemLocal ? itemLocal.high : '0',
+            low: itemLocal ? itemLocal.low : '0',
+            tickSize: item.tickSize,
+            minLot: item.minLot,
+            lotSize: item.lotSize
         }
         setCurrentTicker(assignTickerInfo);
     }
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
+        sendMessageQuotes();
+        assignDataGetLastQuote(Number(currentTickerSearch));
+        getTicker(currentTickerSearch);
     }
+    const handleItemSearch = (value: string) => {
+
+    } 
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -146,7 +178,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook />
+                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} />
                         </div>
                     </div>
                 </div>

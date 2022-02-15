@@ -52,6 +52,7 @@ const OrderMonitoring = () => {
         setCurrentTicker(assignItemTicker);
     }
     const messageSuccess = (item: string) => {
+        setMsgSuccess('');
         setMsgSuccess(item);
     }
 
