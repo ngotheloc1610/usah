@@ -10,6 +10,7 @@ import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const CustomerInfo = () => {
+    const systemServicePb: any = sspb
     const [isSetting, setIsSetting] = useState(false)
     const [isTradingPin, setIsTradingPin] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(false)
@@ -21,12 +22,13 @@ const CustomerInfo = () => {
         comment: "",
         email: "",
         enableFlg: false,
+        enableSecretKeyFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
         groupId: 0,
         name: "",
         password: "",
         phone: "",
-        recvAdminNewsFlg: 0,
-        recvMatchNotiFlg: 0,
+        recvAdminNewsFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
+        recvMatchNotiFlg: systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_NONE,
         registeredDate: 0,
         secretKey: "",
         tradingRights: 0,
@@ -39,7 +41,7 @@ const CustomerInfo = () => {
             }
         });
 
-        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {            
+        const renderDataCustomInfoToScreen = wsService.getCustomerInfoDetail().subscribe(res => {
             setCustomerInfoDetail(res.account)
         });
 

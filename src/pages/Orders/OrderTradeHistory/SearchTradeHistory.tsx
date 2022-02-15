@@ -7,11 +7,13 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { convertDatetoTimeStamp, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
 import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
 import queryString from 'query-string';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 function SearchTradeHistory() {
     const [ticker, setTicker] = useState('')
@@ -21,6 +23,7 @@ function SearchTradeHistory() {
     const [fromDatetime, setDateTimeFrom] = useState(0)
     const [toDatetime, setDateTimeTo] = useState(0)
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [symbolName, setSymbolName] = useState<string[]>([])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -56,6 +59,11 @@ function SearchTradeHistory() {
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
+            const listSymbolName: string[] = []
+            res.symbolList.forEach((item: ISymbolList) => {
+                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            });
+            setSymbolName(listSymbolName)
         });
 
         return () => {
@@ -87,7 +95,7 @@ function SearchTradeHistory() {
                 buildMessage(accountId);
                 return;
             }
-        });        
+        });
     }
 
     const buildMessage = (accountId: string) => {
@@ -149,15 +157,34 @@ function SearchTradeHistory() {
         }
     }
 
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker Code</label>
-            <select className="form-select form-select-sm input-select" onChange={(event: any) => setTicker(event.target.value)}>
-                <option value=''>All</option>
-                {symbolList.map((item: ISymbolList) => <option value={item.symbolId} key={item.symbolId}>{item.symbolName} ({item.symbolCode})</option>)}
-            </select>
+            <Autocomplete
+                className='ticker-input'
+                onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+                onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                disablePortal
+                options={symbolName}
+                renderInput={(params) => <TextField {...params} placeholder="Search" />}
+            />
         </div>
-
     )
 
     const _renderOrderSide = () => (
