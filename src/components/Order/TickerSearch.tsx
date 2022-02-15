@@ -2,7 +2,7 @@ import { IListDashboard, ISymbolList } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from '@mui/material';
-import { CURRENT_CHOOSE_TICKER, SYMBOL_LIST } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, SYMBOL_LIST } from '../../constants/general.constant';
 import ReduxPersist from '../../config/ReduxPersist';
 import { isTemplateExpression } from 'typescript';
 import { ITickerBindingOrder, ITickerInfo } from '../../interfaces/order.interface';
@@ -24,7 +24,7 @@ const TickerSearch = (props: ITickerSearch) => {
 
     useEffect(() => {
         setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
+        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const listSymbolCode: string[] = [];
         tickerDetail.forEach((item: ITickerInfo) => {
             const displayText = `${item.ticker} - ${item.tickerName}`;
@@ -34,7 +34,7 @@ const TickerSearch = (props: ITickerSearch) => {
     }, [])
 
     const handleSymbols = (symbolCode: string) => {
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
+        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const element = tickerDetail.find(o => o?.ticker === symbolCode);
         if (element) {
             setTickerDisplay(`${element.ticker} - ${element.tickerName}`)
@@ -59,7 +59,7 @@ const TickerSearch = (props: ITickerSearch) => {
         setTickerDisplay(event.target.innerText);
         setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
         handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
-        const listTickerSearch = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '[{}]');
+        const listTickerSearch = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         
     }
 

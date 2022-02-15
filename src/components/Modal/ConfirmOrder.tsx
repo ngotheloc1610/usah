@@ -10,7 +10,7 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { CURRENT_CHOOSE_TICKER, ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -39,7 +39,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
 
     useEffect(() => {
-        const symbolList = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const tickSize = symbolList.find(item => item.ticker === params.tickerCode)?.tickSize
         const lotSize = symbolList.find(item => item.ticker === params.tickerCode)?.lotSize
         setTickSize(Number(tickSize));

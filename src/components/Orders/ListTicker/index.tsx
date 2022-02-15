@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber, getSymbolId } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -263,7 +263,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const getLastQouteDisplay = () => {
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const listArr: ITickerInfo[] = [];
         let counter = 0;
         handleSymbolList.forEach(item => {

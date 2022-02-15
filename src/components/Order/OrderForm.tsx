@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { CURRENT_CHOOSE_TICKER, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
@@ -56,7 +56,7 @@ const OrderForm = (props: IOrderForm) => {
     }, [currentTicker])
 
     useEffect(() => {
-        const symbolList = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const tickSize = symbolList.find(item => item.ticker === currentTicker.ticker)?.tickSize
         const lotSize = symbolList.find(item => item.ticker === currentTicker.ticker)?.lotSize
         setTickSize(Number(tickSize));
