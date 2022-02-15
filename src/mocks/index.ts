@@ -1403,6 +1403,7 @@ export const NOTIFICATION_DETAIL: INotificationDetail[] = [
         content: ' Inceptos suspendisse fringilla ultricies ut nam orci dictum commodo sociosqu netus efficitur facilisi aptent, platea lacus mus aliquam potenti ad eu turpis vitae quisque gravida eleifend.'
     }
 ]
+
 export const Mock_Bids_Ask = [
     {
         totalBids: 19,
@@ -1445,6 +1446,7 @@ export const Mock_Bids_Ask = [
         totalAsk: 23,
     }
 ]
+
 export const MOCKDATA_TRADE_HISTORY = [
     {
         dateTime: '10:26:30',
@@ -1472,6 +1474,7 @@ export const MOCKDATA_TRADE_HISTORY = [
         price: '157.54'
     }
 ]
+
 export const MOCKDATA_ORDER_BOOK_DETAIL = {
 
     tickerName: 'AAPL',
@@ -1487,4 +1490,20 @@ export const MOCKDATA_ORDER_BOOK_DETAIL = {
     lotSize: '100',
     floor: '162.87',
     ceiling: '151.72',
+}
+
+export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+    side: '',
 }

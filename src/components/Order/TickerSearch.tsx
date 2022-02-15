@@ -2,9 +2,8 @@ import { IListDashboard, ISymbolList } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from '@mui/material';
-import { CURRENT_CHOOSE_TICKER, OBJ_AUTHEN, SYMBOL_LIST } from '../../constants/general.constant';
+import { CURRENT_CHOOSE_TICKER, SYMBOL_LIST } from '../../constants/general.constant';
 import ReduxPersist from '../../config/ReduxPersist';
-import { isTemplateExpression } from 'typescript';
 import { ITickerBindingOrder } from '../../interfaces/order.interface';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
@@ -102,7 +101,7 @@ const TickerSearch = (props: ITickerSearch) => {
     const searchTicker = () => { }
 
     const _renderTemplate = () => (
-        <div className="row g-2 align-items-end">
+        <div className="row g-2 align-items-end" >
             <div className="col-lg-2 col-md-3 mb-1 mb-md-0">
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
@@ -118,9 +117,9 @@ const TickerSearch = (props: ITickerSearch) => {
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
             </div>
-            {/* <div className="col-lg-1 col-md-3 mb-2 mb-md-0 ">
+            <div className="col-lg-1 col-md-3 mb-2 mb-md-0 ">
                 <a href="# " className="btn btn-sm d-block btn-primary-custom "><strong>Search</strong></a>
-            </div> */}
+            </div>
             <div className="col-lg-6">
                 {_renderRecentSearch()}
             </div>

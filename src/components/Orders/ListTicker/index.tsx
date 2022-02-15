@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
-import { formatCurrency, formatNumber } from "../../../helper/utils";
+import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { formatCurrency, formatNumber, getSymbolId } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
-import { LIST_TICKER_INFOR_MOCK_DATA } from "../../../mocks";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { ISymbolList } from "../../../interfaces/ticker.interface";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
+    symbolName: string[]; 
 }
 
 const defaultProps = {
@@ -22,8 +24,8 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { msgSuccess } = props;
-    const { getTicerLastQuote } = props;
+    const { getTicerLastQuote, msgSuccess, symbolName } = props;
+    const [ticker, setTicker] = useState('')
     const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
@@ -104,7 +106,6 @@ const ListTicker = (props: IListTickerProps) => {
     }, [])
 
     useEffect(() => {
-        console.log(107, 1111);
         sendMsgSymbolList();
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             setSymbolList(res.symbolList)
@@ -142,11 +143,10 @@ const ListTicker = (props: IListTickerProps) => {
             rpcMsg.setPayloadData(lastQoutes.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
-
     }
 
-    const handleItemSearch = (itemValue: string) => {
-        setItemSearch(itemValue);
+    const handleItemSearch = () => {
+        setItemSearch(ticker);
     }
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
@@ -154,13 +154,35 @@ const ListTicker = (props: IListTickerProps) => {
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
 
+    const handleChangeTicker = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
+    const handleKeyUp = (value: string) => {
+        if (value !== undefined) {
+            setTicker(getSymbolId(value, symbolList))
+        } else {
+            setTicker('0')
+        }
+    }
+
     const _renderSearchForm = () => (
         <div className="row mb-2">
             <div className="col-lg-6">
-                <div className="input-group input-group-sm input-search">
-                    <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
-                        onChange={(e) => handleItemSearch(e.target.value)} placeholder="Add a ticker" />
-                    <button className="btn btn-primary">Add</button>
+                <div className="search-order-monitoring">
+                    <Autocomplete
+                        onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+                        onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                        sx={{ width: 400 }}
+                        disablePortal
+                        options={symbolName}
+                        renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
+                    />
+                    <button className="btn btn-primary ms-1 pad-top" onClick={handleItemSearch}>Add</button>
                 </div>
             </div>
         </div>
@@ -241,6 +263,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const getLastQouteDisplay = () => {
+        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
         const listArr: ITickerInfo[] = [];
         let counter = 0;
         handleSymbolList.forEach(item => {
