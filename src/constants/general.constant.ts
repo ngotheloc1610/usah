@@ -106,7 +106,7 @@ export enum MESSAGE_TOAST {
     ERROR_UPDATE = 'Update error'
 };
 
-export const LIST_TICKER_INFO = 'tickerDetail';
+export const LIST_TICKER_INFO = 'TICKER_LIST';
 
 export const ENABLE_TRADING_PIN = 'ENABLE_TRADING_PIN';
 

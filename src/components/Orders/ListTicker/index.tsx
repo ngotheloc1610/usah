@@ -263,7 +263,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const getLastQouteDisplay = () => {
-        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const listArr: ITickerInfo[] = [];
         let counter = 0;
         handleSymbolList.forEach(item => {

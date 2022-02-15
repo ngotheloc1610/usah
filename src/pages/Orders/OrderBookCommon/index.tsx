@@ -92,13 +92,13 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const listSymbolCode: string[] = []
-        tickerDetail.forEach((item: IListDashboard) => {
+        tickerList.forEach((item: IListDashboard) => {
             listSymbolCode.push(item.symbolCode);
         });
         setListSymbolCode(listSymbolCode)
-        setDataDashboard(tickerDetail)
+        setDataDashboard(tickerList)
 
         return () => {
             ws.unsubscribe();

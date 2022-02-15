@@ -39,9 +39,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
 
     useEffect(() => {
-        const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const tickSize = symbolList.find(item => item.ticker === params.tickerCode)?.tickSize
-        const lotSize = symbolList.find(item => item.ticker === params.tickerCode)?.lotSize
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const tickSize = tickerList.find(item => item.ticker === params.tickerCode)?.tickSize
+        const lotSize = tickerList.find(item => item.ticker === params.tickerCode)?.lotSize
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
     }, [])

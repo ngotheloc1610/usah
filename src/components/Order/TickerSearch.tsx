@@ -24,9 +24,9 @@ const TickerSearch = (props: ITickerSearch) => {
 
     useEffect(() => {
         setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
-        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const listSymbolCode: string[] = [];
-        tickerDetail.forEach((item: ITickerInfo) => {
+        tickerList.forEach((item: ITickerInfo) => {
             const displayText = `${item.ticker} - ${item.tickerName}`;
             listSymbolCode.push(displayText);
         });
@@ -34,8 +34,8 @@ const TickerSearch = (props: ITickerSearch) => {
     }, [])
 
     const handleSymbols = (symbolCode: string) => {
-        const tickerDetail = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        const element = tickerDetail.find(o => o?.ticker === symbolCode);
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const element = tickerList.find(o => o?.ticker === symbolCode);
         if (element) {
             setTickerDisplay(`${element.ticker} - ${element.tickerName}`)
             setTicker(element.symbolId.toString());
