@@ -289,7 +289,8 @@ const ListTicker = (props: IListTickerProps) => {
                 symbolCode: element.symbolId.toString(),
                 symbolId: Number(element.symbolId),
                 tickPerDay: 0,
-                volumePerDay: '0'
+                volumePerDay: '0',
+                volume: element.volume
             };
             output.push(obj);
         })
@@ -324,7 +325,6 @@ const ListTicker = (props: IListTickerProps) => {
                 <tbody>
                     {_renderAskPrice(item)}
                     {_renderBidPrice(item)}
-
                 </tbody>
             </table>
 

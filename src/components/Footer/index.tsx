@@ -51,7 +51,7 @@ const _renderElementFooter = () => (
                     <img src={LOGO} className="site-logo" alt="" />
                 </a>
                 <div className="right d-flex">
-                    <span className="txt-follow">2022 @Pi-X</span>
+                    {/* <span className="txt-follow">2022 @Pi-X</span> */}
                 </div>
             </div>
             <div className="copyright-footer flexbox width_common">

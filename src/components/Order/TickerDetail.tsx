@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { formatNumber } from '../../helper/utils'
 import { ITickerInfo } from '../../interfaces/order.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
@@ -70,7 +71,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
             </th>
             {_renderLastPriceTemplate(currentTicker.lastPrice, currentTicker.change, currentTicker.changePrecent)}
             <th className='w-precent-15'>Open</th>
-            <td className="text-end fw-600">{currentTicker.open ? currentTicker.open : defaultTickerDetails.open}</td>
+            <td className="text-end fw-600">{currentTicker.open ? formatNumber(currentTicker.open) : defaultTickerDetails.open}</td>
         </tr>
     )
 
@@ -93,27 +94,29 @@ const TickerDetail = (props: ITickerDetailProps) => {
             </th>
             <td className="text-end fw-600 w-precent-41">
                 <div>0</div>
-                <div>0</div>
+                <div>{formatNumber(currentTicker?.tickSize ? currentTicker.tickSize : '0')}</div>
             </td>
             <th className='w-precent-15'>Low</th>
-            <td className="text-end fw-600">0</td>
+            <td className="text-end fw-600">{formatNumber(currentTicker?.low ? currentTicker?.low : '0')}</td>
         </tr>
     )
 
-    const _renderTickerDetail = () => (
-        <div>
-            <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
-            <div className="table-responsive">
-                <table cellPadding="0" cellSpacing="0" className="table border table-i table-sm">
-                    <tbody className='fs-17'>
-                        {_renderLastPrice()}
-                        {_renderGeneralTemplate('Lot Size', '100', 'High', '145.75')}
-                        {_renderMiniumSize()}
-                    </tbody>
-                </table>
-            </div>
+    const _renderTickerDetail = () => {
+        const high = (currentTicker?.high) ? currentTicker.high.toString() : '0';
+        const lotSize = (currentTicker?.lotSize) ? currentTicker.lotSize.toString() : '0';
+        return <div>
+        <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
+        <div className="table-responsive">
+            <table cellPadding="0" cellSpacing="0" className="table border table-i table-sm">
+                <tbody className='fs-17'>
+                    {_renderLastPrice()}
+                    {_renderGeneralTemplate('Lot Size', lotSize, 'High', formatNumber(high))}
+                    {_renderMiniumSize()}
+                </tbody>
+            </table>
         </div>
-    )
+    </div>
+    }
     return <div>{_renderTickerDetail()}</div>
 }
 

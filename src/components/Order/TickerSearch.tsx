@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from '@mui/material';
 import { CURRENT_CHOOSE_TICKER, SYMBOL_LIST } from '../../constants/general.constant';
 import ReduxPersist from '../../config/ReduxPersist';
-import { ITickerBindingOrder } from '../../interfaces/order.interface';
+import { isTemplateExpression } from 'typescript';
+import { ITickerBindingOrder, ITickerInfo } from '../../interfaces/order.interface';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
     listTicker: ISymbolList[];
@@ -22,11 +23,11 @@ const TickerSearch = (props: ITickerSearch) => {
     const [tickerDisplay, setTickerDisplay] = useState('');
 
     useEffect(() => {
-        setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'))
-        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}')
+        setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
+        const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
         const listSymbolCode: string[] = [];
-        tickerDetail.forEach((item: IListDashboard) => {
-            const displayText = `${item.symbolCode} - ${item.symbolName}`;
+        tickerDetail.forEach((item: ITickerInfo) => {
+            const displayText = `${item.ticker} - ${item.tickerName}`;
             listSymbolCode.push(displayText);
         });
         setListSymbolCode(listSymbolCode);
@@ -34,9 +35,9 @@ const TickerSearch = (props: ITickerSearch) => {
 
     const handleSymbols = (symbolCode: string) => {
         const tickerDetail = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}');
-        const element = tickerDetail.find(o => o?.symbolCode === symbolCode);
+        const element = tickerDetail.find(o => o?.ticker === symbolCode);
         if (element) {
-            setTickerDisplay(`${element.symbolCode} - ${element.symbolName}`)
+            setTickerDisplay(`${element.ticker} - ${element.tickerName}`)
             setTicker(element.symbolId.toString());
             handleTicker(element.symbolId.toString());
         }
@@ -58,6 +59,8 @@ const TickerSearch = (props: ITickerSearch) => {
         setTickerDisplay(event.target.innerText);
         setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
         handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        const listTickerSearch = JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '[{}]');
+        
     }
 
     const handleKeyUp = (event: any) => {
@@ -77,7 +80,7 @@ const TickerSearch = (props: ITickerSearch) => {
             if (resp) {
                 const lstSymbols = JSON.parse(resp);
                 const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-                if (!item) {
+                if (!item && symbolCode && symbolName) {
                     let newLstSymbols = lstSymbols.length > 2 ? lstSymbols.splice(1, 2) : lstSymbols;
                     newLstSymbols.push({
                         symbolCode: symbolCode,
@@ -113,7 +116,7 @@ const TickerSearch = (props: ITickerSearch) => {
                     value={tickerDisplay}
                     disablePortal
                     options={listSymbolCode}
-                    sx={{ width: 300 }}
+                    sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
             </div>

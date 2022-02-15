@@ -1,9 +1,28 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
 
 export const TradingModel: any = tdpb;
+
+export const defaultTickerSearch: ILastQuote = {
+    asksList: [],
+    bidsList: [],
+    close: '',
+    currentPrice: '',
+    high: '',
+    low: '',
+    netChange: '',
+    open: '',
+    pctChange: '',
+    quoteTime: 0,
+    scale: 0,
+    symbolCode: '',
+    symbolId: 0,
+    tickPerDay: 0,
+    volumePerDay: '',
+    volume: ''
+}
 
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {

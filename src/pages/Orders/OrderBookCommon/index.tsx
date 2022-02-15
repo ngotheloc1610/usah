@@ -36,6 +36,7 @@ const defaultDataTicker: ILastQuote = {
     symbolId: 0,
     tickPerDay: 0,
     volumePerDay: '',
+    volume: ''
 }
 const defaultTickerInf = {
     symbolId: 0,
