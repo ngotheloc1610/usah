@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, IListOrder } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -1507,3 +1507,33 @@ export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
     changePrecent: '',
     side: '',
 }
+
+export const defaultListDataOrder: IListOrder[] = [
+    {
+        amount: '',
+        entry: '',
+        executeMode: '',
+        expireTime: '',
+        fee: '',
+        note: '',
+        orderFilling: '',
+        orderId: '',
+        orderMode: 0,
+        orderTime: 0,
+        orderType: 0,
+        pl: '',
+        price: '',
+        reason: '',
+        route: '',
+        sl: '',
+        slippage: '',
+        state: '',
+        swap: '',
+        symbolCode: 0,
+        time: 0,
+        tp: '',
+        triggerPrice: '',
+        uid: '',
+        filledAmount: '',
+    }
+]

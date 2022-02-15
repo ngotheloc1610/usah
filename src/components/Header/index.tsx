@@ -78,7 +78,6 @@ const Header = () => {
   )
 
   const _renderDropDown = (item: ITabBarItem, indexKey: number) => {
-    console.log(81, item);
     return <TabBarItem key={indexKey} itemDropDown={item.itemDropDown} />
   }
 

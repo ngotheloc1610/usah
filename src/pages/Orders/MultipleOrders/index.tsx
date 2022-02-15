@@ -17,7 +17,9 @@ import './multipleOrders.css';
 
 const MultipleOrders = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
-    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}'));
+    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '[]'));
+    const [dataConfirm, setDataConfirm] = useState<IListOrder[]>([]);
+    const [showModalModify, setShowModalModify] = useState<boolean>(false);
 
     const tradingModelPb: any = tspb;
 
@@ -32,7 +34,10 @@ const MultipleOrders = () => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             if (response.orderList) {
                 const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
-                setGetDataOrder(listOrderSortDate);
+                const assignListOrder = listOrderSortDate.reduce((listOrder: IListOrder[], item) => {
+                    return [...listOrder, { ...item, orderSideChange: item.orderType, isChecked: false, volumeChange: item.amount, priceChange: item.price }];
+                }, []);
+                setGetDataOrder(assignListOrder);
             }
         });
 
@@ -97,14 +102,116 @@ const MultipleOrders = () => {
         }
     }
 
-    const changeMultipleSide = (e) => {
-        console.log(101, e.target.value);
+    const changeMultipleSide = (event, itemSymbol: IListOrder) => {
+        const [value] = event.target;
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                return [...listOrder, { ...item, orderSideChange: value }];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const changeVolume = (value: string, itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                if (Number(value.replaceAll(',', '')) <= Number(item.amount)) {
+                    return [...listOrder, { ...item, volumeChange: value.replaceAll(',', '') }];
+                }
+                return [...listOrder, item];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const changePrice = (value: string, itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                return [...listOrder, { ...item, priceChange: value.replaceAll(',', '') }];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const decreaseVolume = (itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                if ((Number(item.volumeChange) - 1) > 0) {
+                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) - 1).toString() }];
+                }
+                return [...listOrder, item];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const increaseVolume = (itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                if ((Number(item.volumeChange) + 1) <= Number(item.amount)) {
+                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) + 1).toString() }];
+                }
+                return [...listOrder, item];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const decreasePrice = (itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) - 1).toString() }];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const increasePrice = (itemSymbol: IListOrder) => {
+        const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            if (Number(itemSymbol.orderId) === Number(item.orderId)) {
+                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) + 1).toString() }];
+            }
+            return [...listOrder, item];
+        }, []);
+        setGetDataOrder(listOrder);
+    }
+
+    const handleChecked = (event: any) => {
+        const { name, checked } = event.target;
+        if (name === "allSelect") {
+            const isSelectAll = getDataOrder.map((order) => {
+                return { ...order, isChecked: checked };
+            });
+            setGetDataOrder(isSelectAll);
+        } else {
+            let tempOrder = getDataOrder.map((order, index) =>
+                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
+            );
+            setGetDataOrder(tempOrder);
+        }
+    }
+
+    const showScreenConfirmOrder = () => {
+        const orderConfirm = getDataOrder.filter(item => (item.isChecked && ((Number(item.volumeChange) !== Number(item.amount)) || (Number(item.priceChange) !== Number(item.price)))));
+        if (orderConfirm.length > 0) {
+            setDataConfirm(orderConfirm);
+            setShowModalModify(true);
+        }
     }
 
     const _renderHearderMultipleOrders = () => (
         <tr>
             <th>
-                <input type="checkbox" value="" />
+                <input type="checkbox" value=""
+                    name="allSelect"
+                    onChange={handleChecked}
+                    checked={!getDataOrder.some((order) => order?.isChecked !== true)} />
             </th>
             <th><span>No.</span></th>
             <th className="text-center"><span>Ticker Code</span></th>
@@ -113,35 +220,42 @@ const MultipleOrders = () => {
             <th className="text-end"><span>Order Side</span></th>
             <th className="text-end"><span>Volume</span></th>
             <th className="text-end"><span>Price</span></th>
-            <th></th>
         </tr>
     )
+
     const _renderDataMultipleOrders = () => (
         getDataOrder.map((item, index) => {
-            return <tr>
-                <td><input type="checkbox" value="" /></td>
+            return <tr key={index}>
+                <td><input type="checkbox" value="" checked={item?.isChecked} name={index.toString()} onChange={handleChecked} /></td>
                 <td>{index}</td>
                 <td className="text-center">{getTickerData(item.symbolCode)?.symbolCode}</td>
                 <td className="text-center">{getTickerData(item.symbolCode)?.symbolName}</td>
                 <td className="text-end">Limit</td>
                 <td className="text-end">
-                    <select value={item.orderSideChange ? getSide(item.orderSideChange)?.code : getSide(item.orderType)?.code} onChange={(e)=> changeMultipleSide(e)} className={`border-1 ${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
+                    <select value={getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.code}
+                        name={index.toString()} onChange={(e) => changeMultipleSide(e, item)} className={`border-1
+                    ${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
                         <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-center">Buy</option>
                         <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-center">Sell</option>
                     </select>
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                        <svg
+                            onClick={(e) => decreaseVolume(item)}
+                            xmlns="http://www.w3.org/2000/svg" width="16"
                             height="16" fill="currentColor" className="bi bi-caret-left-fill"
                             viewBox="0 0 16 16">
                             <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
                         </svg>
                         <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
-                            thousandseparator="{true}" value={formatNumber(item.amount)} placeholder=""
+                            onChange={(e) => changeVolume(e.target.value, item)}
+                            thousandseparator="{true}" value={formatNumber(item.volumeChange ? item.volumeChange : item.amount)} placeholder=""
                         // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
                         />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                        <svg
+                            onClick={(e) => increaseVolume(item)}
+                            xmlns="http://www.w3.org/2000/svg" width="16"
                             height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16"
                         >
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
@@ -150,27 +264,79 @@ const MultipleOrders = () => {
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                        <svg
+                            onClick={(e) => decreasePrice(item)}
+                            xmlns="http://www.w3.org/2000/svg" width="16"
                             height="16" fill="currentColor" className="bi bi-caret-left-fill"
                             viewBox="0 0 16 16">
                             <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
                         </svg>
-                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
-                            thousandseparator="{true}" value={formatNumber(item.price)} placeholder=""
+                        <CurrencyInput
+                            onChange={(e) => changePrice(e.target.value, item)}
+                            decimalscale={0} type="text" className="form-control text-end border-1 p-0"
+                            thousandseparator="{true}" value={formatNumber(item.priceChange ? item.priceChange : item.price)} placeholder=""
                         // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
                         />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
-                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16"
-                        >
+                        <svg
+                            onClick={(e) => increasePrice(item)}
+                            xmlns="http://www.w3.org/2000/svg" width="16"
+                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16">
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
                 </td>
-                <td></td>
             </tr>
         })
     )
 
+    const _renderHearderMultipleOrdersConfirm = () => (
+        <tr>
+            <th className="text-center"><span>Ticker Code</span></th>
+            <th className="text-center"><span>Ticker Name</span></th>
+            <th className="text-end"><span>Order Type</span></th>
+            <th className="text-end"><span>Order Side</span></th>
+            <th className="text-end"><span>Volume</span></th>
+            <th className="text-end"><span>Price</span></th>
+        </tr>
+    )
+    const _renderDataMultipleOrdersConfirm = () => (
+        dataConfirm.map((item, index) => {
+            return <tr key={index}>
+                <td className="text-center">{getTickerData(item.symbolCode)?.symbolCode}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.symbolName}</td>
+                <td className="text-end">Limit</td>
+                <td className={`border-1
+                    ${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
+                    {getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.title}
+                </td>
+                <td className="text-end">{formatNumber(item.volumeChange ? item.volumeChange : item.amount)}</td>
+                <td className="text-end"> {formatNumber(item.priceChange ? item.priceChange : item.price)}</td>
+            </tr>
+        })
+    )
+    const _renderPopupConfirm = () => {
+        return <div className="popup-box">
+            <div className="box d-flex">
+                Multiple Orders
+                <span className="close-icon" onClick={() => setShowModalModify(false)}>x</span>
+            </div>
+            <div className='content text-center'>
+                <table className="table table-sm table-hover mb-0 dataTable no-footer">
+                    <thead>
+                        {_renderHearderMultipleOrdersConfirm()}
+                    </thead>
+                    <tbody>
+                        {_renderDataMultipleOrdersConfirm()}
+                    </tbody>
+                </table>
+                <div className="text-end mb-3 mt-10">
+                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalModify(false)}>Clear</a>
+                    <a href="#" className="btn btn-primary btn-submit">
+                        Settlement</a>
+                </div>
+            </div>
+        </div>
+    }
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -190,7 +356,7 @@ const MultipleOrders = () => {
                         <div className="d-flex">
                             <button type="button" className="btn btn-warning  ml-4">3 Selected</button>
 
-                            <button type="button" className="btn btn-primary">Execute</button>
+                            <button type="button" className="btn btn-primary" onClick={showScreenConfirmOrder}>Execute</button>
 
                         </div>
 
@@ -213,6 +379,7 @@ const MultipleOrders = () => {
                 </div>
             </div>
         </div>
+        {showModalModify && _renderPopupConfirm()}
     </div>
 
 };
