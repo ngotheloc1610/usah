@@ -58,3 +58,11 @@ export const getSymbolId = (str: string, symbolList: ISymbolList[]) => {
     const symbolId = symbolList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
     return symbolId ?? '0'
 }
+
+export const calcPriceIncrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
+    return Math.round((currentPrice + tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
+}
+
+export const calcPriceDecrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
+    return Math.round((currentPrice - tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
+}

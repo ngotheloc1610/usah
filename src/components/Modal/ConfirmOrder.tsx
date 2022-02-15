@@ -11,7 +11,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
 import { ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency } from '../../helper/utils';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
 interface IConfirmOrder {
@@ -33,8 +33,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
-    const [tickerSize, setTickerSize] = useState(0.01)
-    const [tradingUnit, setTradingUnit] = useState(100);
+    const [tickSize, setTickerSize] = useState(0.01);
+    const [lotSize, setLotSize] = useState(100);
 
     const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
 
@@ -255,7 +255,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleUpperVolume = () => {
         const currentVol = Number(volumeModify);
-        const nerwVol = currentVol + tradingUnit;
+        const nerwVol = currentVol + lotSize;
         if (nerwVol >= currentVol) {
             setVolumeModify(currentVol.toString());
         }
@@ -264,28 +264,28 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleLowerVolume = () => {
         const currentVol = Number(volumeModify);
-        if (currentVol <= tradingUnit) {
+        if (currentVol <= lotSize) {
             return;
         }
-        const nerwVol = currentVol - tradingUnit;
+        const nerwVol = currentVol - lotSize;
         setVolumeModify(nerwVol.toString());
     }
 
     const handleUpperPrice = () => {
-        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(priceModify);
-        const newPrice = Math.round((currentPrice + tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
+        const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setPriceModify(newPrice);
     }
 
     const handleLowerPrice = () => {
         const currentPrice = Number(priceModify);
-        if (currentPrice <= tickerSize) {
-            setPriceModify(tickerSize);
+        if (currentPrice <= tickSize) {
+            setPriceModify(tickSize);
             return;
         }
-        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
-        const newPrice = Math.round((currentPrice - tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+        const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPriceModify(newPrice);
     }
 
@@ -326,7 +326,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderBtnConfirmOrder = () => (
         <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
     )
-    
+
     const _renderListConfirm = () => (
         <div>
             <table className='w-354'>

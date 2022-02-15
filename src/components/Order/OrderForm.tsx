@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { formatCurrency, formatNumber } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
 
 toast.configure()
@@ -42,8 +42,8 @@ const OrderForm = (props: IOrderForm) => {
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
-    const [tradingUnit, setTradingUnit] = useState(100);
-    const [tickerSize, setTickerSize] = useState(0.01)
+    const [lotSize, setLotSize] = useState(100);
+    const [tickSize, setTickSize] = useState(0.01)
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
     const [volume, setVolume] = useState(Number(currentTicker.volume));
     const [statusOrder, setStatusOrder] = useState(0);
@@ -85,39 +85,39 @@ const OrderForm = (props: IOrderForm) => {
 
     const handelUpperVolume = () => {
         const currentVol = Number(volume);
-        const nerwVol = currentVol + tradingUnit;
+        const nerwVol = currentVol + lotSize;
         setVolume(nerwVol);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handelLowerVolume = () => {
         const currentVol = Number(volume);
-        if (currentVol <= tradingUnit) {
-            setVolume(tradingUnit);
+        if (currentVol <= lotSize) {
+            setVolume(lotSize);
             return;
         }
-        const nerwVol = currentVol - tradingUnit;
+        const nerwVol = currentVol - lotSize;
         setVolume(nerwVol);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handleUpperPrice = () => {
-        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
-        const newPrice = Math.round((currentPrice + tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
+        const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
     }
 
     const handleLowerPrice = () => {
         const currentPrice = Number(price);
-        if (currentPrice <= tickerSize) {
-            setPrice(tickerSize);
+        if (currentPrice <= tickSize) {
+            setPrice(tickSize);
             setValidForm(volume > 0);
             return;
         }
-        const decimalLenght = tickerSize.toString().split('.')[1] ? tickerSize.toString().split('.')[1].length : 0;
-        const newPrice = Math.round((currentPrice - tickerSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght);
+        const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+        const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
     }
@@ -139,7 +139,7 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(0);
             setValidForm(false);
         } else {
-            if (Number(currentTicker.lastPrice) <= 0 || tradingUnit <= 0) {
+            if (Number(currentTicker.lastPrice) <= 0 || lotSize <= 0) {
                 setValidForm(false);
             } else {
                 setValidForm(true);
