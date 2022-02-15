@@ -346,20 +346,14 @@ const MultipleOrders = () => {
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning">Add Order</button>
-
                         <button type="button" className="ml-4 btn btn-success">Import</button>
-
                     </div>
                     <div className="d-flex">
                         <button type="button" className="btn btn-danger ml-4">Delete</button>
-
                         <div className="d-flex">
                             <button type="button" className="btn btn-warning  ml-4">3 Selected</button>
-
                             <button type="button" className="btn btn-primary" onClick={showScreenConfirmOrder}>Execute</button>
-
                         </div>
-
                     </div>
                 </div>
                 <div className="card-modify mb-3">
