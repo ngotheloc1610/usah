@@ -50,7 +50,14 @@ export const ROUTER = [
                 navigation: '/orders/new',
                 icon: '',
                 title: 'New Order',
-                subTab: []
+                subTab: [
+                    {
+                        navigation: '/order/multi-modify',
+                        icon: '',
+                        title: 'Multiple Order',
+                        subTab: [],
+                    }
+                ]
             },
             {
                 navigation: '/orders/modify-cancel',
