@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, IS_ACTIVE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, ENABLE_BUTTON } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -14,7 +14,7 @@ interface ISetting {
     isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    customerInfoDetail: IAccountDetail
+    customerInfoDetail: IAccountDetail;
 }
 
 const defaultProps = {
@@ -25,6 +25,7 @@ const defaultProps = {
 
 const Setting = (props: ISetting) => {
     const { isTradingPin, isChangePassword, isNotification, customerInfoDetail } = props
+    const systemServicePb: any = sspb
     const [secretKey, setSecretKey] = useState('')
     const [password, setPassword] = useState('')
     const [newSecretKey, setNewSecretKey] = useState('')
@@ -41,7 +42,11 @@ const Setting = (props: ISetting) => {
     const [checkPass, setCheckPass] = useState(false)
     const [checkNewPass, setCheckNewPass] = useState(false)
     const [checkConfirm, setCheckConfirm] = useState(false)
-    const [isActiveTradingPin, setIsActiveTradingPin] = useState(JSON.parse(localStorage.getItem(IS_ACTIVE_TRADING_PIN) || '{}'))
+    const [enableSecretKey, setEnableSecretKey] = useState(customerInfoDetail.enableSecretKeyFlg)
+
+    localStorage.setItem(ENABLE_TRADING_PIN, JSON.stringify(enableSecretKey))
+    localStorage.setItem(ADMIN_NEWS_FLAG, JSON.stringify(recvAdminNewsFlg))
+    localStorage.setItem(MATCH_NOTI_FLAG, JSON.stringify(recvMatchNotiFlg))
 
     useEffect(() => {
         if (isTradingPin === false || isChangePassword === false) {
@@ -66,7 +71,7 @@ const Setting = (props: ISetting) => {
     useEffect(() => {
         if (isTradingPin) {
             const el: any = document.querySelector('.trading-pin-form')
-            !isActiveTradingPin ? el.style.display = 'none' : el.style.display = 'block'
+            enableSecretKey !== systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? el.style.display = 'none' : el.style.display = 'block'
         }
     }, [isTradingPin])
 
@@ -123,24 +128,6 @@ const Setting = (props: ISetting) => {
         }
     }
 
-    const buildMessageNoti = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setRecvAdminNewsFlg(recvAdminNewsFlg);
-            customerInfoRequest.setRecvMatchNotiFlg(recvMatchNotiFlg);
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const sendMessageCustomerInfor = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
@@ -148,7 +135,7 @@ const Setting = (props: ISetting) => {
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
                 isTradingPin && buildMessageTradingPin(accountId);
                 isChangePassword && buildMessagePassword(accountId);
                 return;
@@ -170,15 +157,49 @@ const Setting = (props: ISetting) => {
         });
     }
 
-    const sendMessageCustomerInforNoti = () => {
+    const buildMessageAdNewsNoti = (accountId: string, newsAdmin: number) => {
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
+            customerInfoRequest.setAccountId(Number(accountId));
+            customerInfoRequest.setRecvAdminNewsFlg(newsAdmin);
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
+            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const buildMessageMatchNoti = (accountId: string, matchNoti: number) => {
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
+            customerInfoRequest.setAccountId(Number(accountId));
+            customerInfoRequest.setRecvMatchNotiFlg(matchNoti);
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
+            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendMessageAdNewsNoti = (newsAdmin: number) => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                isNotification && buildMessageNoti(accountId);
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             }
         }
@@ -186,11 +207,82 @@ const Setting = (props: ISetting) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                isNotification && buildMessageNoti(accountId);
+                buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                isNotification && buildMessageNoti(accountId);
+                buildMessageAdNewsNoti(accountId, newsAdmin);
+                return;
+            }
+        });
+    }
+
+    const sendMessageMatchNoti = (matchNoti: number) => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMessageMatchNoti(accountId, matchNoti);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessageMatchNoti(accountId, matchNoti);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessageMatchNoti(accountId, matchNoti);
+                return;
+            }
+        });
+    }
+
+    const buildMsgEnableTradingPin = (accountId: string, enableFlg: number) => {
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
+
+            customerInfoRequest.setAccountId(Number(accountId));
+            customerInfoRequest.setEnableSecretKeyFlg(enableFlg);
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
+            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendMsgEnableTradingPin = (enableFlg: number) => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMsgEnableTradingPin(accountId, enableFlg);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMsgEnableTradingPin(accountId, enableFlg);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMsgEnableTradingPin(accountId, enableFlg);
                 return;
             }
         });
@@ -298,19 +390,17 @@ const Setting = (props: ISetting) => {
     }
 
     const changeNewsAdmin = (checked: boolean) => {
-        const systemServicePb: any = sspb
         let newsAdmin: number = 0
         checked ? newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
         setRecvAdminNewsFlg(newsAdmin)
-        sendMessageCustomerInforNoti()
+        sendMessageAdNewsNoti(newsAdmin)
     }
 
     const changeNewsNotication = (checked: boolean) => {
-        const systemServicePb: any = sspb
-        let newsNotication: number = 0
-        checked ? newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
-        setRecvMatchNotiFlg(newsNotication)
-        sendMessageCustomerInforNoti()
+        let matchNoti: number = 0
+        checked ? matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
+        setRecvMatchNotiFlg(matchNoti)
+        sendMessageMatchNoti(matchNoti)
     }
 
     const _renderChanngeTraddingPin = (isTradingPin: boolean) => (
@@ -415,11 +505,12 @@ const Setting = (props: ISetting) => {
         </>
     )
 
-    const changeTradingPinFlg = (checked: boolean) => {
+    const handleEnableTradingPin = (checked: boolean) => {
         const el: any = document.querySelector('.trading-pin-form')
         !checked ? el.style.display = 'none' : el.style.display = 'block'
-        setIsActiveTradingPin(checked)
-        localStorage.setItem(IS_ACTIVE_TRADING_PIN, JSON.stringify(checked))
+        const enableFlg: number = checked ? systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
+        setEnableSecretKey(enableFlg)
+        sendMsgEnableTradingPin(enableFlg)
     }
 
     const _renderSettingTemplate = () => (
@@ -433,10 +524,10 @@ const Setting = (props: ISetting) => {
                         <div className="col-md-4">
                             <div className='form-check form-switch'>
                                 <input className="form-check-input" type="checkbox" role="switch" id="trading_pin"
-                                    checked={isActiveTradingPin}
-                                    onChange={(event) => changeTradingPinFlg(event.target.checked)}
+                                    checked={enableSecretKey === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? true : false}
+                                    onChange={(event) => handleEnableTradingPin(event.target.checked)}
                                 />
-                                <label className='trading-pin-flg'>{isActiveTradingPin ? 'On' : 'Off'}</label>
+                                <label className='trading-pin-flg'>{enableSecretKey === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON ? ENABLE_BUTTON.ON : ENABLE_BUTTON.OFF}</label>
                             </div>
                         </div>
                     </div>

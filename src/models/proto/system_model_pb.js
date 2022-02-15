@@ -343,7 +343,8 @@ proto.Account.toObject = function(includeInstance, msg) {
     recvAdminNewsFlg: jspb.Message.getFieldWithDefault(msg, 12, 0),
     recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
     email: jspb.Message.getFieldWithDefault(msg, 14, ""),
-    phone: jspb.Message.getFieldWithDefault(msg, 15, "")
+    phone: jspb.Message.getFieldWithDefault(msg, 15, ""),
+    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 16, 0)
   };
 
   if (includeInstance) {
@@ -439,6 +440,10 @@ proto.Account.deserializeBinaryFromReader = function(msg, reader) {
     case 15:
       var value = /** @type {string} */ (reader.readString());
       msg.setPhone(value);
+      break;
+    case 16:
+      var value = /** @type {!proto.Account.BoolFlag} */ (reader.readEnum());
+      msg.setEnableSecretKeyFlg(value);
       break;
     default:
       reader.skipField();
@@ -571,6 +576,13 @@ proto.Account.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       15,
+      f
+    );
+  }
+  f = message.getEnableSecretKeyFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      16,
       f
     );
   }
@@ -863,6 +875,24 @@ proto.Account.prototype.getPhone = function() {
  */
 proto.Account.prototype.setPhone = function(value) {
   return jspb.Message.setProto3StringField(this, 15, value);
+};
+
+
+/**
+ * optional BoolFlag enable_secret_key_flg = 16;
+ * @return {!proto.Account.BoolFlag}
+ */
+proto.Account.prototype.getEnableSecretKeyFlg = function() {
+  return /** @type {!proto.Account.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 16, 0));
+};
+
+
+/**
+ * @param {!proto.Account.BoolFlag} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setEnableSecretKeyFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 16, value);
 };
 
 

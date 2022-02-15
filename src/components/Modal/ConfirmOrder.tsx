@@ -6,10 +6,11 @@ import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
+import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { IS_ACTIVE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -25,13 +26,14 @@ interface IConfirmOrder {
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
+    const systemServicePb: any = sspb
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
     const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
-    const isActiveTradingPin = JSON.parse(localStorage.getItem(IS_ACTIVE_TRADING_PIN) || '{}')
+    const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
 
     const handleTradingPin = (valueTradingPin: string) => {
         setTradingPin(valueTradingPin);
@@ -281,7 +283,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder('Volume', `${formatNumber(params.volume.toString())}`)}
                     {_renderConfirmOrder('Price', `${formatCurrency(params.price.toString())}`)}
                     {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
-                    {isActiveTradingPin && _renderTradingPin()}
+                    {enableTradingPin === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON && _renderTradingPin()}
                 </tbody>
             </table>
             <div className='mt-30'>

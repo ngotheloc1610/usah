@@ -26,6 +26,8 @@ message Account {
 	string email = 14;
 	string phone = 15;
 
+	BoolFlag enable_secret_key_flg = 16; // Setting enable trading PIN
+	
 	// Have to use enum with NONE value for bool flag because:
 	// There's no way of telling whether a field was explicitly set to
 	// the default value (for example whether a boolean was set to false) or just not set at all

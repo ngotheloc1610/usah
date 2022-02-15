@@ -1936,7 +1936,8 @@ proto.AccountUpdateRequest.toObject = function(includeInstance, msg) {
     newPassword: jspb.Message.getFieldWithDefault(msg, 11, ""),
     newSecretKey: jspb.Message.getFieldWithDefault(msg, 12, ""),
     recvAdminNewsFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
-    recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 14, 0)
+    recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 14, 0),
+    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 15, 0)
   };
 
   if (includeInstance) {
@@ -2028,6 +2029,10 @@ proto.AccountUpdateRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 14:
       var value = /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (reader.readEnum());
       msg.setRecvMatchNotiFlg(value);
+      break;
+    case 15:
+      var value = /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (reader.readEnum());
+      msg.setEnableSecretKeyFlg(value);
       break;
     default:
       reader.skipField();
@@ -2153,6 +2158,13 @@ proto.AccountUpdateRequest.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       14,
+      f
+    );
+  }
+  f = message.getEnableSecretKeyFlg();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      15,
       f
     );
   }
@@ -2427,6 +2439,24 @@ proto.AccountUpdateRequest.prototype.getRecvMatchNotiFlg = function() {
  */
 proto.AccountUpdateRequest.prototype.setRecvMatchNotiFlg = function(value) {
   return jspb.Message.setProto3EnumField(this, 14, value);
+};
+
+
+/**
+ * optional BoolFlag enable_secret_key_flg = 15;
+ * @return {!proto.AccountUpdateRequest.BoolFlag}
+ */
+proto.AccountUpdateRequest.prototype.getEnableSecretKeyFlg = function() {
+  return /** @type {!proto.AccountUpdateRequest.BoolFlag} */ (jspb.Message.getFieldWithDefault(this, 15, 0));
+};
+
+
+/**
+ * @param {!proto.AccountUpdateRequest.BoolFlag} value
+ * @return {!proto.AccountUpdateRequest} returns this
+ */
+proto.AccountUpdateRequest.prototype.setEnableSecretKeyFlg = function(value) {
+  return jspb.Message.setProto3EnumField(this, 15, value);
 };
 
 
