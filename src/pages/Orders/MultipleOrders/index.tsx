@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Pagination from "../../../Common/Pagination";
-import { CURRENT_CHOOSE_TICKER, OBJ_AUTHEN, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_TICKER_INFO, OBJ_AUTHEN, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { IListOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -17,7 +17,7 @@ import './multipleOrders.css';
 
 const MultipleOrders = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
-    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '[]'));
+    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [dataConfirm, setDataConfirm] = useState<IListOrder[]>([]);
     const [showModalModify, setShowModalModify] = useState<boolean>(false);
 
