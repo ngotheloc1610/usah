@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Pagination from "../../../Common/Pagination";
-import { CURRENT_CHOOSE_TICKER, OBJ_AUTHEN, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { CURRENT_CHOOSE_TICKER, OBJ_AUTHEN, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { IListOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -9,11 +9,17 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import { IAuthen } from "../../../interfaces";
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as rspb from "../../../models/proto/rpc_pb";
+import * as tspb from '../../../models/proto/trading_model_pb';
+import { formatCurrency, formatNumber } from "../../../helper/utils";
+import CurrencyInput from 'react-currency-masked-input';
+import './multipleOrders.css';
 
 
 const MultipleOrders = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
-    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}'))
+    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}'));
+
+    const tradingModelPb: any = tspb;
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -22,7 +28,7 @@ const MultipleOrders = () => {
                 sendMsgSymbolList();
             }
         });
-        
+
         const listOrder = wsService.getListOrder().subscribe(response => {
             if (response.orderList) {
                 const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
@@ -36,13 +42,16 @@ const MultipleOrders = () => {
         }
     }, []);
 
-    const getTickerData = (symbolCode: number)  => {
+    const getTickerData = (symbolCode: number) => {
         const itemSymbolListLocal = symbolListLocal.find(item => item.symbolId === Number(symbolCode));
-        console.log(41, itemSymbolListLocal);
         if (itemSymbolListLocal) {
             return itemSymbolListLocal;
         }
         return [];
+    }
+
+    const getSide = (sideId: number) => {
+        return SIDE.find(item => item.code === sideId);
     }
 
     const sendListOrder = () => {
@@ -88,6 +97,10 @@ const MultipleOrders = () => {
         }
     }
 
+    const changeMultipleSide = (e) => {
+        console.log(101, e.target.value);
+    }
+
     const _renderHearderMultipleOrders = () => (
         <tr>
             <th>
@@ -100,6 +113,7 @@ const MultipleOrders = () => {
             <th className="text-end"><span>Order Side</span></th>
             <th className="text-end"><span>Volume</span></th>
             <th className="text-end"><span>Price</span></th>
+            <th></th>
         </tr>
     )
     const _renderDataMultipleOrders = () => (
@@ -107,8 +121,52 @@ const MultipleOrders = () => {
             return <tr>
                 <td><input type="checkbox" value="" /></td>
                 <td>{index}</td>
-                <td>{getTickerData(item.symbolCode)?.ticker}</td>
-                <td>{getTickerData(item.symbolCode)?.tickeName}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.symbolCode}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.symbolName}</td>
+                <td className="text-end">Limit</td>
+                <td className="text-end">
+                    <select value={item.orderSideChange ? getSide(item.orderSideChange)?.code : getSide(item.orderType)?.code} onChange={(e)=> changeMultipleSide(e)} className={`border-1 ${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
+                        <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-center">Buy</option>
+                        <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-center">Sell</option>
+                    </select>
+                </td>
+                <td className="text-end">
+                    <div className="d-flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                            height="16" fill="currentColor" className="bi bi-caret-left-fill"
+                            viewBox="0 0 16 16">
+                            <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+                        </svg>
+                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
+                            thousandseparator="{true}" value={formatNumber(item.amount)} placeholder=""
+                        // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16"
+                        >
+                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+                        </svg>
+                    </div>
+                </td>
+                <td className="text-end">
+                    <div className="d-flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                            height="16" fill="currentColor" className="bi bi-caret-left-fill"
+                            viewBox="0 0 16 16">
+                            <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+                        </svg>
+                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
+                            thousandseparator="{true}" value={formatNumber(item.price)} placeholder=""
+                        // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16"
+                        >
+                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+                        </svg>
+                    </div>
+                </td>
+                <td></td>
             </tr>
         })
     )
@@ -138,15 +196,17 @@ const MultipleOrders = () => {
 
                     </div>
                 </div>
-                <div className="table table-responsive">
-                    <table className="table table-sm table-hover mb-0 dataTable no-footer">
-                        <thead>
-                            {_renderHearderMultipleOrders()}
-                        </thead>
-                        <tbody>
-                            {_renderDataMultipleOrders()}
-                        </tbody>
-                    </table>
+                <div className="card-modify mb-3">
+                    <div className="card-body p-0 mb-3 table table-responsive">
+                        <table className="table table-sm table-hover mb-0 dataTable no-footer">
+                            <thead>
+                                {_renderHearderMultipleOrders()}
+                            </thead>
+                            <tbody>
+                                {_renderDataMultipleOrders()}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div className="mt-3">
                     <Pagination />

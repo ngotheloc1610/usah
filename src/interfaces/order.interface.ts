@@ -85,6 +85,10 @@ export interface IListOrder {
     triggerPrice: string;
     uid: string;
     filledAmount: string;
+    isChecked?: boolean;
+    orderSideChange?: number;
+    volumeChange?: string;
+    priceChange?: string;
 }
 
 export interface IListOrderHistory {
