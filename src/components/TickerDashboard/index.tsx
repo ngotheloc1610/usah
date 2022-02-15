@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED, CURRENT_CHOOSE_TICKER } from "../../constants/general.constant"
+import { SOCKET_CONNECTED, LIST_TICKER_INFO } from "../../constants/general.constant"
 import { formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
 import { IListDashboard } from "../../interfaces/ticker.interface";
