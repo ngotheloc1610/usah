@@ -117,4 +117,8 @@ export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 export enum ENABLE_BUTTON {
     ON = 'On',
     OFF = 'Off'
-}
+};
+
+export const TICK_SIZE = 'TICK_SIZE';
+
+export const LOT_SIZE = 'LOT_SIZE';

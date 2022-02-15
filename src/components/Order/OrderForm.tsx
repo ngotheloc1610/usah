@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { LOT_SIZE, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TICK_SIZE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
@@ -42,8 +42,8 @@ const OrderForm = (props: IOrderForm) => {
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
-    const [lotSize, setLotSize] = useState(100);
-    const [tickSize, setTickSize] = useState(0.01)
+    const [lotSize, setLotSize] = useState(Number(JSON.parse(localStorage.getItem(LOT_SIZE) || '{}')));
+    const [tickSize, setTickSize] = useState(Number(JSON.parse(localStorage.getItem(TICK_SIZE) || '{}')))
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
     const [volume, setVolume] = useState(Number(currentTicker.volume));
     const [statusOrder, setStatusOrder] = useState(0);
