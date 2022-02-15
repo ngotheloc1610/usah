@@ -278,7 +278,7 @@ ListOrder = (props: IPropsListOrder) => {
                     <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
                 </div>
                 <div className="card-body p-0">
-                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
+                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''} tableFixHead`}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
