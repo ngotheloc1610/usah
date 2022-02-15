@@ -83,6 +83,8 @@ export const MODIFY_CANCEL_STATUS = {
 
 export const LENGTH_PASSWORD = 8;
 
+export const MAX_LENGTH_PASSWORD = 30;
+
 export enum ERROR_MSG_VALIDATE {
     TRADING_PIN_EXIST = 'Trading PIN already exist',
     TRADING_PIN_INCORRECT = 'Incorrect confirm trading Pin',

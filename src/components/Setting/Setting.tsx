@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -281,8 +281,8 @@ const Setting = (props: ISetting) => {
                         <input type={isOpenEye ? "password" : "text"} className="form-control"
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
-                            minLength={8}
-                            maxLength={30}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEye(!isOpenEye)}
@@ -311,8 +311,8 @@ const Setting = (props: ISetting) => {
                         <input type={isOpenEyeNew ? "password" : "text"} className="form-control"
                             value={newPassword}
                             onChange={(event) => setNewPassword(event.target.value)}
-                            minLength={8}
-                            maxLength={30}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEyeNew(!isOpenEyeNew)}
@@ -347,8 +347,8 @@ const Setting = (props: ISetting) => {
                         <input type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
                             value={confirmPassword}
                             onChange={(event) => setConfirmPassword(event.target.value)}
-                            minLength={8}
-                            maxLength={30}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEyeConfirm(!isOpenEyeConfirm)}
