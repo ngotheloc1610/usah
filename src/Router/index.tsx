@@ -9,6 +9,7 @@ import News from "../pages/News"
 import Report from "../pages/Report";
 import CustomerInfo from "../pages/CustomerInfo/Index";
 import OrderBookCommon from "../pages/Orders/OrderBookCommon";
+import MultipleOrders from "../pages/Orders/MultipleOrders";
 
 const RouterDom = () => {
   return (
@@ -20,6 +21,7 @@ const RouterDom = () => {
         <Route path="/customerInfo" element={<CustomerInfo />} />
         <Route path="/report" element={<Report />} />
         <Route path="/order-book" element={<OrderBookCommon />} />
+        <Route path="/order/multi-modify" element={<MultipleOrders />} />
       </Routes>
     </BrowserRouter>
   )
