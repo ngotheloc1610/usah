@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -9,6 +9,8 @@ import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
+import { Autocomplete, TextField } from '@mui/material';
+import { defaultTicker, defaultTickerSearch } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
@@ -23,57 +25,59 @@ const dafaultLastQuotesData: ILastQuote[] = [];
 const ListTicker = (props: IListTickerProps) => {
     const { msgSuccess } = props;
     const { getTicerLastQuote } = props;
-    const [itemSearch, setItemSearch] = useState('');
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
-    const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}'));
+    const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
+    const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
+    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>([]);
+    const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
+    const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
 
-    useEffect(() => mapArrayDashboardList(), [lastQoutes])
+    // useEffect(() => mapArrayDashboardList(), [lastQoutes])
 
-    const mapArrayDashboardList = () => {
+    // const mapArrayDashboardList = () => {
 
-        const getItemSymbolData = (symbolCode: string) => {
-            return lastQoutes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-        }
+    //     const getItemSymbolData = (symbolCode: string) => {
+    //         return lastQoutes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
+    //     }
 
-        let listData: ITickerInfo[] = [];
+    //     let listData: ITickerInfo[] = [];
 
-        let itemData: ITickerInfo = {
-            symbolId: 0,
-            tickerName: '',
-            ticker: '',
-            stockPrice: '',
-            previousClose: '',
-            open: '',
-            high: '',
-            low: '',
-            lastPrice: '',
-            volume: '',
-            change: '',
-            changePrecent: '',
-            side: '',
-        };
-
-        symbolList.forEach(item => {
-            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
-            itemData = {
-                tickerName: item.symbolName,
-                symbolId: item.symbolId,
-                ticker: item.symbolCode,
-                previousClose: itemSymbolData?.close,
-                open: itemSymbolData?.open,
-                high: itemSymbolData?.high,
-                low: itemSymbolData?.low,
-                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
-                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
-            }
-            listData.push(itemData);
-        });
-        sethandleSymbolList(listData);
-    }
+    //     let itemData: ITickerInfo = {
+    //         symbolId: 0,
+    //         tickerName: '',
+    //         ticker: '',
+    //         stockPrice: '',
+    //         previousClose: '',
+    //         open: '',
+    //         high: '',
+    //         low: '',
+    //         lastPrice: '',
+    //         volume: '',
+    //         change: '',
+    //         changePrecent: '',
+    //         side: '',
+    //     };
+    //     symbolList.forEach(item => {
+    //         const itemSymbolData = getItemSymbolData(item.symbolId.toString());
+    //         itemData = {
+    //             tickerName: item.symbolName,
+    //             symbolId: item.symbolId,
+    //             ticker: item.symbolCode,
+    //             previousClose: itemSymbolData?.close,
+    //             open: itemSymbolData?.open,
+    //             high: itemSymbolData?.high,
+    //             low: itemSymbolData?.low,
+    //             lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
+    //             volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
+    //             change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
+    //             changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
+    //         }
+    //         listData.push(itemData);
+    //     });
+    //     sethandleSymbolList(listData);
+    // }
 
     useEffect(() => {
         getOrderBooks();
@@ -83,48 +87,58 @@ const ListTicker = (props: IListTickerProps) => {
         return () => {
             lastQuotesRes.unsubscribe();
         }
-    }, [symbolList])
+    });
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
+        const listSymbolCode: string[] = [];
+        symbolList.forEach((item: ITickerInfo) => {
+            const displayText = `${item.ticker} - ${item.tickerName}`;
+            listSymbolCode.push(displayText);
         });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
+        setListSymbolCode(listSymbolCode);
     }, [])
 
-    useEffect(() => {
-        sendMsgSymbolList();
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
+    // useEffect(() => {
+    //     console.log(90, symbolList);
+    //     const ws = wsService.getSocketSubject().subscribe(resp => {
+    //         if (resp === SOCKET_CONNECTED) {
+    //             sendMsgSymbolList();
+    //         }
+    //     });
 
-        return () => {
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [msgSuccess]);
+    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+    //         setSymbolList(res.symbolList)
+    //     });
 
-    const calculateChange = (lastPrice?: string, open?: string) => {
-        if (!lastPrice && !open) {
-            return 0;
-        }
-        if (!lastPrice) {
-            return Number(open);
-        }
-        if (!open) {
-            return Number(lastPrice);
-        }
-        return Number(lastPrice) - Number(open)
-    }
+    //     return () => {
+    //         ws.unsubscribe();
+    //         renderDataSymbolList.unsubscribe();
+    //     }
+    // }, [])
+
+    // useEffect(() => {
+    //     sendMsgSymbolList();
+    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+    //         setSymbolList(res.symbolList)
+    //     });
+
+    //     return () => {
+    //         renderDataSymbolList.unsubscribe();
+    //     }
+    // }, [msgSuccess]);
+
+    // const calculateChange = (lastPrice?: string, open?: string) => {
+    //     if (!lastPrice && !open) {
+    //         return 0;
+    //     }
+    //     if (!lastPrice) {
+    //         return Number(open);
+    //     }
+    //     if (!open) {
+    //         return Number(lastPrice);
+    //     }
+    //     return Number(lastPrice) - Number(open)
+    // }
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -143,26 +157,49 @@ const ListTicker = (props: IListTickerProps) => {
 
     }
 
-    const handleItemSearch = (itemValue: string) => {
-        setItemSearch(itemValue);
-    }
+    // const handleItemSearch = (itemValue: string) => {
+    //     setItemSearch(itemValue);
+    // }
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
-
-    const _renderSearchForm = () => (
-        <div className="row mb-2">
-            <div className="col-lg-6">
-                <div className="input-group input-group-sm input-search">
-                    <input type="text" className="form-control form-control-sm border-end-0" value={itemSearch}
-                        onChange={(e) => handleItemSearch(e.target.value)} placeholder="Add a ticker" />
-                    <button className="btn btn-primary">Add</button>
-                </div>
-            </div>
+    const onChangeTicker = (event) => {
+        const symbolCode = event.target.innerText?.split('-')[0]?.trim();
+        const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
+        if (symbolCode) {
+            const itemTickerAdd = symbolList.find(item => item.ticker === symbolCode);
+            if (itemTickerAdd) {
+                if (lstSymbolId.length === 0 || lstSymbolId.indexOf(itemTickerAdd.symbolId) === -1) {
+                    setSymbolIdAdd(itemTickerAdd.symbolId);
+                    lstSymbolId.push(itemTickerAdd.symbolId);
+                    setLstSymbolIdAdd(lstSymbolId);
+                    return;
+                }
+            }
+            return;
+        }
+        return;
+    }
+    const btnAddTicker = () => {
+        handleLastQuote();
+    }
+    const _renderSearchForm = () => {
+        return <div className="row mb-2">
+        <div className="col-lg-6 d-flex">
+        <Autocomplete
+                    onChange={onChangeTicker}
+                    options={listSymbolCode}
+                    sx={{ width: 350 }}
+                    renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
+                />
+                
+                <button type="button" className="btn btn-primary" onClick={btnAddTicker}>Add</button>
+                
         </div>
-    )
+    </div>
+    }
 
     const _renderAskPrice = (itemData: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = itemData.asksList;
@@ -238,49 +275,26 @@ const ListTicker = (props: IListTickerProps) => {
         ));
     }
 
-    const getLastQouteDisplay = () => {
-        const listArr: ITickerInfo[] = [];
-        let counter = 0;
-        handleSymbolList.forEach(item => {
-            if (counter < 12) {
-                listArr.push(item);
-                counter++;
-            }
-        });
-        const output: ILastQuote[] = [];
-        listArr.forEach(element => {
-            const obj: ILastQuote = {
-                asksList: [],
-                bidsList: [],
-                close: element.previousClose,
-                currentPrice: element.lastPrice,
-                high: element.high,
-                low: element.low,
-                netChange: element.change,
-                open: element.open,
-                pctChange: element.changePrecent,
-                quoteTime: 0,
-                scale: 0,
-                symbolCode: element.symbolId.toString(),
-                symbolId: Number(element.symbolId),
-                tickPerDay: 0,
-                volumePerDay: '0',
-                volume: element.volume
-            };
-            output.push(obj);
-        })
-        lastQoutes.forEach((o: ILastQuote) => {
-            const index = output.findIndex(e => e.symbolCode === o.symbolCode);
-            if (index >= 0) {
-                output[index] = o;
-            }
-        })
-
-        return output;
+    const handleLastQuote = () => {
+        const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
+        if (symbolIdAdd !== 0) {
+            const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
+            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : defaultTickerSearch;
+            listLastQuote.push(assignItemLastQuote);
+            setArrLastQuoteAdd(listLastQuote);
+        }
+        if (listLastQuote.length <= 12) {
+            setPageShowCurrentLastQuote(listLastQuote);
+            return;
+        } if (listLastQuote.length > 12 && listLastQuote.length <= 24) {
+            setPageShowCurrentLastQuote(listLastQuote.slice(12, listLastQuote.length));
+            return;
+        }
+        setPageShowCurrentLastQuote(listLastQuote.slice(24, listLastQuote.length));
     }
 
-    const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
-        const symbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === item.symbolCode);
+    const renderListDataTicker = pageShowCurrentLastQuote.map((item: ILastQuote, index: number) => {
+        const symbol = symbolList.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         return <div className="col-xl-3" key={index}>
             <table
                 className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
@@ -289,7 +303,7 @@ const ListTicker = (props: IListTickerProps) => {
                     <tr>
                         <th colSpan={3} className="text-center">
                             <div className="position-relative">
-                                <strong className="px-4 pointer">{symbol?.symbolCode}</strong>
+                                <strong className="px-4 pointer">{symbol?.ticker}</strong>
                                 <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                     <i className="bi bi-x-lg" />
                                 </a>
