@@ -5,6 +5,7 @@ import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from "../../helper/utils";
 import { useEffect, useState } from "react";
+import { Autocomplete, TextField } from "@mui/material";
 
 
 interface IOrderBookProps {
@@ -12,6 +13,7 @@ interface IOrderBookProps {
     listDataTicker?: ITickerInfo[];
     itemTickerSearch: (item: string) => void;
     dataSearchTicker?: ILastQuote;
+    listTickerSearch?: string[];
 }
 
 const defaultProps = {
@@ -19,7 +21,7 @@ const defaultProps = {
 }
 
 const OrderBook = (props: IOrderBookProps) => {
-    const { isDashboard, itemTickerSearch, dataSearchTicker } = props;
+    const { isDashboard, itemTickerSearch, dataSearchTicker, listTickerSearch } = props;
     const [tickerSearch, setTickerSearch] = useState<string>(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
 
     const _renderAskPrice = (itemData: ILastQuote) => {
@@ -110,22 +112,21 @@ const OrderBook = (props: IOrderBookProps) => {
         <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
     )
     
-    const ssignTickerSearch = (charCode: number, value: any) => {
-        if (charCode === 13) {
-            itemTickerSearch(value.target.value);
-        }
+    const handleKeyUp = (value: string) => {
+        itemTickerSearch(value);
     }
     const _renderSearchBox = () => (
         <div className="card-header-style">
             <div className="input-group input-group-sm dark">
-                <span className="input-group-text bg-light text-white"><i className="bi bi-search"></i></span>
-                <input
-                    onKeyPress={(e) => ssignTickerSearch(e.charCode, e)}
-                    onChange={(e) => setTickerSearch(e.target.value)}
-                    type="text"
-                    value={tickerSearch}
-                    className="form-control bg-light text-white border-start-0"
-                    placeholder="Search" />
+                <Autocomplete
+                    className='ticker-input'
+                    onChange={(event: any) => handleKeyUp(event.target.innerText)}
+                    onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                    disablePortal
+                    sx={{ width: 300 }}
+                    options={listTickerSearch ? listTickerSearch : []}
+                    renderInput={(params) => <TextField {...params} placeholder="Search" />}
+                />
             </div>
         </div>
     )
