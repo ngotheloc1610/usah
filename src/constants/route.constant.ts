@@ -74,12 +74,6 @@ export const ROUTER = [
         ]
     },
     {
-        navigation: '/customerInfo',
-        icon: 'icon bi bi-person-workspace me-1',
-        title: 'Customer Infomation',
-        subTab: []
-    },
-    {
         navigation: '/report',
         icon: 'icon bi bi-clipboard-data me-1',
         title: 'Report',

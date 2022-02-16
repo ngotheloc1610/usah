@@ -83,6 +83,8 @@ export const MODIFY_CANCEL_STATUS = {
 
 export const LENGTH_PASSWORD = 8;
 
+export const MAX_LENGTH_PASSWORD = 30;
+
 export enum ERROR_MSG_VALIDATE {
     TRADING_PIN_EXIST = 'Trading PIN already exist',
     TRADING_PIN_INCORRECT = 'Incorrect confirm trading Pin',
@@ -108,13 +110,6 @@ export enum MESSAGE_TOAST {
 
 export const LIST_TICKER_INFO = 'TICKER_LIST';
 
-export const ENABLE_TRADING_PIN = 'ENABLE_TRADING_PIN';
-
 export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 
 export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
-
-export enum ENABLE_BUTTON {
-    ON = 'On',
-    OFF = 'Off'
-};

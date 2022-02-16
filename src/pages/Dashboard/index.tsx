@@ -39,6 +39,7 @@ const Dashboard = () => {
     // const [listDataTicker, setListDataTicker] = useState<IListDashboard[]>([]);
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
+    const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
     
     const calculateChange = (lastPrice?: string, open?: string) => {
         return Number(lastPrice) - Number(open)
@@ -106,7 +107,16 @@ const Dashboard = () => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+            if (res.symbolList) {
+                setSymbolList(res.symbolList);
+                if (res.symbolList.length > 0) {
+                    const tmp: string[] = [];
+                    res.symbolList.forEach((item: ISymbolList) => {
+                        tmp.push(item.symbolCode);
+                    });
+                    setListTickerSearch(tmp);
+                }
+            }
         });
 
         return () => {
@@ -208,7 +218,11 @@ const Dashboard = () => {
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
-                            <OrderBook isDashboard={isDashboard} listDataTicker={handleSymbolList} itemTickerSearch={handleTickerSearch} dataSearchTicker={dataSearchTicker}/>
+                            <OrderBook isDashboard={isDashboard}
+                                        listDataTicker={handleSymbolList}
+                                        itemTickerSearch={handleTickerSearch}
+                                        dataSearchTicker={dataSearchTicker}
+                                        listTickerSearch={listTickerSearch}/>
                         </div>
                         <div>
                             <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker}/>
