@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -1432,6 +1432,7 @@ export const NOTIFICATION_DETAIL: INotificationDetail[] = [
         content: ' Inceptos suspendisse fringilla ultricies ut nam orci dictum commodo sociosqu netus efficitur facilisi aptent, platea lacus mus aliquam potenti ad eu turpis vitae quisque gravida eleifend.'
     }
 ]
+
 export const Mock_Bids_Ask = [
     {
         totalBids: 19,
@@ -1474,6 +1475,7 @@ export const Mock_Bids_Ask = [
         totalAsk: 23,
     }
 ]
+
 export const MOCKDATA_TRADE_HISTORY = [
     {
         dateTime: '10:26:30',
@@ -1501,6 +1503,7 @@ export const MOCKDATA_TRADE_HISTORY = [
         price: '157.54'
     }
 ]
+
 export const MOCKDATA_ORDER_BOOK_DETAIL = {
 
     tickerName: 'AAPL',
@@ -1517,3 +1520,49 @@ export const MOCKDATA_ORDER_BOOK_DETAIL = {
     floor: '162.87',
     ceiling: '151.72',
 }
+
+export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+    side: '',
+}
+
+export const defaultListDataOrder: IListOrder[] = [
+    {
+        amount: '',
+        entry: '',
+        executeMode: '',
+        expireTime: '',
+        fee: '',
+        note: '',
+        orderFilling: '',
+        orderId: '',
+        orderMode: 0,
+        orderTime: 0,
+        orderType: 0,
+        pl: '',
+        price: '',
+        reason: '',
+        route: '',
+        sl: '',
+        slippage: '',
+        state: '',
+        swap: '',
+        symbolCode: 0,
+        time: 0,
+        tp: '',
+        triggerPrice: '',
+        uid: '',
+        filledAmount: '',
+    }
+]

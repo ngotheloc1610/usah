@@ -13,11 +13,19 @@ const defaultProps: IOrderDropdownItem = {
 const OrderDropdownItem = (props: IOrderDropdownItem) => {
     const { item } = props;
 
-    const _renderListChildMenu = (data: IOrderDropdownModel[]) => (
-        data.map((item: IOrderDropdownModel, index: number) => (
-            <li key={index}><a className="dropdown-item" href={item.navigation}>{item.title}</a></li>
-        ))
-    )
+    const _renderListChildMenu = (data: IOrderDropdownModel[]) => {
+        return data.map((item: IOrderDropdownModel, index: number) => {
+            if (item.subTab.length === 0) {
+                return <li key={index}><a className="dropdown-item" href={item.navigation}>{item.title}</a></li>
+            }
+            return <li key={index} className="dropdown-submenu">
+                <a className="dropdown-item">{item.title}</a>
+                <ul className="dropdown-menu">
+                    {_renderListChildMenu(item.subTab)}
+                </ul>
+            </li>
+        })
+    }
 
     return (
         <ul className="dropdown-menu" aria-labelledby="navbarDropdown">

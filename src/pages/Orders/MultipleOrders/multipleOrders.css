@@ -1,0 +1,12 @@
+.w-100-persent {
+    width: 100%;
+}
+.w-200 {
+    width: 200px;
+}
+.mh-375 {
+    max-height: 375px;
+}
+.popup-box {
+    z-index: 1;
+}

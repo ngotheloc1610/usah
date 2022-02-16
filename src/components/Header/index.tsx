@@ -49,6 +49,11 @@ const Header = () => {
     window.location.href = `${baseUrl}/login`;
   }
 
+  const handleDisplaySetting = () => {
+    const baseUrl = window.location.origin;
+    window.location.href = `${baseUrl}/setting`;
+  }
+
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -68,7 +73,7 @@ const Header = () => {
           <li className="nav-item dropdown">
             <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
-              <li><a className="dropdown-item" href="#">Sub Menu</a></li>
+              <li><a className="dropdown-item" onClick={handleDisplaySetting}>Setting</a></li>
               <li><a className="dropdown-item" onClick={handleLogout}>Logout</a></li>
             </ul>
           </li>

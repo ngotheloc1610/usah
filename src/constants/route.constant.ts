@@ -47,10 +47,23 @@ export const ROUTER = [
                 subTab: []
             },
             {
-                navigation: '/orders/new',
+                navigation: '',
                 icon: '',
                 title: 'New Order',
-                subTab: []
+                subTab: [
+                    {
+                        navigation: '/orders/new',
+                        icon: '',
+                        title: 'Single Order',
+                        subTab: [],
+                    },
+                    {
+                        navigation: '/order/multi-orders',
+                        icon: '',
+                        title: 'Multiple Order',
+                        subTab: [],
+                    }
+                ]
             },
             {
                 navigation: '/orders/modify-cancel',
@@ -59,12 +72,6 @@ export const ROUTER = [
                 subTab: []
             }
         ]
-    },
-    {
-        navigation: '/customerInfo',
-        icon: 'icon bi bi-person-workspace me-1',
-        title: 'Customer Infomation',
-        subTab: []
     },
     {
         navigation: '/report',

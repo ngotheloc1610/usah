@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, IS_ACTIVE_TRADING_PIN } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -11,25 +11,21 @@ import queryString from 'query-string';
 import { IAccountDetail } from '../../interfaces/customerInfo.interface'
 
 interface ISetting {
-    isTradingPin: boolean;
     isChangePassword: boolean;
     isNotification: boolean;
-    customerInfoDetail: IAccountDetail
+    customerInfoDetail: IAccountDetail;
 }
 
 const defaultProps = {
-    isTradingPin: false,
     isChangePassword: false,
     isNotification: false,
 }
 
 const Setting = (props: ISetting) => {
-    const { isTradingPin, isChangePassword, isNotification, customerInfoDetail } = props
-    const [secretKey, setSecretKey] = useState('')
+    const { isChangePassword, isNotification, customerInfoDetail } = props
+    const systemServicePb: any = sspb
     const [password, setPassword] = useState('')
-    const [newSecretKey, setNewSecretKey] = useState('')
     const [newPassword, setNewPassword] = useState('')
-    const [confirmTradingPin, setConfirmTradingPin] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [isOpenEye, setIsOpenEye] = useState(true)
     const [isOpenEyeNew, setIsOpenEyeNew] = useState(true)
@@ -41,34 +37,26 @@ const Setting = (props: ISetting) => {
     const [checkPass, setCheckPass] = useState(false)
     const [checkNewPass, setCheckNewPass] = useState(false)
     const [checkConfirm, setCheckConfirm] = useState(false)
-    const [isActiveTradingPin, setIsActiveTradingPin] = useState(JSON.parse(localStorage.getItem(IS_ACTIVE_TRADING_PIN) || '{}'))
+
+    localStorage.setItem(ADMIN_NEWS_FLAG, JSON.stringify(recvAdminNewsFlg))
+    localStorage.setItem(MATCH_NOTI_FLAG, JSON.stringify(recvMatchNotiFlg))
 
     useEffect(() => {
-        if (isTradingPin === false || isChangePassword === false) {
+        if (!isChangePassword) {
             setIsOpenEye(true)
             setIsOpenEyeNew(true)
             setIsOpenEyeConfirm(true)
         }
-    }, [isTradingPin, isChangePassword])
+    }, [isChangePassword])
 
     useEffect(() => {
-        setSecretKey('')
-        setNewSecretKey('')
-        setConfirmTradingPin('')
         setPassword('')
         setNewPassword('')
         setConfirmPassword('')
         setCheckPass(false)
         setCheckNewPass(false)
         setCheckConfirm(false)
-    }, [isTradingPin, isChangePassword])
-
-    useEffect(() => {
-        if (isTradingPin) {
-            const el: any = document.querySelector('.trading-pin-form')
-            !isActiveTradingPin ? el.style.display = 'none' : el.style.display = 'block'
-        }
-    }, [isTradingPin])
+    }, [isChangePassword])
 
     useEffect(() => {
         const systemModelPb: any = smpb
@@ -84,25 +72,6 @@ const Setting = (props: ISetting) => {
 
         return () => renderDataCustomInfoToScreen.unsubscribe();
     }, [])
-
-    const buildMessageTradingPin = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setSecretKey(secretKey);
-            customerInfoRequest.setNewSecretKey(newSecretKey);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
 
     const buildMessagePassword = (accountId: string) => {
         const SystemServicePb: any = sspb;
@@ -123,15 +92,40 @@ const Setting = (props: ISetting) => {
         }
     }
 
-    const buildMessageNoti = (accountId: string) => {
+    const sendMessageSettingPass = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId = '';
+        if (objAuthen) {
+            if (objAuthen.access_token) {
+                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMessagePassword(accountId);
+                return;
+            }
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
+            if (resp) {
+                const obj = JSON.parse(resp);
+                accountId = obj.account_id;
+                buildMessagePassword(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
+                buildMessagePassword(accountId);
+                return;
+            }
+        });
+    }
+
+    const buildMessageAdNewsNoti = (accountId: string, newsAdmin: number) => {
         const SystemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
             customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setRecvAdminNewsFlg(recvAdminNewsFlg);
-            customerInfoRequest.setRecvMatchNotiFlg(recvMatchNotiFlg);
+            customerInfoRequest.setRecvAdminNewsFlg(newsAdmin);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
@@ -141,16 +135,32 @@ const Setting = (props: ISetting) => {
         }
     }
 
-    const sendMessageCustomerInfor = () => {
+    const buildMessageMatchNoti = (accountId: string, matchNoti: number) => {
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
+            customerInfoRequest.setAccountId(Number(accountId));
+            customerInfoRequest.setRecvMatchNotiFlg(matchNoti);
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
+            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendMessageAdNewsNoti = (newsAdmin: number) => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             }
         }
@@ -158,27 +168,25 @@ const Setting = (props: ISetting) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);
+                buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                isTradingPin && buildMessageTradingPin(accountId);
-                isChangePassword && buildMessagePassword(accountId);
+                buildMessageAdNewsNoti(accountId, newsAdmin);
                 return;
             }
         });
     }
 
-    const sendMessageCustomerInforNoti = () => {
+    const sendMessageMatchNoti = (matchNoti: number) => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
         let accountId = '';
         if (objAuthen) {
             if (objAuthen.access_token) {
                 accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                isNotification && buildMessageNoti(accountId);
+                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+                buildMessageMatchNoti(accountId, matchNoti);
                 return;
             }
         }
@@ -186,29 +194,14 @@ const Setting = (props: ISetting) => {
             if (resp) {
                 const obj = JSON.parse(resp);
                 accountId = obj.account_id;
-                isNotification && buildMessageNoti(accountId);
+                buildMessageMatchNoti(accountId, matchNoti);
                 return;
             } else {
                 accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                isNotification && buildMessageNoti(accountId);
+                buildMessageMatchNoti(accountId, matchNoti);
                 return;
             }
         });
-    }
-
-    const changeTradingPin = (value: string) => {
-        isTradingPin && setSecretKey(value)
-        isChangePassword && setPassword(value)
-    }
-
-    const changeNewTradingPin = (value: string) => {
-        isTradingPin && setNewSecretKey(value)
-        isChangePassword && setNewPassword(value)
-    }
-
-    const confirmNewTradingPin = (value: string) => {
-        isTradingPin && setConfirmTradingPin(value)
-        isChangePassword && setConfirmPassword(value)
     }
 
     const _renderMsgError = () => (
@@ -224,66 +217,32 @@ const Setting = (props: ISetting) => {
     )
 
     const handleSubmit = () => {
-        if (isTradingPin) {
-            if (secretKey === newSecretKey) {
-                setCheckPass(true)
-            }
-            if (secretKey !== newSecretKey) {
-                setCheckPass(false)
-            }
-            if (newSecretKey !== confirmTradingPin) {
-                setCheckConfirm(true)
-            }
-            if (newSecretKey.length > 6 || newSecretKey.length < 6) {
-                setCheckNewPass(true)
-                setCheckConfirm(false)
-            }
-            if (newSecretKey.length === 6) {
-                setCheckNewPass(false)
-            }
-            if (newSecretKey === confirmTradingPin) {
-                setCheckConfirm(false)
-            }
-            if (secretKey !== newSecretKey && newSecretKey.length === 6 && newSecretKey === confirmTradingPin) {
-                sendMsgUpdateTradingPin();
-            }
+        if (password === newPassword) {
+            setCheckPass(true)
         }
-
-        if (isChangePassword) {
-            if (password === newPassword) {
-                setCheckPass(true)
-            }
-            if (password !== newPassword) {
-                setCheckPass(false)
-            }
-            if (newPassword !== confirmPassword) {
-                setCheckConfirm(true)
-            }
-            if (!validationPassword(newPassword)) {
-                setCheckNewPass(true)
-                setCheckConfirm(false)
-            }
-            if (validationPassword(newPassword)) {
-                setCheckNewPass(false)
-            }
-            if (newPassword === confirmPassword) {
-                setCheckConfirm(false)
-            }
-            if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
-                sendMsgUpdatePassword()
-            }
+        if (password !== newPassword) {
+            setCheckPass(false)
         }
-    }
-
-    const sendMsgUpdateTradingPin = () => {
-        sendMessageCustomerInfor()
-        setSecretKey('')
-        setNewSecretKey('')
-        setConfirmTradingPin('')
+        if (newPassword !== confirmPassword) {
+            setCheckConfirm(true)
+        }
+        if (!validationPassword(newPassword)) {
+            setCheckNewPass(true)
+            setCheckConfirm(false)
+        }
+        if (validationPassword(newPassword)) {
+            setCheckNewPass(false)
+        }
+        if (newPassword === confirmPassword) {
+            setCheckConfirm(false)
+        }
+        if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
+            sendMsgUpdatePassword()
+        }
     }
 
     const sendMsgUpdatePassword = () => {
-        sendMessageCustomerInfor()
+        sendMessageSettingPass()
         setPassword('')
         setNewPassword('')
         setConfirmPassword('')
@@ -298,34 +257,32 @@ const Setting = (props: ISetting) => {
     }
 
     const changeNewsAdmin = (checked: boolean) => {
-        const systemServicePb: any = sspb
         let newsAdmin: number = 0
         checked ? newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
         setRecvAdminNewsFlg(newsAdmin)
-        sendMessageCustomerInforNoti()
+        sendMessageAdNewsNoti(newsAdmin)
     }
 
     const changeNewsNotication = (checked: boolean) => {
-        const systemServicePb: any = sspb
-        let newsNotication: number = 0
-        checked ? newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsNotication = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
-        setRecvMatchNotiFlg(newsNotication)
-        sendMessageCustomerInforNoti()
+        let matchNoti: number = 0
+        checked ? matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
+        setRecvMatchNotiFlg(matchNoti)
+        sendMessageMatchNoti(matchNoti)
     }
 
-    const _renderChanngeTraddingPin = (isTradingPin: boolean) => (
+    const _renderChanngePassword = () => (
         <>
             <div className="row align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0">
-                    <label className="text-secondary">{isTradingPin ? 'Current Trading PIN' : 'Current Password'}</label>
+                    <label className="text-secondary">Current Password</label>
                 </div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='trading-pin' type={isOpenEye ? "password" : "text"} className="form-control"
-                            value={isTradingPin ? secretKey : password}
-                            onChange={(event) => changeTradingPin(event.target.value)}
-                            minLength={isTradingPin ? 0 : 8}
-                            maxLength={isTradingPin ? 6 : 30}
+                        <input type={isOpenEye ? "password" : "text"} className="form-control"
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEye(!isOpenEye)}
@@ -343,19 +300,19 @@ const Setting = (props: ISetting) => {
         </>
     )
 
-    const _renderNewTradingPin = (isTradingPin: boolean) => (
+    const _renderNewPassword = () => (
         <>
             <div className="row align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0">
-                    <label className="text-secondary">{isTradingPin ? 'New Trading PIN' : 'New Password'}</label>
+                    <label className="text-secondary">New Password</label>
                 </div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='new-trading-pin' type={isOpenEyeNew ? "password" : "text"} className="form-control"
-                            value={isTradingPin ? newSecretKey : newPassword}
-                            onChange={(event) => changeNewTradingPin(event.target.value)}
-                            minLength={isTradingPin ? 0 : 8}
-                            maxLength={isTradingPin ? 6 : 30}
+                        <input type={isOpenEyeNew ? "password" : "text"} className="form-control"
+                            value={newPassword}
+                            onChange={(event) => setNewPassword(event.target.value)}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEyeNew(!isOpenEyeNew)}
@@ -369,11 +326,9 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className='trading password'>
-                        {isTradingPin && checkPass ? ERROR_MSG_VALIDATE.TRADING_PIN_EXIST : ''}
                         {isChangePassword && checkPass ? ERROR_MSG_VALIDATE.PASSWORD_EXIST : ''}
                     </div>
-                    <div className='new-trading new-password'>
-                        {isTradingPin && checkNewPass ? ERROR_MSG_VALIDATE.TRADING_PIN_NOT_VALID : ''}
+                    <div className='new-password'>
                         {isChangePassword && checkNewPass ? _renderMsgError() : ''}
                     </div>
                 </div>
@@ -381,19 +336,19 @@ const Setting = (props: ISetting) => {
         </>
     )
 
-    const _renderConfirmTradingPin = (isTradingPin: boolean) => (
+    const _renderConfirmPassword = () => (
         <>
             <div className="row align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0">
-                    <label className="text-secondary">{isTradingPin ? 'Confirm trading PIN' : 'Confirm Password'}</label>
+                    <label className="text-secondary">Confirm Password</label>
                 </div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
-                        <input id='confirm-trading-pin' type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
-                            value={isTradingPin ? confirmTradingPin : confirmPassword}
-                            onChange={(event) => confirmNewTradingPin(event.target.value)}
-                            minLength={isTradingPin ? 0 : 8}
-                            maxLength={isTradingPin ? 6 : 30}
+                        <input type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
+                            value={confirmPassword}
+                            onChange={(event) => setConfirmPassword(event.target.value)}
+                            minLength={LENGTH_PASSWORD}
+                            maxLength={MAX_LENGTH_PASSWORD}
                         />
                         <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" >
                             <i onClick={() => setIsOpenEyeConfirm(!isOpenEyeConfirm)}
@@ -406,8 +361,7 @@ const Setting = (props: ISetting) => {
             <div className="row mb-3 align-items-center">
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
-                    <div className='confirm-trading confirm-password'>
-                        {isTradingPin && checkConfirm ? ERROR_MSG_VALIDATE.TRADING_PIN_INCORRECT : ''}
+                    <div className='confirm-password'>
                         {isChangePassword && checkConfirm ? ERROR_MSG_VALIDATE.PASSORD_INCORRECT : ''}
                     </div>
                 </div>
@@ -415,36 +369,15 @@ const Setting = (props: ISetting) => {
         </>
     )
 
-    const changeTradingPinFlg = (checked: boolean) => {
-        const el: any = document.querySelector('.trading-pin-form')
-        !checked ? el.style.display = 'none' : el.style.display = 'block'
-        setIsActiveTradingPin(checked)
-        localStorage.setItem(IS_ACTIVE_TRADING_PIN, JSON.stringify(checked))
-    }
-
     const _renderSettingTemplate = () => (
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <h6 className="c-title text-primary mb-3">{isTradingPin ? 'Change Trading PIN' : 'Change Password'}</h6>
-                {isTradingPin && <div className="mb-4">
-                    <div className="row mb-3 align-items-center">
-                        <div className="col-md-3 text-secondary">Trading PIN</div>
-                        <div className="col-md-4">
-                            <div className='form-check form-switch'>
-                                <input className="form-check-input" type="checkbox" role="switch" id="trading_pin"
-                                    checked={isActiveTradingPin}
-                                    onChange={(event) => changeTradingPinFlg(event.target.checked)}
-                                />
-                                <label className='trading-pin-flg'>{isActiveTradingPin ? 'On' : 'Off'}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>}
+                <h6 className="c-title text-primary mb-3">Change Password</h6>
                 <div className="mb-4 trading-pin-form">
-                    {_renderChanngeTraddingPin(isTradingPin)}
-                    {_renderNewTradingPin(isTradingPin)}
-                    {_renderConfirmTradingPin(isTradingPin)}
+                    {_renderChanngePassword()}
+                    {_renderNewPassword()}
+                    {_renderConfirmPassword()}
                     <div className="row mb-3 align-items-center">
                         <div className="col-md-3">
                             &nbsp;
@@ -484,7 +417,6 @@ const Setting = (props: ISetting) => {
     )
 
     return <>
-        {isTradingPin && _renderSettingTemplate()}
         {isChangePassword && _renderSettingTemplate()}
         {isNotification && _renderSettingNotification()}
     </>

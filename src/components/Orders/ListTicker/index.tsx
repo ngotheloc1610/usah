@@ -7,13 +7,15 @@ import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import { Autocomplete, TextField } from '@mui/material';
 import { defaultTicker, defaultTickerSearch } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
+    symbolName: string[]; 
 }
 
 const defaultProps = {
@@ -154,7 +156,6 @@ const ListTicker = (props: IListTickerProps) => {
             rpcMsg.setPayloadData(lastQoutes.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
-
     }
 
     // const handleItemSearch = (itemValue: string) => {
@@ -209,10 +210,10 @@ const ListTicker = (props: IListTickerProps) => {
             if (askItems[counter]) {
                 arr.push({
                     numOrders: askItems[counter].numOrders,
-                    price: askItems[counter].price,
-                    tradable: askItems[counter].tradable,
-                    volume: askItems[counter].volume,
-                    symbolCode: itemData.symbolCode,
+                    price: askItems[counter].numOrders !== 0 ? askItems[counter].price : '-',
+                    tradable: askItems[counter].numOrders !== 0 ? askItems[counter].tradable : false,
+                    volume: askItems[counter].numOrders !== 0 ? askItems[counter].volume : '-',
+                    symbolCode: askItems[counter].numOrders !== 0 ? itemData.symbolCode : '-',
                 });
             } else {
                 arr.push({
@@ -246,10 +247,10 @@ const ListTicker = (props: IListTickerProps) => {
             if (bidItems[counter]) {
                 arr.push({
                     numOrders: bidItems[counter].numOrders,
-                    price: bidItems[counter].price,
-                    tradable: bidItems[counter].tradable,
-                    volume: bidItems[counter].volume,
-                    symbolCode: itemData.symbolCode
+                    price: bidItems[counter].numOrders !== 0 ? bidItems[counter].price : '-',
+                    tradable: bidItems[counter].numOrders !== 0 ? bidItems[counter].tradable : false,
+                    volume: bidItems[counter].numOrders !== 0 ? bidItems[counter].volume : '-',
+                    symbolCode: bidItems[counter].numOrders !== 0 ? itemData.symbolCode : '-'
                 });
             } else {
                 arr.push({
@@ -268,8 +269,8 @@ const ListTicker = (props: IListTickerProps) => {
                 <td className="text-center">
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
+                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                 </td>
             </tr>
         ));

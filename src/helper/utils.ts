@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD } from '../constants/general.constant';
+import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -33,9 +34,9 @@ export function validationPassword(newPassword: string) {
     const isNumber = /\d/.test(newPassword);
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     const specialCharacter = format.test(newPassword);
-    if (newPassword.length < 8 || isUpperCase === null || isNumber === false || specialCharacter === false) {
+    if (newPassword.length < LENGTH_PASSWORD || isUpperCase === null || isNumber === false || specialCharacter === false) {
         return false
-    }else {
+    } else {
         return true
     }
 }
@@ -49,4 +50,19 @@ export const removeFocusInput = (element: any) => {
     element.forEach(item => {
         item.blur()
     });
+}
+
+export const getSymbolId = (str: string, symbolList: ISymbolList[]) => {
+    const positionStartOfString = str.indexOf('(')
+    const positionEndOfString = str.lastIndexOf(')')
+    const symbolId = symbolList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
+    return symbolId ?? '0'
+}
+
+export const calcPriceIncrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
+    return Math.round((currentPrice + tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
+}
+
+export const calcPriceDecrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
+    return Math.round((currentPrice - tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
 }

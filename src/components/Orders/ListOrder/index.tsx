@@ -3,6 +3,8 @@ import { MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCK
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
+import * as pspb from "../../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../../models/proto/rpc_pb';
 import './ListOrder.css';
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -31,8 +33,7 @@ const paramModifiCancelDefault: IParamOrder = {
     tickerId: ''
 }
 
-const 
-ListOrder = (props: IPropsListOrder) => {
+const ListOrder = (props: IPropsListOrder) => {
     const { msgSuccess } = props;
     const tradingModelPb: any = tspb;
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
@@ -127,6 +128,23 @@ ListOrder = (props: IPropsListOrder) => {
         }
     }, [])
 
+    const getOrderBooks = () => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
+            symbolList.forEach(item => {
+                lastQoutes.addSymbolCode(item.symbolId.toString())
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+
     const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
 
     const getTickerName = (symbolId: string): string => {
@@ -204,6 +222,7 @@ ListOrder = (props: IPropsListOrder) => {
     const getStatusModifyCancel = (value: boolean) => {
         if (value) {
             sendListOrder();
+            getOrderBooks();
         }
     }
 
@@ -278,7 +297,7 @@ ListOrder = (props: IPropsListOrder) => {
                     <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
                 </div>
                 <div className="card-body p-0">
-                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''}`}>
+                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''} tableFixHead`}>
                         {_renderTableListOrder()}
                     </div>
                 </div>

@@ -17,3 +17,12 @@
         margin-right: 0 !important;
     }
 }
+.tableFixHead {
+    overflow: auto;
+}
+
+.tableFixHead thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
