@@ -67,7 +67,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
             modifyOrder.setSecretKey(tradingPin);
-            modifyOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);

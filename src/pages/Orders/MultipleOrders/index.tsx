@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Pagination from "../../../Common/Pagination";
-import { LIST_TICKER_INFO, OBJ_AUTHEN, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { IListOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -10,16 +10,20 @@ import { IAuthen } from "../../../interfaces";
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatCurrency, formatNumber } from "../../../helper/utils";
+import { formatNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
 import './multipleOrders.css';
+import * as tdspb from '../../../models/proto/trading_service_pb';
+import * as smpb from '../../../models/proto/system_model_pb';
+import { toast } from "react-toastify";
 
 
 const MultipleOrders = () => {
     const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
     const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [dataConfirm, setDataConfirm] = useState<IListOrder[]>([]);
-    const [showModalModify, setShowModalModify] = useState<boolean>(false);
+    const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
+    const [statusOrder, setStatusOrder] = useState(0);
 
     const tradingModelPb: any = tspb;
 
@@ -138,9 +142,10 @@ const MultipleOrders = () => {
 
     const decreaseVolume = (itemSymbol: IListOrder) => {
         const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            const lotSize = getTickerData(item.symbolCode).lotSize ? Number(getTickerData(item.symbolCode).lotSize) : 1;
             if (Number(itemSymbol.orderId) === Number(item.orderId)) {
-                if ((Number(item.volumeChange) - 1) > 0) {
-                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) - 1).toString() }];
+                if ((Number(item.volumeChange) - lotSize) > 0) {
+                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) - lotSize).toString() }];
                 }
                 return [...listOrder, item];
             }
@@ -151,9 +156,10 @@ const MultipleOrders = () => {
 
     const increaseVolume = (itemSymbol: IListOrder) => {
         const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
+            const lotSize =  getTickerData(item.symbolCode).lotSize ? Number(getTickerData(item.symbolCode).lotSize) : 1;
             if (Number(itemSymbol.orderId) === Number(item.orderId)) {
-                if ((Number(item.volumeChange) + 1) <= Number(item.amount)) {
-                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) + 1).toString() }];
+                if ((Number(item.volumeChange) + lotSize) <= Number(item.amount)) {
+                    return [...listOrder, { ...item, volumeChange: (Number(item.volumeChange) + lotSize).toString() }];
                 }
                 return [...listOrder, item];
             }
@@ -165,7 +171,7 @@ const MultipleOrders = () => {
     const decreasePrice = (itemSymbol: IListOrder) => {
         const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
             if (Number(itemSymbol.orderId) === Number(item.orderId)) {
-                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) - 1).toString() }];
+                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) - Number(getTickerData(item.symbolCode).tickSize)).toString() }];
             }
             return [...listOrder, item];
         }, []);
@@ -175,7 +181,7 @@ const MultipleOrders = () => {
     const increasePrice = (itemSymbol: IListOrder) => {
         const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
             if (Number(itemSymbol.orderId) === Number(item.orderId)) {
-                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) + 1).toString() }];
+                return [...listOrder, { ...item, priceChange: (Number(item.priceChange) + Number(getTickerData(item.symbolCode).tickSize)).toString() }];
             }
             return [...listOrder, item];
         }, []);
@@ -201,7 +207,7 @@ const MultipleOrders = () => {
         const orderConfirm = getDataOrder.filter(item => (item.isChecked && ((Number(item.volumeChange) !== Number(item.amount)) || (Number(item.priceChange) !== Number(item.price)))));
         if (orderConfirm.length > 0) {
             setDataConfirm(orderConfirm);
-            setShowModalModify(true);
+            setShowModalConfirmMultiOrders(true);
         }
     }
 
@@ -228,8 +234,8 @@ const MultipleOrders = () => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" checked={item?.isChecked} name={index.toString()} onChange={handleChecked} /></td>
                 <td>{index}</td>
-                <td className="text-center">{getTickerData(item.symbolCode)?.symbolCode}</td>
-                <td className="text-center">{getTickerData(item.symbolCode)?.symbolName}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.ticker}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.tickerName}</td>
                 <td className="text-end">Limit</td>
                 <td className="text-end">
                     <select value={getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.code}
@@ -273,7 +279,7 @@ const MultipleOrders = () => {
                         </svg>
                         <CurrencyInput
                             onChange={(e) => changePrice(e.target.value, item)}
-                            decimalscale={0} type="text" className="form-control text-end border-1 p-0"
+                            decimalscale={2} type="text" className="form-control text-end border-1 p-0"
                             thousandseparator="{true}" value={formatNumber(item.priceChange ? item.priceChange : item.price)} placeholder=""
                         // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
                         />
@@ -291,22 +297,21 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center"><span>Ticker Code</span></th>
-            <th className="text-center"><span>Ticker Name</span></th>
-            <th className="text-end"><span>Order Type</span></th>
-            <th className="text-end"><span>Order Side</span></th>
-            <th className="text-end"><span>Volume</span></th>
-            <th className="text-end"><span>Price</span></th>
+            <th className="text-center text-nowrap"><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap"><span>Ticker Name</span></th>
+            <th className="text-end text-nowrap"><span>Order Type</span></th>
+            <th className="text-end text-nowrap"><span>Order Side</span></th>
+            <th className="text-end text-nowrap "><span>Volume</span></th>
+            <th className="text-end text-nowrap"><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
         dataConfirm.map((item, index) => {
             return <tr key={index}>
-                <td className="text-center">{getTickerData(item.symbolCode)?.symbolCode}</td>
-                <td className="text-center">{getTickerData(item.symbolCode)?.symbolName}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.ticker}</td>
+                <td className="text-center">{getTickerData(item.symbolCode)?.tickerName}</td>
                 <td className="text-end">Limit</td>
-                <td className={`border-1
-                    ${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
+                <td className={`${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
                     {getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.title}
                 </td>
                 <td className="text-end">{formatNumber(item.volumeChange ? item.volumeChange : item.amount)}</td>
@@ -314,11 +319,111 @@ const MultipleOrders = () => {
             </tr>
         })
     )
+
+    const sendMessMultiRequest = () => {
+        const paramStr = window.location.search;
+        const objAuthen = queryString.parse(paramStr);
+        let accountId: string | any = '';
+        if (objAuthen.access_token) {
+            accountId = objAuthen.account_id;
+            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
+            prepareMessagee(accountId);
+            return;
+        }
+        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
+            if (resp) {
+                const obj: IAuthen = JSON.parse(resp);
+                accountId = obj.account_id;
+                prepareMessagee(accountId);
+                return;
+            } else {
+                accountId = process.env.REACT_APP_TRADING_ID;
+                prepareMessagee(accountId);
+                return;
+            }
+        });
+    }
+
+    const prepareMessagee = (accountId: string) => {
+        const tradingServicePb: any = tdspb;
+        let wsConnected = wsService.getWsConnected();
+        const tradingModelPb: any = tspb;
+        const systemModelPb: any = smpb;
+        if (wsConnected) {
+            let currentDate = new Date();
+            let multiOrder = new tradingServicePb.NewOrderMultiRequest();
+            multiOrder.setSecretKey('');
+
+            dataConfirm.forEach(item => {
+                let order = new tradingModelPb.Order();
+                order.setOrderId(item.orderId);
+                order.setSymbolCode(item.symbolCode);
+                order.setOrderType(item.orderSideChange);
+                order.setState(item.state);
+                order.setAmount(item.volumeChange);
+                order.setPrice(item.priceChange);
+                order.setSlippage(item.slippage);
+                order.setOrderFilling(item.orderFilling);
+                order.setExecuteMode(item.executeMode);
+                order.setReason(item.reason);
+                order.setOrderTime(item.orderTime);
+                order.setExpireTime(item.expireTime);
+                order.setTp(item.tp);
+                order.setSl(item.sl);
+                order.setPl(item.pl);
+                order.setSwap(item.swap);
+                order.setFee(item.fee);
+                order.setTime(item.time);
+                order.setNote(item.note);
+                order.setEntry(item.entry);
+                order.setRoute(item.route);
+                order.setOrderMode(item.orderMode);
+                order.setUid(accountId);
+                order.setTriggerPrice(item.triggerPrice);
+                order.setFilledAmount(item.filledAmount);
+
+                multiOrder.addOrder(order);
+            })
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.NEW_ORDER_MULTI_REQ);
+            rpcMsg.setPayloadData(multiOrder.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+            wsService.getOrderSubject().subscribe(resp => {
+                let tmp = 0;
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                getStatusOrderResponse(tmp, resp[MSG_TEXT]);
+            });
+
+            setShowModalConfirmMultiOrders(false);
+        }
+    }
+    const getStatusOrderResponse = (value: number, content: string) => {
+        if (statusOrder === 0) {
+            setStatusOrder(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        return <></>;
+    }
+    const _rendetMessageError = (message: string) => (
+        <div>{toast.error(message)}</div>
+    )
+    const _rendetMessageSuccess = (message: string) => {
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+    }
     const _renderPopupConfirm = () => {
-        return <div className="popup-box">
+        return <div className="popup-box multiple-Order">
             <div className="box d-flex">
                 Multiple Orders
-                <span className="close-icon" onClick={() => setShowModalModify(false)}>x</span>
+                <span className="close-icon" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span>
             </div>
             <div className='content text-center'>
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
@@ -330,8 +435,8 @@ const MultipleOrders = () => {
                     </tbody>
                 </table>
                 <div className="text-end mb-3 mt-10">
-                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalModify(false)}>Clear</a>
-                    <a href="#" className="btn btn-primary btn-submit">
+                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
+                    <a href="#" className="btn btn-primary btn-submit" onClick={sendMessMultiRequest}>
                         Settlement</a>
                 </div>
             </div>
@@ -357,7 +462,7 @@ const MultipleOrders = () => {
                     </div>
                 </div>
                 <div className="card-modify mb-3">
-                    <div className="card-body p-0 mb-3 table table-responsive">
+                    <div className="card-body p-0 mb-3 table table-responsive mh-300 tableFixHead">
                         <table className="table table-sm table-hover mb-0 dataTable no-footer">
                             <thead>
                                 {_renderHearderMultipleOrders()}
@@ -368,12 +473,12 @@ const MultipleOrders = () => {
                         </table>
                     </div>
                 </div>
-                <div className="mt-3">
+                <div className="m-3">
                     <Pagination />
                 </div>
             </div>
         </div>
-        {showModalModify && _renderPopupConfirm()}
+        {showModalConfirmMultiOrders && _renderPopupConfirm()}
     </div>
 
 };

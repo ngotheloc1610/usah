@@ -21,7 +21,7 @@ const RouterDom = () => {
         <Route path="/customerInfo" element={<CustomerInfo />} />
         <Route path="/report" element={<Report />} />
         <Route path="/order-book" element={<OrderBookCommon />} />
-        <Route path="/order/multi-modify" element={<MultipleOrders />} />
+        <Route path="/order/multi-orders" element={<MultipleOrders />} />
       </Routes>
     </BrowserRouter>
   )

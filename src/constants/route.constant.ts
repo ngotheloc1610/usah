@@ -58,7 +58,7 @@ export const ROUTER = [
                         subTab: [],
                     },
                     {
-                        navigation: '/order/multi-modify',
+                        navigation: '/order/multi-orders',
                         icon: '',
                         title: 'Multiple Order',
                         subTab: [],
