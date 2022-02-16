@@ -219,10 +219,10 @@ const MultipleOrders = () => {
                     checked={!getDataOrder.some((order) => order?.isChecked !== true)} />
             </th>
             <th><span>No.</span></th>
-            <th className="text-center"><span>Ticker Code</span></th>
-            <th className="text-center"><span>Ticker Name</span></th>
-            <th className="text-end"><span>Order Type</span></th>
-            <th className="text-end"><span>Order Side</span></th>
+            <th className="text-left"><span>Ticker Code</span></th>
+            <th className="text-left"><span>Ticker Name</span></th>
+            <th className="text-left"><span>Order Type</span></th>
+            <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Volume</span></th>
             <th className="text-end"><span>Price</span></th>
         </tr>
@@ -233,15 +233,15 @@ const MultipleOrders = () => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" checked={item?.isChecked} name={index.toString()} onChange={handleChecked} /></td>
                 <td>{index + 1}</td>
-                <td className="text-center">{getTickerData(item.symbolCode)?.ticker}</td>
-                <td className="text-center">{getTickerData(item.symbolCode)?.tickerName}</td>
-                <td className="text-end">Limit</td>
-                <td className="text-end">
+                <td className="text-left">{getTickerData(item.symbolCode)?.ticker}</td>
+                <td className="text-left">{getTickerData(item.symbolCode)?.tickerName}</td>
+                <td className="text-left">Limit</td>
+                <td className="text-left">
                     <select value={getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.code}
                         name={index.toString()} onChange={(e) => changeMultipleSide(Number(e.target.value), item)} className={`border-1
                     ${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
-                        <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-center">Buy</option>
-                        <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-center">Sell</option>
+                        <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-left">Buy</option>
+                        <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-left">Sell</option>
                     </select>
                 </td>
                 <td className="text-end">
