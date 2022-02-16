@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CURRENT_CHOOSE_TICKER, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_TICKER_ADDED, LIST_TICKER_INFO, MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -7,15 +7,12 @@ import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import { ISymbolList } from "../../../interfaces/ticker.interface";
 import { Autocomplete, TextField } from '@mui/material';
-import { defaultTicker, defaultTickerSearch } from "../../../mocks";
+import { defaultTickerSearch } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
-    symbolName: string[]; 
+    symbolName: string[];
 }
 
 const defaultProps = {
@@ -25,61 +22,16 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { msgSuccess } = props;
     const { getTicerLastQuote } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(CURRENT_CHOOSE_TICKER) || '{}'));
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
-    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>([]);
+    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
-
-    // useEffect(() => mapArrayDashboardList(), [lastQoutes])
-
-    // const mapArrayDashboardList = () => {
-
-    //     const getItemSymbolData = (symbolCode: string) => {
-    //         return lastQoutes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-    //     }
-
-    //     let listData: ITickerInfo[] = [];
-
-    //     let itemData: ITickerInfo = {
-    //         symbolId: 0,
-    //         tickerName: '',
-    //         ticker: '',
-    //         stockPrice: '',
-    //         previousClose: '',
-    //         open: '',
-    //         high: '',
-    //         low: '',
-    //         lastPrice: '',
-    //         volume: '',
-    //         change: '',
-    //         changePrecent: '',
-    //         side: '',
-    //     };
-    //     symbolList.forEach(item => {
-    //         const itemSymbolData = getItemSymbolData(item.symbolId.toString());
-    //         itemData = {
-    //             tickerName: item.symbolName,
-    //             symbolId: item.symbolId,
-    //             ticker: item.symbolCode,
-    //             previousClose: itemSymbolData?.close,
-    //             open: itemSymbolData?.open,
-    //             high: itemSymbolData?.high,
-    //             low: itemSymbolData?.low,
-    //             lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
-    //             volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-    //             change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-    //             changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
-    //         }
-    //         listData.push(itemData);
-    //     });
-    //     sethandleSymbolList(listData);
-    // }
+    const [currentPage, setCurrentPage] = useState<number>(0);
 
     useEffect(() => {
         getOrderBooks();
@@ -89,7 +41,21 @@ const ListTicker = (props: IListTickerProps) => {
         return () => {
             lastQuotesRes.unsubscribe();
         }
-    });
+    }, [symbolList]);
+
+    useEffect(() => {
+        if (arrLastQuoteAdd.length > 0) {
+            let lstSymbolId: number[] = [];
+            arrLastQuoteAdd.forEach(item => {
+                lstSymbolId.push(Number(item.symbolCode));
+            });
+            setLstSymbolIdAdd(lstSymbolId);
+        }
+        const pageCurrent = 1;
+        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
+    }, [])
 
     useEffect(() => {
         const listSymbolCode: string[] = [];
@@ -98,49 +64,12 @@ const ListTicker = (props: IListTickerProps) => {
             listSymbolCode.push(displayText);
         });
         setListSymbolCode(listSymbolCode);
-    }, [])
+    }, []);
 
-    // useEffect(() => {
-    //     console.log(90, symbolList);
-    //     const ws = wsService.getSocketSubject().subscribe(resp => {
-    //         if (resp === SOCKET_CONNECTED) {
-    //             sendMsgSymbolList();
-    //         }
-    //     });
-
-    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-    //         setSymbolList(res.symbolList)
-    //     });
-
-    //     return () => {
-    //         ws.unsubscribe();
-    //         renderDataSymbolList.unsubscribe();
-    //     }
-    // }, [])
-
-    // useEffect(() => {
-    //     sendMsgSymbolList();
-    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-    //         setSymbolList(res.symbolList)
-    //     });
-
-    //     return () => {
-    //         renderDataSymbolList.unsubscribe();
-    //     }
-    // }, [msgSuccess]);
-
-    // const calculateChange = (lastPrice?: string, open?: string) => {
-    //     if (!lastPrice && !open) {
-    //         return 0;
-    //     }
-    //     if (!lastPrice) {
-    //         return Number(open);
-    //     }
-    //     if (!open) {
-    //         return Number(lastPrice);
-    //     }
-    //     return Number(lastPrice) - Number(open)
-    // }
+    useEffect(() => {
+        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+    }, [currentPage]);
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -158,10 +87,6 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    // const handleItemSearch = (itemValue: string) => {
-    //     setItemSearch(itemValue);
-    // }
-
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
@@ -178,9 +103,13 @@ const ListTicker = (props: IListTickerProps) => {
                     setLstSymbolIdAdd(lstSymbolId);
                     return;
                 }
+                setSymbolIdAdd(0);
+                return;
             }
+            setSymbolIdAdd(0);
             return;
         }
+        setSymbolIdAdd(0);
         return;
     }
     const btnAddTicker = () => {
@@ -188,18 +117,18 @@ const ListTicker = (props: IListTickerProps) => {
     }
     const _renderSearchForm = () => {
         return <div className="row mb-2">
-        <div className="col-lg-6 d-flex">
-        <Autocomplete
+            <div className="col-lg-6 d-flex">
+                <Autocomplete
                     onChange={onChangeTicker}
                     options={listSymbolCode}
                     sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
                 />
-                
+
                 <button type="button" className="btn btn-primary" onClick={btnAddTicker}>Add</button>
-                
+
+            </div>
         </div>
-    </div>
     }
 
     const _renderAskPrice = (itemData: ILastQuote) => {
@@ -276,22 +205,48 @@ const ListTicker = (props: IListTickerProps) => {
         ));
     }
 
+    const getDataCurrentPage = (pageSize: number, pageCurrent: number, totalItem: ILastQuote[]) => {
+        const itemPageCurrentStart = (pageCurrent - 1) * pageSize;
+        const itemPageCurrentEnd = pageCurrent * pageSize;
+        return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
+    }
     const handleLastQuote = () => {
         const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : defaultTickerSearch;
-            listLastQuote.push(assignItemLastQuote);
+            if (assignItemLastQuote !== defaultTickerSearch) {
+                listLastQuote.push(assignItemLastQuote);
+            }
             setArrLastQuoteAdd(listLastQuote);
+            localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(listLastQuote));
         }
-        if (listLastQuote.length <= 12) {
-            setPageShowCurrentLastQuote(listLastQuote);
-            return;
-        } if (listLastQuote.length > 12 && listLastQuote.length <= 24) {
-            setPageShowCurrentLastQuote(listLastQuote.slice(12, listLastQuote.length));
-            return;
+        const assignPageCurrent = listLastQuote.length % 8 === 0 ? Math.trunc(listLastQuote.length / 8) : Math.trunc(listLastQuote.length / 8) + 1;
+        const pageCurrent = (listLastQuote.length > 8) ? assignPageCurrent : 1;
+        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
+    }
+
+    const removeTicker = (itemLstQuote: ILastQuote) => {
+        const itemTickerAdded = arrLastQuoteAdd.findIndex(item => item.symbolCode === itemLstQuote.symbolCode);
+        let lstLastQuoteCurrent: ILastQuote[] = arrLastQuoteAdd;
+
+        if (itemTickerAdded !== -1) {
+            lstLastQuoteCurrent.splice(itemTickerAdded, 1);
         }
-        setPageShowCurrentLastQuote(listLastQuote.slice(24, listLastQuote.length));
+        let lstSymbolId: number[] = [];
+        lstLastQuoteCurrent.forEach(item => {
+            lstSymbolId.push(Number(item.symbolCode));
+        });
+        setLstSymbolIdAdd(lstSymbolId);
+        setArrLastQuoteAdd(lstLastQuoteCurrent);
+        localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstLastQuoteCurrent));
+        const assignPageCurrent = lstLastQuoteCurrent.length % 8 === 0 ? Math.trunc(lstLastQuoteCurrent.length / 8) : Math.trunc(lstLastQuoteCurrent.length / 8) + 1;
+        const pageCurrent = (lstLastQuoteCurrent.length > 8) ? assignPageCurrent : 1;
+        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
     }
 
     const renderListDataTicker = pageShowCurrentLastQuote.map((item: ILastQuote, index: number) => {
@@ -305,7 +260,7 @@ const ListTicker = (props: IListTickerProps) => {
                         <th colSpan={3} className="text-center">
                             <div className="position-relative">
                                 <strong className="px-4 pointer">{symbol?.ticker}</strong>
-                                <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
+                                <a onClick={(e) => removeTicker(item)} href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                     <i className="bi bi-x-lg" />
                                 </a>
                             </div>
@@ -321,13 +276,55 @@ const ListTicker = (props: IListTickerProps) => {
         </div>
     })
 
+    const backPage = (currPage: number) => {
+        setCurrentPage(currPage - 1);
+    }
+
+    const nextPage = (currPage: number) => {
+        setCurrentPage(currPage + 1);
+    }
+
+    const _renderButtonBack = () => (
+        currentPage > 1 && <button
+            onClick={() => backPage(currentPage)}
+            className="btn btn-sm btn-outline-secondary px-1 py-3">
+            <i className="bi bi-chevron-double-left" />
+        </button>
+    )
+
+    const _renderButtonNext = () => (
+        (currentPage !== Math.trunc(arrLastQuoteAdd.length / 8) + 1 && (arrLastQuoteAdd.length > 0)) && Math.trunc(arrLastQuoteAdd.length % 8) !== 0 &&
+        <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
+            <i className="bi bi-chevron-double-right" />
+        </button>
+    )
+    const _conditionStyle = () => {
+        const conditionBack = currentPage > 1;
+        const conditionNext = currentPage !== Math.trunc(arrLastQuoteAdd.length / 8) + 1 && arrLastQuoteAdd.length > 0;
+        return (conditionBack || conditionNext);
+    }
     const _renderTemplateMonitoring = () => (
-        <div>
+        <>
             {_renderSearchForm()}
-            <div className="row row-monitoring g-2">
-                {renderListDataTicker}
+            <div className={`${_conditionStyle() ? "d-flex" : ""}`}>
+
+                <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">
+                    <div className="row row-monitoring g-2">
+                        {renderListDataTicker}
+                    </div>
+                </div>
+
+                <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 mr">
+                    <div>
+                        {_renderButtonNext()}
+                    </div>
+                    <div>
+                        {_renderButtonBack()}
+                    </div>
+                </div>
             </div>
-        </div>
+
+        </>
     )
 
     return (
