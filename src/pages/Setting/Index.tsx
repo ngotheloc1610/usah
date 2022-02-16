@@ -1,5 +1,5 @@
 import Setting from '../../components/Setting/Setting';
-import './CustomerInfo.scss';
+import './Setting.scss';
 import { wsService } from '../../services/websocket-service';
 import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
@@ -8,7 +8,7 @@ import ReduxPersist from '../../config/ReduxPersist';
 import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
-const CustomerInfo = () => {
+const SettingScreen = () => {
     const systemServicePb: any = sspb
     const [isSetting, setIsSetting] = useState(false)
     const [isChangePassword, setIsChangePassword] = useState(true)
@@ -104,18 +104,6 @@ const CustomerInfo = () => {
         setIsChangePassword(false);
     }
 
-    const _renderNavNomal = () => (
-        <ul className="nav page-nav flex-column mb-3">
-            <li className="nav-item item-setting dropdown">
-                <a href="customer-infomation.html" className="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Setting</a>
-                <ul className="dropdown-menu">
-                    <li><a className="dropdown-item item-setting-password" onClick={handleDisplayChangePassword}>Change Password</a></li>
-                    <li><a className="dropdown-item item-setting-notification" onClick={handleDisplayNotification}>Notification</a></li>
-                </ul>
-            </li>
-        </ul>
-    )
-
     const _renderNavSettingActive = () => (
         <ul className="nav page-nav flex-column mb-3">
             <li className="nav-item item-setting dropdown">
@@ -156,4 +144,4 @@ const CustomerInfo = () => {
     return <>{_renderContentPage()}</>
 }
 
-export default CustomerInfo
+export default SettingScreen
