@@ -106,8 +106,7 @@ const MultipleOrders = () => {
         }
     }
 
-    const changeMultipleSide = (event, itemSymbol: IListOrder) => {
-        const [value] = event.target;
+    const changeMultipleSide = (value: number, itemSymbol: IListOrder) => {
         const listOrder = getDataOrder.reduce((listOrder: IListOrder[], item) => {
             if (Number(itemSymbol.orderId) === Number(item.orderId)) {
                 return [...listOrder, { ...item, orderSideChange: value }];
@@ -204,7 +203,7 @@ const MultipleOrders = () => {
     }
 
     const showScreenConfirmOrder = () => {
-        const orderConfirm = getDataOrder.filter(item => (item.isChecked && ((Number(item.volumeChange) !== Number(item.amount)) || (Number(item.priceChange) !== Number(item.price)))));
+        const orderConfirm = getDataOrder.filter(item => (item.isChecked));
         if (orderConfirm.length > 0) {
             setDataConfirm(orderConfirm);
             setShowModalConfirmMultiOrders(true);
@@ -233,13 +232,13 @@ const MultipleOrders = () => {
         getDataOrder.map((item, index) => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" checked={item?.isChecked} name={index.toString()} onChange={handleChecked} /></td>
-                <td>{index}</td>
+                <td>{index + 1}</td>
                 <td className="text-center">{getTickerData(item.symbolCode)?.ticker}</td>
                 <td className="text-center">{getTickerData(item.symbolCode)?.tickerName}</td>
                 <td className="text-end">Limit</td>
                 <td className="text-end">
                     <select value={getSide(item.orderSideChange ? item.orderSideChange : item.orderType)?.code}
-                        name={index.toString()} onChange={(e) => changeMultipleSide(e, item)} className={`border-1
+                        name={index.toString()} onChange={(e) => changeMultipleSide(Number(e.target.value), item)} className={`border-1
                     ${(item.orderSideChange === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}>
                         <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-center">Buy</option>
                         <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-center">Sell</option>
@@ -257,7 +256,6 @@ const MultipleOrders = () => {
                         <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
                             onChange={(e) => changeVolume(e.target.value, item)}
                             thousandseparator="{true}" value={formatNumber(item.volumeChange ? item.volumeChange : item.amount)} placeholder=""
-                        // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
                         />
                         <svg
                             onClick={(e) => increaseVolume(item)}
@@ -281,7 +279,6 @@ const MultipleOrders = () => {
                             onChange={(e) => changePrice(e.target.value, item)}
                             decimalscale={2} type="text" className="form-control text-end border-1 p-0"
                             thousandseparator="{true}" value={formatNumber(item.priceChange ? item.priceChange : item.price)} placeholder=""
-                        // onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}}
                         />
                         <svg
                             onClick={(e) => increasePrice(item)}
@@ -462,7 +459,7 @@ const MultipleOrders = () => {
                     </div>
                 </div>
                 <div className="card-modify mb-3">
-                    <div className="card-body p-0 mb-3 table table-responsive mh-300 tableFixHead">
+                    <div className="card-body p-0 mb-3 table table-responsive mh-375 tableFixHead">
                         <table className="table table-sm table-hover mb-0 dataTable no-footer">
                             <thead>
                                 {_renderHearderMultipleOrders()}

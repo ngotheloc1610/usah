@@ -82,9 +82,9 @@ const Header = () => {
     </div>
   )
 
-  const _renderDropDown = (item: ITabBarItem, indexKey: number) => {
-    return <TabBarItem key={indexKey} itemDropDown={item.itemDropDown} />
-  }
+  const _renderDropDown = (item: ITabBarItem, indexKey: number) => (
+    <TabBarItem key={indexKey} itemDropDown={item.itemDropDown} />
+  )
 
   const _renderTabBar = (item: ITabBarItem, indexKey: number) => (
     <TabBarItem key={indexKey} itemData={item.itemData} />
