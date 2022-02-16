@@ -15,7 +15,7 @@ import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { IListDashboard } from '../../../interfaces/ticker.interface';
+import { IListDashboard, ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER } from '../../../mocks';
@@ -40,16 +40,19 @@ const defaultDataTicker: ILastQuote = {
 }
 const defaultTickerInf = {
     symbolId: 0,
-    symbolName: '',
-    symbolCode: '',
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
     previousClose: '',
     open: '',
     high: '',
     low: '',
     lastPrice: '',
     volume: '',
-    change: 0,
-    percentChange: 0,
+    change: '',
+    changePrecent: '',
+    lotSize: '',
+    minimumBizSize: '',
 }
 
 const OrderBookCommon = () => {
@@ -63,8 +66,8 @@ const OrderBookCommon = () => {
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>();
-    const [itemTickerInfor, setItemTickerInfor] = useState<IListDashboard>(defaultTickerInf);
-    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
+    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(defaultTickerInf);
+    const [listDataDashboard, setDataDashboard] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
 
@@ -85,6 +88,7 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList()
                 sendMessage();
+                getOrderBooks()
             }
         });
 
@@ -92,17 +96,24 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const listSymbolCode: string[] = []
-        tickerList.forEach((item: IListDashboard) => {
-            listSymbolCode.push(item.symbolCode);
+        const getSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+            const listSymbolCode: string[] = []
+            res.symbolList.forEach((item: IListDashboard) => {
+                listSymbolCode.push(item.symbolCode);
+            });
+            setListSymbolCode(listSymbolCode)
         });
-        setListSymbolCode(listSymbolCode)
-        setDataDashboard(tickerList)
+
+        const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
+            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
+            setItemTickerDetail(tickerDetail)
+        });
 
         return () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
+            getSymbolList.unsubscribe();
+            getLastQuotesRes.unsubscribe();
         }
     }, []);
 
@@ -149,25 +160,6 @@ const OrderBookCommon = () => {
             }
         });
     }
-
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                getOrderBooks()
-            }
-        });
-
-        const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
-            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-            setItemTickerDetail(tickerDetail)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            getLastQuotesRes.unsubscribe();
-        }
-    }, [listDataDashboard])
-
 
     const handleDataFromWs = () => {
         wsService.getDataLastQuotes().subscribe(response => {
@@ -240,7 +232,7 @@ const OrderBookCommon = () => {
     }
 
     const getTickerSearch = (itemTicker: any) => {
-        const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (itemTicker.target.innerText).toUpperCase());
+        const itemTickerInfor = listDataDashboard.find(item => item.ticker === (itemTicker.target.innerText).toUpperCase());
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
@@ -256,10 +248,9 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (event.target.value).toUpperCase());
+            const itemTickerInfor = listDataDashboard.find(item => item.ticker === (event.target.value).toUpperCase());
             setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
-
             searchTicker()
         }
     }
@@ -267,8 +258,8 @@ const OrderBookCommon = () => {
     const assgnDataFormNewOrder = (item: IAskAndBidPrice) => {
         const assTickerInfor = itemTickerInfor;
         const itemTicker = {
-            tickerName: assTickerInfor?.symbolName,
-            ticker: assTickerInfor?.symbolCode,
+            tickerName: assTickerInfor?.tickerName,
+            ticker: assTickerInfor?.ticker,
             lastPrice: item.price,
             volume: item.volume,
             side: item.side,
