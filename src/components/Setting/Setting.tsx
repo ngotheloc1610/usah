@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ENABLE_TRADING_PIN, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
+import { MSG_CODE, OBJ_AUTHEN, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
 import * as smpb from '../../models/proto/system_model_pb';
 import * as sspb from '../../models/proto/system_service_pb'

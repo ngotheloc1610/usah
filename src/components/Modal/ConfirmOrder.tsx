@@ -10,7 +10,7 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { LIST_TICKER_INFO, ENABLE_TRADING_PIN, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -30,13 +30,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
-    const [tradingPin, setTradingPin] = useState('');
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0.01);
     const [lotSize, setLotSize] = useState(100);
-
-    const enableTradingPin = JSON.parse(localStorage.getItem(ENABLE_TRADING_PIN) || '{}')
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
@@ -45,10 +42,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
     }, [])
-
-    const handleTradingPin = (valueTradingPin: string) => {
-        setTradingPin(valueTradingPin);
-    }
 
     const handleVolumeModify = (valueVolume: string) => {
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
@@ -66,7 +59,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (wsConnected) {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
-            modifyOrder.setSecretKey(tradingPin);
             modifyOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
@@ -114,7 +106,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (wsConnected) {
             let currentDate = new Date();
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
-            singleOrder.setSecretKey(tradingPin);
             singleOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
@@ -153,7 +144,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (wsConnected) {
             let currentDate = new Date();
             let cancelOrder = new tradingServicePb.CancelOrderRequest();
-            cancelOrder.setSecretKey(tradingPin);
             cancelOrder.setHiddenConfirmFlg(params.confirmationConfig);
 
             let order = new tradingModelPb.Order();
@@ -238,29 +228,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         });
     }
 
-    const _renderTradingPin = () => (
-        <tr className='h-100'>
-            <td className='text-left '><b>Trading PIN</b></td>
-            <td></td>
-            <td><input type="password" className='border' value={tradingPin} onChange={(e) => handleTradingPin(e.target.value)} /></td>
-        </tr>
-    )
-
-    const _disableBtnConfirm = () => {
-        let isDisable = true;
-        let isConditionPrice = Number(priceModify) > 0;
-        let isConditionVolume = Number(volumeModify.replaceAll(',', '')) > 0;
-        let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
-        let isInvalidTradingPin = tradingPin.trim() === '';
-        if (isModify) {
-            isDisable = isConditionPrice && isConditionVolume && (!isInvalidTradingPin) && isChangePriceOrModify;
-        }
-        if (isCancel) {
-            isDisable = !isInvalidTradingPin;
-        }
-        return isDisable;
-    }
-
     const handleUpperVolume = () => {
         const currentVol = Number(volumeModify);
         let nerwVol = currentVol + lotSize;
@@ -333,13 +300,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" disabled={!_disableBtnConfirm()} onClick={sendOrder}>CONFIRM</button>
+            <button className="btn btn-primary" onClick={sendOrder}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
 
     const _renderBtnConfirmOrder = () => (
-        <button className='btn btn-primary' onClick={sendOrder} disabled={tradingPin.trim() === ''}>Place</button>
+        <button className='btn btn-primary' onClick={sendOrder}>Place</button>
     )
 
     const _renderListConfirm = () => (
@@ -350,7 +317,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderInputControl('Volume', `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl('Price', `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
-                    {enableTradingPin === systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON && _renderTradingPin()}
                 </tbody>
             </table>
             <div className='mt-30'>
