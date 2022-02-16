@@ -117,7 +117,6 @@ const startWs = async () => {
         }
         if (payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_MULTI_RES) {
             const multiOrderRes = tradingService.NewOrderMultiResponse.deserializeBinary(msg.getPayloadData());
-            console.log(120, multiOrderRes);
             multiOrderSubject.next(multiOrderRes.toObject());
         }
     }
