@@ -297,10 +297,20 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             </td>
         </tr>
     )
+    const _disableBtnConfirm = () => {
+        let isDisable = true;
+        let isConditionPrice = Number(priceModify) > 0;
+        let isConditionVolume = Number(volumeModify.replaceAll(',', '')) > 0;
+        let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+        if (isModify) {
+            isDisable = isConditionPrice && isConditionVolume && isChangePriceOrModify;
+        }
+        return isDisable;
+    }
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={sendOrder}>CONFIRM</button>
+            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm()}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );

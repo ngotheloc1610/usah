@@ -52,7 +52,7 @@
   font-family: monospace;
 }
 .site-main {
-  min-height: calc(100vh - 240px) !important;
+  min-height: calc(100vh - 310px) !important;
 }
 .site-logo {
   max-height: 5rem !important;

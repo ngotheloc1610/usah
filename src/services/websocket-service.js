@@ -15,6 +15,7 @@ var wsConnected = false;
 const loginSubject = new Subject();
 const quoteSubject = new Subject();
 const orderSubject = new Subject();
+const multiOrderSubject = new Subject();
 const symbolListSubject = new Subject();
 const listOrderSubject = new Subject();
 const dataLastQuotes = new Subject();
@@ -114,6 +115,10 @@ const startWs = async () => {
             const symbolListRes = queryService.SymbolListResponse.deserializeBinary(msg.getPayloadData());
             symbolListSubject.next(symbolListRes.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_MULTI_RES) {
+            const multiOrderRes = tradingService.NewOrderMultiResponse.deserializeBinary(msg.getPayloadData());
+            multiOrderSubject.next(multiOrderRes.toObject());
+        }
     }
 }
 
@@ -135,5 +140,6 @@ export const wsService = {
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes.asObservable(),
-    getSocketSubject: () => socketSubject.asObservable()
+    getSocketSubject: () => socketSubject.asObservable(),
+    getMultiOrderSubject: () => multiOrderSubject.asObservable()
 }
