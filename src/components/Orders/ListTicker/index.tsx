@@ -27,7 +27,7 @@ const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote, msgSuccess } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}'));
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
     const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
@@ -224,7 +224,6 @@ const ListTicker = (props: IListTickerProps) => {
         return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
     }
     const handleLastQuote = () => {
-        debugger;
         const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
