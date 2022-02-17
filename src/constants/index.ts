@@ -9,3 +9,5 @@ export const SIDE = {
     buy: Buy,
     sell: Sell,
 };
+export const pageSizeTicker = 8;
+export const pageFirst = 1;

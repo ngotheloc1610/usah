@@ -25,6 +25,16 @@ export const DEFAULT_DATA_TICKER: ILastQuote = {
     volume: ''
 }
 
+export const defaultTicker: ITickerInfo = {
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+}
+
 export const LIST_TICKER_INFOR_MOCK_DATA: ITickerInfo[] = [
     {
         symbolId: 1,
