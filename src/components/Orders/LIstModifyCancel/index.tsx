@@ -202,7 +202,7 @@ const ListModifyCancel = () => {
     )
     return <div className="card-modify mb-3">
         <div className="card-body p-0 mb-3">
-            <div className="table table-responsive mh-375 tableFixHead">
+            <div className="table table-responsive mh-500 tableFixHead">
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
                     <thead>
                         <tr>
