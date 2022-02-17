@@ -113,3 +113,5 @@ export const LIST_TICKER_INFO = 'TICKER_LIST';
 export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 
 export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
+
+export const LIST_TICKER_ADDED = 'LIST_TICKER_ADDED';

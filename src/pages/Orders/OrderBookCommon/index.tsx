@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IDetailTickerInfo, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
@@ -15,42 +15,10 @@ import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { IListDashboard } from '../../../interfaces/ticker.interface';
+import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { DEFAULT_CURRENT_TICKER } from '../../../mocks';
-
-const defaultDataTicker: ILastQuote = {
-    asksList: [],
-    bidsList: [],
-    close: '',
-    currentPrice: '',
-    high: '',
-    low: '',
-    netChange: '',
-    open: '',
-    pctChange: '',
-    quoteTime: 0,
-    scale: 0,
-    symbolCode: '',
-    symbolId: 0,
-    tickPerDay: 0,
-    volumePerDay: '',
-    volume: ''
-}
-const defaultTickerInf = {
-    symbolId: 0,
-    symbolName: '',
-    symbolCode: '',
-    previousClose: '',
-    open: '',
-    high: '',
-    low: '',
-    lastPrice: '',
-    volume: '',
-    change: 0,
-    percentChange: 0,
-}
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -62,10 +30,10 @@ const OrderBookCommon = () => {
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolId, setSymbolId] = useState<number>();
-    const [itemTickerInfor, setItemTickerInfor] = useState<IListDashboard>(defaultTickerInf);
-    const [listDataDashboard, setDataDashboard] = useState<IListDashboard[]>([])
-    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
+    const [symbolId, setSymbolId] = useState<number>(0);
+    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(DEFAULT_TICKER_INFO);
+    const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
+    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
 
     const defaultData = () => {
@@ -75,8 +43,6 @@ const OrderBookCommon = () => {
         setColumns(false);
         setColumnsGap(false);
     }
-    const dafaultLastQuotesData: ILastQuote[] = [];
-    const [itemSearch, setItemSearch] = useState('');
 
     useEffect(() => searchTicker(), [itemTickerInfor])
 
@@ -85,6 +51,7 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList()
                 sendMessage();
+                getOrderBooks()
             }
         });
 
@@ -92,17 +59,21 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const listSymbolCode: string[] = []
-        tickerList.forEach((item: IListDashboard) => {
-            listSymbolCode.push(item.symbolCode);
+        listTicker.forEach((item: ITickerDetail) => {
+            listSymbolCode.push(item.ticker);
         });
         setListSymbolCode(listSymbolCode)
-        setDataDashboard(tickerList)
+
+        const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
+            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
+            setItemTickerDetail(tickerDetail)
+        });
 
         return () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
+            getLastQuotesRes.unsubscribe();
         }
     }, []);
 
@@ -150,25 +121,6 @@ const OrderBookCommon = () => {
         });
     }
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                getOrderBooks()
-            }
-        });
-
-        const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
-            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-            setItemTickerDetail(tickerDetail)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            getLastQuotesRes.unsubscribe();
-        }
-    }, [listDataDashboard])
-
-
     const handleDataFromWs = () => {
         wsService.getDataLastQuotes().subscribe(response => {
             const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === Number(symbolId));
@@ -181,13 +133,13 @@ const OrderBookCommon = () => {
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
-            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
-            listDataDashboard.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId)
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+            listTicker.forEach(item => {
+                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -239,9 +191,10 @@ const OrderBookCommon = () => {
         setMsgSuccess(item);
     }
 
-    const getTickerSearch = (itemTicker: any) => {
-        const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (itemTicker.target.innerText).toUpperCase());
-        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
+    const getTickerSearch = (value: string) => {
+        const symbolCode = value !== undefined ? value : '';
+        const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
+        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
@@ -251,15 +204,14 @@ const OrderBookCommon = () => {
             handleDataFromWs();
             return;
         }
-        setItemTickerDetail(defaultDataTicker);
+        setItemTickerDetail(DEFAULT_DATA_TICKER);
     }
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listDataDashboard.find(item => item.symbolCode === (event.target.value).toUpperCase());
-            setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
+            const itemTickerInfor = listTicker.find(item => item.ticker === (event.target.value).toUpperCase());
+            setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
-
             searchTicker()
         }
     }
@@ -267,8 +219,8 @@ const OrderBookCommon = () => {
     const assgnDataFormNewOrder = (item: IAskAndBidPrice) => {
         const assTickerInfor = itemTickerInfor;
         const itemTicker = {
-            tickerName: assTickerInfor?.symbolName,
-            ticker: assTickerInfor?.symbolCode,
+            tickerName: assTickerInfor?.tickerName,
+            ticker: assTickerInfor?.ticker,
             lastPrice: item.price,
             volume: item.volume,
             side: item.side,
@@ -282,7 +234,7 @@ const OrderBookCommon = () => {
             <div className="col-md-3">
                 <div className="input-group input-group-sm mb-2">
                     <Autocomplete
-                        onChange={getTickerSearch}
+                        onChange={(event: any) => getTickerSearch(event.target.innerText)}
                         onKeyUp={handleKeyUp}
                         onClick={searchTicker}
                         disablePortal

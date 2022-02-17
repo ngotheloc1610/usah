@@ -11,7 +11,7 @@ import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rspb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
-import { defaultTickerSearch } from '../../../mocks'
+import { DEFAULT_DATA_TICKER } from '../../../mocks'
 
 const OrderNew = () => {
 
@@ -118,7 +118,7 @@ const OrderNew = () => {
 
     const assignDataGetLastQuote = (symbolCode: number) => {
         const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolCode);
-        return setDataSearchTicker(dataSearch ? {...dataSearch} : defaultTickerSearch);
+        return setDataSearchTicker(dataSearch ? {...dataSearch} : DEFAULT_DATA_TICKER);
             
     }
     const getTicker = (value: string) => {
@@ -157,9 +157,14 @@ const OrderNew = () => {
         assignDataGetLastQuote(Number(currentTickerSearch));
         getTicker(currentTickerSearch);
     }
+    // wait handle ticker detail last quote in screen order book
     const handleItemSearch = (value: string) => {
 
     } 
+    // wait handle ticker detail last quote in screen order book
+    const handleTickerDetailLastQuote = (value: ITickerInfo) => {
+
+    }
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -178,7 +183,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} />
+                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} tickerDetailLastQuote={handleTickerDetailLastQuote}/>
                         </div>
                     </div>
                 </div>

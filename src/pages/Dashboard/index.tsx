@@ -11,7 +11,7 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
 import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
-import { defaultTickerSearch } from "../../mocks";
+import { DEFAULT_DATA_TICKER } from "../../mocks";
 
 const defaultTickerInfo: ITickerInfo = {
     symbolId: 0,
@@ -200,13 +200,13 @@ const Dashboard = () => {
             symbolId = itemTicker.symbolId;
             if (symbolId && lastQuotes) {
                 const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolId);
-                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: itemTicker.ticker} : defaultTickerSearch);
+                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: itemTicker.ticker} : DEFAULT_DATA_TICKER);
             }
             setTicker(defaultTickerInfo);
-            return setDataSearchTicker(defaultTickerSearch);
+            return setDataSearchTicker(DEFAULT_DATA_TICKER);
         }
         setTicker(defaultTickerInfo);
-        return setDataSearchTicker(defaultTickerSearch);
+        return setDataSearchTicker(DEFAULT_DATA_TICKER);
     }
     return (
         <div className="site-main">
@@ -222,7 +222,8 @@ const Dashboard = () => {
                                         listDataTicker={handleSymbolList}
                                         itemTickerSearch={handleTickerSearch}
                                         dataSearchTicker={dataSearchTicker}
-                                        listTickerSearch={listTickerSearch}/>
+                                        listTickerSearch={listTickerSearch}
+                                        tickerDetailLastQuote={getTickerInfo}/>
                         </div>
                         <div>
                             <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker}/>
