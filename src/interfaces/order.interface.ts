@@ -94,11 +94,11 @@ export interface IListOrder {
     priceChange?: string;
 }
 export interface ISymbolMultiOrder {
-    No: string;
-    OrderSide: string;
-    Price: string;
-    Ticker: string;
-    Volume: string;
+    no: string;
+    orderSide: string;
+    price: string;
+    ticker: string;
+    volume: string;
 }
 export interface IListOrderHistory {
     amount: string;

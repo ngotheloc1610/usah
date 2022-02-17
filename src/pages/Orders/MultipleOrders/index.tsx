@@ -55,11 +55,11 @@ const MultipleOrders = () => {
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
         switch (value) {
             case tradingModelPb.OrderType.OP_BUY.toString(): {
-                listTickers[index].OrderSide = SIDE_NAME.buy;
+                listTickers[index].orderSide = SIDE_NAME.buy;
                 break;
             }
             default: {
-                listTickers[index].OrderSide = SIDE_NAME.sell;
+                listTickers[index].orderSide = SIDE_NAME.sell;
                 break;
             }
         }
@@ -68,7 +68,7 @@ const MultipleOrders = () => {
     }
 
     const changeVolume = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
-        const lotSize = getLotSize(itemSymbol.Ticker);
+        const lotSize = getLotSize(itemSymbol.ticker);
         const val = value.replaceAll(',', '');
         let newValue = '';
         if (!isNaN(Number(val))) {
@@ -78,13 +78,13 @@ const MultipleOrders = () => {
                 newValue = lotSize.toString();
             }
         }
-        listTickers[index].Volume = newValue;
+        listTickers[index].volume = newValue;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const changePrice = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.Ticker);
+        const tickSize = getTickSize(itemSymbol.ticker);
         const val = value.replaceAll(',', '');
         let newValue = '';
         if (!isNaN(Number(val))) {
@@ -94,7 +94,7 @@ const MultipleOrders = () => {
                 newValue = tickSize.toString();
             }
         }
-        listTickers[index].Price = newValue;
+        listTickers[index].price = newValue;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -118,33 +118,33 @@ const MultipleOrders = () => {
     }
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const lotSize = getLotSize(itemSymbol.Ticker);
-        const newValue = (Number(itemSymbol.Volume) - lotSize) > 0 ?  (Number(itemSymbol.Volume) - lotSize) : lotSize;
-        listTickers[index].Volume = newValue.toString();
+        const lotSize = getLotSize(itemSymbol.ticker);
+        const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ?  (Number(itemSymbol.volume) - lotSize) : lotSize;
+        listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const lotSize = getLotSize(itemSymbol.Ticker);
-        const newValue = (Number(itemSymbol.Volume) + lotSize) > 0 ?  (Number(itemSymbol.Volume) + lotSize) : lotSize;
-        listTickers[index].Volume = newValue.toString();
+        const lotSize = getLotSize(itemSymbol.ticker);
+        const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ?  (Number(itemSymbol.volume) + lotSize) : lotSize;
+        listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.Ticker);
-        const newValue = (Number(itemSymbol.Price) - tickSize) > 0 ?  (Number(itemSymbol.Price) - tickSize) : tickSize;
-        listTickers[index].Price = newValue.toString();
+        const tickSize = getTickSize(itemSymbol.ticker);
+        const newValue = (Number(itemSymbol.price) - tickSize) > 0 ?  (Number(itemSymbol.price) - tickSize) : tickSize;
+        listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.Ticker);
-        const newValue = (Number(itemSymbol.Price) + tickSize) > 0 ?  (Number(itemSymbol.Price) + tickSize) : tickSize;
-        listTickers[index].Price = newValue.toString();
+        const tickSize = getTickSize(itemSymbol.ticker);
+        const newValue = (Number(itemSymbol.price) + tickSize) > 0 ?  (Number(itemSymbol.price) + tickSize) : tickSize;
+        listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -154,7 +154,7 @@ const MultipleOrders = () => {
         if (isChecked) {
             tmp.push(item);
         } else {
-            const index = tmp.findIndex((o: ISymbolMultiOrder) => o.No === item.No && o.Ticker == item.Ticker && o.OrderSide === item.OrderSide);
+            const index = tmp.findIndex((o: ISymbolMultiOrder) => o.no === item.no && o.ticker == item.ticker && o.orderSide === item.orderSide);
             if (index >= 0) {
                 tmp.splice(index, 1);
             }
@@ -232,12 +232,12 @@ const MultipleOrders = () => {
             return <tr key={index}>
                 <td><input type="checkbox" value=""  name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
-                <td className="text-left">{item.Ticker}</td>
-                <td className="text-left">{getTickerName(item.Ticker)}</td>
+                <td className="text-left">{item.ticker}</td>
+                <td className="text-left">{getTickerName(item.ticker)}</td>
                 <td className="text-left">Limit</td>
                 <td className="text-left">
-                    <select value={getOrderSideValue(item.OrderSide)} className={`border-1
-                    ${(getOrderSideValue(item.OrderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
+                    <select value={getOrderSideValue(item.orderSide)} className={`border-1
+                    ${(getOrderSideValue(item.orderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
                     onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
                         <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-left">Buy</option>
                         <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-left">Sell</option>
@@ -254,7 +254,7 @@ const MultipleOrders = () => {
                         </svg>
                         <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
                             onChange={(e) => changeVolume(e.target.value, item, index)}
-                            thousandseparator="{true}" value={formatNumber(item.Volume)} placeholder=""
+                            thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
                         />
                         <svg
                             onClick={(e) => increaseVolume(item, index)}
@@ -277,7 +277,7 @@ const MultipleOrders = () => {
                         <CurrencyInput
                             onChange={(e) => changePrice(e.target.value, item, index)}
                             decimalscale={2} type="text" className="form-control text-end border-1 p-0"
-                            thousandseparator="{true}" value={formatNumber(item.Price)} placeholder=""
+                            thousandseparator="{true}" value={formatNumber(item.price)} placeholder=""
                         />
                         <svg
                             onClick={(e) => increasePrice(item, index)}
@@ -304,14 +304,14 @@ const MultipleOrders = () => {
     const _renderDataMultipleOrdersConfirm = () => (
         listSelected.map((item, index) => {
             return <tr key={index}>
-                <td className="text-nowrap">{item.Ticker}</td>
-                <td className="text-nowrap">{getTickerName(item.Ticker)}</td>
+                <td className="text-nowrap">{item.ticker}</td>
+                <td className="text-nowrap">{getTickerName(item.ticker)}</td>
                 <td className="text-end">Limit</td>
-                <td className={`${(getOrderSideValue(item.OrderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
-                    {item.OrderSide}
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
+                    {item.orderSide}
                 </td>
-                <td className="text-end text-nowrap">{formatNumber(item.Volume)}</td>
-                <td className="text-end text-nowrap"> {formatNumber(item.Price)}</td>
+                <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
+                <td className="text-end text-nowrap"> {formatNumber(item.price)}</td>
             </tr>
         })
     )
@@ -350,13 +350,13 @@ const MultipleOrders = () => {
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
             multiOrder.setSecretKey('');
             listSelected.forEach((item: ISymbolMultiOrder) => {
-                const symbol = symbols.find(o => o.ticker === item.Ticker);
+                const symbol = symbols.find(o => o.ticker === item.ticker);
                 let order = new tradingModelPb.Order();
-                order.setAmount(item.Volume.replaceAll(',', ''));
-                order.setPrice(item.Price.replaceAll(',', ''));
+                order.setAmount(item.volume.replaceAll(',', ''));
+                order.setPrice(item.price.replaceAll(',', ''));
                 order.setUid(accountId);
                 order.setSymbolCode(symbol?.symbolId);
-                order.setOrderType(getOrderSideValue(item.OrderSide));
+                order.setOrderType(getOrderSideValue(item.orderSide));
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -409,10 +409,16 @@ const MultipleOrders = () => {
                 obj[headers[j]] = d;
               }
             }
-     
-            // remove the blank rows
+
             if (Object.values(obj).filter(x => x).length > 0) {
-              list.push(obj);
+                const tmp: ISymbolMultiOrder = {
+                    no: obj.No,
+                    orderSide: obj.OrderSide,
+                    price: obj.Price,
+                    ticker: obj.Ticker,
+                    volume: obj.Volume
+                }
+                list.push(tmp);
             }
           }
         }
@@ -592,11 +598,11 @@ const MultipleOrders = () => {
 
     const handlePlaceOrder = () => {
         const obj: ISymbolMultiOrder = {
-            No: listTickers.length.toString(),
-            OrderSide: sideAddNew,
-            Price: price.toString(),
-            Volume: volume.toString(),
-            Ticker: ticker.split('-')[0]?.trim()
+            no: listTickers.length.toString(),
+            orderSide: sideAddNew,
+            price: price.toString(),
+            volume: volume.toString(),
+            ticker: ticker.split('-')[0]?.trim()
         }
 
         const tmp = [...listTickers];
