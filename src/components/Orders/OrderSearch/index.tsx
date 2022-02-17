@@ -27,6 +27,7 @@ function OrderHistorySearch() {
     const [fromDatetime, setFromDatetime] = useState(0)
     const [toDatetime, setToDatetime] = useState(0)
     const [symbolName, setSymbolName] = useState<string[]>([])
+    const [currentDate, setCurrentDate] = useState('')
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
@@ -41,6 +42,12 @@ function OrderHistorySearch() {
         });
 
         return () => orderHistoryRes.unsubscribe()
+    }, [])
+
+    useEffect(() => {
+        var today = new Date();
+        var currentDate = today.getFullYear()+'-'+'0'+(today.getMonth()+1)+'-'+today.getDate();
+        setCurrentDate(currentDate)
     }, [])
 
     const handleChangeFromDate = (value: string) => {
@@ -222,6 +229,7 @@ function OrderHistorySearch() {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                            defaultValue={currentDate}
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
@@ -231,6 +239,7 @@ function OrderHistorySearch() {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                            defaultValue={currentDate}
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />

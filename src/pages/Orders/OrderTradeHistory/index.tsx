@@ -1,4 +1,3 @@
-import { IParamTradeSearch } from '../../../interfaces/order.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
@@ -8,7 +7,8 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
-import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     
@@ -30,12 +30,17 @@ const OrderTradeHistory = () => {
     }, [])
 
     const buildMessage = (accountId: string) => {
+        const currentDate = new Date().getFullYear()+'-'+'0'+(new Date().getMonth()+1)+'-'+new Date().getDate();
+        const today = currentDate
+        
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
+            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME))
+            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME))
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
