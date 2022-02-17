@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
-import { formatCurrency, formatNumber, getSymbolId } from "../../../helper/utils";
+import { LIST_TICKER_ADDED, LIST_TICKER_INFO, MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import { ISymbolList } from "../../../interfaces/ticker.interface";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import { Autocomplete, TextField } from '@mui/material';
+import { defaultTickerSearch } from "../../../mocks";
+import { pageFirst, pageSizeTicker } from "../../../constants";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
-    symbolName: string[]; 
+    symbolName: string[];
 }
 
 const defaultProps = {
@@ -24,59 +23,16 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote, msgSuccess, symbolName } = props;
-    const [ticker, setTicker] = useState('')
-    const [itemSearch, setItemSearch] = useState('');
+    const { getTicerLastQuote } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
-    const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
-
-    useEffect(() => mapArrayDashboardList(), [lastQoutes])
-
-    const mapArrayDashboardList = () => {
-
-        const getItemSymbolData = (symbolCode: string) => {
-            return lastQoutes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-        }
-
-        let listData: ITickerInfo[] = [];
-
-        let itemData: ITickerInfo = {
-            symbolId: 0,
-            tickerName: '',
-            ticker: '',
-            stockPrice: '',
-            previousClose: '',
-            open: '',
-            high: '',
-            low: '',
-            lastPrice: '',
-            volume: '',
-            change: '',
-            changePrecent: '',
-            side: '',
-        };
-
-        symbolList.forEach(item => {
-            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
-            itemData = {
-                tickerName: item.symbolName,
-                symbolId: item.symbolId,
-                ticker: item.symbolCode,
-                previousClose: itemSymbolData?.close,
-                open: itemSymbolData?.open,
-                high: itemSymbolData?.high,
-                low: itemSymbolData?.low,
-                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
-                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
-            }
-            listData.push(itemData);
-        });
-        sethandleSymbolList(listData);
-    }
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}'));
+    const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
+    const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
+    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
+    const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
+    const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(0);
 
     useEffect(() => {
         getOrderBooks();
@@ -86,48 +42,35 @@ const ListTicker = (props: IListTickerProps) => {
         return () => {
             lastQuotesRes.unsubscribe();
         }
-    }, [symbolList])
+    }, [symbolList]);
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
+        if (arrLastQuoteAdd.length > 0) {
+            let lstSymbolId: number[] = [];
+            arrLastQuoteAdd.forEach(item => {
+                lstSymbolId.push(Number(item.symbolCode));
+            });
+            setLstSymbolIdAdd(lstSymbolId);
         }
+        const pageCurrent = pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
     }, [])
 
     useEffect(() => {
-        sendMsgSymbolList();
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+        const listSymbolCode: string[] = [];
+        symbolList.forEach((item: ITickerInfo) => {
+            const displayText = `${item.ticker} - ${item.tickerName}`;
+            listSymbolCode.push(displayText);
         });
+        setListSymbolCode(listSymbolCode);
+    }, []);
 
-        return () => {
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [msgSuccess]);
-
-    const calculateChange = (lastPrice?: string, open?: string) => {
-        if (!lastPrice && !open) {
-            return 0;
-        }
-        if (!lastPrice) {
-            return Number(open);
-        }
-        if (!open) {
-            return Number(lastPrice);
-        }
-        return Number(lastPrice) - Number(open)
-    }
+    useEffect(() => {
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+    }, [currentPage]);
 
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
@@ -145,53 +88,54 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const handleItemSearch = () => {
-        setItemSearch(ticker);
-    }
-
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
-
-    const handleChangeTicker = (value: string) => {
-        if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
-        } else {
-            setTicker('0')
+    const onChangeTicker = (event) => {
+        const symbolCode = event.target.innerText?.split('-')[0]?.trim();
+        const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
+        if (symbolCode) {
+            const itemTickerAdd = symbolList.find(item => item.ticker === symbolCode);
+            if (itemTickerAdd) {
+                if (lstSymbolId.length === 0 || lstSymbolId.indexOf(itemTickerAdd.symbolId) === -1) {
+                    setSymbolIdAdd(itemTickerAdd.symbolId);
+                    lstSymbolId.push(itemTickerAdd.symbolId);
+                    setLstSymbolIdAdd(lstSymbolId);
+                    return;
+                }
+                setSymbolIdAdd(0);
+                return;
+            }
+            setSymbolIdAdd(0);
+            return;
         }
+        setSymbolIdAdd(0);
+        return;
     }
-
-    const handleKeyUp = (value: string) => {
-        if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
-        } else {
-            setTicker('0')
-        }
+    const btnAddTicker = () => {
+        handleLastQuote();
     }
+    const _renderSearchForm = () => {
+        return <div className="row mb-2">
+            <div className="col-lg-6 d-flex">
+                <Autocomplete
+                    onChange={onChangeTicker}
+                    options={listSymbolCode}
+                    sx={{ width: 350 }}
+                    renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
+                />
 
-    const _renderSearchForm = () => (
-        <div className="row mb-2">
-            <div className="col-lg-6">
-                <div className="search-order-monitoring">
-                    <Autocomplete
-                        onChange={(event: any) => handleChangeTicker(event.target.innerText)}
-                        onKeyUp={(event: any) => handleKeyUp(event.target.value)}
-                        sx={{ width: 400 }}
-                        disablePortal
-                        options={symbolName}
-                        renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
-                    />
-                    <button className="btn btn-primary ms-1 pad-top" onClick={handleItemSearch}>Add</button>
-                </div>
+                <button type="button" className="btn btn-primary" onClick={btnAddTicker}>Add</button>
+
             </div>
         </div>
-    )
+    }
 
     const _renderAskPrice = (itemData: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = itemData.asksList;
         let arr: IAskAndBidPrice[] = [];
-        let counter = MARKET_DEPTH_LENGTH - 1;
+        let counter = MARKET_DEPTH_LENGTH - pageFirst;
         while (counter >= 0) {
             if (askItems[counter]) {
                 arr.push({
@@ -262,50 +206,52 @@ const ListTicker = (props: IListTickerProps) => {
         ));
     }
 
-    const getLastQouteDisplay = () => {
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const listArr: ITickerInfo[] = [];
-        let counter = 0;
-        handleSymbolList.forEach(item => {
-            if (counter < 12) {
-                listArr.push(item);
-                counter++;
+    const getDataCurrentPage = (pageSize: number, pageCurrent: number, totalItem: ILastQuote[]) => {
+        const itemPageCurrentStart = (pageCurrent - pageFirst) * pageSize;
+        const itemPageCurrentEnd = pageCurrent * pageSize;
+        return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
+    }
+    const handleLastQuote = () => {
+        const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
+        if (symbolIdAdd !== 0) {
+            const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
+            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : defaultTickerSearch;
+            if (assignItemLastQuote !== defaultTickerSearch) {
+                listLastQuote.push(assignItemLastQuote);
             }
-        });
-        const output: ILastQuote[] = [];
-        listArr.forEach(element => {
-            const obj: ILastQuote = {
-                asksList: [],
-                bidsList: [],
-                close: element.previousClose,
-                currentPrice: element.lastPrice,
-                high: element.high,
-                low: element.low,
-                netChange: element.change,
-                open: element.open,
-                pctChange: element.changePrecent,
-                quoteTime: 0,
-                scale: 0,
-                symbolCode: element.symbolId.toString(),
-                symbolId: Number(element.symbolId),
-                tickPerDay: 0,
-                volumePerDay: '0',
-                volume: element.volume
-            };
-            output.push(obj);
-        })
-        lastQoutes.forEach((o: ILastQuote) => {
-            const index = output.findIndex(e => e.symbolCode === o.symbolCode);
-            if (index >= 0) {
-                output[index] = o;
-            }
-        })
-
-        return output;
+            setArrLastQuoteAdd(listLastQuote);
+            localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(listLastQuote));
+        }
+        const assignPageCurrent = listLastQuote.length % pageSizeTicker === 0 ? Math.trunc(listLastQuote.length / pageSizeTicker) : Math.trunc(listLastQuote.length / pageSizeTicker) + pageFirst;
+        const pageCurrent = (listLastQuote.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
     }
 
-    const renderListDataTicker = getLastQouteDisplay().map((item: ILastQuote, index: number) => {
-        const symbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === item.symbolCode);
+    const removeTicker = (itemLstQuote: ILastQuote) => {
+        const itemTickerAdded = arrLastQuoteAdd.findIndex(item => item.symbolCode === itemLstQuote.symbolCode);
+        let lstLastQuoteCurrent: ILastQuote[] = arrLastQuoteAdd;
+
+        if (itemTickerAdded !== -1) {
+            lstLastQuoteCurrent.splice(itemTickerAdded, pageFirst);
+        }
+        let lstSymbolId: number[] = [];
+        lstLastQuoteCurrent.forEach(item => {
+            lstSymbolId.push(Number(item.symbolCode));
+        });
+        setLstSymbolIdAdd(lstSymbolId);
+        setArrLastQuoteAdd(lstLastQuoteCurrent);
+        localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstLastQuoteCurrent));
+        const assignPageCurrent = lstLastQuoteCurrent.length % pageSizeTicker === 0 ? Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) : Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) + pageFirst;
+        const pageCurrent = (lstLastQuoteCurrent.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        setPageShowCurrentLastQuote(dataCurrentPage);
+        setCurrentPage(pageCurrent);
+    }
+
+    const renderListDataTicker = pageShowCurrentLastQuote.map((item: ILastQuote, index: number) => {
+        const symbol = symbolList.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         return <div className="col-xl-3" key={index}>
             <table
                 className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
@@ -314,8 +260,8 @@ const ListTicker = (props: IListTickerProps) => {
                     <tr>
                         <th colSpan={3} className="text-center">
                             <div className="position-relative">
-                                <strong className="px-4 pointer">{symbol?.symbolCode}</strong>
-                                <a href="#" className="position-absolute me-1" style={{ right: 0 }} >
+                                <strong className="px-4 pointer">{symbol?.ticker}</strong>
+                                <a onClick={(e) => removeTicker(item)} href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                     <i className="bi bi-x-lg" />
                                 </a>
                             </div>
@@ -331,13 +277,55 @@ const ListTicker = (props: IListTickerProps) => {
         </div>
     })
 
+    const backPage = (currPage: number) => {
+        setCurrentPage(currPage - pageFirst);
+    }
+
+    const nextPage = (currPage: number) => {
+        setCurrentPage(currPage + pageFirst);
+    }
+
+    const _renderButtonBack = () => (
+        currentPage > pageFirst && <button
+            onClick={() => backPage(currentPage)}
+            className="btn btn-sm btn-outline-secondary px-1 py-3">
+            <i className="bi bi-chevron-double-left" />
+        </button>
+    )
+
+    const _renderButtonNext = () => (
+        (currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && (arrLastQuoteAdd.length > 0)) && Math.trunc(arrLastQuoteAdd.length % pageSizeTicker) !== 0 &&
+        <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
+            <i className="bi bi-chevron-double-right" />
+        </button>
+    )
+    const _conditionStyle = () => {
+        const conditionBack = currentPage > pageFirst;
+        const conditionNext = currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && arrLastQuoteAdd.length > 0;
+        return (conditionBack || conditionNext);
+    }
     const _renderTemplateMonitoring = () => (
-        <div>
+        <>
             {_renderSearchForm()}
-            <div className="row row-monitoring g-2">
-                {renderListDataTicker}
+            <div className={`${_conditionStyle() ? "d-flex" : ""}`}>
+
+                <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">
+                    <div className="row row-monitoring g-2">
+                        {renderListDataTicker}
+                    </div>
+                </div>
+
+                <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 mr">
+                    <div>
+                        {_renderButtonNext()}
+                    </div>
+                    <div>
+                        {_renderButtonBack()}
+                    </div>
+                </div>
             </div>
-        </div>
+
+        </>
     )
 
     return (

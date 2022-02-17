@@ -157,9 +157,14 @@ const OrderNew = () => {
         assignDataGetLastQuote(Number(currentTickerSearch));
         getTicker(currentTickerSearch);
     }
+    // wait handle ticker detail last quote in screen order book
     const handleItemSearch = (value: string) => {
 
     } 
+    // wait handle ticker detail last quote in screen order book
+    const handleTickerDetailLastQuote = (value: ITickerInfo) => {
+
+    }
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -178,7 +183,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} />
+                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} tickerDetailLastQuote={handleTickerDetailLastQuote}/>
                         </div>
                     </div>
                 </div>
