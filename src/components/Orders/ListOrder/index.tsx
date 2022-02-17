@@ -17,6 +17,7 @@ import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import PopUpConfirm from "../../Modal/PopUpConfirm";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -42,7 +43,9 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
     const [statusOrder, setStatusOrder] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
+    const [totalOrder, setTotalOrder] = useState<number>(0);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -198,6 +201,7 @@ const ListOrder = (props: IPropsListOrder) => {
     const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
+        setIsCancelAll(isCloseModifyCancel);
     }
 
     const _rendetMessageSuccess = () => (
@@ -223,6 +227,13 @@ const ListOrder = (props: IPropsListOrder) => {
         if (value) {
             sendListOrder();
             getOrderBooks();
+        }
+    }
+
+    const btnCancelAllConfirm = () => {
+        if (listOrderSortDate.length > 0) {
+            setIsCancelAll(true);
+            setTotalOrder(listOrderSortDate.length);
         }
     }
 
@@ -255,7 +266,10 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Datetime</span>
                         </th>
-                        <th className="text-end sorting_disabled">&nbsp;
+                        <th className="text-end sorting_disabled">
+                            
+                            <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel All</button>
+                            
                         </th>
                     </tr>
                 </thead>
@@ -313,6 +327,9 @@ const ListOrder = (props: IPropsListOrder) => {
                 handleOrderResponse={getStatusOrderResponse}
                 params={paramModifyCancel}
                 handleStatusModifyCancel={getStatusModifyCancel} />}
+            {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
+                totalOrder={totalOrder} listOrder={listOrderSortDate}
+                handleOrderResponse={getStatusOrderResponse} />}
         </>
     )
 }
