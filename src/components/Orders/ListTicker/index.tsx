@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LIST_TICKER_ADDED, LIST_TICKER_INFO, MARKET_DEPTH_LENGTH } from "../../../constants/general.constant";
+import { LIST_TICKER_ADDED, LIST_TICKER_INFO, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -8,8 +8,9 @@ import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from '@mui/material';
-import { defaultTickerSearch } from "../../../mocks";
+import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
+import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
@@ -23,26 +24,52 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote } = props;
+    const { getTicerLastQuote, msgSuccess } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}'));
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
     const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(pageFirst);
+
+    useEffect(() => {
+        let lastQuotesRes;
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                getOrderBooks();
+                lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+                    setLastQoutes(resp.quotesList);
+                });
+            }
+        });
+        return () => {
+            ws.unsubscribe();
+            lastQuotesRes.unsubscribe();
+        }
+    }, []);
 
     useEffect(() => {
         getOrderBooks();
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
             setLastQoutes(resp.quotesList);
+            const lstLastQuote = resp.quotesList;
+            const lstArrLastQuoteAddId: number[] = [];
+            const lstArrLastQuote: ILastQuote[] = [];
+            if (arrLastQuoteAdd.length > 0 && lstLastQuote.length > 0) {
+                arrLastQuoteAdd.forEach(item => lstArrLastQuoteAddId.push(Number(item.symbolCode)));
+                lstLastQuote.forEach(item => {
+                    if (lstArrLastQuoteAddId.indexOf(Number(item.symbolCode)) !== -1) {
+                        lstArrLastQuote.push(item);
+                    }
+                });
+                setArrLastQuoteAdd(lstArrLastQuote);
+                localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstArrLastQuote));
+            }
         });
-        return () => {
-            lastQuotesRes.unsubscribe();
-        }
-    }, [symbolList]);
+    }, [symbolList, msgSuccess]);
 
     useEffect(() => {
         if (arrLastQuoteAdd.length > 0) {
@@ -52,19 +79,23 @@ const ListTicker = (props: IListTickerProps) => {
             });
             setLstSymbolIdAdd(lstSymbolId);
         }
-        const pageCurrent = pageFirst;
+        if (!msgSuccess) {
+            setCurrentPage(pageFirst)
+        }
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
-        setCurrentPage(pageCurrent);
-    }, [])
+    }, [arrLastQuoteAdd])
 
     useEffect(() => {
         const listSymbolCode: string[] = [];
-        symbolList.forEach((item: ITickerInfo) => {
-            const displayText = `${item.ticker} - ${item.tickerName}`;
-            listSymbolCode.push(displayText);
-        });
-        setListSymbolCode(listSymbolCode);
+        if (symbolList.length > 0) {
+            symbolList.forEach((item: ITickerInfo) => {
+                const displayText = `${item.ticker} - ${item.tickerName}`;
+                listSymbolCode.push(displayText);
+            });
+            setListSymbolCode(listSymbolCode);
+        }
+        
     }, []);
 
     useEffect(() => {
@@ -215,8 +246,8 @@ const ListTicker = (props: IListTickerProps) => {
         const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
-            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : defaultTickerSearch;
-            if (assignItemLastQuote !== defaultTickerSearch) {
+            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
+            if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
             }
             setArrLastQuoteAdd(listLastQuote);

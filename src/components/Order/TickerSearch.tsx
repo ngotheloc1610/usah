@@ -1,10 +1,9 @@
-import { IListDashboard, ISymbolList } from '../../interfaces/ticker.interface'
+import { ISymbolList } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from '@mui/material';
 import { LIST_TICKER_INFO, SYMBOL_LIST } from '../../constants/general.constant';
 import ReduxPersist from '../../config/ReduxPersist';
-import { isTemplateExpression } from 'typescript';
 import { ITickerBindingOrder, ITickerInfo } from '../../interfaces/order.interface';
 interface ITickerSearch {
     handleTicker: (event: any) => void;
@@ -20,7 +19,6 @@ const TickerSearch = (props: ITickerSearch) => {
     const [ticker, setTicker] = useState('')
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolsLocals, setSymbolsLocals] = useState<ITickerBindingOrder[]>([]);
-    const [tickerDisplay, setTickerDisplay] = useState('');
 
     useEffect(() => {
         setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
@@ -37,7 +35,6 @@ const TickerSearch = (props: ITickerSearch) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const element = tickerList.find(o => o?.ticker === symbolCode);
         if (element) {
-            setTickerDisplay(`${element.ticker} - ${element.tickerName}`)
             setTicker(element.symbolId.toString());
             handleTicker(element.symbolId.toString());
         }
@@ -45,22 +42,19 @@ const TickerSearch = (props: ITickerSearch) => {
 
     const _renderRecentSearch = () => {
         if (symbolsLocals[0]?.symbolCode) {
-            return symbolsLocals.map((ite: ITickerBindingOrder, index: number) => 
+            return symbolsLocals.map((ite: ITickerBindingOrder, index: number) =>
                 (<a key={index} href="# " onClick={() => handleSymbols(ite.symbolCode)} className='color-primary mr-10'>{ite.symbolName} [{ite.symbolCode}]</a>))
         } else {
             return <></>
         }
     }
 
-    const getTickerSearch = (event: any) => {
-        const symbolCode = event.target.innerText?.split('-')[0]?.trim();
+    const getTickerSearch = (value: string) => {
+        const symbolCode = value !== undefined ? value?.split('-')[0]?.trim() : '';
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
-        storageSymbolList(event.target.innerText?.split('-')[0]?.trim(), event.target.innerText?.split('-')[1]?.trim());
-        setTickerDisplay(event.target.innerText);
+        storageSymbolList(symbolCode?.split('-')[0]?.trim(), value?.split('-')[1]?.trim());
         setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
         handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
-        const listTickerSearch = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        
     }
 
     const handleKeyUp = (event: any) => {
@@ -68,7 +62,6 @@ const TickerSearch = (props: ITickerSearch) => {
             const symbolCode = event.target.value.split('-')[0]?.trim();
             storageSymbolList(event.target.value?.split('-')[0]?.trim(), event.target.value?.split('-')[1]?.trim());
             const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
-            setTickerDisplay(event.target.value);
             setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
             handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
         }
@@ -110,10 +103,9 @@ const TickerSearch = (props: ITickerSearch) => {
             </div>
             <div className="col-lg-3 col-md-6">
                 <Autocomplete
-                    onChange={getTickerSearch}
+                    onChange={(event: any) => getTickerSearch(event.target.innerText)}
                     onKeyUp={handleKeyUp}
                     onClick={searchTicker}
-                    value={tickerDisplay}
                     disablePortal
                     options={listSymbolCode}
                     sx={{ width: 350 }}
