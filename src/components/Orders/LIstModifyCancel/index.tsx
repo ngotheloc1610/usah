@@ -246,7 +246,7 @@ const ListModifyCancel = () => {
                                 <input type="checkbox" value=""
                                     name="allSelect"
                                     onChange={handleChecked}
-                                    checked={!dataOrder.some((order) => order?.isChecked !== true)}
+                                    checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
                                 />
                             </th>
                             <th className="sorting_disabled">
@@ -274,7 +274,7 @@ const ListModifyCancel = () => {
                                 <span className="text-ellipsis">Datetime</span>
                             </th>
                             <th className="text-end sorting_disabled">
-                                {dataOrder.some((order) => order?.isChecked === true) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                                {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
                             </th>
                         </tr>
                     </thead>
