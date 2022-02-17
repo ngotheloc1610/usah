@@ -9,6 +9,7 @@ import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from '@mui/material';
 import { defaultTickerSearch } from "../../../mocks";
+import { pageFirst, pageSizeTicker } from "../../../constants";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
@@ -51,8 +52,8 @@ const ListTicker = (props: IListTickerProps) => {
             });
             setLstSymbolIdAdd(lstSymbolId);
         }
-        const pageCurrent = 1;
-        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        const pageCurrent = pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }, [])
@@ -67,7 +68,7 @@ const ListTicker = (props: IListTickerProps) => {
     }, []);
 
     useEffect(() => {
-        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
     }, [currentPage]);
 
@@ -134,7 +135,7 @@ const ListTicker = (props: IListTickerProps) => {
     const _renderAskPrice = (itemData: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = itemData.asksList;
         let arr: IAskAndBidPrice[] = [];
-        let counter = MARKET_DEPTH_LENGTH - 1;
+        let counter = MARKET_DEPTH_LENGTH - pageFirst;
         while (counter >= 0) {
             if (askItems[counter]) {
                 arr.push({
@@ -206,7 +207,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const getDataCurrentPage = (pageSize: number, pageCurrent: number, totalItem: ILastQuote[]) => {
-        const itemPageCurrentStart = (pageCurrent - 1) * pageSize;
+        const itemPageCurrentStart = (pageCurrent - pageFirst) * pageSize;
         const itemPageCurrentEnd = pageCurrent * pageSize;
         return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
     }
@@ -221,9 +222,9 @@ const ListTicker = (props: IListTickerProps) => {
             setArrLastQuoteAdd(listLastQuote);
             localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(listLastQuote));
         }
-        const assignPageCurrent = listLastQuote.length % 8 === 0 ? Math.trunc(listLastQuote.length / 8) : Math.trunc(listLastQuote.length / 8) + 1;
-        const pageCurrent = (listLastQuote.length > 8) ? assignPageCurrent : 1;
-        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        const assignPageCurrent = listLastQuote.length % pageSizeTicker === 0 ? Math.trunc(listLastQuote.length / pageSizeTicker) : Math.trunc(listLastQuote.length / pageSizeTicker) + pageFirst;
+        const pageCurrent = (listLastQuote.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
@@ -233,7 +234,7 @@ const ListTicker = (props: IListTickerProps) => {
         let lstLastQuoteCurrent: ILastQuote[] = arrLastQuoteAdd;
 
         if (itemTickerAdded !== -1) {
-            lstLastQuoteCurrent.splice(itemTickerAdded, 1);
+            lstLastQuoteCurrent.splice(itemTickerAdded, pageFirst);
         }
         let lstSymbolId: number[] = [];
         lstLastQuoteCurrent.forEach(item => {
@@ -242,9 +243,9 @@ const ListTicker = (props: IListTickerProps) => {
         setLstSymbolIdAdd(lstSymbolId);
         setArrLastQuoteAdd(lstLastQuoteCurrent);
         localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstLastQuoteCurrent));
-        const assignPageCurrent = lstLastQuoteCurrent.length % 8 === 0 ? Math.trunc(lstLastQuoteCurrent.length / 8) : Math.trunc(lstLastQuoteCurrent.length / 8) + 1;
-        const pageCurrent = (lstLastQuoteCurrent.length > 8) ? assignPageCurrent : 1;
-        const dataCurrentPage = getDataCurrentPage(8, currentPage, arrLastQuoteAdd);
+        const assignPageCurrent = lstLastQuoteCurrent.length % pageSizeTicker === 0 ? Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) : Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) + pageFirst;
+        const pageCurrent = (lstLastQuoteCurrent.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
@@ -277,15 +278,15 @@ const ListTicker = (props: IListTickerProps) => {
     })
 
     const backPage = (currPage: number) => {
-        setCurrentPage(currPage - 1);
+        setCurrentPage(currPage - pageFirst);
     }
 
     const nextPage = (currPage: number) => {
-        setCurrentPage(currPage + 1);
+        setCurrentPage(currPage + pageFirst);
     }
 
     const _renderButtonBack = () => (
-        currentPage > 1 && <button
+        currentPage > pageFirst && <button
             onClick={() => backPage(currentPage)}
             className="btn btn-sm btn-outline-secondary px-1 py-3">
             <i className="bi bi-chevron-double-left" />
@@ -293,14 +294,14 @@ const ListTicker = (props: IListTickerProps) => {
     )
 
     const _renderButtonNext = () => (
-        (currentPage !== Math.trunc(arrLastQuoteAdd.length / 8) + 1 && (arrLastQuoteAdd.length > 0)) && Math.trunc(arrLastQuoteAdd.length % 8) !== 0 &&
+        (currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && (arrLastQuoteAdd.length > 0)) && Math.trunc(arrLastQuoteAdd.length % pageSizeTicker) !== 0 &&
         <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
             <i className="bi bi-chevron-double-right" />
         </button>
     )
     const _conditionStyle = () => {
-        const conditionBack = currentPage > 1;
-        const conditionNext = currentPage !== Math.trunc(arrLastQuoteAdd.length / 8) + 1 && arrLastQuoteAdd.length > 0;
+        const conditionBack = currentPage > pageFirst;
+        const conditionNext = currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && arrLastQuoteAdd.length > 0;
         return (conditionBack || conditionNext);
     }
     const _renderTemplateMonitoring = () => (
