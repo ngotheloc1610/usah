@@ -33,25 +33,43 @@ const ListTicker = (props: IListTickerProps) => {
     const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(pageFirst);
 
     useEffect(() => {
+        let lastQuotesRes;
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
-                const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+                lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
                     setLastQoutes(resp.quotesList);
                 });
             }
         });
-        getOrderBooks();
-        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
-            setLastQoutes(resp.quotesList);
-        });
         return () => {
+            ws.unsubscribe();
             lastQuotesRes.unsubscribe();
         }
     }, []);
+
+    useEffect(() => {
+        getOrderBooks();
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+            setLastQoutes(resp.quotesList);
+            const lstLastQuote = resp.quotesList;
+            const lstArrLastQuoteAddId: number[] = [];
+            const lstArrLastQuote: ILastQuote[] = [];
+            if (arrLastQuoteAdd.length > 0 && lstLastQuote.length > 0) {
+                arrLastQuoteAdd.forEach(item => lstArrLastQuoteAddId.push(Number(item.symbolCode)));
+                lstLastQuote.forEach(item => {
+                    if (lstArrLastQuoteAddId.indexOf(Number(item.symbolCode)) !== -1) {
+                        lstArrLastQuote.push(item);
+                    }
+                });
+                setArrLastQuoteAdd(lstArrLastQuote);
+                localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstArrLastQuote));
+            }
+        });
+    }, [symbolList, msgSuccess]);
 
     useEffect(() => {
         if (arrLastQuoteAdd.length > 0) {
@@ -61,11 +79,12 @@ const ListTicker = (props: IListTickerProps) => {
             });
             setLstSymbolIdAdd(lstSymbolId);
         }
-        const pageCurrent = pageFirst;
+        if (!msgSuccess) {
+            setCurrentPage(pageFirst)
+        }
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
         setPageShowCurrentLastQuote(dataCurrentPage);
-        setCurrentPage(pageCurrent);
-    }, [])
+    }, [arrLastQuoteAdd])
 
     useEffect(() => {
         const listSymbolCode: string[] = [];
