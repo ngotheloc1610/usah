@@ -4,9 +4,44 @@
 .w-200 {
     width: 200px;
 }
-.mh-375 {
-    max-height: 375px;
+.mh-500 {
+    max-height: 500px;
 }
 .popup-box {
     z-index: 1;
 }
+
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+  
+  .btn {
+    border: 2px solid gray;
+    color: gray;
+    background-color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .btn-upload {
+      color: #fff !important;
+      background-color: green !important;
+      cursor: pointer;
+      margin-left: 5px;
+  }
+
+  .position-close-popup {
+        right: calc(36% - 100px) !important;
+  }
