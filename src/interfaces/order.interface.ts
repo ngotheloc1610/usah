@@ -50,11 +50,11 @@ export interface IOrderBook {
 }
 
 export interface IPropListOrderHistory {
-    listOrderHistory: IListOrderHistory[]
+    listOrderHistory: IListOrderHistory[];
 }
 
 export interface IPropListTradeHistory {
-    getDataTradeHistory: ITradeHistory[]
+    getDataTradeHistory: ITradeHistory[];
 }
 
 export interface IStateListOrder {
@@ -219,7 +219,7 @@ export interface IParamTradeSearch {
 }
 
 export interface IPropsListPortfolio {
-    accountPortfolio: IListPortfolio[]
+    accountPortfolio: IListPortfolio[];
 }
 
 export interface IListPortfolio {
@@ -251,7 +251,7 @@ export interface ITickerPortfolio {
 
 export interface IParamHistorySearch {
     ticker: string;
-    orderState: number
+    orderState: number;
     orderType: number;
     fromDatetime: string;
     toDatetime: string;
