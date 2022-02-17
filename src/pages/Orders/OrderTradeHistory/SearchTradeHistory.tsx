@@ -29,7 +29,7 @@ function SearchTradeHistory() {
     useEffect(() => {
         var today = new Date();
         var currentDate = today.getFullYear()+'-'+'0'+(today.getMonth()+1)+'-'+today.getDate();
-        setCurrentDate(currentDate)
+        setCurrentDate(`${currentDate}`)
     }, [])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])

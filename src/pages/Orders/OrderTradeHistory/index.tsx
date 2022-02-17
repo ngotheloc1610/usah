@@ -30,8 +30,7 @@ const OrderTradeHistory = () => {
     }, [])
 
     const buildMessage = (accountId: string) => {
-        const currentDate = new Date().getFullYear()+'-'+'0'+(new Date().getMonth()+1)+'-'+new Date().getDate();
-        const today = currentDate
+        const today = new Date().getFullYear()+'-'+'0'+(new Date().getMonth()+1)+'-'+new Date().getDate();
         
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -39,8 +38,8 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME))
-            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME))
+            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(`${today}`, FROM_DATE_TIME))
+            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(`${today}`, TO_DATE_TIME))
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);

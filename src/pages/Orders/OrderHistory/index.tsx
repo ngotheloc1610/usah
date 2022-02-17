@@ -30,16 +30,16 @@ const OrderHistory = () => {
     }, [])
 
     const buildMessage = (accountId: string) => {
-        const currentDate = new Date().getFullYear()+'-'+'0'+(new Date().getMonth()+1)+'-'+new Date().getDate();
-        const today = currentDate
+        const today = new Date().getFullYear()+'-'+'0'+(new Date().getMonth()+1)+'-'+new Date().getDate();
+
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
             orderHistoryRequest.setAccountId(Number(accountId));
-            orderHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME));
-            orderHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME));
+            orderHistoryRequest.setFromDatetime(convertDatetoTimeStamp(`${today}`, FROM_DATE_TIME));
+            orderHistoryRequest.setToDatetime(convertDatetoTimeStamp(`${today}`, TO_DATE_TIME));
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
