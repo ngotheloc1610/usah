@@ -55,7 +55,7 @@ const Login = () => {
             account_id: process.env.REACT_APP_TRADING_ID
         }
         ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen));
-        window.location.href = './dashboard'
+        window.location.href = '/'
     }
 
     useEffect(() => unLogin(), [email, password])
