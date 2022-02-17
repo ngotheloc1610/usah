@@ -27,10 +27,10 @@ const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote, msgSuccess } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}'));
+    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || JSON.parse('[]')));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
-    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
+    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || JSON.parse('[]')));
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
