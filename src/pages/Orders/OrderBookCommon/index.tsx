@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IDetailTickerInfo, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
@@ -15,7 +15,7 @@ import * as qspb from "../../../models/proto/query_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { IListDashboard, ITickerDetail } from '../../../interfaces/ticker.interface';
+import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER } from '../../../mocks';
@@ -65,9 +65,9 @@ const OrderBookCommon = () => {
     const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolId, setSymbolId] = useState<number>();
+    const [symbolId, setSymbolId] = useState<number>(0);
     const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(defaultTickerInf);
-    const [listDataDashboard, setDataDashboard] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
+    const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
 
@@ -78,8 +78,6 @@ const OrderBookCommon = () => {
         setColumns(false);
         setColumnsGap(false);
     }
-    const dafaultLastQuotesData: ILastQuote[] = [];
-    const [itemSearch, setItemSearch] = useState('');
 
     useEffect(() => searchTicker(), [itemTickerInfor])
 
@@ -96,13 +94,11 @@ const OrderBookCommon = () => {
             setGetDataTradeHistory(res.tradeList)
         });
 
-        const getSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            const listSymbolCode: string[] = []
-            res.symbolList.forEach((item: IListDashboard) => {
-                listSymbolCode.push(item.symbolCode);
-            });
-            setListSymbolCode(listSymbolCode)
+        const listSymbolCode: string[] = []
+        listTicker.forEach((item: ITickerDetail) => {
+            listSymbolCode.push(item.ticker);
         });
+        setListSymbolCode(listSymbolCode)
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
             const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
@@ -112,7 +108,6 @@ const OrderBookCommon = () => {
         return () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
-            getSymbolList.unsubscribe();
             getLastQuotesRes.unsubscribe();
         }
     }, []);
@@ -173,13 +168,13 @@ const OrderBookCommon = () => {
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
-            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
-            listDataDashboard.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId)
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+            listTicker.forEach(item => {
+                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -231,8 +226,9 @@ const OrderBookCommon = () => {
         setMsgSuccess(item);
     }
 
-    const getTickerSearch = (itemTicker: any) => {
-        const itemTickerInfor = listDataDashboard.find(item => item.ticker === (itemTicker.target.innerText).toUpperCase());
+    const getTickerSearch = (value: string) => {
+        const symbolCode = value !== undefined ? value : '';
+        const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
@@ -248,7 +244,7 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listDataDashboard.find(item => item.ticker === (event.target.value).toUpperCase());
+            const itemTickerInfor = listTicker.find(item => item.ticker === (event.target.value).toUpperCase());
             setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
@@ -273,7 +269,7 @@ const OrderBookCommon = () => {
             <div className="col-md-3">
                 <div className="input-group input-group-sm mb-2">
                     <Autocomplete
-                        onChange={getTickerSearch}
+                        onChange={(event: any) => getTickerSearch(event.target.innerText)}
                         onKeyUp={handleKeyUp}
                         onClick={searchTicker}
                         disablePortal

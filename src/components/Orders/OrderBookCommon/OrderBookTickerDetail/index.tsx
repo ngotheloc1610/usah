@@ -9,7 +9,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
 
     const getTickerName = (symbolId: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        return tickerList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
+        return tickerList.find(item => item.symbolId.toString() === symbolId)?.tickerName;
     }
 
     return <>
