@@ -15,10 +15,11 @@ import { toast } from "react-toastify";
 import { IAuthen } from "../../../interfaces";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
+import PopUpConfirm from "../../Modal/PopUpConfirm";
 
 
 const ListModifyCancel = () => {
-    const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
+    const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
@@ -37,7 +38,9 @@ const ListModifyCancel = () => {
     }
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
+    const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
+    const [totalOrder, setTotalOrder] = useState<number>(0);
+    const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -46,9 +49,10 @@ const ListModifyCancel = () => {
                 sendMsgSymbolList();
             }
         });
-        
+
         const listOrder = wsService.getListOrder().subscribe(response => {
-            setGetDataOrder(response.orderList);
+            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            setDataOrder(listOrderSortDate);
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
@@ -65,7 +69,8 @@ const ListModifyCancel = () => {
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
-            setGetDataOrder(response.orderList);
+            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess]);
@@ -148,6 +153,7 @@ const ListModifyCancel = () => {
     const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
+        setIsCancelAll(isCloseModifyCancel);
     }
 
     const _rendetMessageSuccess = (message: string) => {
@@ -177,20 +183,50 @@ const ListModifyCancel = () => {
         }
     }
 
+    const btnCancelAllConfirm = () => {
+        const dataSelected = dataOrder.filter(item => item.isChecked);
+        setDataSelected(dataSelected);
+        setIsCancelAll(true);
+        setTotalOrder(dataSelected.length);
+    }
+
+    const handleChecked = (e) => {
+        const { name, checked } = e.target;
+        if (name === "allSelect") {
+            const isSelectAll = dataOrder.map((order) => {
+                return { ...order, isChecked: checked };
+            });
+            setDataOrder(isSelectAll);
+        } else {
+            let tempOrder = dataOrder.map((order, index) =>
+                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
+            );
+            setDataOrder(tempOrder);
+        }
+    }
+
     const getListModifyCancelData = () => (
-        listOrderSortDate.map((item, index) => {
-            return <tr key={index}>
+        dataOrder.map((item, index) => {
+            return <tr key={index} className="odd">
+                <td>
+                    <div className="form-check">
+                        <input className="form-check-input" type="checkbox" value=""
+                            checked={item?.isChecked || false}
+                            name={index.toString()}
+                            onClick={handleChecked}
+                            id="all" />
+                    </div>
+                </td>
                 <td className="fm">{item.orderId}</td>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
-                <td className="text-center w-10"><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
-                <td className="text-center">{ORDER_TYPE_NAME.limit}</td>
-                <td className="text-end">{formatCurrency(item.price.toString())}</td>
-                <td className="text-end">{formatNumber(item.amount.toString())}</td>
-                <td className="text-end">{formatNumber(item.filledAmount.toString())}</td>
+                <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-end ">{formatCurrency(item.price.toString())}</td>
+                <td className="text-end ">{formatNumber(item.amount.toString())}</td>
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
-                <td className="text-center">{formatOrderTime(item.time)}</td>
+                <td className="text-end">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    <a className="btn-edit-order mr-10px" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
+                    <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
                     <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
@@ -206,16 +242,40 @@ const ListModifyCancel = () => {
                 <table className="table table-sm table-hover mb-0 dataTable no-footer">
                     <thead>
                         <tr>
-                            <th><span>Order ID</span></th>
-                            <th><span>Ticker</span></th>
-                            <th className="text-center"><span>Side</span></th>
-                            <th className="text-center"><span>Type</span></th>
-                            <th className="text-end"><span>Price</span></th>
-                            <th className="text-end"><span>Volume</span></th>
-                            <th className="text-end"><span>Executed Volume</span></th>
-                            <th className="text-end"><span>Pending</span></th>
-                            <th className="text-center"><span>Datetime</span></th>
-                            <th>&nbsp;</th>
+                            <th>
+                                <input type="checkbox" value=""
+                                    name="allSelect"
+                                    onChange={handleChecked}
+                                    checked={!dataOrder.some((order) => order?.isChecked !== true)}
+                                />
+                            </th>
+                            <th className="sorting_disabled">
+                                <span className="text-ellipsis">Order ID</span>
+                            </th>
+                            <th className="sorting_disabled">
+                                <span className="text-ellipsis">Ticker</span>
+                            </th>
+                            <th className="sorting_disabled text-center">
+                                <span className="text-ellipsis">Side</span>
+                            </th>
+                            <th className="sorting_disabled text-center">
+                                <span className="text-ellipsis">Type</span>
+                            </th>
+                            <th className="text-end sorting_disabled">
+                                <span className="text-ellipsis">Price</span>
+                            </th>
+                            <th className="text-end sorting_disabled">
+                                <span className="text-ellipsis">Volume</span>
+                            </th>
+                            <th className="text-end sorting_disabled">
+                                <span className="text-ellipsis">Pending</span>
+                            </th>
+                            <th className="text-end sorting_disabled">
+                                <span className="text-ellipsis">Datetime</span>
+                            </th>
+                            <th className="text-end sorting_disabled">
+                                {dataOrder.some((order) => order?.isChecked === true) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -235,6 +295,9 @@ const ListModifyCancel = () => {
             handleOrderResponse={getStatusOrderResponse}
             params={paramModifyCancel}
             handleStatusModifyCancel={getStatusModifyCancel} />}
+        {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
+            totalOrder={totalOrder} listOrder={dataSelected}
+            handleOrderResponse={getStatusOrderResponse} />}
     </div>
 }
 export default ListModifyCancel;

@@ -9,6 +9,7 @@ import * as tspb from '../../../models/proto/trading_service_pb';
 import * as sspb from '../../../models/proto/system_service_pb'
 import { IListOrder } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
+import { useEffect } from 'react';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -24,6 +25,24 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const tradingModelPb: any = tmpb;
     
     const rProtoBuff: any = rpc;
+
+    useEffect(() => {
+        const systemModelPb: any = smpb;
+        const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
+            let tmp = 0;
+            if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                tmp = RESPONSE_RESULT.success;
+            } else {
+                tmp = RESPONSE_RESULT.error;
+            }
+            handleOrderResponse(tmp, resp[MSG_TEXT]);
+            handleCloseConfirmPopup(false);
+        });
+        return () => {
+            multiCancelOrder.unsubscribe();
+        } 
+    }, []);
+
     const sendRes = () => {
         const paramStr = window.location.search;
         const objAuthen = queryString.parse(paramStr);
@@ -50,14 +69,13 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const prepareMessageeCancelAll = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
-        const systemModelPb: any = smpb;
         if (wsConnected) {
             let currentDate = new Date();
             let cancelOrder = new tradingServicePb.CancelOrderRequest();
-            cancelOrder.setHiddenConfirmFlg(false);
 
             let order = new tradingModelPb.Order();
             listOrder.forEach(item => {
+                cancelOrder.setHiddenConfirmFlg(false);
                 order.setOrderId(item.orderId);
                 order.setAmount(`${item.amount}`);
                 order.setPrice(`${item.price}`);
@@ -74,17 +92,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            wsService.getCancelSubject().subscribe(resp => {
-                let tmp = 0;
-                console.log(79, resp);
-                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
-                } else {
-                    tmp = RESPONSE_RESULT.error;
-                }
-                handleOrderResponse(tmp, resp[MSG_TEXT]);
-            });
-            handleCloseConfirmPopup(false);
         }
     }
     return <>
