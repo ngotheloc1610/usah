@@ -18,42 +18,7 @@ import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { DEFAULT_CURRENT_TICKER } from '../../../mocks';
-
-const defaultDataTicker: ILastQuote = {
-    asksList: [],
-    bidsList: [],
-    close: '',
-    currentPrice: '',
-    high: '',
-    low: '',
-    netChange: '',
-    open: '',
-    pctChange: '',
-    quoteTime: 0,
-    scale: 0,
-    symbolCode: '',
-    symbolId: 0,
-    tickPerDay: 0,
-    volumePerDay: '',
-    volume: ''
-}
-const defaultTickerInf = {
-    symbolId: 0,
-    tickerName: '',
-    ticker: '',
-    stockPrice: '',
-    previousClose: '',
-    open: '',
-    high: '',
-    low: '',
-    lastPrice: '',
-    volume: '',
-    change: '',
-    changePrecent: '',
-    lotSize: '',
-    minimumBizSize: '',
-}
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -66,9 +31,9 @@ const OrderBookCommon = () => {
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>(0);
-    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(defaultTickerInf);
+    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(DEFAULT_TICKER_INFO);
     const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
-    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(defaultDataTicker);
+    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
 
     const defaultData = () => {
@@ -229,7 +194,7 @@ const OrderBookCommon = () => {
     const getTickerSearch = (value: string) => {
         const symbolCode = value !== undefined ? value : '';
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
-        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
+        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
@@ -239,13 +204,13 @@ const OrderBookCommon = () => {
             handleDataFromWs();
             return;
         }
-        setItemTickerDetail(defaultDataTicker);
+        setItemTickerDetail(DEFAULT_DATA_TICKER);
     }
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
             const itemTickerInfor = listTicker.find(item => item.ticker === (event.target.value).toUpperCase());
-            setItemTickerInfor(itemTickerInfor ? itemTickerInfor : defaultTickerInf);
+            setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
         }

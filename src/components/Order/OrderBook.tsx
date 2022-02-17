@@ -1,6 +1,6 @@
 import { MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import {  defaultTickerSearch, ORDER_BOOK_HEADER } from "../../mocks"
+import {  DEFAULT_DATA_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { formatCurrency, formatNumber } from "../../helper/utils";
@@ -144,13 +144,13 @@ const OrderBook = (props: IOrderBookProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {_renderAskPrice(dataSearchTicker ? dataSearchTicker : defaultTickerSearch)}
+                            {_renderAskPrice(dataSearchTicker ? dataSearchTicker : DEFAULT_DATA_TICKER)}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
                                     <span className="fs-5 fw-bold text-primary">{(dataSearchTicker && dataSearchTicker.currentPrice !== '') ? dataSearchTicker.currentPrice : '-'}</span>
                                 </td>
                             </tr>
-                            {_renderBidPrice(dataSearchTicker ? dataSearchTicker : defaultTickerSearch)}
+                            {_renderBidPrice(dataSearchTicker ? dataSearchTicker : DEFAULT_DATA_TICKER)}
                         </tbody>
                     </table>
                 </div>

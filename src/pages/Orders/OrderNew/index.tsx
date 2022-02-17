@@ -11,7 +11,7 @@ import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rspb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
-import { defaultTickerSearch } from '../../../mocks'
+import { DEFAULT_DATA_TICKER } from '../../../mocks'
 
 const OrderNew = () => {
 
@@ -118,7 +118,7 @@ const OrderNew = () => {
 
     const assignDataGetLastQuote = (symbolCode: number) => {
         const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolCode);
-        return setDataSearchTicker(dataSearch ? {...dataSearch} : defaultTickerSearch);
+        return setDataSearchTicker(dataSearch ? {...dataSearch} : DEFAULT_DATA_TICKER);
             
     }
     const getTicker = (value: string) => {
