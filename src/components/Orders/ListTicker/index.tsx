@@ -8,7 +8,7 @@ import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from '@mui/material';
-import { defaultTickerSearch } from "../../../mocks";
+import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
@@ -215,8 +215,8 @@ const ListTicker = (props: IListTickerProps) => {
         const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
-            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : defaultTickerSearch;
-            if (assignItemLastQuote !== defaultTickerSearch) {
+            const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
+            if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
             }
             setArrLastQuoteAdd(listLastQuote);
