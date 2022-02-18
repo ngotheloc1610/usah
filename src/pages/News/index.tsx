@@ -88,7 +88,7 @@ function News() {
 
     const _renderNewsNotificationDetailItem = () => (
         NOTIFICATION_DETAIL.map((item: INotificationDetail, index: number) => (
-            <div className="notification-detail border p-3 shadow-sm">
+            <div className="notification-detail border p-3 shadow-sm" key={index}>
                 <div className="d-flex mb-2 border-bottom pb-1">
                     <div>
                         <h6 className="mb-0"> {item.title} </h6>

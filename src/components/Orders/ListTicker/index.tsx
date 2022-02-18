@@ -125,24 +125,15 @@ const ListTicker = (props: IListTickerProps) => {
     }
     const onChangeTicker = (event) => {
         const symbolCode = event.target.innerText?.split('-')[0]?.trim();
-        const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
         if (symbolCode) {
             const itemTickerAdd = symbolList.find(item => item.ticker === symbolCode);
             if (itemTickerAdd) {
-                if (lstSymbolId.length === 0 || lstSymbolId.indexOf(itemTickerAdd.symbolId) === -1) {
-                    setSymbolIdAdd(itemTickerAdd.symbolId);
-                    lstSymbolId.push(itemTickerAdd.symbolId);
-                    setLstSymbolIdAdd(lstSymbolId);
-                    return;
-                }
-                setSymbolIdAdd(0);
+                setSymbolIdAdd(itemTickerAdd.symbolId);
                 return;
             }
             setSymbolIdAdd(0);
             return;
         }
-        setSymbolIdAdd(0);
-        return;
     }
     const btnAddTicker = () => {
         handleLastQuote();
@@ -243,6 +234,13 @@ const ListTicker = (props: IListTickerProps) => {
         return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
     }
     const handleLastQuote = () => {
+        const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
+        if (lstSymbolId.length === 0 || lstSymbolId.indexOf(symbolIdAdd) === -1) {
+            lstSymbolId.push(symbolIdAdd);
+            setLstSymbolIdAdd(lstSymbolId);
+        } else {
+            return;
+        }
         const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);

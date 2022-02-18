@@ -310,7 +310,7 @@ const ListOrder = (props: IPropsListOrder) => {
                             <input className="form-check-input"type="checkbox" value=""
                                 checked={item?.isChecked || false}
                                 name={index.toString()}
-                                onClick={handleChecked}
+                                onChange={handleChecked}
                                 id="all" />
                         </div>
                     </td>
@@ -323,7 +323,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                     <td className="text-end">{formatOrderTime(item.time)}</td>
                     <td className="text-end">
-                        <a className="btn-edit-order mr-10" onClick={() => handleModify(item)}>
+                        <a className="btn-edit-order mr-10" onChange={() => handleModify(item)}>
                             <i className="bi bi-pencil-fill"></i>
                         </a>
                         <a onClick={() => handleCancel(item)}>

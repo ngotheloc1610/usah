@@ -213,7 +213,7 @@ const ListModifyCancel = () => {
                         <input className="form-check-input" type="checkbox" value=""
                             checked={item?.isChecked || false}
                             name={index.toString()}
-                            onClick={handleChecked}
+                            onChange={handleChecked}
                             id="all" />
                     </div>
                 </td>
