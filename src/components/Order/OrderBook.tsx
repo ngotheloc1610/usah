@@ -16,6 +16,7 @@ interface IOrderBookProps {
     dataSearchTicker?: ILastQuote;
     listTickerSearch?: string[];
     tickerDetailLastQuote : (item: ITickerInfo) => void;
+    currentTicker?: ITickerInfo;
 }
 
 const defaultProps = {
@@ -23,7 +24,7 @@ const defaultProps = {
 }
 
 const OrderBook = (props: IOrderBookProps) => {
-    const { isDashboard, itemTickerSearch, dataSearchTicker, listTickerSearch, tickerDetailLastQuote } = props;
+    const { isDashboard, itemTickerSearch, dataSearchTicker, listTickerSearch, tickerDetailLastQuote, currentTicker } = props;
     const [tickerSearch, setTickerSearch] = useState<string>(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
     const tradingModel: any = tdpb;
     const _renderAskPrice = (itemData: ILastQuote) => {
@@ -62,6 +63,7 @@ const OrderBook = (props: IOrderBookProps) => {
             </tr>
         ));
     }
+
     useEffect(() => {
         setTickerSearch(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
     }, [dataSearchTicker?.ticker]);
@@ -126,6 +128,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                     disablePortal
                     sx={{ width: 300 }}
+                    value={currentTicker?.ticker}
                     options={listTickerSearch ? listTickerSearch : []}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />

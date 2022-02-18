@@ -221,8 +221,8 @@ const OrderBookCommon = () => {
         const itemTicker = {
             tickerName: assTickerInfor?.tickerName,
             ticker: assTickerInfor?.ticker,
-            lastPrice: item.price,
-            volume: item.volume,
+            lastPrice: item.price === '-' ? '0' : item.price,
+            volume: item.volume === '-' ? '0' : item.volume,
             side: item.side,
             symbolId: assTickerInfor?.symbolId
         }
