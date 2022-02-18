@@ -1631,7 +1631,6 @@ export const DATA_MATCHING_DETAIL = [
         comment: '',
     }
 ]
-]
 
 export const DEFAULT_TICKER_INFO: ITickerDetail = {
     symbolId: 0,
