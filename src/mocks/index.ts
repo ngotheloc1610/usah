@@ -1568,6 +1568,71 @@ export const defaultListDataOrder: IListOrder[] = [
     }
 ]
 
+// TODO: Don't have MatchingHistory message in proto so use fake data
+export const DATA_MATCHING_DETAIL = [
+    {
+        subNo: 1,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Accepted',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '2000',
+        exPrice: '',
+        exVolume: '',
+        remainVolume: '2,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
+    },
+    {
+        subNo: 2,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Modified',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
+    },
+    {
+        subNo: 3,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Partial',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '300',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: 'Change order price',
+    },
+    {
+        subNo: 4,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Filled',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '700',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
+    }
+]
+]
+
 export const DEFAULT_TICKER_INFO: ITickerDetail = {
     symbolId: 0,
     tickerName: '',

@@ -6,6 +6,7 @@
   height: 100vh;
   top: 0;
   left: 0;
+  z-index: 99;
 }
  
 .box {
@@ -107,4 +108,40 @@
 }
 .outline:focus{
   box-shadow: none !important;
+}
+
+.title-moldal{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #16365c;
+  color: #fff;
+}
+
+.pd-10{
+  padding: 0px 0px 30px !important;
+  border: 0 !important;
+}
+
+.modal-matching{
+  position: relative;
+  margin-top: 300px;
+  left: auto;
+  z-index: 99;
+  background-color: #fff;
+  border-radius: 3px;
+  padding: 0 !important;
+}
+
+.btn_close{
+  font-size: 0.85rem;
+  outline: none;
+  border: none;
+  background-color: #16365c;
+  color: #fff;
+}
+
+.tbody-modal tr:last-child{
+  border-bottom: 1px solid rgb(235, 235, 235);
 }
