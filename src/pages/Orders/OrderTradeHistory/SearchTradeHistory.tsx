@@ -24,6 +24,13 @@ function SearchTradeHistory() {
     const [toDatetime, setDateTimeTo] = useState(0)
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [symbolName, setSymbolName] = useState<string[]>([])
+    const [currentDate, setCurrentDate] = useState('')
+    
+    useEffect(() => {
+        var today = new Date();
+        var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+        setCurrentDate(currentDate)
+    }, [])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -39,8 +46,6 @@ function SearchTradeHistory() {
 
         return () => tradeHistoryRes.unsubscribe()
     }, [])
-
-    useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     const handleChangeFromDate = (value: string) => {
         setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
@@ -211,6 +216,7 @@ function SearchTradeHistory() {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                            defaultValue={currentDate}
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
@@ -220,6 +226,7 @@ function SearchTradeHistory() {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                            defaultValue={currentDate}
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
