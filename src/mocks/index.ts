@@ -829,7 +829,7 @@ export const DATA_BID_PRICE = [
     },
 ];
 
-export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
+export const ORDER_BOOK_HEADER = ['ask volume', 'price', 'bid volume'];
 
 export const ORDER_HISTORY: IOrderHistory[] = [
     {
