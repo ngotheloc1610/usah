@@ -157,7 +157,7 @@ const ListTicker = (props: IListTickerProps) => {
                     renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
                 />
 
-                <button type="button" className="btn btn-primary" onClick={btnAddTicker}>Add</button>
+                <button type="button" className="btn btn-primary h-2r" onClick={btnAddTicker}>Add</button>
 
             </div>
         </div>

@@ -223,7 +223,8 @@ const Dashboard = () => {
                                         itemTickerSearch={handleTickerSearch}
                                         dataSearchTicker={dataSearchTicker}
                                         listTickerSearch={listTickerSearch}
-                                        tickerDetailLastQuote={getTickerInfo}/>
+                                        tickerDetailLastQuote={getTickerInfo}
+                                        currentTicker={ticker}/>
                         </div>
                         <div>
                             <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker}/>

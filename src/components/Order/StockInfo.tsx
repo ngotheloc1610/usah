@@ -1,5 +1,4 @@
-import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import { IListDashboard } from "../../interfaces/ticker.interface"
+import { ITickerInfo } from "../../interfaces/order.interface"
 
 interface IStockInfo {
     listDataTicker: ITickerInfo[];
