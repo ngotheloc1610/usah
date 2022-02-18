@@ -48,6 +48,7 @@ function News() {
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
+                    {/* Sau này sẽ có api trả về hiện tại đang fake data */}
                     <h6 className="item-title mb-0">POEM<sup>2</sup> NEWS</h6>
                     <div className="item-summary opacity-75">{item.content}</div>
                 </div>
@@ -91,6 +92,7 @@ function News() {
             <div className="notification-detail border p-3 shadow-sm">
                 <div className="d-flex mb-2 border-bottom pb-1">
                     <div>
+                        {/* Sau này sẽ có api trả về hiện tại đang fake data */}
                         <h6 className="mb-0">POEM<sup>2</sup></h6>
                         <div className="small opacity-50"> {item.date} </div>
                     </div>
