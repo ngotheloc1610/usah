@@ -10,6 +10,7 @@ import Report from "../pages/Report";
 import SettingScreen from "../pages/Setting/Index";
 import OrderBookCommon from "../pages/Orders/OrderBookCommon";
 import MultipleOrders from "../pages/Orders/MultipleOrders";
+import MultiTraderControl from "../pages/Orders/MultiTraderControl";
 
 const RouterDom = () => {
   return (

@@ -35,10 +35,23 @@ export const ROUTER = [
                 subTab: []
             },
             {
-                navigation: '/orders/portfolio',
+                navigation: '',
                 icon: '',
                 title: 'Summary',
-                subTab: []
+                subTab: [
+                    {
+                        navigation: '/orders/portfolio',
+                        icon: '',
+                        title: 'Summary Trading',
+                        subTab: [],
+                    },
+                    {
+                        navigation: '/orders/multi-trader-control',
+                        icon: '',
+                        title: 'Multi Trader Control',
+                        subTab: [],
+                    },
+                ]
             },
             {
                 navigation: '/order-book',
