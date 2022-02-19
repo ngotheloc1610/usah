@@ -7,8 +7,7 @@ import queryString from 'query-string';
 import { useEffect, useState } from 'react';
 import { LIST_TICKER_INFO, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
 import { ITickerDetail } from "../../../interfaces/ticker.interface";
-
-const listSymbolId = ['200001', '200002', '200003', '200004', '200006', '200007', '200008', '200009']
+import { MOCDATA_LIST_ID, MOCKDATA_FOLLOW_TRADING_ACCOUNT_ID, MOCKDATA_MULTITRADER } from "../../../mocks";
 
 const MultiTraderTable = () => {
     const [accountPortfolio, setAccountPortfolio] = useState<any>([]);
@@ -115,94 +114,56 @@ const MultiTraderTable = () => {
     }
 
     const _renderTradingAccountId = () => {
-        let listTrading: any = []
-        let itemData: any = []
-        const listId = [...listSymbolId, 'Total Net Position', 'Total Gross Transactions', 'Total Realized P/L']
-        listTicker.map((item: any) => {
-            itemData = {
-                symbolId: item.symbolId,
-                accountId: accountId,
-                symbolCode: item.ticker
-            }
-            listTrading.push(itemData)
-        })
-
+        const listId = [...MOCDATA_LIST_ID, 'Total Net Position', 'Total Gross Transactions', 'Total Realized P/L']
+        
         return (<div className="div_maintb">
+            <div>
+                <div className="ticker"> Ticker </div>
+                <div className="trading-account"> Trading Account Id </div>
+
+            </div>
             <table className="table">
                 <tbody>
-                    {/* <tr>
-                        <th rowSpan={2} className=" fz-16 d-flex justify-content-center align-items-center">Ticker</th>
-
-                        <th className=" fz-16">Trading Account Id</th>
-                    </tr> */}
-
-                        {/* <th className="text-center">Trading Account ID</th> */}
-
                     <tr className="tr-id text-center">
-                        <th rowSpan={2}> Ticker </th>
-                        {listId.map((item: any, index: number) => (
-                            <th key={index} className='text-end'>{item}</th>
-                            ))}
+                        <td>&nbsp;</td>
+                        {listId.map((item, index: number) => (
+                            <th key={index} className='text-end id-posstion'>{item}</th>
+                        ))}
                     </tr>
-                    <tr><td style={{padding:0}}></td></tr>
-                    {listTrading.map((item: any, index: number) => (
+                    <tr><td style={{ padding: 0 }}></td></tr>
+                    {MOCKDATA_MULTITRADER.map((item: any, index: number) => (
                         <tr className="tr-maintb" key={index}>
-                            <td>{item.symbolCode}</td>
-                            <td>{getHoldingvolume(item.symbolCode)}</td>
-                            <td>2000</td>
-                            <td>10000</td>
-                            <td>300</td>
-                            <td>100</td>
-                            <td>2000</td>
-                            <td> 800</td>
-                            <td>1545</td>
-                            <td>1545</td>
-                            <td>1545</td>
-                            <td>1545</td>
+                            <td>{item.ticker}</td>
+                            <td>{item.id1}</td>
+                            <td>{item.id2}</td>
+                            <td>{item.id3}</td>
+                            <td>{item.id4}</td>
+                            <td>{item.id5}</td>
+                            <td>{item.id6}</td>
+                            <td>{item.id7}</td>
+                            <td>{item.id8}</td>
+                            <td>{item.totalNet}</td>
+                            <td>{item.totalGross}</td>
+                            <td>{item.totalPl}</td>
                         </tr>
                     ))}
-                    <tr className='tr-special'>
-                        <td className='td-special'>Total Net Position</td>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
-                        <td>5</td>
-                        <td>6</td>
-                        <td>7</td>
-                        <td>8</td>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>3</td>
-                    </tr>
-                    <tr className='tr-special'>
-                        <td className='td-special'>Total Gross Transactions</td>
-                        <td>300</td>
-                        <td>100</td>
-                        <td>2000</td>
-                        <td> 800</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>3</td>
-                    </tr>
-                    <tr className='tr-special' >
-                        <td className='td-special'>Total Realized P/L</td>
-                        <td>300</td>
-                        <td>100</td>
-                        <td>2000</td>
-                        <td> 800</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1545</td>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>3</td>
-                    </tr>
+
+                    {MOCKDATA_FOLLOW_TRADING_ACCOUNT_ID.map((item: any, index: number) => (
+                        <tr className='tr-special' key={index}>
+                            <td className='td-special'>{item.title}</td>
+                            <td className="center">{item.id1}</td>
+                            <td className="center">{item.id2}</td>
+                            <td className="center">{item.id3}</td>
+                            <td className="center">{item.id4}</td>
+                            <td className="center">{item.id5}</td>
+                            <td className="center">{item.id6}</td>
+                            <td className="center">{item.id7}</td>
+                            <td className="center">{item.id8}</td>
+                            <td className="center">{item.id9}</td>
+                            <td className="center">{item.id10}</td>
+                            <td className="center">{item.id11}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>)
@@ -214,127 +175,7 @@ const MultiTraderTable = () => {
                 <div className="col-xl-12 col-md-12 col-sm-12 position-relative">
                     {_renderTradingAccountId()}
                 </div>
-                {/* <div className="col-xl-3 col-md-3 col-sm-3">
-                    <div className="total">
-                        <table className="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th className="fw-bold">Total Net Position</th>
-                                    <th className="fw-bold">Total Gross Transactions</th>
-                                    <th className="fw-bold">Total Realized P/L</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> */}
             </div>
-            {/* <div className="row g-0">
-                <div className="col-xl-12 col-md-12 col-sm-12 position-relative">
-
-                    <div className="total-row">
-                        <table className="table table-hover">
-                            <tbody>
-                                <tr>
-                                    <td className="fw-bold">Total Net Position</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td className="fw-bold">Total Gross Transactions</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td className="fw-bold">Total Realized P/L</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                    <td>1</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-            </div> */}
-
         </>
     )
 
