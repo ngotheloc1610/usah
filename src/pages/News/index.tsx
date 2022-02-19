@@ -48,7 +48,8 @@ function News() {
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
-                    <h6 className="item-title mb-0">{item.title}</h6>
+                    {/* Sau này sẽ có api trả về hiện tại đang fake data */}
+                    <h6 className="item-title mb-0">POEM<sup>2</sup> NEWS</h6>
                     <div className="item-summary opacity-75">{item.content}</div>
                 </div>
             </div>
@@ -88,17 +89,17 @@ function News() {
 
     const _renderNewsNotificationDetailItem = () => (
         NOTIFICATION_DETAIL.map((item: INotificationDetail, index: number) => (
-            <div className="notification-detail border p-3 shadow-sm">
+            <div className="notification-detail border p-3 shadow-sm" key={index}>
                 <div className="d-flex mb-2 border-bottom pb-1">
                     <div>
-                        <h6 className="mb-0"> {item.title} </h6>
+                        {/* Sau này sẽ có api trả về hiện tại đang fake data */}
+                        <h6 className="mb-0">POEM<sup>2</sup></h6>
                         <div className="small opacity-50"> {item.date} </div>
                     </div>
                     <a href="#" className="ms-auto close"><i className="bi bi-x-lg"></i></a>
                 </div>
                 <div>
                     <p> {item.content} </p>
-                    <p><a href="#" className="btn btn-outline-secondary ps-5 pe-5">Cancel</a> <a href="#" className="btn btn-primary ps-5 pe-5">Call to action</a></p>
                 </div>
             </div>
         ))
