@@ -37,11 +37,34 @@
 
   .btn-upload {
       color: #fff !important;
-      background-color: green !important;
+      background-color: #16365c !important;
       cursor: pointer;
       margin-left: 5px;
   }
 
   .position-close-popup {
         right: calc(36% - 100px) !important;
+  }
+
+  .w-persent-30 {
+      width: 30%;
+  }
+
+  .header-import {
+      background: #16365c;
+      color: white;
+      height: 30px;
+      width: 100%;
+  }
+
+  .mr {
+      margin: auto;
+  }
+
+  .border-1 {
+      border: 1px solid black;
+  }
+
+  .mb-30 {
+      margin-bottom: 30px;
   }
