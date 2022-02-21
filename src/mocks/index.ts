@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder, IMultiTraderInfo, ITotalFollowTradingAccountId } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder, IPortfolioAccountId } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -1585,234 +1585,238 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
     minimumBizSize: '',
 }
 
-export const MOCDATA_LIST_ID = ['1092837201', '1092837202', '1092837203', '1092837204', '1092837205', '1092837206', '1092837207', '1092837208']
+export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
 
-export const MOCKDATA_MULTITRADER: IMultiTraderInfo[] = [
+export const PORTFOLIO_ACCOUNT_ID_201: IPortfolioAccountId[] = [
     {
-        ticker: 'AAPL',
-        id1: '300',
-        id2: '100',
-        id3: '',
-        id4: '100',
-        id5: '',
-        id6: '200',
-        id7: '',
-        id8: '',
-        totalNet: '108,234.00',
-        totalGross: '169,493.54',
-        totalPl:'18,298.00'
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "1"
     },
     {
-        ticker: 'BABA',
-        id1: '',
-        id2: '200',
-        id3: '',
-        id4: '',
-        id5: '300',
-        id6: '',
-        id7: '',
-        id8: '',
-        totalNet: '85,555.00',
-        totalGross: '187569.7866',
-        totalPl:'-12,249.00'
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "4"
     },
     {
-        ticker: 'CRM',
-        id1: '',
-        id2: '',
-        id3: '400',
-        id4: '',
-        id5: '',
-        id6: '200',
-        id7: '',
-        id8: '200',
-        totalNet: '122,604.00',
-        totalGross: '447,992.64',
-        totalPl:'17,293.00'
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '500',
+        symbolCode: "7"
     },
     {
-        ticker: 'MSFT',
-        id1: '200',
-        id2: '',
-        id3: '',
-        id4: '100',
-        id5: '',
-        id6: '',
-        id7: '200',
-        id8: '',
-        totalNet: '233,744.00',
-        totalGross: '320286.0163',
-        totalPl:'5,234.00'
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "8"
     },
     {
-        ticker: 'MRNA',
-        id1: '',
-        id2: '100',
-        id3: '',
-        id4: '',
-        id5: '200',
-        id6: '',
-        id7: '200',
-        id8: '',
-        totalNet: '150,355.00',
-        totalGross: '329,636.55',
-        totalPl:'14,938.00'
-    },
-    {
-        ticker: 'JNJ',
-        id1: '',
-        id2: '',
-        id3: '200',
-        id4: '400',
-        id5: '',
-        id6: '',
-        id7: '',
-        id8: '',
-        totalNet: '155,619.00',
-        totalGross: '189542.9362',
-        totalPl:'-14,589.00'
-    },
-    {
-        ticker: 'KO',
-        id1: '500',
-        id2: '200',
-        id3: '',
-        id4: '',
-        id5: '',
-        id6: '500',
-        id7: '',
-        id8: '',
-        totalNet: '78,247.00',
-        totalGross: '65,979.93',
-        totalPl:'15,243.00'
-    },
-    {
-        ticker: 'PFE',
-        id1: '100',
-        id2: '',
-        id3: '',
-        id4: '800',
-        id5: '100',
-        id6: '',
-        id7: '',
-        id8: '600',
-        totalNet: '79,984.00',
-        totalGross: '54,798.75',
-        totalPl:'10,440.00'
-    },
-    {
-        ticker: 'AMD',
-        id1: '',
-        id2: '400',
-        id3: '',
-        id4: '',
-        id5: '200',
-        id6: '',
-        id7: '300',
-        id8: '300',
-        totalNet: '128,244.00',
-        totalGross: '117,150.27',
-        totalPl:'7,340.00'
-    },
-    {
-        ticker: 'INTC',
-        id1: '300',
-        id2: '',
-        id3: '600',
-        id4: '',
-        id5: '',
-        id6: '200',
-        id7: '',
-        id8: '',
-        totalNet: '63,998.00',
-        totalGross: '63,776.58',
-        totalPl:'4,900.00'
-    },
-    {
-        ticker: 'AAPL',
-        id1: '300',
-        id2: '100',
-        id3: '',
-        id4: '100',
-        id5: '',
-        id6: '200',
-        id7: '',
-        id8: '',
-        totalNet: '108,234.00',
-        totalGross: '169,493.54',
-        totalPl:'18,298.00'
-    },
-    {
-        ticker: 'BABA',
-        id1: '',
-        id2: '200',
-        id3: '',
-        id4: '',
-        id5: '300',
-        id6: '',
-        id7: '',
-        id8: '',
-        totalNet: '85,555.00',
-        totalGross: '187569.7866',
-        totalPl:'-12,249.00'
-    },
-    {
-        ticker: 'CRM',
-        id1: '',
-        id2: '',
-        id3: '400',
-        id4: '',
-        id5: '',
-        id6: '200',
-        id7: '',
-        id8: '200',
-        totalNet: '122,604.00',
-        totalGross: '447,992.64',
-        totalPl:'17,293.00'
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "10"
     },
 ]
 
-export const MOCKDATA_FOLLOW_TRADING_ACCOUNT_ID: ITotalFollowTradingAccountId[] = [
+export const PORTFOLIO_ACCOUNT_ID_202 = [
     {
-        title: 'Total Net Position',
-        id1: '159,076.00',
-        id2: '151,357.00',
-        id3: '186,362.00',
-        id4: '154,689.00',
-        id5: '159,442.00',
-        id6: '131,091.00',
-        id7: '126,785.00',
-        id8: '137,782.00',
-        id9: '1,206,584.00',
-        id10: '',
-        id11: '',
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
     },
     {
-        title: 'Total Net Position',
-        id1: '289,810.00',
-        id2: '194,182.00',
-        id3: '272,918.00',
-        id4: '392,686.00',
-        id5: '314,192.00',
-        id6: '160,249.00',
-        id7: '139,888.00',
-        id8: '182,302.00',
-        id9: '',
-        id10: '1,946,227.00',
-        id11: '',
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "2"
     },
     {
-        title: 'Total Net Position',
-        id1: '10,378.00',
-        id2: '-9,238.00',
-        id3: '-15,239.00',
-        id4: '24,823.00',
-        id5: '18,723.00',
-        id6: '8,923.00',
-        id7: '17,239.00',
-        id8: '11,239.00',
-        id9: '',
-        id10: '',
-        id11: '66,848.00'
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "9"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_203 = [
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "3"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '600',
+        symbolCode: "10"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
     }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_204 = [
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "4"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '800',
+        symbolCode: "8"
+    }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_205 = [
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "2"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "8"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "9"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_206 = [
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "3"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '500',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "10"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_207 = [
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "4"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '800',
+        symbolCode: "8"
+    }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_208 = [
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "2"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "9"
+    },
 ]

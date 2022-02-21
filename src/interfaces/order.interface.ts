@@ -303,32 +303,55 @@ export interface ITickerBindingOrder {
     symbolName: string;
 }
 
-export interface IMultiTraderInfo {
+export interface ITradingAccountVertical {
     ticker: string;
-    id1: string;
-    id2: string;
-    id3: string;
-    id4: string;
-    id5: string;
-    id6: string;
-    id7: string;
-    id8: string;
-    totalNet: string;
-    totalGross: string;
-    totalPl: string;
+    ownVolumeId1?: string;
+    ownVolumeId2?: string;
+    ownVolumeId3?: string;
+    ownVolumeId4?: string;
+    ownVolumeId5?: string;
+    ownVolumeId6?: string;
+    ownVolumeId7?: string;
+    ownVolumeId8?: string;
+    totalNetPosition: string;
+    totalGrossTransactions: string;
+    totalPl: number;
 }
 
-export interface ITotalFollowTradingAccountId {
+export interface IPortfolioAccountId {
+    accountId: number;
+    avgPrice: string;
+    ownedVolume: string;
+    symbolCode: string;
+}
+
+export interface ITotalNetFollowAccountId {
     title: string;
-    id1: string;
-    id2: string;
-    id3: string;
-    id4: string;
-    id5: string;
-    id6: string;
-    id7: string;
-    id8: string;
-    id9: string;
-    id10: string;
-    id11: string;
+    totalNet1: string;
+    totalNet2: string;
+    totalNet3: string;
+    totalNet4: string;
+    totalNet5: string;
+    totalNet6: string;
+    totalNet7: string;
+    totalNet8: string;
+    totalNetRow: string;
+}
+
+export interface ITotalGrossFollowAccountId {
+    title: string;
+    totalGross1: string;
+    totalGross2: string;
+    totalGross3: string;
+    totalGross4: string;
+    totalGross5: string;
+    totalGross6: string;
+    totalGross7: string;
+    totalGross8: string;
+    totalGrossRow: string;
+}
+
+export interface ITotalPLFollowAccountId {
+    title: string;
+    totalPl: string;
 }
