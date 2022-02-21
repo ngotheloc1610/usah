@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LIST_TICKER_ADDED, LIST_TICKER_INFO, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -10,7 +10,6 @@ import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from '@mui/material';
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
@@ -30,7 +29,7 @@ const ListTicker = (props: IListTickerProps) => {
     const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
-    const [arrLastQuoteAdd, setArrLastQuoteAdd] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ADDED) || '[]'));
+    const [lstWatchingTickers, setLstWatchingTickers] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]'));
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
@@ -56,25 +55,29 @@ const ListTicker = (props: IListTickerProps) => {
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
             setLastQoutes(resp.quotesList);
             const lstLastQuote = resp.quotesList;
-            const lstArrLastQuoteAddId: number[] = [];
+            const listWatchingTickersCode: number[] = [];
             const lstArrLastQuote: ILastQuote[] = [];
-            if (arrLastQuoteAdd.length > 0 && lstLastQuote.length > 0) {
-                arrLastQuoteAdd.forEach(item => lstArrLastQuoteAddId.push(Number(item.symbolCode)));
-                lstLastQuote.forEach(item => {
-                    if (lstArrLastQuoteAddId.indexOf(Number(item.symbolCode)) !== -1) {
-                        lstArrLastQuote.push(item);
+            if (lstWatchingTickers.length > 0 && lstLastQuote.length > 0) {
+                lstWatchingTickers.forEach(item => listWatchingTickersCode.push(Number(item.symbolCode)));
+                listWatchingTickersCode.forEach(itemLastQuoteId => {
+                    const itemLastQuote = lstLastQuote.find(item => Number(item.symbolCode) === itemLastQuoteId);
+                    if (itemLastQuote) {
+                        lstArrLastQuote.push(itemLastQuote);
                     }
                 });
-                setArrLastQuoteAdd(lstArrLastQuote);
-                localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstArrLastQuote));
+                setLstWatchingTickers(lstArrLastQuote);
+                localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(lstArrLastQuote));
             }
         });
+        return () => {
+            lastQuotesRes.unsubscribe();
+        }
     }, [symbolList, msgSuccess]);
 
     useEffect(() => {
-        if (arrLastQuoteAdd.length > 0) {
+        if (lstWatchingTickers.length > 0) {
             let lstSymbolId: number[] = [];
-            arrLastQuoteAdd.forEach(item => {
+            lstWatchingTickers.forEach(item => {
                 lstSymbolId.push(Number(item.symbolCode));
             });
             setLstSymbolIdAdd(lstSymbolId);
@@ -82,9 +85,9 @@ const ListTicker = (props: IListTickerProps) => {
         if (!msgSuccess) {
             setCurrentPage(pageFirst)
         }
-        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, lstWatchingTickers);
         setPageShowCurrentLastQuote(dataCurrentPage);
-    }, [arrLastQuoteAdd])
+    }, [lstWatchingTickers])
 
     useEffect(() => {
         const listSymbolCode: string[] = [];
@@ -99,7 +102,7 @@ const ListTicker = (props: IListTickerProps) => {
     }, []);
 
     useEffect(() => {
-        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, lstWatchingTickers);
         setPageShowCurrentLastQuote(dataCurrentPage);
     }, [currentPage]);
 
@@ -241,26 +244,26 @@ const ListTicker = (props: IListTickerProps) => {
         } else {
             return;
         }
-        const listLastQuote: ILastQuote[] = arrLastQuoteAdd !== [] ? arrLastQuoteAdd : [];
+        const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
             }
-            setArrLastQuoteAdd(listLastQuote);
-            localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(listLastQuote));
+            setLstWatchingTickers(listLastQuote);
+            localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(listLastQuote));
         }
         const assignPageCurrent = listLastQuote.length % pageSizeTicker === 0 ? Math.trunc(listLastQuote.length / pageSizeTicker) : Math.trunc(listLastQuote.length / pageSizeTicker) + pageFirst;
         const pageCurrent = (listLastQuote.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
-        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, lstWatchingTickers);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
 
     const removeTicker = (itemLstQuote: ILastQuote) => {
-        const itemTickerAdded = arrLastQuoteAdd.findIndex(item => item.symbolCode === itemLstQuote.symbolCode);
-        let lstLastQuoteCurrent: ILastQuote[] = arrLastQuoteAdd;
+        const itemTickerAdded = lstWatchingTickers.findIndex(item => item.symbolCode === itemLstQuote.symbolCode);
+        let lstLastQuoteCurrent: ILastQuote[] = lstWatchingTickers;
 
         if (itemTickerAdded !== -1) {
             lstLastQuoteCurrent.splice(itemTickerAdded, pageFirst);
@@ -270,11 +273,11 @@ const ListTicker = (props: IListTickerProps) => {
             lstSymbolId.push(Number(item.symbolCode));
         });
         setLstSymbolIdAdd(lstSymbolId);
-        setArrLastQuoteAdd(lstLastQuoteCurrent);
-        localStorage.setItem(LIST_TICKER_ADDED, JSON.stringify(lstLastQuoteCurrent));
+        setLstWatchingTickers(lstLastQuoteCurrent);
+        localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(lstLastQuoteCurrent));
         const assignPageCurrent = lstLastQuoteCurrent.length % pageSizeTicker === 0 ? Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) : Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) + pageFirst;
         const pageCurrent = (lstLastQuoteCurrent.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
-        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
+        const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, lstWatchingTickers);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
@@ -323,14 +326,14 @@ const ListTicker = (props: IListTickerProps) => {
     )
 
     const _renderButtonNext = () => (
-        (currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && (arrLastQuoteAdd.length > 0)) && Math.trunc(arrLastQuoteAdd.length % pageSizeTicker) !== 0 &&
+        (currentPage !== Math.trunc(lstWatchingTickers.length / pageSizeTicker) + pageFirst && (lstWatchingTickers.length > 0)) && Math.trunc(lstWatchingTickers.length % pageSizeTicker) !== 0 &&
         <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
             <i className="bi bi-chevron-double-right" />
         </button>
     )
     const _conditionStyle = () => {
         const conditionBack = currentPage > pageFirst;
-        const conditionNext = currentPage !== Math.trunc(arrLastQuoteAdd.length / pageSizeTicker) + pageFirst && arrLastQuoteAdd.length > 0;
+        const conditionNext = currentPage !== Math.trunc(lstWatchingTickers.length / pageSizeTicker) + pageFirst && lstWatchingTickers.length > 0;
         return (conditionBack || conditionNext);
     }
     const _renderTemplateMonitoring = () => (
