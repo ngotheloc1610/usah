@@ -86,7 +86,6 @@ const ListTicker = (props: IListTickerProps) => {
             setCurrentPage(pageFirst)
         }
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
-        console.log(87, dataCurrentPage);
         setPageShowCurrentLastQuote(dataCurrentPage);
     }, [arrLastQuoteAdd])
 
@@ -104,7 +103,6 @@ const ListTicker = (props: IListTickerProps) => {
 
     useEffect(() => {
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
-        console.log(105, dataCurrentPage);
         setPageShowCurrentLastQuote(dataCurrentPage);
     }, [currentPage]);
 
@@ -259,7 +257,6 @@ const ListTicker = (props: IListTickerProps) => {
         const assignPageCurrent = listLastQuote.length % pageSizeTicker === 0 ? Math.trunc(listLastQuote.length / pageSizeTicker) : Math.trunc(listLastQuote.length / pageSizeTicker) + pageFirst;
         const pageCurrent = (listLastQuote.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
-        console.log(260, dataCurrentPage);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
@@ -281,7 +278,6 @@ const ListTicker = (props: IListTickerProps) => {
         const assignPageCurrent = lstLastQuoteCurrent.length % pageSizeTicker === 0 ? Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) : Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) + pageFirst;
         const pageCurrent = (lstLastQuoteCurrent.length > pageSizeTicker) ? assignPageCurrent : pageFirst;
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, arrLastQuoteAdd);
-        console.log(282, dataCurrentPage);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
     }
