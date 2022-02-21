@@ -112,9 +112,6 @@ const TickerSearch = (props: ITickerSearch) => {
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
             </div>
-            <div className="col-lg-1 col-md-3 mb-2 mb-md-0 ">
-                <a href="# " className="btn btn-sm d-block btn-primary-custom "><strong>Search</strong></a>
-            </div>
             <div className="col-lg-6">
                 {_renderRecentSearch()}
             </div>
