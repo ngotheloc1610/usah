@@ -1367,61 +1367,51 @@ export const NOTIFICATION_LIST: INotificationList[] = [
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8:00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you guideline for the system'
     },
     {
         unRead: false,
         state: true,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you new password in email'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Welcome customer, sign in successful'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     }
 ]
