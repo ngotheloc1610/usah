@@ -13,7 +13,13 @@
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = Function('return this')();
+var global = (function() {
+  if (this) { return this; }
+  if (typeof window !== 'undefined') { return window; }
+  if (typeof global !== 'undefined') { return global; }
+  if (typeof self !== 'undefined') { return self; }
+  return Function('return this')();
+}.call(null));
 
 var pricing_model_pb = require('./pricing_model_pb.js');
 goog.object.extend(proto, pricing_model_pb);
@@ -143,7 +149,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.UnsubscribeQuoteEventRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.UnsubscribeQuoteEventRequest.repeatedFields_, null);
 };
 goog.inherits(proto.UnsubscribeQuoteEventRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -988,6 +994,13 @@ proto.SubscribeQuoteEventResponse.prototype.setMsgText = function(value) {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.UnsubscribeQuoteEventRequest.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1019,7 +1032,7 @@ proto.UnsubscribeQuoteEventRequest.prototype.toObject = function(opt_includeInst
  */
 proto.UnsubscribeQuoteEventRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-
+    symbolCodeList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1056,6 +1069,10 @@ proto.UnsubscribeQuoteEventRequest.deserializeBinaryFromReader = function(msg, r
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addSymbolCode(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1085,6 +1102,50 @@ proto.UnsubscribeQuoteEventRequest.prototype.serializeBinary = function() {
  */
 proto.UnsubscribeQuoteEventRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getSymbolCodeList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * repeated string symbol_code = 1;
+ * @return {!Array<string>}
+ */
+proto.UnsubscribeQuoteEventRequest.prototype.getSymbolCodeList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.UnsubscribeQuoteEventRequest} returns this
+ */
+proto.UnsubscribeQuoteEventRequest.prototype.setSymbolCodeList = function(value) {
+  return jspb.Message.setField(this, 1, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.UnsubscribeQuoteEventRequest} returns this
+ */
+proto.UnsubscribeQuoteEventRequest.prototype.addSymbolCode = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.UnsubscribeQuoteEventRequest} returns this
+ */
+proto.UnsubscribeQuoteEventRequest.prototype.clearSymbolCodeList = function() {
+  return this.setSymbolCodeList([]);
 };
 
 
