@@ -35,6 +35,17 @@ function PortfolioTable(props: IPropsListPortfolio) {
         return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
     }
 
+    const getNameClass = (item: number) => {
+        if (item > 0) {
+            return "text-success"
+        }
+        if(item < 0 ) {
+            return "text-danger"
+        }else{
+            return ""
+        }
+    }
+
     const _rederPortfolioInvest = () => {
         const totalInvestedValue = accountPortfolio.reduce((acc, crr) => {
             return acc + Number(crr.investedValue)
@@ -44,26 +55,34 @@ function PortfolioTable(props: IPropsListPortfolio) {
             return acc + Number(crr.currentValue)
         }, 0)
 
-        const totalPl = accountPortfolio.reduce((acc, crr) => {
+        const TotalUnrealizedPl = accountPortfolio.reduce((acc, crr) => {
             return acc + Number(crr.unrealizedPl)
         }, 0)
+
+        const TotalRealizedPl = accountPortfolio.reduce((acc, crr) => {
+            return acc + Number(crr.realizedPl)
+        }, 0)        
 
         return (
             <div className="border p-3 mb-3">
                 <div className="row">
-                    <div className="col-md-3 text-center">
+                    <div className="col-md-2 text-center">
                         <div>Total Invested Value:</div>
                         <div className="fs-5 fw-bold">{formatCurrency(totalInvestedValue.toString())}</div>
                     </div>
-                    <div className="col-md-3 text-center">
+                    <div className="col-md-2 text-center">
                         <div>Total Current Value:</div>
                         <div className="fs-5 fw-bold">{formatCurrency(totalCurrentValue.toString())}</div>
                     </div>
-                    <div className="col-md-3 text-center">
-                        <div>Total P&amp;L:</div>
-                        <div className="fs-5 fw-bold text-success">{formatCurrency(totalPl.toString())}</div>
+                    <div className="col-md-2 text-center">
+                        <div>Total Unrealized PL:</div>
+                        <div className={`fs-5 fw-bold ${getNameClass(TotalUnrealizedPl)} `}>{formatCurrency(TotalUnrealizedPl.toString())}</div>
                     </div>
-                    <div className="col-md-3 order-0 order-md-4">
+                    <div className="col-md-2 text-center">
+                        <div>Total Realized PL:</div>
+                        <div className={`fs-5 fw-bold ${getNameClass(TotalRealizedPl)} `}>{formatCurrency(TotalRealizedPl.toString())}</div>
+                    </div>
+                    <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
                     </div>
                 </div>
@@ -80,8 +99,9 @@ function PortfolioTable(props: IPropsListPortfolio) {
             <th className="text-end fz-14 w-s" >Invested Value</th>
             <th className="text-end fz-14 w-s" >Market Price</th>
             <th className="text-end fz-14 w-s" >Current Value</th>
-            <th className="text-end fz-14 w-s" >P&amp;L</th>
-            <th className="text-end fz-14 w-s" >% P&amp;L</th>
+            <th className="text-end fz-14 w-s" >Unrealized PL</th>
+            <th className="text-end fz-14 w-s" >% Unrealized PL</th>
+            <th className="text-end fz-14 w-s" >Realized PL</th>
             {accountPortfolio.length > 6 && <th className="text-end fz-14 w-17"></th>}
         </tr>
     )
@@ -98,11 +118,15 @@ function PortfolioTable(props: IPropsListPortfolio) {
                 <td className="text-end w-s td" >{formatCurrency(item.investedValue)}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(item.currentValue)}</td>
-                <td className="text-end w-s td fw-600" ><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
+                <td className="text-end w-s td fw-600" ><span className={getNameClass(Number(item.unrealizedPl))}>
                     {formatCurrency(item.unrealizedPl)}</span>
                 </td>
-                <td className="text-end w-s td fw-600"><span className={Number(item.unrealizedPl) > 0 ? "text-success" : "text-danger"}>
-                    {(Number(item.unrealizedPl) / Number(item.investedValue) * 100).toFixed(2) + '%'}</span></td>
+                <td className="text-end w-s td fw-600"><span className={getNameClass(Number(item.unrealizedPl))}>
+                    {(Number(item.unrealizedPl) / Number(item.investedValue) * 100).toFixed(2) + '%'}</span>
+                </td>
+                <td className="text-end w-s td fw-600"><span className={getNameClass(Number(item.realizedPl))}>
+                    {formatCurrency(item.realizedPl)}</span>
+                </td>
             </tr>
         ))
 
