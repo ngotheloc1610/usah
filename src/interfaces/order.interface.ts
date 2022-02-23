@@ -302,3 +302,35 @@ export interface ITickerBindingOrder {
     symbolCode: string;
     symbolName: string;
 }
+
+export interface ITradingAccountVertical {
+    ticker: string;
+    ownVolumeAccountId: (string | undefined)[];
+    totalNetPosition: string;
+    totalGrossTransactions: string;
+    totalPl: number;
+}
+
+export interface IPortfolioAccountId {
+    accountId: number;
+    avgPrice: string;
+    ownedVolume: string;
+    symbolCode: string;
+}
+
+export interface ITotalNetFollowAccountId {
+    title: string;
+    totalNetFollowAccountId: string[];
+    totalNetRow: string;
+}
+
+export interface ITotalGrossFollowAccountId {
+    title: string;
+    totalGrossFollowAccountId: string[];
+    totalGrossRow: string;
+}
+
+export interface ITotalPLFollowAccountId {
+    title: string;
+    totalPl: string[];
+}
