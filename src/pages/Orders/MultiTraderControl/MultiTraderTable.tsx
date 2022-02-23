@@ -176,7 +176,7 @@ const MultiTraderTable = () => {
         }
     }
 
-    const getTotalNetPositionRow = (ticker: string) => {
+    const getTotalNetFollowSymbolCode = (ticker: string) => {
         const symbolId = listTicker.find(item => item.ticker === ticker)?.symbolId
         return totalAcount.reduce((acc, crr) => {
             const avgPrice = crr.find(item => Number(item.symbolCode) === symbolId)?.avgPrice ?? 0
@@ -185,7 +185,7 @@ const MultiTraderTable = () => {
         }, 0)
     }
 
-    const getTotalGrossTransactionsRow = (ticker: string) => {
+    const getTotalGrossFollowSymbolCode = (ticker: string) => {
         const symbolId = listTicker.find(item => item.ticker === ticker)?.symbolId
         const tradeHistoryFilter = dataTradeHistory.filter(item => Number(item.tickerCode) === symbolId)
         return tradeHistoryFilter.reduce((acc, crr) => {
@@ -201,18 +201,14 @@ const MultiTraderTable = () => {
     const _renderRowTradingAccount = () => {
         const fakeListData: ITradingAccountVertical[] = []
         listTicker.map(item => {
+            const ownVolumeAccountId = MOCDATA_LIST_ID.map(accountId => {
+                return getHoldingvolume(Number(accountId), item.ticker)
+            })
             const dataItem: ITradingAccountVertical = {
                 ticker: item.ticker,
-                ownVolumeId1: getHoldingvolume(200001, item.ticker),
-                ownVolumeId2: getHoldingvolume(200002, item.ticker),
-                ownVolumeId3: getHoldingvolume(200003, item.ticker),
-                ownVolumeId4: getHoldingvolume(200004, item.ticker),
-                ownVolumeId5: getHoldingvolume(200005, item.ticker),
-                ownVolumeId6: getHoldingvolume(200006, item.ticker),
-                ownVolumeId7: getHoldingvolume(200007, item.ticker),
-                ownVolumeId8: getHoldingvolume(200008, item.ticker),
-                totalNetPosition: formatCurrency(getTotalNetPositionRow(item.ticker).toFixed(0)),
-                totalGrossTransactions: formatCurrency(getTotalGrossTransactionsRow(item.ticker).toString()),
+                ownVolumeAccountId,
+                totalNetPosition: formatCurrency(getTotalNetFollowSymbolCode(item.ticker).toFixed(0)),
+                totalGrossTransactions: formatCurrency(getTotalGrossFollowSymbolCode(item.ticker).toString()),
                 totalPl: 0
             }
             fakeListData.push(dataItem)
@@ -220,7 +216,7 @@ const MultiTraderTable = () => {
         setFakeData(fakeListData)
     }
 
-    const getTotalNetColumn = (accountId: number) => {
+    const getTotalNetFollowAccountId = (accountId: number) => {
         for (var i = 0; i < totalAcount.length; i++) {
             const account = totalAcount.find((item, index) => (index + 1) === accountId)
             return account && account.reduce((acc, crr) => (acc + Number(crr.avgPrice) * Number(crr.ownedVolume)), 0)?.toString()
@@ -228,8 +224,8 @@ const MultiTraderTable = () => {
     }
 
     const getAllTotalNet = () => {
-        return Number(getTotalNetColumn(1)) + Number(getTotalNetColumn(2)) + Number(getTotalNetColumn(3)) + Number(getTotalNetColumn(4))
-            + Number(getTotalNetColumn(5)) + Number(getTotalNetColumn(6)) + Number(getTotalNetColumn(7)) + Number(getTotalNetColumn(8))
+        return Number(getTotalNetFollowAccountId(1)) + Number(getTotalNetFollowAccountId(2)) + Number(getTotalNetFollowAccountId(3)) + Number(getTotalNetFollowAccountId(4))
+            + Number(getTotalNetFollowAccountId(5)) + Number(getTotalNetFollowAccountId(6)) + Number(getTotalNetFollowAccountId(7)) + Number(getTotalNetFollowAccountId(8))
     }
 
     const getTotalGross = (accountId: number): number => {
@@ -237,47 +233,41 @@ const MultiTraderTable = () => {
     }
 
     const getAlltotalGross = () => {
-        return getTotalGross(200001) * 8
+        return getTotalGross(200001)
     }
 
     const _renderColumnTradingAccount = () => {
         const fakeColumnTotalNet: ITotalNetFollowAccountId[] = [];
+        const totalNetFollowAccountId = MOCDATA_LIST_ID.map((accountId, index) => {
+            return formatCurrency(getTotalNetFollowAccountId(index + 1) || '0');
+        });
         const dataItemTotalNet = {
             title: 'Total Net Position',
-            totalNet1: formatCurrency(getTotalNetColumn(1) || '0'),
-            totalNet2: formatCurrency(getTotalNetColumn(2) || '0'),
-            totalNet3: formatCurrency(getTotalNetColumn(3) || '0'),
-            totalNet4: formatCurrency(getTotalNetColumn(4) || '0'),
-            totalNet5: formatCurrency(getTotalNetColumn(5) || '0'),
-            totalNet6: formatCurrency(getTotalNetColumn(6) || '0'),
-            totalNet7: formatCurrency(getTotalNetColumn(7) || '0'),
-            totalNet8: formatCurrency(getTotalNetColumn(8) || '0'),
+            totalNetFollowAccountId,
             totalNetRow: formatCurrency(getAllTotalNet().toString())
-        }
-
+        };
         fakeColumnTotalNet.push(dataItemTotalNet);
         setFakeColumnTotalNet(fakeColumnTotalNet);
 
         const fakeColumnTotalGross: ITotalGrossFollowAccountId[] = [];
+        const totalGrossFollowAccountId = MOCDATA_LIST_ID.map((accountId, index) => {
+            return formatCurrency(getTotalGross(Number(accountId)).toString());
+        });
         const dataItemTotalGross = {
             title: 'Total Gross Transactions',
-            totalGross1: formatCurrency(getTotalGross(200001).toString()),
-            totalGross2: formatCurrency(getTotalGross(200001).toString()),
-            totalGross3: formatCurrency(getTotalGross(200001).toString()),
-            totalGross4: formatCurrency(getTotalGross(200001).toString()),
-            totalGross5: formatCurrency(getTotalGross(200001).toString()),
-            totalGross6: formatCurrency(getTotalGross(200001).toString()),
-            totalGross7: formatCurrency(getTotalGross(200001).toString()),
-            totalGross8: formatCurrency(getTotalGross(200001).toString()),
+            totalGrossFollowAccountId,
             totalGrossRow: formatCurrency(getAlltotalGross().toString())
         }
         fakeColumnTotalGross.push(dataItemTotalGross)
         setFakeColumnTotalGross(fakeColumnTotalGross)
 
         const fakeColumnTotalPl: ITotalPLFollowAccountId[] = [];
+        const totalPl = MOCDATA_LIST_ID.map((accountId, index) => {
+            return '0';
+        });
         const dataItemTotalPl = {
             title: 'Total Realized P/L',
-            totalPl: '0',
+            totalPl,
         }
         fakeColumnTotalPl.push(dataItemTotalPl)
         setFakeColumnTotalPl(fakeColumnTotalPl)
@@ -299,66 +289,52 @@ const MultiTraderTable = () => {
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-                    {fakeData.map((item: ITradingAccountVertical, index: number) => (
+                    {fakeData.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
-                            <td>{item.ownVolumeId1}</td>
-                            <td>{item.ownVolumeId2}</td>
-                            <td>{item.ownVolumeId3}</td>
-                            <td>{item.ownVolumeId4}</td>
-                            <td>{item.ownVolumeId5}</td>
-                            <td>{item.ownVolumeId6}</td>
-                            <td>{item.ownVolumeId7}</td>
-                            <td>{item.ownVolumeId8}</td>
+
+                            {item.ownVolumeAccountId.map((ownVolumeItem, index) => <td key={index}>{ownVolumeItem}</td>)}
+
                             <td>{item.totalNetPosition}</td>
                             <td>{item.totalGrossTransactions}</td>
                             <td>{item.totalPl}</td>
                         </tr>
                     ))}
 
-                    {fakeColumnTotalNet.map((item: any, index: number) => (
+                    {fakeColumnTotalNet.map((item: ITotalNetFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
-                            <td className="center">{item.totalNet1}</td>
-                            <td className="center">{item.totalNet2}</td>
-                            <td className="center">{item.totalNet3}</td>
-                            <td className="center">{item.totalNet4}</td>
-                            <td className="center">{item.totalNet5}</td>
-                            <td className="center">{item.totalNet6}</td>
-                            <td className="center">{item.totalNet7}</td>
-                            <td className="center">{item.totalNet8}</td>
+
+                            {item.totalNetFollowAccountId.map((totalNetItem, index) =>
+                                <td className="center" key={index}>{totalNetItem}</td>)
+                            }
+
                             <td className="center">{item.totalNetRow}</td>
                             <td className="center"></td>
                             <td className="center"></td>
                         </tr>
                     ))}
-                    {fakeColumnTotalGross.map((item: any, index: number) => (
+
+                    {fakeColumnTotalGross.map((item: ITotalGrossFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
-                            <td className="center">{item.totalGross1}</td>
-                            <td className="center">{item.totalGross2}</td>
-                            <td className="center">{item.totalGross3}</td>
-                            <td className="center">{item.totalGross4}</td>
-                            <td className="center">{item.totalGross5}</td>
-                            <td className="center">{item.totalGross6}</td>
-                            <td className="center">{item.totalGross7}</td>
-                            <td className="center">{item.totalGross8}</td>
+
+                            {item.totalGrossFollowAccountId.map((totalGrossItem, index) =>
+                                <td className="center" key={index}>{totalGrossItem}</td>)
+                            }
+
                             <td className="center"></td>
                             <td className="center">{item.totalGrossRow}</td>
                             <td className="center"></td>
                         </tr>
                     ))}
-                    {fakeColumnTotalPl.map((item: any, index: number) => (
+
+                    {fakeColumnTotalPl.map((item: ITotalPLFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
-                            <td className="center">{item.totalPl}</td>
+
+                            {item.totalPl.map((totalPlItem, index) => <td className="center" key={index}>{totalPlItem}</td>)}
+
                             <td className="center"></td>
                             <td className="center"></td>
                             <td className="center">{item.totalPl}</td>

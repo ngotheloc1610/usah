@@ -305,14 +305,7 @@ export interface ITickerBindingOrder {
 
 export interface ITradingAccountVertical {
     ticker: string;
-    ownVolumeId1?: string;
-    ownVolumeId2?: string;
-    ownVolumeId3?: string;
-    ownVolumeId4?: string;
-    ownVolumeId5?: string;
-    ownVolumeId6?: string;
-    ownVolumeId7?: string;
-    ownVolumeId8?: string;
+    ownVolumeAccountId: (string | undefined)[];
     totalNetPosition: string;
     totalGrossTransactions: string;
     totalPl: number;
@@ -327,31 +320,17 @@ export interface IPortfolioAccountId {
 
 export interface ITotalNetFollowAccountId {
     title: string;
-    totalNet1: string;
-    totalNet2: string;
-    totalNet3: string;
-    totalNet4: string;
-    totalNet5: string;
-    totalNet6: string;
-    totalNet7: string;
-    totalNet8: string;
+    totalNetFollowAccountId: string[];
     totalNetRow: string;
 }
 
 export interface ITotalGrossFollowAccountId {
     title: string;
-    totalGross1: string;
-    totalGross2: string;
-    totalGross3: string;
-    totalGross4: string;
-    totalGross5: string;
-    totalGross6: string;
-    totalGross7: string;
-    totalGross8: string;
+    totalGrossFollowAccountId: string[];
     totalGrossRow: string;
 }
 
 export interface ITotalPLFollowAccountId {
     title: string;
-    totalPl: string;
+    totalPl: string[];
 }
