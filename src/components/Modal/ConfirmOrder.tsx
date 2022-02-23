@@ -59,7 +59,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
-            order.setAmount(`${volumeModify > params.volume ? Number(volumeModify) - Number(params.volume) : volumeModify}`);
+            order.setAmount(`${volumeModify}`);
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerId);
