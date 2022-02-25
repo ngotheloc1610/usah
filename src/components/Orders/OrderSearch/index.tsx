@@ -105,8 +105,6 @@ function OrderHistorySearch() {
             rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log(108, orderHistoryRequest);
-            
         }
     }
 
