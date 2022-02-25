@@ -102,7 +102,7 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const lotSize = lstSymbols.find(o => o?.ticker === ticker)?.lotSize;
         if (lotSize) {
-            return isNaN(Number(lotSize)) ? Number(lotSize) : 1;
+            return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
         return 1;
     }
@@ -111,7 +111,7 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tickSize = lstSymbols.find(o => o?.ticker === ticker)?.tickSize;
         if (tickSize) {
-            return isNaN(Number(tickSize)) ? Number(tickSize) : 1;
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
         return 1;
     }
