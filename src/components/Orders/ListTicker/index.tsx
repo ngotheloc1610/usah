@@ -354,10 +354,10 @@ const ListTicker = (props: IListTickerProps) => {
 
                 <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 mr">
                     <div>
-                        {_renderButtonNext()}
+                        {_renderButtonBack()}
                     </div>
                     <div>
-                        {_renderButtonBack()}
+                        {_renderButtonNext()}
                     </div>
                 </div>
             </div>
