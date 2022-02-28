@@ -17,14 +17,13 @@ import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
+import { ICON_FILE } from "../../../assets";
 
 
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
-    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
-    const [dataConfirm, setDataConfirm] = useState<IListOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -103,7 +102,7 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const lotSize = lstSymbols.find(o => o?.ticker === ticker)?.lotSize;
         if (lotSize) {
-            return isNaN(Number(lotSize)) ? Number(lotSize) : 1;
+            return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
         return 1;
     }
@@ -112,14 +111,14 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tickSize = lstSymbols.find(o => o?.ticker === ticker)?.tickSize;
         if (tickSize) {
-            return isNaN(Number(tickSize)) ? Number(tickSize) : 1;
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
         return 1;
     }
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ?  (Number(itemSymbol.volume) - lotSize) : lotSize;
+        const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ? (Number(itemSymbol.volume) - lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -127,7 +126,7 @@ const MultipleOrders = () => {
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ?  (Number(itemSymbol.volume) + lotSize) : lotSize;
+        const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ? (Number(itemSymbol.volume) + lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -135,7 +134,7 @@ const MultipleOrders = () => {
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) - tickSize) > 0 ?  (Number(itemSymbol.price) - tickSize) : tickSize;
+        const newValue = (Number(itemSymbol.price) - tickSize) > 0 ? (Number(itemSymbol.price) - tickSize) : tickSize;
         listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -143,7 +142,7 @@ const MultipleOrders = () => {
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) + tickSize) > 0 ?  (Number(itemSymbol.price) + tickSize) : tickSize;
+        const newValue = (Number(itemSymbol.price) + tickSize) > 0 ? (Number(itemSymbol.price) + tickSize) : tickSize;
         listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -195,7 +194,7 @@ const MultipleOrders = () => {
                     name="allSelect"
                     onChange={(e: any) => handleCheckedAll(e.target.checked)}
                     checked={listSelected.length === listTickers.length && listSelected.length > 0}
-                     />
+                />
             </th>
             <th><span>No.</span></th>
             <th className="text-left"><span>Ticker Code</span></th>
@@ -230,7 +229,7 @@ const MultipleOrders = () => {
     const _renderDataMultipleOrders = () => (
         listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
-                <td><input type="checkbox" value=""  name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
+                <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left">{item.ticker}</td>
                 <td className="text-left">{getTickerName(item.ticker)}</td>
@@ -238,7 +237,7 @@ const MultipleOrders = () => {
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
                     ${(getOrderSideValue(item.orderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
-                    onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
+                        onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
                         <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-left">Buy</option>
                         <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-left">Sell</option>
                     </select>
@@ -293,12 +292,12 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap" style={{width: '15%'}}><span>Ticker Code</span></th>
-            <th className="text-center text-nowrap" style={{width: '25%'}}><span>Ticker Name</span></th>
-            <th className="text-end text-nowrap" style={{width: '15%'}}><span>Order Type</span></th>
-            <th className="text-end text-center text-nowrap" style={{width: '15%'}}><span>Order Side</span></th>
-            <th className="text-end text-nowrap " style={{width: '15%'}}><span>Volume</span></th>
-            <th className="text-end text-nowrap" style={{width: '15%'}}><span>Price</span></th>
+            <th className="text-center text-nowrap" style={{ width: '15%' }}><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap" style={{ width: '25%' }}><span>Ticker Name</span></th>
+            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Order Type</span></th>
+            <th className="text-end text-center text-nowrap" style={{ width: '15%' }}><span>Order Side</span></th>
+            <th className="text-end text-nowrap " style={{ width: '15%' }}><span>Volume</span></th>
+            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
@@ -391,36 +390,36 @@ const MultipleOrders = () => {
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-     
+
         const list = [...listTickers];
         for (let i = 1; i < dataStringLines.length; i++) {
-          const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-          if (headers && row.length == headers.length) {
-            const obj: any = {};
-            for (let j = 0; j < headers.length; j++) {
-              let d = row[j];
-              if (d.length > 0) {
-                if (d[0] == '"')
-                  d = d.substring(1, d.length - 1);
-                if (d[d.length - 1] == '"')
-                  d = d.substring(d.length - 2, 1);
-              }
-              if (headers[j]) {
-                obj[headers[j]] = d;
-              }
-            }
-
-            if (Object.values(obj).filter(x => x).length > 0) {
-                const tmp: ISymbolMultiOrder = {
-                    no: obj.No,
-                    orderSide: obj.OrderSide,
-                    price: obj.Price,
-                    ticker: obj.Ticker,
-                    volume: obj.Volume
+            const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+            if (headers && row.length == headers.length) {
+                const obj: any = {};
+                for (let j = 0; j < headers.length; j++) {
+                    let d = row[j];
+                    if (d.length > 0) {
+                        if (d[0] == '"')
+                            d = d.substring(1, d.length - 1);
+                        if (d[d.length - 1] == '"')
+                            d = d.substring(d.length - 2, 1);
+                    }
+                    if (headers[j]) {
+                        obj[headers[j]] = d;
+                    }
                 }
-                list.push(tmp);
+
+                if (Object.values(obj).filter(x => x).length > 0) {
+                    const tmp: ISymbolMultiOrder = {
+                        no: obj.No,
+                        orderSide: obj.OrderSide,
+                        price: obj.Price,
+                        ticker: obj.Ticker,
+                        volume: obj.Volume
+                    }
+                    list.push(tmp);
+                }
             }
-          }
         }
         setListTickers(list);
     }
@@ -429,15 +428,15 @@ const MultipleOrders = () => {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = (evt: any) => {
-          /* Parse data */
-          const bstr = evt.target.result;
-          const wb = XLSX.read(bstr, { type: 'binary' });
-          /* Get first worksheet */
-          const wsname = wb.SheetNames[0];
-          const ws = wb.Sheets[wsname];
-          /* Convert array of arrays */
-          const data = XLSX.utils.sheet_to_csv(ws);
-          processData(data);
+            /* Parse data */
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, { type: 'binary' });
+            /* Get first worksheet */
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            /* Convert array of arrays */
+            const data = XLSX.utils.sheet_to_csv(ws);
+            processData(data);
         };
         reader.readAsBinaryString(file);
     }
@@ -475,11 +474,12 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary">{title}</label>
-                <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                value={title.toLocaleLowerCase() === 'price' ? price : volume}
-                thousandseparator="{true}" placeholder="" onChange={(e) => handleChangeValue(e.target.value, title)}
-                 />
+                <label className="text text-secondary" style={{float: 'left'}}>{title}</label>
+                <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                    value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
+                    thousandseparator="{true}" placeholder="" 
+                    onChange={(e) => handleChangeValue(e.target.value, title)}
+                />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
@@ -533,10 +533,10 @@ const MultipleOrders = () => {
             }
             const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
             const currentPrice = Number(price);
-             const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+            const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
             setPrice(newPrice);
         }
-        
+
     }
 
     const handleLowerPrice = () => {
@@ -550,7 +550,7 @@ const MultipleOrders = () => {
             }
             const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
             const currentPrice = Number(price);
-             const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+            const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
             setPrice(newPrice);
         }
     }
@@ -570,15 +570,15 @@ const MultipleOrders = () => {
             lstStr.push(`${item.ticker} - ${item.tickerName}`);
         });
         return <Autocomplete
-                className='ticker-input'
-                onChange={(event: any) => handleChangeTicker(event.target.innerText)}
-                onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
-                disablePortal
-                sx={{ width: 300 }}
-                value={ticker}
-                options={lstStr}
-                renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
-            />
+            className='ticker-input'
+            onChange={(event: any) => handleChangeTicker(event.target.innerText)}
+            onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
+            disablePortal
+            sx={{ width: 300 }}
+            value={ticker}
+            options={lstStr}
+            renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
+        />
     }
 
     const disableButtonPlace = () => {
@@ -619,53 +619,53 @@ const MultipleOrders = () => {
                 Add Order
                 <span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span>
             </div>
-            <div className='content text-center' style={{height: '600px'}}>
-            <form action="#" className="order-form p-2 border shadow my-3">
-            <div className="order-btn-group d-flex align-items-stretch mb-2">
-                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
-                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
-            </div>
-            <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                <label className="text text-secondary">Ticker</label>
-                <div className="fs-18 mr-3">
-                    {renderSymbolSelect()}
-                </div>
-            </div>
+            <div className='content text-center' style={{ height: '600px' }}>
+                <form action="#" className="order-form p-2 border shadow my-3">
+                    <div className="order-btn-group d-flex align-items-stretch mb-2">
+                        {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
+                        {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
+                    </div>
+                    <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
+                        <label className="text text-secondary">Ticker</label>
+                        <div className="fs-18 mr-3">
+                            {renderSymbolSelect()}
+                        </div>
+                    </div>
 
 
-            {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+                    {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
+                    {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
-            <div className="border-top">
+                    <div className="border-top">
 
-            <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
-            disabled={disableButtonPlace()}
-            onClick={handlePlaceOrder} >Save</button>
-            </div>
-        </form>
+                        <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
+                            disabled={disableButtonPlace()}
+                            onClick={handlePlaceOrder} >Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     )
 
     const _renderPopupConfirm = () => {
         return <div className="popup-box multiple-Order" >
-            <div className="box d-flex" style={{width: '40%'}}>
+            <div className="box d-flex" style={{ width: '40%' }}>
                 Multiple Orders
                 <span className="close-icon position-close-popup" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span>
             </div>
-            <div className='content text-center' style={{width: '40%'}}>
+            <div className='content text-center' style={{ width: '40%' }}>
                 <div className="table table-responsive mh-500 tableFixHead">
                     <table className="table table-sm table-hover mb-0 dataTable no-footer">
                         <thead>
-                        {_renderHearderMultipleOrdersConfirm()}
+                            {_renderHearderMultipleOrdersConfirm()}
                         </thead>
                         <tbody>
-                        {_renderDataMultipleOrdersConfirm()}
+                            {_renderDataMultipleOrdersConfirm()}
                         </tbody>
                     </table>
                 </div>
-                
-                
+
+
                 <div className="text-end mb-3 mt-10">
                     <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
                     <a href="#" className="btn btn-primary btn-submit" onClick={sendMessMultiRequest}>
@@ -674,45 +674,73 @@ const MultipleOrders = () => {
             </div>
         </div>
     }
+    const _renderElementImport = () => (
+        <div className="w-persent-30 border-1 mt-30 mr mb-30">
+            <div className="header-import">
+                <span className="m-3">Import</span>
+            </div>
+            <div className='text-center mt-30'>
+                <div>
+                    <img src={ICON_FILE} className="img-responsive" alt="Image" />
+                </div>
+                <span className="label text-nowrap mb-3 fw-600">Select a Excel file to import</span>
+                <div className="mb-30 mt-30">
+                    <div className="upload-btn-wrapper">
+                        <button className="btn btn-upload">Load File</button>
+                        <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+    const _renderDataTableListOrder = () => (
+        <div className="card-modify mb-3">
+            <div className="card-body p-0 mb-3 table table-responsive mh-500 tableFixHead">
+                <table className="table table-sm table-hover mb-0 dataTable no-footer">
+                    <thead>
+                        {_renderHearderMultipleOrders()}
+                    </thead>
+                    <tbody>
+                        {_renderDataMultipleOrders()}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+    const _renderPagination = () => (
+        <div className="m-3">
+            <Pagination />
+        </div>
+    )
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">Multiple Orders</h6>
                 </div>
+
+
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
                         <div className="upload-btn-wrapper">
-                            <button className="btn btn-upload">Upload a file</button>
-                            <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
+                            <button className="btn btn-upload">Download</button>
                         </div>
                     </div>
                     {listSelected.length > 0 &&
                         <div className="d-flex">
-                        <button type="button" className="btn btn-danger ml-4" onClick={deleteRecord}>Delete</button>
-                        <div className="d-flex">
-                            <button type="button" className="btn btn-warning  ml-4">{listSelected.length} Selected</button>
-                            <button type="button" className="btn btn-primary" style={{marginLeft: '5px'}} onClick={showScreenConfirmOrder}>Execute</button>
+                            <button type="button" className="btn btn-danger ml-4" onClick={deleteRecord}>Delete</button>
+                            <div className="d-flex">
+                                <button type="button" className="btn btn-warning  ml-4">{listSelected.length} Selected</button>
+                                <button type="button" className="btn btn-primary" style={{ marginLeft: '5px' }} onClick={showScreenConfirmOrder}>Execute</button>
+                            </div>
                         </div>
-                    </div>
                     }
                 </div>
-                <div className="card-modify mb-3">
-                    <div className="card-body p-0 mb-3 table table-responsive mh-500 tableFixHead">
-                        <table className="table table-sm table-hover mb-0 dataTable no-footer">
-                            <thead>
-                                {_renderHearderMultipleOrders()}
-                            </thead>
-                            <tbody>
-                                {_renderDataMultipleOrders()}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div className="m-3">
-                    <Pagination />
-                </div>
+                {listTickers.length === 0 && _renderElementImport()}
+                {listTickers.length > 0 && _renderDataTableListOrder()}
+
+                {listTickers.length > 0 && _renderPagination()}
             </div>
         </div>
         {showModalConfirmMultiOrders && _renderPopupConfirm()}

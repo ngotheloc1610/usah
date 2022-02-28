@@ -45,10 +45,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleVolumeModify = (valueVolume: string) => {
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
-        if (Number(onlyNumberVolumeChange) > Number(params.volume)) {
-            setVolumeModify(formatNumber(params.volume));
-            return;
-        }
         setVolumeModify(onlyNumberVolumeChange);
     }
 
@@ -231,10 +227,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const handleUpperVolume = () => {
         const currentVol = Number(volumeModify);
         let nerwVol = currentVol + lotSize;
-        if (nerwVol > Number(params.volume)) {
-            setVolumeModify(currentVol.toString());
-            return
-        }
         setVolumeModify(nerwVol.toString());
 
     }
@@ -269,7 +261,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-left w-90'></td>
             <td className='text-end'>{value}</td>
         </tr>
     )
@@ -277,7 +268,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-left w-90'></td>
             <td className='text-end'>
                 {isModify ? <div className="border d-flex h-46">
                     <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">

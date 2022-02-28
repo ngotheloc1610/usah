@@ -17,6 +17,7 @@ import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import PopUpConfirm from "../../Modal/PopUpConfirm";
 interface IPropsListOrder {
     msgSuccess: string;
 }
@@ -36,13 +37,17 @@ const paramModifiCancelDefault: IParamOrder = {
 const ListOrder = (props: IPropsListOrder) => {
     const { msgSuccess } = props;
     const tradingModelPb: any = tspb;
-    const [getDataOrder, setGetDataOrder] = useState<IListOrder[]>([]);
+    const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
     const [isCancel, setIsCancel] = useState(false);
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(paramModifiCancelDefault);
     const [statusOrder, setStatusOrder] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
+    const [totalOrder, setTotalOrder] = useState<number>(0);
+    const [messageSuccess, setMessageSuccess] = useState<string>('');
+    const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -56,7 +61,8 @@ const ListOrder = (props: IPropsListOrder) => {
 
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
-            setGetDataOrder(response.orderList);
+            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
     }, []);
@@ -64,10 +70,11 @@ const ListOrder = (props: IPropsListOrder) => {
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
-            setGetDataOrder(response.orderList);
+            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
-    }, [msgSuccess]);
+    }, [msgSuccess, messageSuccess]);
 
     const sendListOrder = () => {
         const paramStr = window.location.search;
@@ -144,9 +151,6 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
-
-    const listOrderSortDate: IListOrder[] = getDataOrder.sort((a, b) => b.time - a.time);
-
     const getTickerName = (symbolId: string): string => {
         return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
     }
@@ -198,11 +202,13 @@ const ListOrder = (props: IPropsListOrder) => {
     const togglePopup = (isCloseModifyCancel: boolean) => {
         setIsModify(isCloseModifyCancel);
         setIsCancel(isCloseModifyCancel);
+        setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = () => (
-        <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
-    )
+    const _rendetMessageSuccess = () => {
+        setMessageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
+        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+    }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -226,11 +232,38 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
+    const btnCancelAllConfirm = () => {
+        const dataSelected = dataOrder.filter(item => item.isChecked);
+        setDataSelected(dataSelected);
+        setIsCancelAll(true);
+        setTotalOrder(dataSelected.length);
+    }
+    const handleChecked = (e) => {
+        const { name, checked } = e.target;
+        if (name === "allSelect") {
+            const isSelectAll = dataOrder.map((order) => {
+                return { ...order, isChecked: checked };
+            });
+            setDataOrder(isSelectAll);
+        } else {
+            let tempOrder = dataOrder.map((order, index) =>
+                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
+            );
+            setDataOrder(tempOrder);
+        }
+    }
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
                 <thead>
                     <tr>
+                        <th>
+                            <input type="checkbox" value=""
+                                name="allSelect"
+                                onChange={handleChecked}
+                                checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
+                            />
+                        </th>
                         <th className="sorting_disabled">
                             <span className="text-ellipsis">Order ID</span>
                         </th>
@@ -255,7 +288,10 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Datetime</span>
                         </th>
-                        <th className="text-end sorting_disabled">&nbsp;
+                        <th className="text-end sorting_disabled">
+
+                            {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+
                         </th>
                     </tr>
                 </thead>
@@ -266,9 +302,18 @@ const ListOrder = (props: IPropsListOrder) => {
         );
     }
     const getListDataOrder = () => (
-        listOrderSortDate.map((item, index) => {
+        dataOrder.map((item, index) => {
             return (
                 <tr key={index} className="odd">
+                    <td>
+                        <div className="form-check">
+                            <input className="form-check-input"type="checkbox" value=""
+                                checked={item?.isChecked || false}
+                                name={index.toString()}
+                                onChange={handleChecked}
+                                id="all" />
+                        </div>
+                    </td>
                     <td className="fm">{item.orderId}</td>
                     <td>{getTickerCode(item.symbolCode.toString())}</td>
                     <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
@@ -313,6 +358,9 @@ const ListOrder = (props: IPropsListOrder) => {
                 handleOrderResponse={getStatusOrderResponse}
                 params={paramModifyCancel}
                 handleStatusModifyCancel={getStatusModifyCancel} />}
+            {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
+                totalOrder={totalOrder} listOrder={dataSelected}
+                handleOrderResponse={getStatusOrderResponse} />}
         </>
     )
 }

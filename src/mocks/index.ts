@@ -829,7 +829,7 @@ export const DATA_BID_PRICE = [
     },
 ];
 
-export const ORDER_BOOK_HEADER = ['ask price', 'price', 'bid price'];
+export const ORDER_BOOK_HEADER = ['ask volume', 'price', 'bid volume'];
 
 export const ORDER_HISTORY: IOrderHistory[] = [
     {
@@ -1367,61 +1367,51 @@ export const NOTIFICATION_LIST: INotificationList[] = [
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8:00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you guideline for the system'
     },
     {
         unRead: false,
         state: true,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you new password in email'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Welcome customer, sign in successful'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     }
 ]
@@ -1565,6 +1555,70 @@ export const defaultListDataOrder: IListOrder[] = [
         triggerPrice: '',
         uid: '',
         filledAmount: '',
+    }
+]
+
+// TODO: Don't have MatchingHistory message in proto so use fake data
+export const DATA_MATCHING_DETAIL = [
+    {
+        subNo: 1,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Accepted',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '2000',
+        exPrice: '',
+        exVolume: '',
+        remainVolume: '2,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
+    },
+    {
+        subNo: 2,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Modified',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
+    },
+    {
+        subNo: 3,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Partial',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '300',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: 'Change order price',
+    },
+    {
+        subNo: 4,
+        orderId: 10002333,
+        ticker: 'AAPL',
+        orderStatus: 'Filled',
+        side: 100,
+        type: 'Limit',
+        orderPrice: '158.43',
+        orderVolume: '1000',
+        exPrice: '158.45',
+        exVolume: '700',
+        remainVolume: '1,000',
+        date: 'Dec 2 2021 10:01:50',
+        comment: '',
     }
 ]
 

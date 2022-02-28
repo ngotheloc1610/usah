@@ -7,12 +7,16 @@ import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+import ModalMatching from "../../Modal/ModalMatching";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
     const tradingModelPb: any = tspb;
+    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
+    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
     const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [showModalDetail, setShowModalDetail] = useState(false)
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -47,8 +51,9 @@ function OrderTable(props: IPropListOrderHistory) {
         return STATE.find(item => item.code === state)?.title;
     }
 
-    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
-    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
+    const getStatusFromModal = (isShowDetail: boolean) => {
+        setShowModalDetail(isShowDetail)
+    }
 
     const _renderOrderHistoryTableHeader = () =>
     (
@@ -79,7 +84,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const _renderOrderHistoryTableBody = () => (
         listOrderHistorySortDate.map((item, index) => (
-            <tr className="align-middle" key={index}>
+            <tr className="align-middle" key={index} onClick={() => setShowModalDetail(true)}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
                 <td className="text-ellipsis text-start w-120">
                     <div>{getTickerCode(item.symbolCode.toString())}</div>
@@ -135,6 +140,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <p className="text-end border-top pt-3">
                     <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
                 </p>
+                {showModalDetail && <ModalMatching getStatusFromModal={getStatusFromModal} />}
             </div>
         )
     }

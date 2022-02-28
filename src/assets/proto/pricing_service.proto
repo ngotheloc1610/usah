@@ -27,6 +27,7 @@ message SubscribeQuoteEventResponse {
 
 //Unsubscribe Quote
 message UnsubscribeQuoteEventRequest {
+	repeated string symbol_code = 1;
 }
 
 message UnsubscribeQuoteEventResponse {
