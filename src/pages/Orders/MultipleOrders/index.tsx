@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
-import { ICON_FILE } from "../../../assets";
+import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 
 
 const MultipleOrders = () => {
@@ -474,10 +474,10 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary" style={{float: 'left'}}>{title}</label>
+                <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
                 <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                     value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
-                    thousandseparator="{true}" placeholder="" 
+                    thousandseparator="{true}" placeholder=""
                     onChange={(e) => handleChangeValue(e.target.value, title)}
                 />
             </div>
@@ -686,7 +686,7 @@ const MultipleOrders = () => {
                 <span className="label text-nowrap mb-3 fw-600">Select a Excel file to import</span>
                 <div className="mb-30 mt-30">
                     <div className="upload-btn-wrapper">
-                        <button className="btn btn-upload">Load File</button>
+                        <button className="btn btn-upload">Import File</button>
                         <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
                     </div>
                 </div>
@@ -723,9 +723,14 @@ const MultipleOrders = () => {
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
+                        {listTickers.length === 0 && <div className="upload-btn-wrapper">
+                            <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" title={"template file"} download="MultiOrdersSample.csv"> DownLoad</a>
+                        </div>}
                         <div className="upload-btn-wrapper">
-                            <button className="btn btn-upload">Download</button>
+                            <button className="btn btn-upload">Import</button>
+                            <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
                         </div>
+                        
                     </div>
                     {listSelected.length > 0 &&
                         <div className="d-flex">
