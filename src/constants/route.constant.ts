@@ -35,10 +35,23 @@ export const ROUTER = [
                 subTab: []
             },
             {
-                navigation: '/orders/portfolio',
+                navigation: '',
                 icon: '',
                 title: 'Summary',
-                subTab: []
+                subTab: [
+                    {
+                        navigation: '/orders/portfolio',
+                        icon: '',
+                        title: 'Summary Trading',
+                        subTab: [],
+                    },
+                    {
+                        navigation: '/orders/multi-trader-control',
+                        icon: '',
+                        title: 'Multi Trader Control',
+                        subTab: [],
+                    },
+                ]
             },
             {
                 navigation: '/order-book',
@@ -72,12 +85,13 @@ export const ROUTER = [
                 subTab: []
             }
         ]
-    },
-    {
-        navigation: '/report',
-        icon: 'icon bi bi-clipboard-data me-1',
-        title: 'Report',
-        subTab: []
     }
+    // BA said: function report in POEM Square don't use but in My Page Square can use it.
+    // {
+    //     navigation: '/report',
+    //     icon: 'icon bi bi-clipboard-data me-1',
+    //     title: 'Report',
+    //     subTab: []
+    // }
 ];
 

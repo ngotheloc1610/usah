@@ -46,7 +46,9 @@ function OrderHistorySearch() {
 
     useEffect(() => {
         var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
-        setCurrentDate(currentDate)
+        setCurrentDate(currentDate);
+        setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
+        setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
     }, [])
 
     const handleChangeFromDate = (value: string) => {

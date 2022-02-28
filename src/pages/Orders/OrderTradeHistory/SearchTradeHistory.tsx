@@ -27,9 +27,10 @@ function SearchTradeHistory() {
     const [currentDate, setCurrentDate] = useState('')
     
     useEffect(() => {
-        var today = new Date();
         var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
-        setCurrentDate(currentDate)
+        setCurrentDate(currentDate);
+        setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
+        setDateTimeTo(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
     }, [])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])

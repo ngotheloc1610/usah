@@ -7,7 +7,6 @@ export interface INewsNav {
 export interface INotificationList {
     unRead: boolean;
     state: boolean;
-    title: string;
     content: string;
 }
 

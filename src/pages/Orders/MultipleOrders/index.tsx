@@ -24,8 +24,6 @@ const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
-    const [symbolListLocal, setSymbolListLocal] = useState(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
-    const [dataConfirm, setDataConfirm] = useState<IListOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -104,7 +102,7 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const lotSize = lstSymbols.find(o => o?.ticker === ticker)?.lotSize;
         if (lotSize) {
-            return isNaN(Number(lotSize)) ? Number(lotSize) : 1;
+            return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
         return 1;
     }
@@ -113,7 +111,7 @@ const MultipleOrders = () => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tickSize = lstSymbols.find(o => o?.ticker === ticker)?.tickSize;
         if (tickSize) {
-            return isNaN(Number(tickSize)) ? Number(tickSize) : 1;
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
         return 1;
     }
@@ -476,10 +474,11 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary">{title}</label>
+                <label className="text text-secondary" style={{float: 'left'}}>{title}</label>
                 <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                    value={title.toLocaleLowerCase() === 'price' ? price : volume}
-                    thousandseparator="{true}" placeholder="" onChange={(e) => handleChangeValue(e.target.value, title)}
+                    value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
+                    thousandseparator="{true}" placeholder="" 
+                    onChange={(e) => handleChangeValue(e.target.value, title)}
                 />
             </div>
             <div className="border-start d-flex flex-column">

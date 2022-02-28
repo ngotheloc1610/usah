@@ -151,7 +151,7 @@ const ListTicker = (props: IListTickerProps) => {
                     renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
                 />
 
-                <button type="button" className="btn btn-primary h-2r" onClick={btnAddTicker}>Add</button>
+                <button type="button" className="btn btn-primary h-2r pt-3-px" onClick={btnAddTicker}>Add</button>
 
             </div>
         </div>
@@ -317,20 +317,25 @@ const ListTicker = (props: IListTickerProps) => {
         setCurrentPage(currPage + pageFirst);
     }
 
-    const _renderButtonBack = () => (
-        currentPage > pageFirst && <button
+    const _renderButtonBack = () => {
+        const divideOfListWatchingPageSize = Math.trunc(lstWatchingTickers.length / pageSizeTicker);
+        const totalPage = Math.trunc(lstWatchingTickers.length % pageSizeTicker) !== 0 ? divideOfListWatchingPageSize + pageFirst : divideOfListWatchingPageSize;
+        const conditionChevronDoubleLeft = (totalPage >= currentPage && currentPage > pageFirst)
+        return (conditionChevronDoubleLeft) && <button
             onClick={() => backPage(currentPage)}
             className="btn btn-sm btn-outline-secondary px-1 py-3">
             <i className="bi bi-chevron-double-left" />
         </button>
-    )
+    }
 
-    const _renderButtonNext = () => (
-        (currentPage !== Math.trunc(lstWatchingTickers.length / pageSizeTicker) + pageFirst && (lstWatchingTickers.length > 0)) && Math.trunc(lstWatchingTickers.length % pageSizeTicker) !== 0 &&
-        <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
+    const _renderButtonNext = () => {
+        const divideOfListWatchingPageSize = Math.trunc(lstWatchingTickers.length / pageSizeTicker);
+        const totalPage = Math.trunc(lstWatchingTickers.length % pageSizeTicker) !== 0 ? divideOfListWatchingPageSize + pageFirst : divideOfListWatchingPageSize;
+        const conditionChevronDoubleRight = currentPage < totalPage;
+        return conditionChevronDoubleRight && <button onClick={() => nextPage(currentPage)} className="btn btn-sm btn-outline-secondary px-1 py-3">
             <i className="bi bi-chevron-double-right" />
         </button>
-    )
+    }
     const _conditionStyle = () => {
         const conditionBack = currentPage > pageFirst;
         const conditionNext = currentPage !== Math.trunc(lstWatchingTickers.length / pageSizeTicker) + pageFirst && lstWatchingTickers.length > 0;
@@ -349,10 +354,10 @@ const ListTicker = (props: IListTickerProps) => {
 
                 <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 mr">
                     <div>
-                        {_renderButtonNext()}
+                        {_renderButtonBack()}
                     </div>
                     <div>
-                        {_renderButtonBack()}
+                        {_renderButtonNext()}
                     </div>
                 </div>
             </div>

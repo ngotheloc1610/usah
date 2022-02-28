@@ -1,4 +1,4 @@
-import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder } from "../interfaces/order.interface";
+import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder, IPortfolioAccountId } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -1367,61 +1367,51 @@ export const NOTIFICATION_LIST: INotificationList[] = [
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8:00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: true,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you guideline for the system'
     },
     {
         unRead: false,
         state: true,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X would like to send you new password in email'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Welcome customer, sign in successful'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     },
     {
         unRead: false,
         state: false,
-        title: 'PI-X News',
         content: 'Dear valued Customer, PI-X will update the system during 8::00 - 10:00 on Dec 25 2021'
     }
 ]
@@ -1648,3 +1638,239 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
     lotSize: '',
     minimumBizSize: '',
 }
+
+export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
+
+export const PORTFOLIO_ACCOUNT_ID_201: IPortfolioAccountId[] = [
+    {
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "4"
+    },
+    {
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '500',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "8"
+    },
+    {
+        accountId: 200001,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "10"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_202 = [
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "2"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200002,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "9"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_203 = [
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "3"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '600',
+        symbolCode: "10"
+    },
+    {
+        accountId: 200003,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
+    }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_204 = [
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "4"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200004,
+        avgPrice: '142.8',
+        ownedVolume: '800',
+        symbolCode: "8"
+    }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_205 = [
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "2"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "8"
+    },
+    {
+        accountId: 200005,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "9"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_206 = [
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "3"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '500',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200006,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "10"
+    },
+]
+
+export const PORTFOLIO_ACCOUNT_ID_207 = [
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "4"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "6"
+    },
+    {
+        accountId: 200007,
+        avgPrice: '142.8',
+        ownedVolume: '800',
+        symbolCode: "8"
+    }
+]
+
+export const PORTFOLIO_ACCOUNT_ID_208 = [
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "1"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '200',
+        symbolCode: "2"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '100',
+        symbolCode: "5"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '300',
+        symbolCode: "7"
+    },
+    {
+        accountId: 200008,
+        avgPrice: '142.8',
+        ownedVolume: '400',
+        symbolCode: "9"
+    },
+]
