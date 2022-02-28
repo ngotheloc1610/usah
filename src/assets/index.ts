@@ -7,4 +7,4 @@ export const LOGO = require('../../src/logo.png');
 // icon file
 export const ICON_FILE = require('../../src/icon_file.png');
 // file
-export const FILE_DOWNLOAD = require('./file/FileFormat.csv');
+export const FILE_MULTI_ORDER_SAMPLE = require('./file/MultiOrdersSample.csv');

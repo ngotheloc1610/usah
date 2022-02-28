@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
-import { FILE_DOWNLOAD, ICON_FILE } from "../../../assets";
+import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 
 
 const MultipleOrders = () => {
@@ -724,7 +724,7 @@ const MultipleOrders = () => {
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
                         <div className="upload-btn-wrapper">
-                            <a href={FILE_DOWNLOAD} className="btn btn-upload" download="FileFormat.csv"> Import</a>
+                            <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" download="MultiOrdersSample.csv"> Import</a>
                         </div>
                     </div>
                     {listSelected.length > 0 &&
