@@ -197,7 +197,7 @@ const MultiTraderTable = () => {
                 totalGrossTransactions: formatCurrency(getTotalGrossFollowSymbolCode(item.ticker).toString()),
                 totalPl: 0
             }
-            if (dataItem.ownVolumeAccountId.every(item => item!==undefined)) {
+            if (dataItem.ownVolumeAccountId.some(item => item !== undefined)) {
                 listDataFollowSymbolCode.push(dataItem)
             }
         })
