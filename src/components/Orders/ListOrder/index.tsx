@@ -5,7 +5,7 @@ import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
-import './ListOrder.css';
+import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
 import ReduxPersist from "../../../config/ReduxPersist";
@@ -344,7 +344,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'down' : 'up'}`}></i></a></div>
                 </div>
                 <div className="card-body p-0">
-                    <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''} tableFixHead`}>
+                    <div className={`table-responsive ${!isShowFullData ? 'mh-350' : ''} tableFixHead`}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
