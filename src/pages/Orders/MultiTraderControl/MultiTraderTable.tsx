@@ -34,14 +34,18 @@ const MultiTraderTable = () => {
                 MOCDATA_LIST_ID.forEach(item => {
                     sendMessageMultiTrader(item)
                 })
-
                 sendTradeHistoryReq();
             }
         });
 
+        const isExist = (arr, itemNeedCheck) => arr.indexOf(itemNeedCheck) > -1;
+
         const totalAccountPortfolio: IListPortfolio[][] = []
+
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-            totalAccountPortfolio.push(res.accountPortfolioList)
+            if (!isExist(totalAccountPortfolio, JSON.stringify(res.accountPortfolioList))) {
+                totalAccountPortfolio.push(res.accountPortfolioList)
+            };
             setTotalAccountPortfolio(totalAccountPortfolio)
         });
 
