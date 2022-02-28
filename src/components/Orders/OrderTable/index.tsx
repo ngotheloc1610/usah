@@ -59,14 +59,14 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
-            <th className="text-ellipsis text-start fz-14 w-120">
+            <th className="text-ellipsis text-start fz-14 w-220">
                 <div>Ticker Code</div>
                 <div>Ticker Name</div>
             </th >
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-center fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
-            <th className="text-ellipsis text-end fz-14 w-140">
+            <th className="text-ellipsis text-end fz-14 w-120">
                 <div>Order Volume</div>
                 <div>Remaining Volume</div>
             </th>
@@ -86,7 +86,7 @@ function OrderTable(props: IPropListOrderHistory) {
         listOrderHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index} onClick={() => setShowModalDetail(true)}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
-                <td className="text-ellipsis text-start w-120">
+                <td className="text-ellipsis text-start w-220">
                     <div>{getTickerCode(item.symbolCode.toString())}</div>
                     <div>{getTickerName(item.symbolCode.toString())}</div>
                 </td>
@@ -100,7 +100,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>
 
-                <td className="text-ellipsis text-end w-140">
+                <td className="text-ellipsis text-end w-120">
                     <div>{formatNumber(item.amount)}</div>
                     <div>{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</div>
                 </td>
