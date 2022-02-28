@@ -46,7 +46,7 @@ const ListTicker = (props: IListTickerProps) => {
         });
         return () => {
             ws.unsubscribe();
-            lastQuotesRes.unsubscribe();
+            lastQuotesRes && lastQuotesRes.unsubscribe();
         }
     }, []);
 

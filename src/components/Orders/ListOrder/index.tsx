@@ -20,6 +20,7 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 interface IPropsListOrder {
     msgSuccess: string;
+    getShowData: (item: boolean) => void;
 }
 
 
@@ -35,7 +36,7 @@ const paramModifiCancelDefault: IParamOrder = {
 }
 
 const ListOrder = (props: IPropsListOrder) => {
-    const { msgSuccess } = props;
+    const { msgSuccess, getShowData } = props;
     const tradingModelPb: any = tspb;
     const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
@@ -161,6 +162,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const btnShowFullData = () => {
         setShowFullData(!isShowFullData);
+        getShowData(isShowFullData)
     }
 
     const getTickerCode = (symbolId: string): string => {
@@ -307,7 +309,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 <tr key={index} className="odd">
                     <td>
                         <div className="form-check">
-                            <input className="form-check-input"type="checkbox" value=""
+                            <input className="form-check-input" type="checkbox" value=""
                                 checked={item?.isChecked || false}
                                 name={index.toString()}
                                 onChange={handleChecked}
@@ -339,7 +341,7 @@ const ListOrder = (props: IPropsListOrder) => {
             <div className="card order-list">
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
-                    <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'up' : 'down'}`}></i></a></div>
+                    <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'down' : 'up'}`}></i></a></div>
                 </div>
                 <div className="card-body p-0">
                     <div className={`table-responsive ${!isShowFullData ? 'mh-250' : ''} tableFixHead`}>

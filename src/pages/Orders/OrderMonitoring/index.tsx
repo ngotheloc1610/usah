@@ -14,7 +14,8 @@ const OrderMonitoring = () => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolName, setSymbolName] = useState<string[]>([])
+    const [symbolName, setSymbolName] = useState<string[]>([]);
+    const [isShowFull, setIsShowFull] = useState(true);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -51,18 +52,23 @@ const OrderMonitoring = () => {
         }
         setCurrentTicker(assignItemTicker);
     }
+
     const messageSuccess = (item: string) => {
         setMsgSuccess('');
         setMsgSuccess(item);
+    }
+
+    const getShowData = (item: boolean) => {
+        setIsShowFull(item)
     }
 
     return (
         <div className="site">
             <div className="site-main">
                 <div className="container">
-                    <div className="row align-items-stretch g-2 mb-3">
+                    {isShowFull && <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} symbolName={symbolName}/>
+                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} symbolName={symbolName} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="card flex-grow-1 card-order-form mb-2">
@@ -74,8 +80,8 @@ const OrderMonitoring = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <ListOrder msgSuccess={msgSuccess} />
+                    </div>}
+                    <ListOrder msgSuccess={msgSuccess} getShowData={getShowData}/>
                 </div>
             </div>
         </div>
