@@ -724,9 +724,7 @@ const MultipleOrders = () => {
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
                         <div className="upload-btn-wrapper">
-                        {/* <Link to="/files/myfile.pdf" target="_blank" download>Download</Link>
-                            <button className="btn btn-upload">Download</button> */}
-                            <a href={FILE_DOWNLOAD} className="btn btn-upload" download="My_File.csv"> Download</a>
+                            <a href={FILE_DOWNLOAD} className="btn btn-upload" download="FileFormat.csv"> Import</a>
                         </div>
                     </div>
                     {listSelected.length > 0 &&
