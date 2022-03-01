@@ -35,15 +35,17 @@ const ListTicker = (props: IListTickerProps) => {
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
 
     useEffect(() => {
-        let lastQuotesRes;
+        
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
-                lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
-                    setLastQoutes(resp.quotesList);
-                });
             }
         });
+        
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
+            setLastQoutes(resp.quotesList);
+        });
+
         return () => {
             ws.unsubscribe();
             lastQuotesRes.unsubscribe();
