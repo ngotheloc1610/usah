@@ -8,35 +8,47 @@ import queryString from 'query-string';
 import { useEffect, useState } from 'react';
 import { FROM_DATE_TIME, LIST_TICKER_INFO, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { ITickerDetail } from "../../../interfaces/ticker.interface";
-import { MOCDATA_LIST_ID, PORTFOLIO_ACCOUNT_ID_201, PORTFOLIO_ACCOUNT_ID_202, PORTFOLIO_ACCOUNT_ID_203, PORTFOLIO_ACCOUNT_ID_204, PORTFOLIO_ACCOUNT_ID_205, PORTFOLIO_ACCOUNT_ID_206, PORTFOLIO_ACCOUNT_ID_207, PORTFOLIO_ACCOUNT_ID_208 } from "../../../mocks";
+import { MOCDATA_LIST_ID } from "../../../mocks";
 import { convertDatetoTimeStamp, formatCurrency } from "../../../helper/utils";
-import { IPortfolioAccountId, ITotalGrossFollowAccountId, ITotalNetFollowAccountId, ITotalPLFollowAccountId, ITradingAccountVertical } from "../../../interfaces/order.interface";
+import { IListPortfolio, IPortfolioAccountId, ITotalGrossFollowAccountId, ITotalNetFollowAccountId, ITotalPLFollowAccountId, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
-    const [accountPortfolio, setAccountPortfolio] = useState([]);
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
-    const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
-    const [accountId, setAccountId] = useState('')
-    const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[{}]"))
-    const [listTrading, setListTrading] = useState([])
-    const [fakeData, setFakeData] = useState<ITradingAccountVertical[]>([])
-    const [fakeColumnTotalNet, setFakeColumnTotalNet] = useState<ITotalNetFollowAccountId[]>([])
-    const [fakeColumnTotalGross, setFakeColumnTotalGross] = useState<ITotalGrossFollowAccountId[]>([])
-    const [fakeColumnTotalPl, setFakeColumnTotalPl] = useState<ITotalPLFollowAccountId[]>([])
-    const listId = [...MOCDATA_LIST_ID, 'Total Net Position', 'Total Gross Transactions', 'Total Realized P/L']
-    const totalAcount = [PORTFOLIO_ACCOUNT_ID_201, PORTFOLIO_ACCOUNT_ID_202, PORTFOLIO_ACCOUNT_ID_203, PORTFOLIO_ACCOUNT_ID_204, PORTFOLIO_ACCOUNT_ID_205, PORTFOLIO_ACCOUNT_ID_206, PORTFOLIO_ACCOUNT_ID_207, PORTFOLIO_ACCOUNT_ID_208,]
+    const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
+    const [accountId, setAccountId] = useState('');
+    const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[{}]"));
+    const [listTrading, setListTrading] = useState([]);
+    const [fakeData, setFakeData] = useState<ITradingAccountVertical[]>([]);
+    const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<ITotalNetFollowAccountId[]>([]);
+    const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<ITotalGrossFollowAccountId[]>([]);
+    const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<ITotalPLFollowAccountId[]>([]);
+    const listHeaderName = [...MOCDATA_LIST_ID, 'Total Net Position', 'Total Gross Transactions', 'Total Realized PL'];
+    const [totalAccountPortfolio, setTotalAccountPortfolio] = useState<IListPortfolio[][]>([]);
+    const [allTotalNet, setAllTotalNet] = useState('');
+    const [allTotalGross, setAllTotalGross] = useState('');
+    const [allTotalPL, setAllTotalPL] = useState('');
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendAccountPortfolio();
+                MOCDATA_LIST_ID.forEach(item => {
+                    sendMessageMultiTrader(item)
+                })
                 sendTradeHistoryReq();
             }
         });
 
+        const isExist = (arr, itemNeedCheck) => arr.indexOf(itemNeedCheck) > -1;
+
+        const totalAccountPortfolio: IListPortfolio[][] = []
+
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-            setAccountPortfolio(res.accountPortfolioList)
+            if (!isExist(totalAccountPortfolio, JSON.stringify(res.accountPortfolioList))) {
+                totalAccountPortfolio.push(res.accountPortfolioList)
+            };
+            setTotalAccountPortfolio(totalAccountPortfolio)
         });
+
 
         const getTradeHistory = wsService.getTradeHistory().subscribe(res => {
             setDataTradeHistory(res.tradeList)
@@ -95,33 +107,8 @@ const MultiTraderTable = () => {
         });
     }
 
-    const sendAccountPortfolio = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                buildMessageMultiTrader(accountId);
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                buildMessageMultiTrader(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ?? '';
-                buildMessageMultiTrader(accountId);
-                return;
-            }
-        });
-    }
 
-    const buildMessageMultiTrader = (accountId: string) => {
+    const sendMessageMultiTrader = (accountId: string) => {
         setAccountId(accountId)
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
@@ -145,19 +132,19 @@ const MultiTraderTable = () => {
                 <div className="row">
                     <div className="col-md-2 text-center">
                         <div>Total Accounts</div>
-                        <div className="fs-5 fw-bold">8</div>
+                        <div className="fs-5 fw-bold">{MOCDATA_LIST_ID.length}</div>
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Net Position</div>
-                        <div className="fs-5 fw-bold">1206,584.00</div>
+                        <div className="fs-5 fw-bold">{allTotalNet}</div>
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Gross Transactions</div>
-                        <div className="fs-5 fw-bold">1,946,227.00</div>
+                        <div className="fs-5 fw-bold">{allTotalGross}</div>
                     </div>
                     <div className="col-md-2 text-center">
-                        <div>Total Realized P/L</div>
-                        <div className="fs-5 fw-bold text-success">66,848.00</div>
+                        <div>Total Realized PL</div>
+                        <div className="fs-5 fw-bold text-success">{allTotalPL}</div>
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -169,16 +156,19 @@ const MultiTraderTable = () => {
 
     const getHoldingvolume = (accountId: number, symbolCode: string) => {
         const symbolId = listTicker.find(item => item.ticker === symbolCode)?.symbolId.toString()
-        for (var i = 0; i < listId.length; i++) {
-            if (accountId.toString() === listId[i]) {
-                return totalAcount[i].find(item => item.symbolCode === symbolId && item.accountId === accountId)?.ownedVolume
+        for (var i = 0; i < listHeaderName.length; i++) {
+            if (accountId.toString() === listHeaderName[i]) {
+                if (totalAccountPortfolio[i] !== undefined) {
+                    return totalAccountPortfolio[i].find(item => item.symbolCode === symbolId && item.accountId === accountId)?.ownedVolume
+                }
+                return ''
             }
         }
     }
 
     const getTotalNetFollowSymbolCode = (ticker: string) => {
         const symbolId = listTicker.find(item => item.ticker === ticker)?.symbolId
-        return totalAcount.reduce((acc, crr) => {
+        return totalAccountPortfolio.reduce((acc, crr) => {
             const avgPrice = crr.find(item => Number(item.symbolCode) === symbolId)?.avgPrice ?? 0
             const ownedVolume = crr.find(item => Number(item.symbolCode) === symbolId)?.ownedVolume ?? 0
             return acc + Number(avgPrice) * Number(ownedVolume)
@@ -199,7 +189,7 @@ const MultiTraderTable = () => {
     }, [dataTradeHistory])
 
     const _renderRowTradingAccount = () => {
-        const fakeListData: ITradingAccountVertical[] = []
+        const listDataFollowSymbolCode: ITradingAccountVertical[] = []
         listTicker.map(item => {
             const ownVolumeAccountId = MOCDATA_LIST_ID.map(accountId => {
                 return getHoldingvolume(Number(accountId), item.ticker)
@@ -211,14 +201,16 @@ const MultiTraderTable = () => {
                 totalGrossTransactions: formatCurrency(getTotalGrossFollowSymbolCode(item.ticker).toString()),
                 totalPl: 0
             }
-            fakeListData.push(dataItem)
+            if (dataItem.ownVolumeAccountId.some(item => item !== undefined)) {
+                listDataFollowSymbolCode.push(dataItem)
+            }
         })
-        setFakeData(fakeListData)
+        setFakeData(listDataFollowSymbolCode)
     }
 
     const getTotalNetFollowAccountId = (accountId: number) => {
-        for (var i = 0; i < totalAcount.length; i++) {
-            const account = totalAcount.find((item, index) => (index + 1) === accountId)
+        for (var i = 0; i < totalAccountPortfolio.length; i++) {
+            const account = totalAccountPortfolio.find((item, index) => (index + 1) === accountId)
             return account && account.reduce((acc, crr) => (acc + Number(crr.avgPrice) * Number(crr.ownedVolume)), 0)?.toString()
         }
     }
@@ -237,7 +229,7 @@ const MultiTraderTable = () => {
     }
 
     const _renderColumnTradingAccount = () => {
-        const fakeColumnTotalNet: ITotalNetFollowAccountId[] = [];
+        const totalNetPosition: ITotalNetFollowAccountId[] = [];
         const totalNetFollowAccountId = MOCDATA_LIST_ID.map((accountId, index) => {
             return formatCurrency(getTotalNetFollowAccountId(index + 1) || '0');
         });
@@ -246,10 +238,11 @@ const MultiTraderTable = () => {
             totalNetFollowAccountId,
             totalNetRow: formatCurrency(getAllTotalNet().toString())
         };
-        fakeColumnTotalNet.push(dataItemTotalNet);
-        setFakeColumnTotalNet(fakeColumnTotalNet);
+        setAllTotalNet(dataItemTotalNet.totalNetRow)
+        totalNetPosition.push(dataItemTotalNet);
+        setTotalNetFollowAccountId(totalNetPosition);
 
-        const fakeColumnTotalGross: ITotalGrossFollowAccountId[] = [];
+        const totalGrossTransactions: ITotalGrossFollowAccountId[] = [];
         const totalGrossFollowAccountId = MOCDATA_LIST_ID.map((accountId, index) => {
             return formatCurrency(getTotalGross(Number(accountId)).toString());
         });
@@ -258,19 +251,22 @@ const MultiTraderTable = () => {
             totalGrossFollowAccountId,
             totalGrossRow: formatCurrency(getAlltotalGross().toString())
         }
-        fakeColumnTotalGross.push(dataItemTotalGross)
-        setFakeColumnTotalGross(fakeColumnTotalGross)
+        setAllTotalGross(dataItemTotalGross.totalGrossRow)
+        totalGrossTransactions.push(dataItemTotalGross)
+        setTotalGrossFollowAccountId(totalGrossTransactions)
 
-        const fakeColumnTotalPl: ITotalPLFollowAccountId[] = [];
-        const totalPl = MOCDATA_LIST_ID.map((accountId, index) => {
-            return '0';
+        const totalRealizedPl: ITotalPLFollowAccountId[] = [];
+        const totalPlFollowAccountId = MOCDATA_LIST_ID.map((accountId, index) => {
+            return formatCurrency('0');
         });
         const dataItemTotalPl = {
-            title: 'Total Realized P/L',
-            totalPl,
+            title: 'Total Realized PL',
+            totalPlFollowAccountId,
+            totalPlRow: formatCurrency('0')
         }
-        fakeColumnTotalPl.push(dataItemTotalPl)
-        setFakeColumnTotalPl(fakeColumnTotalPl)
+        setAllTotalPL(dataItemTotalPl.totalPlRow)
+        totalRealizedPl.push(dataItemTotalPl)
+        setTotalPlFollowAccountId(totalRealizedPl)
     }
 
     const _renderTradingAccountId = () => {
@@ -278,14 +274,14 @@ const MultiTraderTable = () => {
         return (<div className="div_maintb">
             <div>
                 <div className="ticker"> Ticker </div>
-                <div className="trading-account"> Trading Account Id </div>
+                <div className="trading-account"> Trading Account ID </div>
             </div>
             <table className="table">
                 <tbody>
                     <tr className="tr-id text-center">
                         <td>&nbsp;</td>
-                        {listId.map((item: string, index: number) => (
-                            <th key={index} className='text-end id-posstion'>{item}</th>
+                        {listHeaderName.map((item: string, index: number) => (
+                            <th key={index} className='text-end id-posstion align-middle'>{item}</th>
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
@@ -301,7 +297,7 @@ const MultiTraderTable = () => {
                         </tr>
                     ))}
 
-                    {fakeColumnTotalNet.map((item: ITotalNetFollowAccountId, index: number) => (
+                    {totalNetFollowAccountId.map((item: ITotalNetFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
 
@@ -315,7 +311,7 @@ const MultiTraderTable = () => {
                         </tr>
                     ))}
 
-                    {fakeColumnTotalGross.map((item: ITotalGrossFollowAccountId, index: number) => (
+                    {totalGrossFollowAccountId.map((item: ITotalGrossFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
 
@@ -329,15 +325,15 @@ const MultiTraderTable = () => {
                         </tr>
                     ))}
 
-                    {fakeColumnTotalPl.map((item: ITotalPLFollowAccountId, index: number) => (
+                    {totalPlFollowAccountId.map((item: ITotalPLFollowAccountId, index: number) => (
                         <tr className='tr-special' key={index}>
                             <td className='td-special'>{item.title}</td>
 
-                            {item.totalPl.map((totalPlItem, index) => <td className="center" key={index}>{totalPlItem}</td>)}
+                            {item.totalPlFollowAccountId.map((totalPlItem, index) => <td className="center" key={index}>{totalPlItem}</td>)}
 
                             <td className="center"></td>
                             <td className="center"></td>
-                            <td className="center">{item.totalPl}</td>
+                            <td className="center">{item.totalPlRow}</td>
                         </tr>
                     ))}
                 </tbody>

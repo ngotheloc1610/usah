@@ -332,5 +332,6 @@ export interface ITotalGrossFollowAccountId {
 
 export interface ITotalPLFollowAccountId {
     title: string;
-    totalPl: string[];
+    totalPlFollowAccountId: string[];
+    totalPlRow: string;
 }
