@@ -22,7 +22,7 @@ const MultiTraderTable = () => {
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<ITotalNetFollowAccountId[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<ITotalGrossFollowAccountId[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<ITotalPLFollowAccountId[]>([]);
-    const listId = [...MOCDATA_LIST_ID, 'Total Net Position', 'Total Gross Transactions', 'Total Realized PL'];
+    const listHeaderName = [...MOCDATA_LIST_ID, 'Total Net Position', 'Total Gross Transactions', 'Total Realized PL'];
     const [totalAccountPortfolio, setTotalAccountPortfolio] = useState<IListPortfolio[][]>([]);
     const [allTotalNet, setAllTotalNet] = useState('');
     const [allTotalGross, setAllTotalGross] = useState('');
@@ -156,8 +156,8 @@ const MultiTraderTable = () => {
 
     const getHoldingvolume = (accountId: number, symbolCode: string) => {
         const symbolId = listTicker.find(item => item.ticker === symbolCode)?.symbolId.toString()
-        for (var i = 0; i < listId.length; i++) {
-            if (accountId.toString() === listId[i]) {
+        for (var i = 0; i < listHeaderName.length; i++) {
+            if (accountId.toString() === listHeaderName[i]) {
                 if (totalAccountPortfolio[i] !== undefined) {
                     return totalAccountPortfolio[i].find(item => item.symbolCode === symbolId && item.accountId === accountId)?.ownedVolume
                 }
@@ -280,7 +280,7 @@ const MultiTraderTable = () => {
                 <tbody>
                     <tr className="tr-id text-center">
                         <td>&nbsp;</td>
-                        {listId.map((item: string, index: number) => (
+                        {listHeaderName.map((item: string, index: number) => (
                             <th key={index} className='text-end id-posstion align-middle'>{item}</th>
                         ))}
                     </tr>
