@@ -26,11 +26,6 @@ function sendMsgSymbolList() {
 
     const sendMessageSymbolList = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-            return;
-        }
         buildMessage(accountId);
     }
 
