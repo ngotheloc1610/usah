@@ -28,6 +28,8 @@ const cancelSubject = new Subject();
 const customerInfoDetailSubject = new Subject();
 const customerSettingSubject = new Subject();
 const socketSubject = new Subject();
+const unsubscribeQuoteSubject = new Subject();
+const subscribeQuoteSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     if (objAuthen.access_token) {
@@ -119,6 +121,14 @@ const startWs = async () => {
             const multiOrderRes = tradingService.NewOrderMultiResponse.deserializeBinary(msg.getPayloadData());
             multiOrderSubject.next(multiOrderRes.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_RES) {
+            const unsubscribeQuoteRes = pricingService.UnsubscribeQuoteEventResponse.deserializeBinary(msg.getPayloadData());
+            unsubscribeQuoteSubject.next(unsubscribeQuoteRes.toObject());
+        }
+        if (payloadClass === rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_RES) {
+            const subscribeQuoteRes = pricingService.SubscribeQuoteEventResponse.deserializeBinary(msg.getPayloadData());
+            subscribeQuoteSubject.next(subscribeQuoteRes.toObject());
+        }
     }
 }
 
@@ -141,5 +151,7 @@ export const wsService = {
     getWsConnected: () => wsConnected,
     getDataLastQuotes: () => dataLastQuotes.asObservable(),
     getSocketSubject: () => socketSubject.asObservable(),
-    getMultiOrderSubject: () => multiOrderSubject.asObservable()
+    getMultiOrderSubject: () => multiOrderSubject.asObservable(),
+    getUnsubscribeQuoteSubject: () => unsubscribeQuoteSubject.asObservable(),
+    getSubscribeQuoteSubject: () => subscribeQuoteSubject.asObservable()
 }

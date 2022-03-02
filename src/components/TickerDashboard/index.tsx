@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react"
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from "../../constants/general.constant"
-import { formatCurrency, formatNumber } from "../../helper/utils"
+import { assignListPrice, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
+import * as psbp from "../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../models/proto/rpc_pb';
 import { IListDashboard } from "../../interfaces/ticker.interface";
+import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
+import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void;
@@ -16,9 +20,103 @@ const defaultProps = {
 
 const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo, listDataTicker } = props;
+    const [tickerCode, setTickerCode] = useState('');
+    const [listData, setListData] = useState(listDataTicker ? listDataTicker : []);
+
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                subscribeQuoteEvent();
+            }
+        });
+
+        const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
+            console.log(resp);
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                processQuote(quote.quoteList);
+            }
+        });
+
+        return () => {
+            unSubscribeQuoteEvent();
+            ws.unsubscribe();
+            subscribeQuoteRes.unsubscribe();
+            quoteEvent.unsubscribe();
+        }
+    }, [tickerCode]);
+
+    useEffect(() => {
+        renderData();
+    }, [listDataTicker]);
+
+    const renderData = () => {
+        if (listDataTicker) {
+            setListData(listDataTicker);
+        }
+    }
+
+    const processQuote = (quotes: IQuoteEvent[]) => {
+        const tmpList = [...listData];
+        if (tmpList && tmpList.length > 0) {
+            quotes.forEach(item => {
+               const index = tmpList.findIndex(o => o?.ticker === item?.symbolCode);
+               if (index >= 0) {
+                   tmpList[index] = {
+                       ...tmpList[index],
+                        change: checkValue(tmpList[index].change, item.netChange),
+                        changePrecent: checkValue(tmpList[index].changePrecent, item.pctChange),
+                        lastPrice: checkValue(tmpList[index].lastPrice, item.close),
+                        volume: checkValue(tmpList[index].volume, item.volumePerDay),
+                        high: checkValue(tmpList[index].high, item.high),
+                        low: checkValue(tmpList[index].low, item.low),
+                        open: checkValue(tmpList[index].open, item.open),
+                        asks: !tmpList[index].asks ? assignListPrice([], item.asks) : assignListPrice(tmpList[index].asks, item.asks),
+                        bids: !tmpList[index].bids ? assignListPrice([], item.bids) : assignListPrice(tmpList[index].bids, item.bids),
+                   }
+               }
+            });
+            setListData(tmpList);
+        }
+    }
+
+    const subscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        const listSymbol = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            listSymbol.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.ticker);
+            })
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const onClickTickerInfo = (item: ITickerInfo) => {
-        handleTickerInfo(item);
+        if (item) {
+            setTickerCode(item.ticker);
+            handleTickerInfo(item);
+        }
     }
 
 
@@ -61,7 +159,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     )
 
     const renderDataListCompany = () => (
-        listDataTicker.map((item: any, index: number) => (
+        listData.map((item: any, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="text-left w-px-150 fw-600">{item.tickerName}</td>
                 <td className="text-left w-ss fw-600">{item.ticker}</td>

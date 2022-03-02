@@ -66,3 +66,42 @@ export const calcPriceIncrease = (currentPrice: number, tickSize: number, decima
 export const calcPriceDecrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
     return Math.round((currentPrice - tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
 }
+
+export const assignListPrice = (prvList, currentList) => {
+    currentList.forEach(item => {
+        const element = prvList?.find(o => o?.price === item?.price);
+        if (element) {
+            const index = prvList.indexOf(element);
+            if (index >= 0) {
+                prvList[index] = {
+                    numOrders: item.numOrders.toString(),
+                    price: item.price ? item.price : "-",
+                    tradable: false,
+                    volume: item.volume ? item.volume : "-"
+                }
+            } else {
+                prvList.push({
+                    numOrders: item.numOrders.toString(),
+                    price: item.price ? item.price : "-",
+                    tradable: false,
+                    volume: item.volume ? item.volume : "-"
+                });
+            }
+        } else {
+            prvList.push({
+                numOrders: item.numOrders.toString(),
+                price: item.price ? item.price : "-",
+                tradable: false,
+                volume: item.volume ? item.volume : "-"
+            });
+        }
+    });
+    return prvList;
+}
+
+export const checkValue = (preValue, currentValue) => {
+    if (currentValue !== preValue && currentValue.toString() !== '' && currentValue.toString() !== '-') {
+        return currentValue;
+    }
+    return preValue;
+}
