@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 
@@ -20,31 +20,16 @@ const Header = () => {
   }, [])
 
   const _renderAccountId = () => {
-    const paramStr = window.location.search;
-    const objAuthen = queryString.parse(paramStr);
-    let accountId: string | any = '';
-    if (objAuthen.access_token) {
-      accountId = objAuthen.account_id;
-      ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-      setAccountId(accountId);
-      return;
+    const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
+    if (accountIdCurrent) {
+      setAccountId(accountIdCurrent);
     }
-    ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-      if (resp) {
-        const obj: IAuthen = JSON.parse(resp);
-        accountId = obj.account_id;
-        setAccountId(accountId);
-        return;
-      } else {
-        accountId = process.env.REACT_APP_TRADING_ID;
-        setAccountId(accountId);
-        return;
-      }
-    });
   }
 
   const handleLogout = () => {
-    ReduxPersist.storeConfig.storage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    localStorage.removeItem(ACCOUNT_ID);
+    localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    localStorage.removeItem(EXPIRE_TIME);
     const baseUrl = window.location.origin;
     window.location.href = `${baseUrl}/login`;
   }

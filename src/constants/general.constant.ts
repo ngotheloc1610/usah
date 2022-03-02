@@ -115,3 +115,6 @@ export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 
 export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
+
+export const ACCOUNT_ID = 'account_id';
+export const EXPIRE_TIME = 'expire_time';

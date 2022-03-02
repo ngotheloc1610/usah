@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
 import { IAuthen } from '../../../interfaces';
 import { wsService } from '../../../services/websocket-service';
 import ReduxPersist from '../../../config/ReduxPersist';
@@ -44,27 +44,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     }, []);
 
     const sendRes = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            prepareMessageeCancelAll(accountId);
-            return;
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-            if (resp) {
-                const obj: IAuthen = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessageeCancelAll(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessageeCancelAll(accountId);
-                return;
-            }
-        });
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        prepareMessageeCancelAll(accountId);
     }
     const prepareMessageeCancelAll = (accountId: string) => {
         const uid = accountId;

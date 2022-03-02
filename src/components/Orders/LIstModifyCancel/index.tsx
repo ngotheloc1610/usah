@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -76,27 +76,8 @@ const ListModifyCancel = () => {
     }, [msgSuccess]);
 
     const sendListOrder = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            prepareMessage(accountId);
-            return;
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-            if (resp) {
-                const obj: IAuthen = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessage(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessage(accountId);
-                return;
-            }
-        });
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        prepareMessage(accountId);
     }
 
     const prepareMessage = (accountId: string) => {
