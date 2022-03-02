@@ -726,10 +726,10 @@ const MultipleOrders = () => {
                         {listTickers.length === 0 && <div className="upload-btn-wrapper">
                             <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" title={"template file"} download="MultiOrdersSample.csv"> DownLoad</a>
                         </div>}
-                        <div className="upload-btn-wrapper">
+                        {listTickers.length > 0 &&<div className="upload-btn-wrapper">
                             <button className="btn btn-upload">Import</button>
                             <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
-                        </div>
+                        </div>}
                         
                     </div>
                     {listSelected.length > 0 &&
