@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { ACCOUNT_ID, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -78,27 +78,12 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [msgSuccess, messageSuccess]);
 
     const sendListOrder = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            prepareMessagee(accountId);
-            return;
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        if (!accountId) {
+            const baseUrl = window.location.origin;
+            window.location.href = `${baseUrl}/login`;
         }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-            if (resp) {
-                const obj: IAuthen = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessagee(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessagee(accountId);
-                return;
-            }
-        });
+        prepareMessagee(accountId);
     }
 
     const prepareMessagee = (accountId: string) => {

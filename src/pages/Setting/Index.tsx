@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
+import { ACCOUNT_ID, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const SettingScreen = () => {
@@ -67,29 +67,13 @@ const SettingScreen = () => {
     }
 
     const sendMessageCustomerInfor = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                !isSetting && buildMessageCustomInfo(accountId)
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                !isSetting && buildMessageCustomInfo(accountId)
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                !isSetting && buildMessageCustomInfo(accountId)
-                return;
-            }
-        });
+        
+         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+         if (!accountId) {
+            const baseUrl = window.location.origin;
+            window.location.href = `${baseUrl}/login`;
+         }
+        !isSetting && buildMessageCustomInfo(accountId);
     }
 
     const handleDisplayChangePassword = () => {

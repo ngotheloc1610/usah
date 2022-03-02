@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
@@ -73,29 +73,12 @@ const ContentSearch = () => {
     }
 
     const sendMessageSearch = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-                buildMessage(accountId);
-                return;
-            }
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        if (!accountId) {
+            const baseUrl = window.location.origin;
+            window.location.href = `${baseUrl}/login`;
         }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                buildMessage(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                buildMessage(accountId);
-                return;
-            }
-        });
+        buildMessage(accountId);
     }
 
     const buildMessage = (accountId: string) => {

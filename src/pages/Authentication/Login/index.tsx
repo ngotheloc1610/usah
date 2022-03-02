@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react';
-import { wsService } from '../../../services/websocket-service';
-import * as sspb from '../../../models/proto/system_service_pb';
-import * as rpc from '../../../models/proto/rpc_pb';
 import './Login.scss';
-import ReduxPersist from '../../../config/ReduxPersist';
-import { KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
+import axios from 'axios';
+import { IReqLogin } from '../../../interfaces';
+import { success } from '../../../constants';
+import { api_login } from '../../../constants/api.constant';
+
+const api_url = process.env.REACT_APP_API_URL;
 
 const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isRemeber, setIsRemeber] = useState(false)
-    useEffect(() => {
-        const loginRes = wsService.getLoginResponse().subscribe(resp => {
-            console.log('login response:', resp)
-        });
-        return () => loginRes.unsubscribe();
-    }, [])
+    const [isMessErr, setIsMessErr] = useState(false);
 
     const handleEmail = (value: string) => {
         setEmail(value);
@@ -30,34 +27,26 @@ const Login = () => {
         setIsRemeber(checked)
     }
 
-    const sendMessageReq = () => {
-        let systemServicePb: any = sspb;
-        let rProtoBuff: any = rpc;
-        const currentDate = new Date();
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            const login = new systemServicePb.LoginRequest();
-            login.setLogin(email);
-            login.setPassword(password);
-            login.setMacAddress('');
-            login.setLocalIp('');
-
-            let rpcMsg = new rProtoBuff.RpcMessage();
-            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.AUTHEN_REQ);
-            rpcMsg.setPayloadData(login.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
+    const requestLogin = () => {
+        const url = `${api_url}${api_login}`;
+        const param = {
+            account_id: email,
+            password: password,
+            account_type: 'lp'
         }
 
-        // TODO: HASH TOKEN WHEN WAITING API LOGIN
-        const objAuthen = {
-            access_token: process.env.REACT_APP_TOKEN,
-            account_id: process.env.REACT_APP_TRADING_ID
-        }
-        ReduxPersist.storeConfig.storage.setItem(KEY_LOCAL_STORAGE.AUTHEN, JSON.stringify(objAuthen));
-        window.location.href = '/'
+        return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
+            if (resp.status === success) {
+                if (resp.data.data) {
+                    localStorage.setItem(ACCOUNT_ID, JSON.stringify(resp.data.data.account_id));
+                    localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
+                    localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
+
+                    window.location.href = '/';
+                }
+            }
+        });
     }
-
     useEffect(() => unLogin(), [email, password])
 
     const unLogin = () => {
@@ -70,15 +59,23 @@ const Login = () => {
     }
 
     const handleSubmit = () => {
-        if (email !== '' && password !== ''){
-            sendMessageReq()
+        if (email !== '' && password !== '') {
+            requestLogin();
+            if (!localStorage.getItem(ACCOUNT_ID)) {
+                setIsMessErr(true);
+            }
         }
+
+
     }
 
     const handlekeyDown = (event: any) => {
         if (email !== '' && password !== '') {
             if (event.key === 'Enter') {
-                sendMessageReq()
+                requestLogin();
+                if (!localStorage.getItem(ACCOUNT_ID)) {
+                    setIsMessErr(true);
+                }
             }
         }
     }
@@ -109,6 +106,9 @@ const Login = () => {
                                             <span className="input-group-text bg-transparent"><i className="bi bi-lock-fill opacity-50"></i></span>
                                         </div>
                                     </div>
+                                    {isMessErr && <div className='mb-3'>
+                                        <label className="d-block mb-1 text-danger">Login ID and Password is NOT matching</label>
+                                    </div>}
                                     <div className="mb-3">
                                         <div className="form-check">
                                             <input className="form-check-input" type="checkbox" name="remember" checked={isRemeber}

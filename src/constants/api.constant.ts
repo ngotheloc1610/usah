@@ -1,0 +1,1 @@
+export const api_login = '/v1/auth/login';

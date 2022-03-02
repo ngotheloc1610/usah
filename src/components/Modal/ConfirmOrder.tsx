@@ -10,7 +10,7 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -179,50 +179,22 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const sendOrder = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            if (isCancel) {
-                prepareMessageeCancel(accountId);
-            }
-            else if (isModify) {
-                prepareMessageeModify(accountId);
-            } else {
-                prepareMessagee(accountId);
-            }
-            return;
+    const sendOrder = () => {let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        if (!accountId) {
+            const baseUrl = window.location.origin;
+            window.location.href = `${baseUrl}/login`;
         }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-            if (resp) {
-                const obj: IAuthen = JSON.parse(resp);
-                accountId = obj.account_id;
-                if (isCancel) {
-                    prepareMessageeCancel(accountId);
-                }
-                else if (isModify) {
-                    prepareMessageeModify(accountId);
-                } else {
-                    prepareMessagee(accountId);
-                }
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                if (isCancel) {
-                    prepareMessageeCancel(accountId);
-                }
-                else if (isModify) {
-                    prepareMessageeModify(accountId);
-                } else {
-                    prepareMessagee(accountId);
-                }
-                return;
-            }
-        });
+        if (isCancel) {
+            prepareMessageeCancel(accountId);
+        }
+        else if (isModify) {
+            prepareMessageeModify(accountId);
+        } else {
+            prepareMessagee(accountId);
+        }
+        return;
     }
+
 
     const handleUpperVolume = () => {
         const currentVol = Number(volumeModify);

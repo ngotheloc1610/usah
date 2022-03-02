@@ -96,6 +96,8 @@ export enum ERROR_MSG_VALIDATE {
 
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
 
+export const SOCKET_DISCONNECTED = 'SOCKET_CONNECTED';
+
 export const FROM_DATE_TIME = '00:00:00';
 
 export const TO_DATE_TIME = '23:59:59';
@@ -115,3 +117,6 @@ export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 
 export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
+
+export const ACCOUNT_ID = 'account_id';
+export const EXPIRE_TIME = 'expire_time';

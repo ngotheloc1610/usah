@@ -11,3 +11,4 @@ export const SIDE = {
 };
 export const pageSizeTicker = 12;
 export const pageFirst = 1;
+export const success = 200;
