@@ -30,8 +30,8 @@ const Login = () => {
     const requestLogin = () => {
         const url = `${api_url}${api_login}`;
         const param = {
-            account_id: email,
-            password: password,
+            account_id: email.trim(),
+            password: password.trim(),
             account_type: 'lp'
         }
 

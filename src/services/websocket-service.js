@@ -7,7 +7,8 @@ import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
 import { TOKEN } from '../constants/general.constant';
-import { KEY_LOCAL_STORAGE } from '../constants/general.constant';
+import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME } from '../constants/general.constant';
+
 const url = process.env.REACT_APP_BASE_URL;
 let token = process.env.REACT_APP_TOKEN;
 var socket = null;
@@ -53,6 +54,10 @@ const startWs = async () => {
     
     socket.onclose = () => {
         console.log("websocket closed -> reconnect websocket");
+        localStorage.removeItem(ACCOUNT_ID);
+        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(EXPIRE_TIME);
+        window.location.href = '/login';
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         setTimeout(function(){startWs()}, 5000);
@@ -61,10 +66,6 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-        // if (payloadClass === rpc.RpcMessage.Payload.AUTHEN_RES){
-        //     const loginRes = systemService.LoginResponse.deserializeBinary(msg.getPayloadData());
-        //     loginSubject.next(loginRes.toObject());
-        // } 
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
