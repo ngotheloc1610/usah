@@ -94,10 +94,6 @@ const Setting = (props: ISetting) => {
 
     const sendMessageSettingPass = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         buildMessagePassword(accountId);
     }
 
@@ -137,19 +133,11 @@ const Setting = (props: ISetting) => {
 
     const sendMessageAdNewsNoti = (newsAdmin: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         buildMessageAdNewsNoti(accountId, newsAdmin);
     }
 
     const sendMessageMatchNoti = (matchNoti: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         buildMessageMatchNoti(accountId, matchNoti);
     }
 

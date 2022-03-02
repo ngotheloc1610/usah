@@ -100,10 +100,6 @@ const Dashboard = () => {
     }
 
     useEffect(() => {
-        if (!localStorage.getItem(ACCOUNT_ID)) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList();

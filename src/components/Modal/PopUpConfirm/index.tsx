@@ -45,10 +45,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const sendRes = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         prepareMessageeCancelAll(accountId);
     }
     const prepareMessageeCancelAll = (accountId: string) => {

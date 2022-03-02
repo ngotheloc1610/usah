@@ -11,6 +11,7 @@ import SettingScreen from "../pages/Setting/Index";
 import OrderBookCommon from "../pages/Orders/OrderBookCommon";
 import MultipleOrders from "../pages/Orders/MultipleOrders";
 import MultiTraderControl from "../pages/Orders/MultiTraderControl";
+import Login from "../pages/Authentication/Login";
 
 const RouterDom = () => {
   return (
@@ -23,6 +24,7 @@ const RouterDom = () => {
         <Route path="/report" element={<Report />} />
         <Route path="/order-book" element={<OrderBookCommon />} />
         <Route path="/order/multi-orders" element={<MultipleOrders />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   )

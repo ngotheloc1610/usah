@@ -82,12 +82,7 @@ const MultiTraderTable = () => {
     }
 
     const sendTradeHistoryReq = () => {
-        
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         buildMessage(accountId);
     }
 

@@ -45,6 +45,9 @@ const Login = () => {
                     window.location.href = '/';
                 }
             }
+        },
+        (error) => {
+            setIsMessErr(true);
         });
     }
     useEffect(() => unLogin(), [email, password])
@@ -60,10 +63,8 @@ const Login = () => {
 
     const handleSubmit = () => {
         if (email !== '' && password !== '') {
+            setIsMessErr(false);
             requestLogin();
-            if (!localStorage.getItem(ACCOUNT_ID)) {
-                setIsMessErr(true);
-            }
         }
 
 
@@ -72,10 +73,8 @@ const Login = () => {
     const handlekeyDown = (event: any) => {
         if (email !== '' && password !== '') {
             if (event.key === 'Enter') {
+                setIsMessErr(false);
                 requestLogin();
-                if (!localStorage.getItem(ACCOUNT_ID)) {
-                    setIsMessErr(true);
-                }
             }
         }
     }

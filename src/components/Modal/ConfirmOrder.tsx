@@ -179,11 +179,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const sendOrder = () => {let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
+    const sendOrder = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
             prepareMessageeCancel(accountId);
         }

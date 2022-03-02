@@ -77,10 +77,6 @@ const ListModifyCancel = () => {
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        if (!accountId) {
-            const baseUrl = window.location.origin;
-            window.location.href = `${baseUrl}/login`;
-        }
         prepareMessage(accountId);
     }
 
