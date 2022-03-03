@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
-import { formatCurrency, formatNumber } from "../../../helper/utils";
+import { assignListPrice, formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
@@ -11,6 +11,7 @@ import * as psbp from "../../../models/proto/pricing_service_pb";
 import { Autocomplete, TextField } from '@mui/material';
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
+import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
     msgSuccess?: string;
@@ -34,45 +35,64 @@ const ListTicker = (props: IListTickerProps) => {
     const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
+    const [quoteEvent, setQuoteEvent] = useState([]);
+    const [listData, setListData] = useState<any>();
+    const [symbolCode, setSymbolCode] = useState('')
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                subscribeQuoteEvent();
-            }
-        });
 
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
         });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-            console.log(50, quote);
-            
             if (quote && quote.quoteList) {
-                // processQuote(quote.quoteList);
+                setQuoteEvent(quote.quoteList);
             }
         });
 
         return () => {
             unSubscribeQuoteEvent();
-            ws.unsubscribe();
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
         }
     }, []);
 
-    useEffect(() => subscribeQuoteEvent(),[pageShowCurrentLastQuote])
+    useEffect(() => subscribeQuoteEvent(), [lastQoutes, symbolList])
+
+    useEffect(() => {
+        processQuote(quoteEvent);
+    }, [quoteEvent])
+
+    const processQuote = (quotes: IQuoteEvent[]) => {
+        const tmpList = [...pageShowCurrentLastQuote];
+
+        if (quotes && quotes.length > 0) {
+            quotes.forEach(item => {
+                const index = tmpList.findIndex(o => o?.symbolCode === item?.symbolCode);
+
+                if (index >= 0) {
+                    tmpList[index] = {
+                        ...tmpList[index],
+                        
+                        asksList: !tmpList[index].asksList ? assignListPrice([], item.asksList) : assignListPrice(tmpList[index].asksList, item.asksList),
+                        bidsList: !tmpList[index].bidsList ? assignListPrice([], item.bidsList) : assignListPrice(tmpList[index].bidsList, item.bidsList),
+                    }                    
+                }
+            });
+            
+            setPageShowCurrentLastQuote(tmpList);
+        }
+    }
 
     const subscribeQuoteEvent = () => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
-        const listSymbol = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            listSymbol.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.ticker);
+            symbolList.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolId.toString());
             })
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
@@ -86,7 +106,10 @@ const ListTicker = (props: IListTickerProps) => {
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            symbolList.forEach(item => {
+                unsubscribeQuoteReq.addSymbolCode(item.symbolId.toString());
+            });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
@@ -101,7 +124,7 @@ const ListTicker = (props: IListTickerProps) => {
                 getOrderBooks();
             }
         });
-        
+
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
             setLastQoutes(resp.quotesList);
         });
@@ -160,7 +183,7 @@ const ListTicker = (props: IListTickerProps) => {
             });
             setListSymbolCode(listSymbolCode);
         }
-        
+
     }, []);
 
     useEffect(() => {
@@ -185,9 +208,11 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
+        setSymbolCode(lastQuote.symbolCode)
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
         getTicerLastQuote(itemTicker, lastQuote.currentPrice);
     }
+
     const onChangeTicker = (event) => {
         const symbolCode = event.target.innerText?.split('-')[0]?.trim();
         if (symbolCode) {
@@ -200,9 +225,11 @@ const ListTicker = (props: IListTickerProps) => {
             return;
         }
     }
+
     const btnAddTicker = () => {
         handleLastQuote();
     }
+
     const _renderSearchForm = () => {
         return <div className="row mb-2">
             <div className="col-lg-6 d-flex">
@@ -220,7 +247,8 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderAskPrice = (itemData: ILastQuote) => {
-        let askItems: IAskAndBidPrice[] = itemData.asksList;
+
+        let askItems: IAskAndBidPrice[] = itemData ? itemData.asksList : [];
         let arr: IAskAndBidPrice[] = [];
         let counter = MARKET_DEPTH_LENGTH - pageFirst;
         while (counter >= 0) {
@@ -257,7 +285,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderBidPrice = (itemData: ILastQuote) => {
-        let bidItems: IAskAndBidPrice[] = itemData.bidsList;
+        let bidItems: IAskAndBidPrice[] = itemData ? itemData.bidsList : [];
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
         while (counter < MARKET_DEPTH_LENGTH) {
@@ -298,6 +326,7 @@ const ListTicker = (props: IListTickerProps) => {
         const itemPageCurrentEnd = pageCurrent * pageSize;
         return totalItem.slice(itemPageCurrentStart, itemPageCurrentEnd);
     }
+
     const handleLastQuote = () => {
         const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
         if (lstSymbolId.length === 0 || lstSymbolId.indexOf(symbolIdAdd) === -1) {
@@ -436,3 +465,7 @@ const ListTicker = (props: IListTickerProps) => {
 ListTicker.defaultProps = defaultProps;
 
 export default ListTicker;
+
+function assignChangeValue(arg0: ILastQuote, item: IQuoteEvent) {
+    throw new Error("Function not implemented.");
+}
