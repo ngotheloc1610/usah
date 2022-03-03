@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD } from '../constants/general.constant';
 import { ISymbolList } from '../interfaces/ticker.interface';
 
@@ -22,6 +23,9 @@ export function formatNumber(item: string): string {
 
 // To format price --after the dot is 2 decimals.
 export function formatCurrency(item: string): string {
+    if (isNaN(Number(item))) {
+        return '0'
+    }
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
 }
 
@@ -65,4 +69,67 @@ export const calcPriceIncrease = (currentPrice: number, tickSize: number, decima
 
 export const calcPriceDecrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {
     return Math.round((currentPrice - tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
+}
+
+export const assignListPrice = (prvList, currentList) => {
+    if (currentList) {
+        if (currentList.length === 0) {
+            return currentList;
+        }
+        currentList.forEach(item => {
+            const element = prvList?.find(o => o?.price === item?.price);
+            if (element) {
+                const index = prvList.indexOf(element);
+                if (index >= 0) {
+                    prvList[index] = {
+                        numOrders: item.numOrders.toString(),
+                        price: item.price ? item.price : "-",
+                        tradable: false,
+                        volume: item.volume ? item.volume : "-"
+                    }
+                } else {
+                    prvList.push({
+                        numOrders: item.numOrders.toString(),
+                        price: item.price ? item.price : "-",
+                        tradable: false,
+                        volume: item.volume ? item.volume : "-"
+                    });
+                }
+            } else {
+                prvList.push({
+                    numOrders: item.numOrders.toString(),
+                    price: item.price ? item.price : "-",
+                    tradable: false,
+                    volume: item.volume ? item.volume : "-"
+                });
+            }
+        });
+    }
+    return prvList;
+}
+
+export const checkValue = (preValue, currentValue) => {
+    if (currentValue !== preValue && currentValue.toString() !== '' && currentValue.toString() !== '-') {
+        return currentValue;
+    }
+    return preValue;
+}
+
+export const calcChange = (lastPrice: string, open: string) => {
+    if (!isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
+        return Number(lastPrice) - Number(open);
+    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
+        return 0 - Number(open);
+    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(open))) {
+        return Number(lastPrice);
+    }
+    return 0;
+}
+
+export const calcPctChange = (lastPrice: string, open: string) => {
+    const change = calcChange(lastPrice, open);
+    if (!isNaN(Number(open)) && Number(open) !== 0) {
+        return change / Number(open);
+    }
+    return 0;
 }

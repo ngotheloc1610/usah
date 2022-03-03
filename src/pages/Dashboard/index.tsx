@@ -188,6 +188,29 @@ const Dashboard = () => {
         setTicker(value);
     }
 
+    const getPriceOrder = (value: ITickerInfo) => {
+         setTicker(value);
+    }
+
+    const getQuoteEventValue = (value: ITickerInfo) => {
+        const item: ILastQuote = {
+            asksList: value?.asks || [],
+            bidsList: value?.bids || [],
+            currentPrice: value?.lastPrice,
+            pctChange: value?.change,
+            quoteTime: 0,
+            scale: 0,
+            symbolCode: value.symbolId.toString(),
+            symbolId: value.symbolId,
+            tickPerDay: 0,
+            volumePerDay: value.volume,
+            volume: value.volume
+
+
+        }
+        setDataSearchTicker(item);
+    }
+
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
     }
@@ -215,7 +238,7 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} />
+                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
@@ -224,7 +247,7 @@ const Dashboard = () => {
                                         itemTickerSearch={handleTickerSearch}
                                         dataSearchTicker={dataSearchTicker}
                                         listTickerSearch={listTickerSearch}
-                                        tickerDetailLastQuote={getTickerInfo}
+                                        tickerDetailLastQuote={getPriceOrder}
                                         currentTicker={ticker}/>
                         </div>
                         <div>

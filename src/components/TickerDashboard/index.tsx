@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react"
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from "../../constants/general.constant"
-import { formatCurrency, formatNumber } from "../../helper/utils"
+import { assignListPrice, calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
+import * as psbp from "../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../models/proto/rpc_pb';
 import { IListDashboard } from "../../interfaces/ticker.interface";
+import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
+import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ITickerInfo) => void;
+    handleQuoteEvent: (item: ITickerInfo) => void;
     listDataTicker: ITickerInfo[];
 }
 
@@ -15,10 +20,156 @@ const defaultProps = {
 }
 
 const TickerDashboard = (props: ITickerDashboard) => {
-    const { handleTickerInfo, listDataTicker } = props;
+    const { handleTickerInfo, handleQuoteEvent, listDataTicker } = props;
+    const [tickerCode, setTickerCode] = useState('');
+    const [listData, setListData] = useState(listDataTicker ? listDataTicker : []);
+    const [quoteEvent, setQuoteEvent] = useState([]);
+    const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                getLastQuote();
+            }
+        });
+
+        const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
+            console.log(resp);
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
+
+        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
+            if (quote && quote.quotesList) {
+                setListData(quote.quotesList);
+            }
+        })
+
+        return () => {
+            unSubscribeQuoteEvent();
+            ws.unsubscribe();
+            subscribeQuoteRes.unsubscribe();
+            quoteEvent.unsubscribe();
+            lastQuote.unsubscribe();
+        }
+    }, []);
+
+    useEffect(() => {
+        renderData();
+    }, [listDataTicker]);
+
+    useEffect(() => {
+        subscribeQuoteEvent();
+    }, [symbolList])
+
+    useEffect(() => {
+        processQuote(quoteEvent);
+    }, [quoteEvent])
+
+    const renderData = () => {
+        if (listDataTicker) {
+            setListData(listDataTicker);
+        }
+    }
+
+    const processQuote = (quotes: IQuoteEvent[]) => {
+        const tmpList = [...listData];
+        if (quotes && quotes.length > 0) {
+            quotes.forEach(item => {
+               const index = tmpList.findIndex(o => o?.symbolId.toString() === item?.symbolCode);
+               if (index >= 0) {
+                   tmpList[index] = {
+                       ...tmpList[index],
+                        change: assignChangeValue(tmpList[index], item).toString(),
+                        changePrecent: assignPctChangeValue(tmpList[index], item).toString(),
+                        lastPrice: checkValue(tmpList[index].lastPrice, item.currentPrice),
+                        volume: checkValue(tmpList[index].volume, item.volumePerDay),
+                        high: checkValue(tmpList[index].high, item.high),
+                        low: checkValue(tmpList[index].low, item.low),
+                        open: checkValue(tmpList[index].open, item.open),
+                        asks: !tmpList[index].asks ? assignListPrice([], item.asksList) : assignListPrice(tmpList[index].asks, item.asksList),
+                        bids: !tmpList[index].bids ? assignListPrice([], item.bidsList) : assignListPrice(tmpList[index].bids, item.bidsList),
+                        previousClose: checkValue(tmpList[index].previousClose, item.close)
+                        
+                   }
+               }
+            });
+            const element = tmpList.find(o => o?.ticker === tickerCode);
+            if (element) {
+                handleQuoteEvent(element);
+            }
+            setListData(tmpList);
+        }
+    }
+
+    const assignChangeValue = (tickerInfo: ITickerInfo, quote: IQuoteEvent) => {
+        const lastPrice = checkValue(tickerInfo.lastPrice, quote.currentPrice);
+        const open = checkValue(tickerInfo.open, quote.open);
+        return calcChange(lastPrice, open);
+    }
+
+    const assignPctChangeValue = (tickerInfo: ITickerInfo, quote: IQuoteEvent) => {
+        const lastPrice = checkValue(tickerInfo.lastPrice, quote.currentPrice);
+        const open = checkValue(tickerInfo.open, quote.open);
+        return  calcPctChange(lastPrice, open);
+    }
+
+    const subscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            symbolList.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolId.toString());
+            })
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            symbolList.forEach(item => {
+                unsubscribeQuoteReq.addSymbolCode(item.symbolId.toString());
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const getLastQuote = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
+            symbolList.forEach(item => {
+                lastQoutes.addSymbolCode(item.symbolId.toString())
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const onClickTickerInfo = (item: ITickerInfo) => {
-        handleTickerInfo(item);
+        if (item) {
+            setTickerCode(item.ticker);
+            handleTickerInfo(item);
+        }
     }
 
 
@@ -60,22 +211,22 @@ const TickerDashboard = (props: ITickerDashboard) => {
         </tr>
     )
 
-    const renderDataListCompany = () => (
-        listDataTicker.map((item: any, index: number) => (
+    const renderDataListCompany = () => {
+        return listData.map((item: ITickerInfo, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
                 <td className="text-left w-px-150 fw-600">{item.tickerName}</td>
                 <td className="text-left w-ss fw-600">{item.ticker}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.previousClose)}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.open)}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.high)}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.low)}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.previousClose || '')}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.open || '')}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.high || '')}</td>
+                <td className="text-end w-ss fw-600">{formatCurrency(item.low || '')}</td>
                 <td className="text-end w-ss fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-ss fw-600">{formatNumber(item.volume)}</td>
-                <td className="text-end w-ss fw-600"><span className={item.change >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-ss fw-600"><span className={item.changePrecent >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent)}%</span></td>
+                <td className="text-end w-ss fw-600"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
+                <td className="text-end w-ss fw-600"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent)}%</span></td>
             </tr>
         ))
-    )
+    }
 
     const _renderTableData = () => (
         <div className="dataTables_scroll">
