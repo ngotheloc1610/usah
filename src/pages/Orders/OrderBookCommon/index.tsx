@@ -19,6 +19,8 @@ import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
+import { IQuoteEvent } from '../../../interfaces/quotes.interface';
+import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../../helper/utils';
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -34,7 +36,11 @@ const OrderBookCommon = () => {
     const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(DEFAULT_TICKER_INFO);
     const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
-    const [listSymbolCode, setListSymbolCode] = useState<string[]>([])
+    const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState([]);
+    const [tickerSelect, setTickerSelect] = useState('');
+
+    const [symbolSearch, setSymbolSearch] = useState('');
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -63,6 +69,7 @@ const OrderBookCommon = () => {
         listTicker.forEach((item: ITickerDetail) => {
             listSymbolCode.push(item.ticker);
         });
+        setTickerSelect(listSymbolCode[0]);
         setListSymbolCode(listSymbolCode)
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
@@ -70,12 +77,77 @@ const OrderBookCommon = () => {
             setItemTickerDetail(tickerDetail)
         });
 
+        const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
+            if (resp.msgText === "SUCCESS") {
+                if (symbolSearch !== '') {
+                    subscribeQuoteEvent(symbolSearch);
+                }
+            }
+        });
+
+        const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
+            console.log(resp)
+        })
+
+        const quotes = wsService.getQuoteSubject().subscribe(resp => {
+            if (resp && resp.quoteList) {
+                setQuoteEvent(resp.quoteList);
+            }
+        })
+
         return () => {
+            unSubscribeQuoteEvent(symbolSearch);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
             getLastQuotesRes.unsubscribe();
+            unsubscribeQuote.unsubscribe();
+            subscribeQuote.unsubscribe();
+            quotes.unsubscribe();
         }
     }, []);
+
+    useEffect(() => {
+        processQuotes(quoteEvent);
+    }, [quoteEvent])
+
+    const processQuotes = (quotes: IQuoteEvent[]) => {
+        const quote = quotes.find(o => o?.symbolCode === itemTickerDetail?.symbolCode);
+        if (quote) {
+            const tmpItem: ILastQuote = {
+                asksList: assignListPrice(itemTickerDetail.asksList, quote.asksList),
+                bidsList: assignListPrice(itemTickerDetail.bidsList, quote.bidsList),
+                close: checkValue(itemTickerDetail.close, quote.close),
+                currentPrice: checkValue(itemTickerDetail.currentPrice, quote.currentPrice),
+                high: checkValue(itemTickerDetail.high, quote.high),
+                low: checkValue(itemTickerDetail.low, quote.low),
+                netChange: assignChangeValue(itemTickerDetail, quote).toFixed(2),
+                open: checkValue(itemTickerDetail.open, quote.open),
+                pctChange: assignPctChangeValue(itemTickerDetail, quote).toFixed(2),
+                quoteTime: checkValue(itemTickerDetail.quoteTime, quote.quoteTime),
+                scale: checkValue(itemTickerDetail.scale, quote.scale),
+                symbolCode: itemTickerDetail.symbolCode,
+                symbolId: itemTickerDetail.symbolId,
+                tickPerDay: checkValue(itemTickerDetail.tickPerDay, quote.tickPerDay),
+                volumePerDay: checkValue(itemTickerDetail.volumePerDay, quote.volumePerDay),
+                volume: checkValue(itemTickerDetail.volume, quote.volumePerDay),
+                ticker: itemTickerDetail.ticker,
+            }
+            setItemTickerDetail(tmpItem);
+        }
+        
+    }
+
+    const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
+        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
+        const open = checkValue(tickerInfo.open, quote.open);
+        return calcChange(lastPrice, open);
+    }
+
+    const assignPctChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
+        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
+        const open = checkValue(tickerInfo.open, quote.open);
+        return  calcPctChange(lastPrice, open);
+    }
 
     const prepareMessagee = (accountId: string) => {
         const queryServicePb: any = qspb;
@@ -193,7 +265,13 @@ const OrderBookCommon = () => {
 
     const getTickerSearch = (value: string) => {
         const symbolCode = value !== undefined ? value : '';
+        setSymbolSearch(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
+        if (symbolSearch) {
+            unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+        }
+        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '')
+        setSymbolSearch(itemTickerInfor?.symbolId.toString() || '');
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
@@ -210,6 +288,7 @@ const OrderBookCommon = () => {
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
             const itemTickerInfor = listTicker.find(item => item.ticker === (event.target.value).toUpperCase());
+            setSymbolSearch(event.target.value);
             setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
@@ -229,23 +308,55 @@ const OrderBookCommon = () => {
         setCurrentTicker(itemTicker);
     }
 
-    const _renderTemplateSearchTicker = () => (
-        <div className="row g-2 justify-content-end">
-            <div className="col-md-3">
-                <div className="input-group input-group-sm mb-2">
-                    <Autocomplete
-                        onChange={(event: any) => getTickerSearch(event.target.innerText)}
-                        onKeyUp={handleKeyUp}
-                        onClick={searchTicker}
-                        disablePortal
-                        options={listSymbolCode}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} placeholder="Search" />}
-                    />
-                </div>
+
+    const subscribeQuoteEvent = (symbolId: string) => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            subscribeQuoteEventReq.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = (symbolId: string) => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            unsubscribeQuoteReq.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    
+
+    const _renderTemplateSearchTicker = () => {
+        return <div className="row g-2 justify-content-end">
+        <div className="col-md-3">
+            <div className="input-group input-group-sm mb-2">
+                <Autocomplete
+                    onChange={(event: any) => getTickerSearch(event.target.innerText)}
+                    onKeyUp={handleKeyUp}
+                    onClick={searchTicker}
+                    disablePortal
+                    options={listSymbolCode}
+                    // value={tickerSelect}
+                    sx={{ width: 300 }}
+                    renderInput={(params) => <TextField {...params} placeholder="Search" />}
+                />
             </div>
         </div>
-    )
+    </div>
+    }
 
     const _renderTemplateOrderBookCommon = () => (
         <div className="site-main">
