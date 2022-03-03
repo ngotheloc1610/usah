@@ -184,7 +184,7 @@ const Dashboard = () => {
     )
 
     const getTickerInfo = (value: ITickerInfo) => {
-        handleTickerSearch(value.ticker);
+        handleGetTicker(value);
         setTicker(value);
     }
 
@@ -213,6 +213,33 @@ const Dashboard = () => {
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
+    }
+
+    const handleGetTicker = (value: ITickerInfo) => {
+        if (value.asks) {
+            const data: ILastQuote = {
+                asksList: value.asks,
+                bidsList: value.bids || [],
+                close: value.previousClose,
+                currentPrice: value.lastPrice,
+                high: value.high,
+                low: value.low,
+                netChange: value.change,
+                open: value.open,
+                pctChange: value.changePrecent,
+                quoteTime: 0,
+                scale: 0,
+                symbolCode: value.symbolId.toString(),
+                symbolId: value.symbolId,
+                tickPerDay: 0,
+                volumePerDay: value.volume,
+                volume: value.volume,
+                ticker: value.ticker
+            }
+            setDataSearchTicker(data)
+        } else {
+            handleTickerSearch(value.ticker)
+        }
     }
 
     const handleTickerSearch = (value: string) => {
