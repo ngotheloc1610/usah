@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.css';
@@ -208,6 +208,7 @@ const Dashboard = () => {
         setTicker(defaultTickerInfo);
         return setDataSearchTicker(DEFAULT_DATA_TICKER);
     }
+    
     return (
         <div className="site-main">
             <div className="container">

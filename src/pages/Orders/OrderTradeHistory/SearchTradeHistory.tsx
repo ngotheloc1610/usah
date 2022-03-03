@@ -8,7 +8,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
-import { FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import ReduxPersist from '../../../config/ReduxPersist';
 import queryString from 'query-string';
@@ -79,29 +79,8 @@ function SearchTradeHistory() {
     }, [])
 
     const sendMessageTradeSearch = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                buildMessage(accountId);
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then((resp: string | null) => {
-            if (resp) {
-                const obj = JSON.parse(resp);
-                accountId = obj.account_id;
-                buildMessage(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ? process.env.REACT_APP_TRADING_ID : '';
-                buildMessage(accountId);
-                return;
-            }
-        });
+         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+         buildMessage(accountId);
     }
 
     const buildMessage = (accountId: string) => {

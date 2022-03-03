@@ -7,7 +7,7 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
-import { FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
@@ -50,29 +50,9 @@ const OrderTradeHistory = () => {
     }
 
     const sendTradeHistoryReq = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen).toString());
-                buildMessage(accountId);
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(res => {
-            if (res) {
-                const obj = JSON.parse(res);
-                accountId = obj.account_id;
-                buildMessage(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ?? '';
-                buildMessage(accountId);
-                return;
-            }
-        });
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        buildMessage(accountId);
+        
     }
 
     const _renderTradeHistory = () => {
