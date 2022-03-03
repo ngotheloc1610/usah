@@ -52,13 +52,15 @@ const ListTicker = (props: IListTickerProps) => {
         });
 
         return () => {
-            unSubscribeQuoteEvent();
+            unSubscribeQuoteEvent(lstWatchingTickers);
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
         }
     }, []);
 
-    useEffect(() => subscribeQuoteEvent(), [lastQoutes, symbolList])
+    useEffect(() => {
+        subscribeQuoteEvent(lstWatchingTickers);
+    }, [])
 
     useEffect(() => {
         processQuote(quoteEvent);
@@ -85,13 +87,13 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const subscribeQuoteEvent = () => {
+    const subscribeQuoteEvent = (quotes) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            symbolList.forEach(item => {
+            quotes.forEach(item => {
                 subscribeQuoteEventReq.addSymbolCode(item.symbolId.toString());
             })
             let rpcMsg = new rpc.RpcMessage();
@@ -101,13 +103,13 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const unSubscribeQuoteEvent = () => {
+    const unSubscribeQuoteEvent = (quotes) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            symbolList.forEach(item => {
+            quotes.forEach(item => {
                 unsubscribeQuoteReq.addSymbolCode(item.symbolId.toString());
             });
             let rpcMsg = new rpc.RpcMessage();
@@ -338,6 +340,7 @@ const ListTicker = (props: IListTickerProps) => {
         const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
+            subscribeQuoteEvent([itemLastQuote])
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
@@ -353,6 +356,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const removeTicker = (itemLstQuote: ILastQuote) => {
+        unSubscribeQuoteEvent([itemLstQuote]);
         const itemTickerAdded = lstWatchingTickers.findIndex(item => item.symbolCode === itemLstQuote.symbolCode);
         let lstLastQuoteCurrent: ILastQuote[] = lstWatchingTickers;
 
