@@ -67,6 +67,7 @@ const OrderBook = (props: IOrderBookProps) => {
     useEffect(() => {
         setTickerSearch(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
     }, [dataSearchTicker?.ticker]);
+
     const _renderBidPrice = (itemData: ILastQuote) => {
         let bidItems: IAskAndBidPrice[] = itemData.bidsList;
         let arr: IAskAndBidPrice[] = [];
