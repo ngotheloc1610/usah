@@ -65,7 +65,7 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }, []);
 
-    useEffect(() => subscribeQuoteEvent(), [lastQoutes, symbolList])
+    useEffect(() => subscribeQuoteEvent(), [symbolList])
 
     useEffect(() => {
         processQuote(quoteEvent);
