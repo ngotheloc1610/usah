@@ -4,8 +4,8 @@ export interface IQuoteEvent {
     id: number;
     symbolId: number;
     symbolCode: string;
-    asks: IAskAndBidPrice[];
-    bids: IAskAndBidPrice[];
+    asksList: IAskAndBidPrice[];
+    bidsList: IAskAndBidPrice[];
     low: string;
     high: string;
     open: string;

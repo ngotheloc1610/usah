@@ -163,7 +163,6 @@ const OrderNew = () => {
     } 
     // wait handle ticker detail last quote in screen order book
     const handleTickerDetailLastQuote = (value: ITickerInfo) => {
-
     }
     return <div className="site-main mt-3">
         <div className="container">
