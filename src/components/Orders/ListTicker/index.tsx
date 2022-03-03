@@ -7,6 +7,7 @@ import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
+import * as psbp from "../../../models/proto/pricing_service_pb";
 import { Autocomplete, TextField } from '@mui/material';
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
@@ -35,7 +36,66 @@ const ListTicker = (props: IListTickerProps) => {
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
 
     useEffect(() => {
-        
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                subscribeQuoteEvent();
+            }
+        });
+
+        const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
+            console.log(resp);
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            console.log(50, quote);
+            
+            if (quote && quote.quoteList) {
+                // processQuote(quote.quoteList);
+            }
+        });
+
+        return () => {
+            unSubscribeQuoteEvent();
+            ws.unsubscribe();
+            subscribeQuoteRes.unsubscribe();
+            quoteEvent.unsubscribe();
+        }
+    }, []);
+
+    useEffect(() => subscribeQuoteEvent(),[pageShowCurrentLastQuote])
+
+    const subscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        const listSymbol = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            listSymbol.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.ticker);
+            })
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    useEffect(() => {
+
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
