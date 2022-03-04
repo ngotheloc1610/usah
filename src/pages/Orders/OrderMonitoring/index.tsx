@@ -54,8 +54,8 @@ const OrderMonitoring = () => {
     }
 
     const messageSuccess = (item: string) => {
-        // setMsgSuccess('');
-        // setMsgSuccess(item);
+        setMsgSuccess('');
+        setMsgSuccess(item);
     }
 
     const getShowData = (item: boolean) => {

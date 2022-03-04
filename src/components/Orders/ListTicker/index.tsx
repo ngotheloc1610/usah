@@ -44,8 +44,8 @@ const ListTicker = (props: IListTickerProps) => {
             listSymbol.push(item.symbolCode)
         })
         setListSymbol(listSymbol)
-    },[pageShowCurrentLastQuote])
-    
+    }, [pageShowCurrentLastQuote])
+
     useEffect(() => {
 
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
@@ -67,11 +67,11 @@ const ListTicker = (props: IListTickerProps) => {
 
     useEffect(() => {
         subscribeQuoteEvent(lstWatchingTickers);
-    }, [])
+    }, [msgSuccess]);
 
     useEffect(() => {
         processQuote(quoteEvent);
-    }, [quoteEvent])
+    }, [quoteEvent]);
 
     const processQuote = (quotes: IQuoteEvent[]) => {
         const tmpList = [...pageShowCurrentLastQuote];
@@ -83,25 +83,26 @@ const ListTicker = (props: IListTickerProps) => {
                 if (index >= 0) {
                     tmpList[index] = {
                         ...tmpList[index],
-                        
+
                         asksList: !tmpList[index].asksList ? assignListPrice([], item.asksList) : assignListPrice(tmpList[index].asksList, item.asksList),
                         bidsList: !tmpList[index].bidsList ? assignListPrice([], item.bidsList) : assignListPrice(tmpList[index].bidsList, item.bidsList),
-                    }                    
+                    }
                 }
             });
-            
+
             setPageShowCurrentLastQuote(tmpList);
         }
     }
 
-    const subscribeQuoteEvent = (quotes) => {
+    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
+        
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
             quotes.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolId.toString());
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
             })
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
@@ -117,7 +118,7 @@ const ListTicker = (props: IListTickerProps) => {
         if (wsConnected) {
             let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
             quotes.forEach(item => {
-                unsubscribeQuoteReq.addSymbolCode(item.symbolId.toString());
+                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
@@ -346,7 +347,7 @@ const ListTicker = (props: IListTickerProps) => {
         const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
         if (symbolIdAdd !== 0) {
             const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
-            subscribeQuoteEvent([itemLastQuote])
+            itemLastQuote && subscribeQuoteEvent([itemLastQuote])
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
