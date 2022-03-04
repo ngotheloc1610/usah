@@ -94,14 +94,14 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
+    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {        
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
             quotes.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item);
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
             })
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
