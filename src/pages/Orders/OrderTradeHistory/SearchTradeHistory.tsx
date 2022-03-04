@@ -15,7 +15,12 @@ import queryString from 'query-string';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-function SearchTradeHistory() {
+interface ISearchTradeHistoryProps {
+    getOrderSide: (item: number) => void
+}
+
+function SearchTradeHistory(props: ISearchTradeHistoryProps) {
+    const { getOrderSide } = props
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
     const [orderSideSell, setOrderSideSell] = useState(false)
@@ -25,9 +30,15 @@ function SearchTradeHistory() {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [symbolName, setSymbolName] = useState<string[]>([])
     const [currentDate, setCurrentDate] = useState('')
-    
+
     useEffect(() => {
-        var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+        const today: number = new Date().getDate();
+        let currentDate = '';
+        if (today > 0 && today < 10) {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+        } else {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+        }
         setCurrentDate(currentDate);
         setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setDateTimeTo(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
@@ -79,8 +90,8 @@ function SearchTradeHistory() {
     }, [])
 
     const sendMessageTradeSearch = () => {
-         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-         buildMessage(accountId);
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        buildMessage(accountId);
     }
 
     const buildMessage = (accountId: string) => {
@@ -117,6 +128,7 @@ function SearchTradeHistory() {
 
     const handleSearch = () => {
         sendMessageTradeSearch()
+        getOrderSide(orderType)
     }
 
     const handlKeyDown = (event: any) => {
@@ -132,10 +144,10 @@ function SearchTradeHistory() {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_SELL)
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_BUY)
         }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)

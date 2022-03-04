@@ -11,7 +11,9 @@ import { ACCOUNT_ID, FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME 
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
-    
+    const [oderSide, setOrderSide] = useState(0)
+console.log(15, getDataTradeHistory);
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -26,12 +28,24 @@ const OrderTradeHistory = () => {
         return () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
-        };  
+        };
     }, [])
 
-    const buildMessage = (accountId: string) => {
-        const today = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+    // useEffect(() => {
+    //     const xxx = getDataTradeHistory.filter((item: any) => item.orderType === oderSide)
+    //     setGetDataTradeHistory(xxx);
         
+    // }, [oderSide])
+
+    const getOrderSide = (item: number) => {
+        setOrderSide(item)
+        const xxx = getDataTradeHistory.filter((o: any) => o.orderType === item)
+        setGetDataTradeHistory(xxx);
+    }
+
+    const buildMessage = (accountId: string) => {
+        const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -52,7 +66,7 @@ const OrderTradeHistory = () => {
     const sendTradeHistoryReq = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
-        
+
     }
 
     const _renderTradeHistory = () => {
@@ -60,7 +74,7 @@ const OrderTradeHistory = () => {
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <SearchTradeHistory />
+                        <SearchTradeHistory getOrderSide={getOrderSide} />
                         <TableTradeHistory getDataTradeHistory={getDataTradeHistory} />
                     </div>
                 </div>

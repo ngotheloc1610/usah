@@ -45,7 +45,13 @@ function OrderHistorySearch() {
     }, [])
 
     useEffect(() => {
-        var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+        const today: number = new Date().getDate();
+        let currentDate = '';
+        if (today > 0 && today < 10) {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+        } else {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+        }
         setCurrentDate(currentDate);
         setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
@@ -60,7 +66,7 @@ function OrderHistorySearch() {
     }
 
     const sendMessageOrderHistory = () => {
-        
+
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
     }
@@ -133,7 +139,7 @@ function OrderHistorySearch() {
             }
         }
     }
-    
+
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
             setTicker(getSymbolId(value, symbolList))
