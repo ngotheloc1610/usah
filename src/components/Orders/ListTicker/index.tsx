@@ -65,9 +65,9 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }, []);
 
-    useEffect(() => {
+    useEffect(() => {        
         subscribeQuoteEvent(lstWatchingTickers);
-    }, [msgSuccess]);
+    }, [lstWatchingTickers]);
 
     useEffect(() => {
         processQuote(quoteEvent);
@@ -89,13 +89,12 @@ const ListTicker = (props: IListTickerProps) => {
                     }
                 }
             });
-
+            
             setPageShowCurrentLastQuote(tmpList);
         }
     }
 
     const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
-        
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
@@ -111,7 +110,7 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const unSubscribeQuoteEvent = (quotes) => {
+    const unSubscribeQuoteEvent = (quotes: ILastQuote[]) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
@@ -167,7 +166,7 @@ const ListTicker = (props: IListTickerProps) => {
         return () => {
             lastQuotesRes.unsubscribe();
         }
-    }, [symbolList, msgSuccess]);
+    }, [symbolList]);
 
     useEffect(() => {
         if (lstWatchingTickers.length > 0) {
