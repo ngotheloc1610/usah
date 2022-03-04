@@ -65,3 +65,32 @@ message CancelOrderResponse {
 	string msg_text = 2;
   	repeated Order order = 3;
 }
+
+//Notify order status
+message OrderEvent {
+  repeated Order order = 1;
+}
+
+//Notify trade events
+message TradeEvent {
+  repeated Trade trade = 1;
+}
+
+//Subscribe Trade event
+message SubscribeTradeEventRequest {
+	repeated string symbol_code = 1;
+}
+message SubscribeTradeEventResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+}
+
+//Unsubscribe Trade event
+message UnsubscribeTradeEventRequest {
+	repeated string symbol_code = 1;
+}
+
+message UnsubscribeTradeEventResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+}

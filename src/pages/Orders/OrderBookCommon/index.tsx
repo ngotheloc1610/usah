@@ -12,6 +12,7 @@ import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
 import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
+import * as tspb from "../../../models/proto/trading_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
@@ -85,6 +86,10 @@ const OrderBookCommon = () => {
             }
         });
 
+        const unsubscribeTrade = wsService.getUnsubscribeTradeSubject().subscribe(resp => {
+            console.log(90, resp)
+        })
+
         const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp)
         })
@@ -97,12 +102,14 @@ const OrderBookCommon = () => {
 
         return () => {
             unSubscribeQuoteEvent(symbolSearch);
+            unsubscribeTradeEvent(symbolSearch);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
             getLastQuotesRes.unsubscribe();
             unsubscribeQuote.unsubscribe();
             subscribeQuote.unsubscribe();
             quotes.unsubscribe();
+            unsubscribeTrade.unsubscribe();
         }
     }, []);
 
@@ -269,8 +276,10 @@ const OrderBookCommon = () => {
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+            unsubscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
         }
-        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '')
+        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+        subscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
         setSymbolSearch(itemTickerInfor?.symbolId.toString() || '');
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
@@ -307,6 +316,35 @@ const OrderBookCommon = () => {
         }
         setTickerSelect(itemTicker.ticker)
         setCurrentTicker(itemTicker);
+    }
+
+    const subscribeTradeEvent = (symbolId: string) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
+            console.log(327, symbolId)
+            subscribeTradeEvent.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unsubscribeTradeEvent = (symbolId: string) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeTradeEventReq = new tradingServicePb.UnsubscribeTradeEventRequest();
+            unsubscribeTradeEventReq.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(unsubscribeTradeEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
 
