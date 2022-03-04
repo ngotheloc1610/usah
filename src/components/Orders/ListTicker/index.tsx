@@ -101,13 +101,13 @@ const ListTicker = (props: IListTickerProps) => {
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
             quotes.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+                subscribeQuoteEventReq.addSymbolCode(item);
             })
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
-        }
+        }        
     }
 
     const unSubscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -123,7 +123,7 @@ const ListTicker = (props: IListTickerProps) => {
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
-        }
+        }        
     }
 
     useEffect(() => {
@@ -340,13 +340,19 @@ const ListTicker = (props: IListTickerProps) => {
         if (lstSymbolId.length === 0 || lstSymbolId.indexOf(symbolIdAdd) === -1) {
             lstSymbolId.push(symbolIdAdd);
             setLstSymbolIdAdd(lstSymbolId);
+
+            const newItem = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
+            newItem && subscribeQuoteEvent([newItem])
         } else {
             return;
         }
+        handleAddTicker();
+    }
+
+    const handleAddTicker = () => {
         const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
         if (symbolIdAdd !== 0) {
-            const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
-            itemLastQuote && subscribeQuoteEvent([itemLastQuote])
+            const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);            
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
@@ -475,7 +481,3 @@ const ListTicker = (props: IListTickerProps) => {
 ListTicker.defaultProps = defaultProps;
 
 export default ListTicker;
-
-function assignChangeValue(arg0: ILastQuote, item: IQuoteEvent) {
-    throw new Error("Function not implemented.");
-}
