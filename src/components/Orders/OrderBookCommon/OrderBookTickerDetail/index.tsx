@@ -1,4 +1,5 @@
 import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
+import { calcChange, calcPctChange } from '../../../../helper/utils';
 import { IPropsDetail } from '../../../../interfaces/order.interface';
 import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
 import './OrderBookTickerDetail.css';
@@ -6,9 +7,16 @@ import './OrderBookTickerDetail.css';
 const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
 const OrderBookTickerDetail = (props: IPropsDetail) => {
     const { getTickerDetail } = props;
+    console.log(10, getTickerDetail)
     const getTickerName = (symbolId: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         return tickerList.find(item => item.symbolId.toString() === symbolId)?.tickerName;
+    }
+
+    const getTickerInfor = (symbolCode: string) => {
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const ticker = symbols.find(o => o?.symbolId.toString() === symbolCode);
+        return ticker;
     }
 
     return <>
@@ -44,20 +52,26 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
-                                <td className="text-end">{getTickerDetail.netChange}</td>
+                                <td className="text-end">
+                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
-                                <td className="text-end">{getTickerDetail.pctChange}</td>
+                                <td className="text-end">
+                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Daily Trading Vol</strong></td>
-                                <td className="text-end">{getTickerDetail.tickPerDay}</td>
+                                <td className="text-end">{getTickerDetail.volumePerDay}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{ }</td>
+                                <td className="text-end">-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -68,22 +82,22 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{ }</td>
+                                <td className="text-end">-</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{ }</td>
+                                <td className="text-end">{getTickerInfor(getTickerDetail.symbolCode)?.lotSize}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{ }</td>
+                                <td className="text-end">-</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Ceiling</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{ }</td>
+                                <td className="text-end">-</td>
                             </tr>
                         </tbody>
                     </table>
