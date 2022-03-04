@@ -29,8 +29,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getLastQuote();
+                unSubscribeQuoteEvent();
             }
         });
+
+        const unsubscribeResp = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
+            if (resp.msgText === "SUCCESS") {
+                subscribeQuoteEvent();
+            }
+            
+        })
 
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
@@ -54,16 +62,13 @@ const TickerDashboard = (props: ITickerDashboard) => {
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
+            unsubscribeResp.unsubscribe();
         }
     }, []);
 
     useEffect(() => {
         renderData();
     }, [listDataTicker]);
-
-    useEffect(() => {
-        subscribeQuoteEvent();
-    }, [symbolList])
 
     useEffect(() => {
         processQuote(quoteEvent);
@@ -76,8 +81,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
     }
 
     const processQuote = (quotes: IQuoteEvent[]) => {
-        const tmpList = [...listData];
-        if (quotes && quotes.length > 0) {
+        const tmpList = [...symbolList];
+        if (quotes && quotes.length > 0 && tmpList && tmpList.length > 0) {
             quotes.forEach(item => {
                const index = tmpList.findIndex(o => o?.symbolId.toString() === item?.symbolCode);
                if (index >= 0) {

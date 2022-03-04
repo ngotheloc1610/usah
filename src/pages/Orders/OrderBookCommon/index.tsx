@@ -12,6 +12,7 @@ import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
 import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
+import * as tspb from "../../../models/proto/trading_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
@@ -57,7 +58,7 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList()
                 sendMessage();
-                getOrderBooks()
+                getOrderBooks();
             }
         });
 
@@ -69,12 +70,12 @@ const OrderBookCommon = () => {
         listTicker.forEach((item: ITickerDetail) => {
             listSymbolCode.push(item.ticker);
         });
-        setTickerSelect(listSymbolCode[0]);
+        // setTickerSelect(listSymbolCode[0]);
         setListSymbolCode(listSymbolCode)
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
             const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-            setItemTickerDetail(tickerDetail)
+            // setItemTickerDetail(tickerDetail)
         });
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
@@ -84,6 +85,14 @@ const OrderBookCommon = () => {
                 }
             }
         });
+
+        const unsubscribeTrade = wsService.getUnsubscribeTradeSubject().subscribe(resp => {
+            console.log(90, resp)
+        })
+
+        const subscribeTradeRes = wsService.getSubscribeTradeSubject().subscribe(resp => {
+            console.log(resp);
+        })
 
         const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp)
@@ -97,12 +106,15 @@ const OrderBookCommon = () => {
 
         return () => {
             unSubscribeQuoteEvent(symbolSearch);
+            unsubscribeTradeEvent(symbolSearch);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
             getLastQuotesRes.unsubscribe();
             unsubscribeQuote.unsubscribe();
             subscribeQuote.unsubscribe();
             quotes.unsubscribe();
+            unsubscribeTrade.unsubscribe();
+            subscribeTradeRes.unsubscribe();
         }
     }, []);
 
@@ -266,11 +278,14 @@ const OrderBookCommon = () => {
     const getTickerSearch = (value: string) => {
         const symbolCode = value !== undefined ? value : '';
         setSymbolSearch(symbolCode);
+        setTickerSelect(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+            unsubscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
         }
-        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '')
+        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+        subscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
         setSymbolSearch(itemTickerInfor?.symbolId.toString() || '');
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
@@ -305,7 +320,37 @@ const OrderBookCommon = () => {
             side: item.side,
             symbolId: assTickerInfor?.symbolId
         }
+        setTickerSelect(itemTicker.ticker)
         setCurrentTicker(itemTicker);
+    }
+
+    const subscribeTradeEvent = (symbolId: string) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
+            console.log(327, symbolId)
+            subscribeTradeEvent.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unsubscribeTradeEvent = (symbolId: string) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rpcpb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeTradeEventReq = new tradingServicePb.UnsubscribeTradeEventRequest();
+            unsubscribeTradeEventReq.addSymbolCode(symbolId);
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(unsubscribeTradeEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
 
@@ -349,7 +394,7 @@ const OrderBookCommon = () => {
                     onClick={searchTicker}
                     disablePortal
                     options={listSymbolCode}
-                    // value={tickerSelect}
+                    value={tickerSelect}
                     sx={{ width: 300 }}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />
@@ -392,7 +437,7 @@ const OrderBookCommon = () => {
                                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                             </div>
                                             <div className="card-body">
-                                                <OrderForm isOrderBook={true} currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                                <OrderForm isOrderBook={true} currentTicker={currentTicker} tickerCode={tickerSelect} messageSuccess={messageSuccess} />
                                             </div>
                                         </div>
                                     </div>

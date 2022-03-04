@@ -12,6 +12,7 @@ import CurrencyInput from 'react-currency-masked-input';
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
+    tickerCode?: string;
     currentTicker: ITickerInfo;
     isDashboard: boolean;
     messageSuccess: (item: string) => void;
@@ -34,7 +35,7 @@ const defaultProps = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard, messageSuccess, isOrderBook } = props;
+    const { currentTicker, isDashboard, messageSuccess, isOrderBook, tickerCode } = props;
     const [tickerName, setTickerName] = useState(currentTicker.tickerName || '');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
@@ -225,7 +226,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
                 <div className="fs-18 mr-3">
-                    <b>{tickerName ? `${currentTicker.ticker}` : ''}</b>
+                    <b>{currentTicker ? currentTicker.ticker : ''}</b>
                 </div>
             </div>
 

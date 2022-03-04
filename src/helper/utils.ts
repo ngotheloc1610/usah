@@ -105,7 +105,7 @@ export const assignListPrice = (prvList, currentList) => {
             }
         });
     }
-    return prvList;
+    return prvList.sort((a, b) => a?.price.localeCompare(b?.price));
 }
 
 export const checkValue = (preValue, currentValue) => {
@@ -129,7 +129,7 @@ export const calcChange = (lastPrice: string, open: string) => {
 export const calcPctChange = (lastPrice: string, open: string) => {
     const change = calcChange(lastPrice, open);
     if (!isNaN(Number(open)) && Number(open) !== 0) {
-        return change / Number(open);
+        return change / Number(open) * 100;
     }
     return 0;
 }
