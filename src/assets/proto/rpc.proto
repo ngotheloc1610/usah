@@ -52,12 +52,22 @@ message RpcMessage {
     UNSUBSCRIBE_QUOTE_REQ						= 22;
     CHART_REQ									= 23;
 
+    SUBSCRIBE_ORDER_REQ						= 24;
+    UNSUBSCRIBE_ORDER_REQ						= 25;
+    SUBSCRIBE_TRADE_REQ						= 26;
+    UNSUBSCRIBE_TRADE_REQ						= 27;
+
     QUOTE_EVENT		                           	= 29;	//notify new quote to client
 
     LAST_QUOTE_RES                              = 30;
     SUBSCRIBE_QUOTE_RES							= 31;
     UNSUBSCRIBE_QUOTE_RES						= 32;
     CHART_RES									= 33;
+
+    SUBSCRIBE_ORDER_RES						= 34;
+    UNSUBSCRIBE_ORDER_RES						= 35;
+    SUBSCRIBE_TRADE_RES						= 36;
+    UNSUBSCRIBE_TRADE_RES						= 37;
 
 	//Trading messasge (60~99)
 	NEW_ORDER_SINGLE_REQ                        = 60;
@@ -67,6 +77,8 @@ message RpcMessage {
 	CANCEL_ORDER_REQ 	                        = 64;
 
 	ORDER_EVENT		 	                        = 68;	//notify position changed
+
+	TRADE_EVENT		 	                        = 69;	//notify trade event
 
 	NEW_ORDER_SINGLE_RES                        = 70;
 	NEW_ORDER_MULTI_RES                         = 71;
