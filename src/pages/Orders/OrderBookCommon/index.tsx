@@ -57,7 +57,7 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList()
                 sendMessage();
-                getOrderBooks()
+                getOrderBooks();
             }
         });
 
@@ -69,12 +69,12 @@ const OrderBookCommon = () => {
         listTicker.forEach((item: ITickerDetail) => {
             listSymbolCode.push(item.ticker);
         });
-        setTickerSelect(listSymbolCode[0]);
+        // setTickerSelect(listSymbolCode[0]);
         setListSymbolCode(listSymbolCode)
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
             const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-            setItemTickerDetail(tickerDetail)
+            // setItemTickerDetail(tickerDetail)
         });
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
@@ -305,6 +305,7 @@ const OrderBookCommon = () => {
             side: item.side,
             symbolId: assTickerInfor?.symbolId
         }
+        setTickerSelect(itemTicker.ticker)
         setCurrentTicker(itemTicker);
     }
 

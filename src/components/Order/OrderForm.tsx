@@ -114,7 +114,6 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
-        console.log(117, newPrice)
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
     }
@@ -227,7 +226,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
                 <div className="fs-18 mr-3">
-                    <b>{tickerCode ? tickerCode : ''}</b>
+                    <b>{currentTicker ? currentTicker.ticker : ''}</b>
                 </div>
             </div>
 

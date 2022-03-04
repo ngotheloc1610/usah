@@ -105,7 +105,7 @@ export const assignListPrice = (prvList, currentList) => {
             }
         });
     }
-    return prvList;
+    return prvList.sort((a, b) => a?.price.localeCompare(b?.price));
 }
 
 export const checkValue = (preValue, currentValue) => {

@@ -7,7 +7,6 @@ import './OrderBookTickerDetail.css';
 const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
 const OrderBookTickerDetail = (props: IPropsDetail) => {
     const { getTickerDetail } = props;
-    console.log(10, getTickerDetail)
     const getTickerName = (symbolId: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         return tickerList.find(item => item.symbolId.toString() === symbolId)?.tickerName;
