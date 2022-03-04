@@ -90,6 +90,10 @@ const OrderBookCommon = () => {
             console.log(90, resp)
         })
 
+        const subscribeTradeRes = wsService.getSubscribeTradeSubject().subscribe(resp => {
+            console.log(resp);
+        })
+
         const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp)
         })
@@ -110,6 +114,7 @@ const OrderBookCommon = () => {
             subscribeQuote.unsubscribe();
             quotes.unsubscribe();
             unsubscribeTrade.unsubscribe();
+            subscribeTradeRes.unsubscribe();
         }
     }, []);
 
@@ -273,6 +278,7 @@ const OrderBookCommon = () => {
     const getTickerSearch = (value: string) => {
         const symbolCode = value !== undefined ? value : '';
         setSymbolSearch(symbolCode);
+        setTickerSelect(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
