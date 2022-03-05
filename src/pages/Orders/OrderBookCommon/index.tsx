@@ -41,7 +41,7 @@ const OrderBookCommon = () => {
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [tickerSelect, setTickerSelect] = useState('');
-
+    const [tradeEvent, setTradeEvent] = useState([]);
     const [symbolSearch, setSymbolSearch] = useState('');
 
     const defaultData = () => {
@@ -110,7 +110,7 @@ const OrderBookCommon = () => {
 
         const trade = wsService.getTradeEvent().subscribe(trades => {
             if (trades && trades.tradeList) {
-                processTradeEvent(trades.tradeList)
+                setTradeEvent(trades.tradeList);
             }
         })
 
@@ -133,6 +133,10 @@ const OrderBookCommon = () => {
         processQuotes(quoteEvent);
     }, [quoteEvent])
 
+    useEffect(() => {
+        processTradeEvent(tradeEvent);
+    }, [tradeEvent])
+
     const assignTickerToOrderForm = (ticker: string) => {
         const element = listTicker.find(o => o?.ticker === ticker);
         const tradingModelPb: any = tmpb
@@ -152,7 +156,7 @@ const OrderBookCommon = () => {
     const processTradeEvent = (trades: ITradeHistory[]) => {
         const tmp = [...tradeHistory];
         trades.forEach(item => {
-            tmp.push(item);
+            tmp.unshift(item);
         });
         setTradeHistory(tmp);
     }
