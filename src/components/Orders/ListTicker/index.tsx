@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { LIST_PRICE_TYPE, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { assignListPrice, formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -84,8 +84,8 @@ const ListTicker = (props: IListTickerProps) => {
                     tmpList[index] = {
                         ...tmpList[index],
 
-                        asksList: !tmpList[index].asksList ? assignListPrice([], item.asksList) : assignListPrice(tmpList[index].asksList, item.asksList),
-                        bidsList: !tmpList[index].bidsList ? assignListPrice([], item.bidsList) : assignListPrice(tmpList[index].bidsList, item.bidsList),
+                        asksList: !tmpList[index].asksList ? assignListPrice([], item.asksList, LIST_PRICE_TYPE.askList) : assignListPrice(tmpList[index].asksList, item.asksList, LIST_PRICE_TYPE.askList),
+                        bidsList: !tmpList[index].bidsList ? assignListPrice([], item.bidsList, LIST_PRICE_TYPE.bidList) : assignListPrice(tmpList[index].bidsList, item.bidsList, LIST_PRICE_TYPE.bidList),
                     }
                 }
             });
