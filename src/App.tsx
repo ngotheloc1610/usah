@@ -20,6 +20,13 @@ const App = () => {
   }, [isLogin])
 
   const checkLoginPage = () => {
+    if (window.location.pathname === '/login') {
+      setIsLogin(true);
+      localStorage.removeItem(ACCOUNT_ID);
+      localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+      localStorage.removeItem(EXPIRE_TIME);
+      return;
+    }
     ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
       if (resp) {
         setIsLogin(false);
@@ -37,7 +44,6 @@ const App = () => {
       <Footer />
     </>
   )
-
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

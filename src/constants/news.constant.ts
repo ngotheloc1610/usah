@@ -1,0 +1,1 @@
+export const ItemsPage = [5, 10, 20];

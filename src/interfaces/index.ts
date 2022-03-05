@@ -27,3 +27,9 @@ export interface IReqLogin {
     status: number;
     statusText: string;
 }
+
+export interface IParamNews {
+    page_size: number;
+    next_page: number;
+    prev_page: number;
+}

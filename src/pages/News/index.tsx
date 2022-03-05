@@ -1,16 +1,56 @@
-import { LIST_NEWS_NAV, NOTIFICATION_LIST, NOTIFICATION_DETAIL } from '../../mocks'
-import { INewsNav, INotificationList, INotificationDetail } from '../../interfaces/news.interface'
+import { LIST_NEWS_NAV, NOTIFICATION_LIST, NOTIFICATION_DETAIL, DEFAULT_NEWS } from '../../mocks'
+import { INewsNav, INotificationList, INotificationDetail, IDataNews, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
-import {useState} from 'react'
+import { useEffect, useState } from 'react'
+import { IParamNews } from '../../interfaces'
+import { get_api_news } from '../../constants/api.constant'
+import axios from 'axios';
+import { toast } from "react-toastify";
+import { KEY_LOCAL_STORAGE } from '../../constants/general.constant'
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
+import { ItemsPage } from '../../constants/news.constant'
+import { success } from '../../constants'
 
-function News() {
+
+const News = () => {
+
+    const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(2)
+    const [pageSize, setPageSize] = useState<number>(5);
+    const [nextPage, setNextPage] = useState<number>(2);
+    const [prevPage, setPrevPage] = useState<number>(0);
+    const [listDataNews, setListDataNews] = useState<[INews]>();
+    const [totalPage, setTotalPage] = useState<number>(1);
+
+    useEffect(() => {
+        const url = `${api_url}${get_api_news}`;
+        const paramNews: IParamNews = {
+            page_size: pageSize,
+            next_page: nextPage,
+            prev_page: prevPage,
+        }
+        const config = {
+            headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
+            params: paramNews
+        }
+        axios.get<IReqNews, IReqNews>(url, config).then((resp) => {
+            console.log(37, resp);
+            if (resp.meta.code === success) {
+                setListDataNews(resp.data.results);
+            }
+        },
+            (error) => {
+                console.log("errors");
+            });
+    }, [pageSize, nextPage, prevPage])
 
     const _renderNewsHeader = () => (
         <div className="card-header">
             <h6 className="card-title fs-6 mb-0">All Notications</h6>
         </div>
     )
+
 
     const _renderNewsBodyNavItemLeft = () => (
         LIST_NEWS_NAV.map((item: INewsNav, index: number) => (
@@ -33,14 +73,13 @@ function News() {
     )
 
     const handleClick = (index: number) => {
-        setELActive(index)  
+        setELActive(index)
     }
-    
+
     const _renderNewsNotificationItem = () => (
-        NOTIFICATION_LIST.map((item: INotificationList, index: number) => (
-            <div className={item.unRead ? "notification-item unread" : "notification-item"
-                && elActive === index ? "notification-item active" : "notification-item"
-            }
+        listDataNews?.map((item: INews, index: number) => (
+            <div className={item.read_flag ? "notification-item unread" : "notification-item"
+                && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
                 onClick={() => handleClick(index)}
             >
@@ -48,32 +87,39 @@ function News() {
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
-                    {/* Sau này sẽ có api trả về hiện tại đang fake data */}
-                    <h6 className="item-title mb-0">POEM<sup>2</sup> News</h6>
-                    <div className="item-summary opacity-75">{item.content}</div>
+                    <h6 className="item-title mb-0">{item?.title}</h6>
+                    <div className="item-summary opacity-75">{item?.content}</div>
                 </div>
             </div>
 
         ))
     )
 
+    const handlePage = (e, value) => {
+        const resultNextPage = value + 1;
+        const resultPrevPage = value -1;
+        setNextPage(resultNextPage);
+        setPrevPage(resultPrevPage);
+    }
+
+    const _renderItemsPage = () => (
+        ItemsPage.map((item, index) => {
+            return <option value={item} key={index}>{item}</option>
+        })
+    )
+
+    const handleItemsPage = (event) => {
+        setPageSize(event.target.value);
+    }
     const _renderNewsPagination = () => (
         <nav className="d-flex justify-content-between align-items-center border-top pt-3">
             <div className="d-flex align-items-center">
-                <select className="form-select form-select-sm mb-0 w-4" >
-                    <option value="1">5</option>
-                    <option value="2">10</option>
-                    <option value="3">20</option>
+                <select className="form-select form-select-sm mb-0 w-4" onChange={handleItemsPage}>
+                    {_renderItemsPage()}
                 </select>
                 <div className="ms-3">items/page</div>
             </div>
-            <ul className="pagination mb-0">
-                <li className="page-item"><a className="page-link" href="#"><i className="bi bi-chevron-compact-left"></i></a></li>
-                <li className="page-item"><a className="page-link" href="#">1</a></li>
-                <li className="page-item"><a className="page-link" href="#">2</a></li>
-                <li className="page-item"><a className="page-link" href="#">3</a></li>
-                <li className="page-item"><a className="page-link" href="#"><i className="bi bi-chevron-compact-right"></i></a></li>
-            </ul>
+            <Pagination page={nextPage - 1} variant="outlined" onChange={handlePage} shape="rounded" count={3} showFirstButton showLastButton />
         </nav>
     )
 
