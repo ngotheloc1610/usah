@@ -53,10 +53,9 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         if (wsConnected) {
             let currentDate = new Date();
             let cancelOrder = new tradingServicePb.CancelOrderRequest();
-
-            let order = new tradingModelPb.Order();
+            cancelOrder.setHiddenConfirmFlg(false);
             listOrder.forEach(item => {
-                cancelOrder.setHiddenConfirmFlg(false);
+                let order = new tradingModelPb.Order();
                 order.setOrderId(item.orderId);
                 order.setAmount(`${item.amount}`);
                 order.setPrice(`${item.price}`);
