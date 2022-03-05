@@ -26,16 +26,16 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const getListAsksBids = (itemTickerDetail: ILastQuote) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
-        let askList = itemTickerDetail.asksList;
-        let bidList = itemTickerDetail.bidsList;
+        const askList = itemTickerDetail.asksList.sort((a, b) => b?.price.localeCompare(a?.price));
+        const bidList = itemTickerDetail.bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
                 const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
                 const volumeBid = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume : '-';
                 const tradableAsk = (askList[counter] && askList[counter].tradable) ? askList[counter].tradable : false;
                 const volumeAsk = (askList[counter] && askList[counter].volume) ? askList[counter].volume : '-';
-                const askPrice = (askList[counter] && askList[counter].price) ? askList[counter].price : '-';
-                const bidPrice = (bidList[counter] && bidList[counter].price) ? bidList[counter].price : '-';
+                const askPrice = (askList[counter] && askList[counter].price) ? Number(askList[counter].price).toFixed(2) : '-';
+                const bidPrice = (bidList[counter] && bidList[counter].price) ? Number(bidList[counter].price).toFixed(2) : '-';
                 const numberAsks = (askList[counter] && askList[counter].volume) ? askList[counter].volume.toString() : '-';
                 const numberBids = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume.toString() : '-';
                 const isAskNumOrder = askList[counter] && askList[counter].numOrders;
