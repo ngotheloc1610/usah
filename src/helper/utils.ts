@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
 import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
@@ -71,7 +71,7 @@ export const calcPriceDecrease = (currentPrice: number, tickSize: number, decima
     return Math.round((currentPrice - tickSize) * Math.pow(10, decimalLenght)) / Math.pow(10, decimalLenght)
 }
 
-export const assignListPrice = (prvList, currentList) => {
+export const assignListPrice = (prvList, currentList, type: string) => {
     if (currentList) {
         if (currentList.length === 0) {
             return currentList;
@@ -96,16 +96,29 @@ export const assignListPrice = (prvList, currentList) => {
                     });
                 }
             } else {
-                prvList.push({
-                    numOrders: item.numOrders.toString(),
-                    price: item.price ? item.price : "-",
-                    tradable: false,
-                    volume: item.volume ? item.volume : "-"
-                });
+                if (prvList.length < MARKET_DEPTH_LENGTH) {}
+                    prvList.push({
+                        numOrders: item.numOrders.toString(),
+                        price: item.price ? item.price : "-",
+                        tradable: false,
+                        volume: item.volume ? item.volume : "-"
+                    });
             }
         });
     }
-    return prvList.sort((a, b) => a?.price.localeCompare(b?.price));
+    const output = [];
+    let sortList = []
+    if (type === LIST_PRICE_TYPE.askList) {
+        sortList =  prvList.sort((a, b) => a?.price.localeCompare(b?.price));
+    } else {
+        sortList =  prvList.sort((b, a) => b?.price.localeCompare(a?.price));
+    }
+    let counter = 0;
+    while(counter < MARKET_DEPTH_LENGTH) {
+        output.push(sortList[counter]) ;
+        counter ++;
+    }
+    return output;
 }
 
 export const checkValue = (preValue, currentValue) => {
