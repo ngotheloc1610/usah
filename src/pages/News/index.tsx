@@ -1,9 +1,8 @@
-import { LIST_NEWS_NAV, NOTIFICATION_LIST, NOTIFICATION_DETAIL, DEFAULT_NEWS } from '../../mocks'
+import { LIST_NEWS_NAV, NOTIFICATION_LIST, NOTIFICATION_DETAIL } from '../../mocks'
 import { INewsNav, INotificationList, INotificationDetail, IDataNews, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { IParamNews } from '../../interfaces'
-import { get_api_news } from '../../constants/api.constant'
+import { BearerToken, get_api_news } from '../../constants/api.constant'
 import axios from 'axios';
 import { toast } from "react-toastify";
 import { KEY_LOCAL_STORAGE } from '../../constants/general.constant'
@@ -25,15 +24,16 @@ const News = () => {
 
     useEffect(() => {
         const url = `${api_url}${get_api_news}`;
-        const paramNews: IParamNews = {
+        const paramNews = {
             page_size: pageSize,
             next_page: nextPage,
             prev_page: prevPage,
         }
-        const config = {
-            headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
-            params: paramNews
-        }
+        // const config = {
+        //     headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
+        //     params: paramNews
+        // }
+        const config = {...BearerToken, params: paramNews}
         axios.get<IReqNews, IReqNews>(url, config).then((resp) => {
             // để check data trả về
             console.log(37, resp);

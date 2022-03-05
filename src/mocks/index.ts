@@ -3,7 +3,6 @@ import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
 import { ITickerDetail } from "../interfaces/ticker.interface";
-import { IParamNews } from "../interfaces";
 
 export const TradingModel: any = tdpb;
 
@@ -1642,8 +1641,3 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
 
 export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
 
-export const DEFAULT_NEWS: IParamNews = {
-    page_size: 10,
-    next_page: 2,
-    prev_page: 0,
-}
