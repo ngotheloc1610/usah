@@ -7,6 +7,7 @@ import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
 import { IAskAndBidPrice, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
@@ -14,7 +15,7 @@ import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
 import ReduxPersist from "../../../config/ReduxPersist";
-import { SOCKET_CONNECTED, LIST_TICKER_INFO } from '../../../constants/general.constant';
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
@@ -25,8 +26,8 @@ import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../..
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
-
-    const [getDataTradeHistory, setGetDataTradeHistory] = useState<ITradeHistory[]>([]);
+ 
+    const [tradeHistory, setTradeHistory] = useState<ITradeHistory[]>([]);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
@@ -57,25 +58,31 @@ const OrderBookCommon = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendMsgSymbolList()
-                sendMessage();
                 getOrderBooks();
             }
+            const listSymbolCode: string[] = []
+            listTicker.forEach((item: ITickerDetail) => {
+                listSymbolCode.push(item.ticker);
+            });
+            getTickerSearch(listSymbolCode[0]);
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setGetDataTradeHistory(res.tradeList)
+            setTradeHistory(res.tradeList)
         });
 
         const listSymbolCode: string[] = []
         listTicker.forEach((item: ITickerDetail) => {
             listSymbolCode.push(item.ticker);
         });
-        // setTickerSelect(listSymbolCode[0]);
-        setListSymbolCode(listSymbolCode)
+        getTickerSearch(listSymbolCode[0]);
+        
+        setListSymbolCode(listSymbolCode);
+        
+        assignTickerToOrderForm(listSymbolCode[0]);
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
             const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-            // setItemTickerDetail(tickerDetail)
         });
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
@@ -87,7 +94,6 @@ const OrderBookCommon = () => {
         });
 
         const unsubscribeTrade = wsService.getUnsubscribeTradeSubject().subscribe(resp => {
-            console.log(90, resp)
         })
 
         const subscribeTradeRes = wsService.getSubscribeTradeSubject().subscribe(resp => {
@@ -122,12 +128,28 @@ const OrderBookCommon = () => {
         processQuotes(quoteEvent);
     }, [quoteEvent])
 
+    const assignTickerToOrderForm = (ticker: string) => {
+        const element = listTicker.find(o => o?.ticker === ticker);
+        const tradingModelPb: any = tmpb
+        if (element) {
+            const itemTicker = {
+                tickerName: element?.tickerName,
+                ticker: element?.ticker,
+                lastPrice: '0',
+                volume: '0',
+                side: tradingModelPb.OrderType.OP_SELL,
+                symbolId: element.symbolId
+            }
+            setCurrentTicker(itemTicker);
+        }
+    }
+
     const processQuotes = (quotes: IQuoteEvent[]) => {
         const quote = quotes.find(o => o?.symbolCode === itemTickerDetail?.symbolCode);
         if (quote) {
             const tmpItem: ILastQuote = {
-                asksList: assignListPrice(itemTickerDetail.asksList, quote.asksList),
-                bidsList: assignListPrice(itemTickerDetail.bidsList, quote.bidsList),
+                asksList: assignListPrice(itemTickerDetail.asksList, quote.asksList, LIST_PRICE_TYPE.askList),
+                bidsList: assignListPrice(itemTickerDetail.bidsList, quote.bidsList, LIST_PRICE_TYPE.bidList),
                 close: checkValue(itemTickerDetail.close, quote.close),
                 currentPrice: checkValue(itemTickerDetail.currentPrice, quote.currentPrice),
                 high: checkValue(itemTickerDetail.high, quote.high),
@@ -161,7 +183,8 @@ const OrderBookCommon = () => {
         return  calcPctChange(lastPrice, open);
     }
 
-    const prepareMessagee = (accountId: string) => {
+    const getTradeHistory = (symbolId: string) => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -169,6 +192,7 @@ const OrderBookCommon = () => {
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
+            tradeHistoryRequest.setSymbolCode(symbolId);
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
@@ -177,32 +201,6 @@ const OrderBookCommon = () => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
-    }
-
-    const sendMessage = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string = '';
-        if (objAuthen) {
-            if (objAuthen.access_token) {
-                accountId = objAuthen.account_id ? objAuthen.account_id.toString() : '';
-                ReduxPersist.storeConfig.storage.setItem('objAuthen', JSON.stringify(objAuthen).toString());
-                prepareMessagee(accountId);
-                return;
-            }
-        }
-        ReduxPersist.storeConfig.storage.getItem('objAuthen').then(res => {
-            if (res) {
-                const obj = JSON.parse(res);
-                accountId = obj.account_id;
-                prepareMessagee(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID ?? '';
-                prepareMessagee(accountId);
-                return;
-            }
-        });
     }
 
     const handleDataFromWs = () => {
@@ -279,6 +277,7 @@ const OrderBookCommon = () => {
         const symbolCode = value !== undefined ? value : '';
         setSymbolSearch(symbolCode);
         setTickerSelect(symbolCode);
+        assignTickerToOrderForm(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
@@ -286,6 +285,7 @@ const OrderBookCommon = () => {
         }
         subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
         subscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
+        getTradeHistory(itemTickerInfor?.symbolId.toString() || '');
         setSymbolSearch(itemTickerInfor?.symbolId.toString() || '');
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
@@ -330,7 +330,6 @@ const OrderBookCommon = () => {
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
-            console.log(327, symbolId)
             subscribeTradeEvent.addSymbolCode(symbolId);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
@@ -446,7 +445,7 @@ const OrderBookCommon = () => {
                         </div>
                     </div>
                     <div className="col-md-3">
-                        <OrderBookTradeHistory getDataTradeHistory={getDataTradeHistory} />
+                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} />
                     </div>
                 </div>
             </div>

@@ -12,7 +12,7 @@ const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
             </tr>
         ))
     )
-    return <div className="card card-trade-history z-1">
+    return <div className="card card-trade-history">
         <div className="card-header">
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
         </div>

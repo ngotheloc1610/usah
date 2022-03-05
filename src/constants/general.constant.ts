@@ -58,6 +58,11 @@ export const MSG_TEXT = 'msgText';
 
 export const SYMBOL_LIST = 'symbol-list';
 
+export const LIST_PRICE_TYPE = {
+    askList: 'askList',
+    bidList: 'bidList'
+}
+
 export const TITLE_CONFIRM = {
     modify: 'Modify',
     cancel: 'Cancel',
