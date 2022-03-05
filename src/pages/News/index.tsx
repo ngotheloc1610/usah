@@ -35,6 +35,7 @@ const News = () => {
             params: paramNews
         }
         axios.get<IReqNews, IReqNews>(url, config).then((resp) => {
+            // để check data trả về
             console.log(37, resp);
             if (resp.meta.code === success) {
                 setListDataNews(resp.data.results);
