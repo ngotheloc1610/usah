@@ -94,19 +94,23 @@ const OrderBookCommon = () => {
         });
 
         const unsubscribeTrade = wsService.getUnsubscribeTradeSubject().subscribe(resp => {
-        })
+        });
 
         const subscribeTradeRes = wsService.getSubscribeTradeSubject().subscribe(resp => {
-            console.log(resp);
-        })
+        });
 
         const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
-            console.log(resp)
-        })
+        });
 
         const quotes = wsService.getQuoteSubject().subscribe(resp => {
             if (resp && resp.quoteList) {
                 setQuoteEvent(resp.quoteList);
+            }
+        });
+
+        const trade = wsService.getTradeEvent().subscribe(trades => {
+            if (trades && trades.tradeList) {
+                processTradeEvent(trades.tradeList)
             }
         })
 
@@ -121,6 +125,7 @@ const OrderBookCommon = () => {
             quotes.unsubscribe();
             unsubscribeTrade.unsubscribe();
             subscribeTradeRes.unsubscribe();
+            trade.unsubscribe();
         }
     }, []);
 
@@ -142,6 +147,14 @@ const OrderBookCommon = () => {
             }
             setCurrentTicker(itemTicker);
         }
+    }
+
+    const processTradeEvent = (trades: ITradeHistory[]) => {
+        const tmp = [...tradeHistory];
+        trades.forEach(item => {
+            tmp.push(item);
+        });
+        setTradeHistory(tmp);
     }
 
     const processQuotes = (quotes: IQuoteEvent[]) => {
