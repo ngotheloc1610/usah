@@ -17,8 +17,12 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 
+interface IPropsListModifyCancel {
+    orderSide: number;
+}
 
-const ListModifyCancel = () => {
+const ListModifyCancel = (props: IPropsListModifyCancel) => {
+    const { orderSide } = props;
     const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
     const tradingModelPb: any = tspb;
@@ -51,7 +55,14 @@ const ListModifyCancel = () => {
         });
 
         const listOrder = wsService.getListOrder().subscribe(response => {
-            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            let listOrderSortDate: IListOrder[] = [];
+            if (orderSide !== 0) {
+                const historyListFilter = response.orderList.filter((item: any) => item.orderType === orderSide)
+                listOrderSortDate = historyListFilter.sort((a, b) => b.time - a.time);
+                setDataOrder(listOrderSortDate);
+                return
+            };
+            listOrderSortDate = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
         });
 
@@ -64,16 +75,23 @@ const ListModifyCancel = () => {
             listOrder.unsubscribe();
             renderDataSymbolList.unsubscribe();
         }
-    }, []);
+    }, [orderSide]);
 
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
-            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            let listOrderSortDate: IListOrder[] = [];
+            if (orderSide !== 0) {
+                const historyListFilter = response.orderList.filter((item: any) => item.orderType === orderSide)
+                listOrderSortDate = historyListFilter.sort((a, b) => b.time - a.time);
+                setDataOrder(listOrderSortDate);
+                return
+            };
+            listOrderSortDate = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
-    }, [msgSuccess]);
+    }, [msgSuccess, orderSide]);
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';

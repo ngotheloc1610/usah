@@ -1,18 +1,15 @@
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import ReduxPersist from "../../../config/ReduxPersist";
-import queryString from 'query-string';
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
-    const [oderSide, setOrderSide] = useState(0)
-console.log(15, getDataTradeHistory);
+    const [orderSide, setOrderSide] = useState(0);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -22,6 +19,11 @@ console.log(15, getDataTradeHistory);
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+            if (orderSide !== 0) {
+                const tradeListFilter = res.tradeList.filter((item: any) => item.orderType === orderSide)
+                setGetDataTradeHistory(tradeListFilter)
+                return
+            };
             setGetDataTradeHistory(res.tradeList)
         });
 
@@ -29,18 +31,10 @@ console.log(15, getDataTradeHistory);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
         };
-    }, [])
-
-    // useEffect(() => {
-    //     const xxx = getDataTradeHistory.filter((item: any) => item.orderType === oderSide)
-    //     setGetDataTradeHistory(xxx);
-        
-    // }, [oderSide])
+    }, [orderSide])
 
     const getOrderSide = (item: number) => {
         setOrderSide(item)
-        const xxx = getDataTradeHistory.filter((o: any) => o.orderType === item)
-        setGetDataTradeHistory(xxx);
     }
 
     const buildMessage = (accountId: string) => {

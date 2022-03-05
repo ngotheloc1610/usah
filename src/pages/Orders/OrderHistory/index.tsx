@@ -3,14 +3,13 @@ import OrderTable from '../../../components/Orders/OrderTable'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
-import ReduxPersist from "../../../config/ReduxPersist";
-import queryString from 'query-string';
 import { useEffect, useState } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, OBJ_AUTHEN, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 
 const OrderHistory = () => {
     const [listOrderHistory, setListOrderHistory] = useState([]);
+    const [orderSide, setOrderSide] = useState(0);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -20,6 +19,11 @@ const OrderHistory = () => {
         });
 
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
+            if (orderSide !== 0) {
+                const historyListFilter = res.tradeList.filter((item: any) => item.orderType === orderSide)
+                setListOrderHistory(historyListFilter)
+                return
+            }
             setListOrderHistory(res.orderList)
         });
 
@@ -27,10 +31,10 @@ const OrderHistory = () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
         }
-    }, [])
+    }, [orderSide])
 
     const buildMessage = (accountId: string) => {
-        const today = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+        const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
 
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -54,12 +58,16 @@ const OrderHistory = () => {
         buildMessage(accountId);
     }
 
+    const getOrderSide = (item: number) => {
+        setOrderSide(item)
+    }
+
     const _renderOrderHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch />
+                        <OrderHistorySearch getOrderSide={getOrderSide}/>
                         <OrderTable listOrderHistory={listOrderHistory} />
                     </div>
                 </div>

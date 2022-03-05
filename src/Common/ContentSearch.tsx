@@ -14,7 +14,12 @@ import { getSymbolId, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-const ContentSearch = () => {
+interface IPropsContentSearch {
+    getOrderSide: (item: number) => void;
+}
+
+const ContentSearch = (props: IPropsContentSearch) => {
+    const { getOrderSide } = props;
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
@@ -62,10 +67,10 @@ const ContentSearch = () => {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_SELL)
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_BUY)
         }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
@@ -97,15 +102,17 @@ const ContentSearch = () => {
     }
 
     const handleSearch = () => {
-        sendMessageSearch()
+        sendMessageSearch();
+        getOrderSide(orderType);
     }
 
     const handlKeyDown = (event: any) => {
         if (ticker !== '' || orderType !== 0) {
             if (event.key === 'Enter') {
-                sendMessageSearch()
-                const el: any = document.querySelectorAll('.input-select')
-                removeFocusInput(el)
+                sendMessageSearch();
+                getOrderSide(orderType);
+                const el: any = document.querySelectorAll('.input-select');
+                removeFocusInput(el);
             }
         }
     }
@@ -120,7 +127,7 @@ const ContentSearch = () => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))    
+            setTicker(getSymbolId(value, symbolList))
         } else {
             setTicker('0')
         }

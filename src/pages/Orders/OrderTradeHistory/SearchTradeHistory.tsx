@@ -8,18 +8,16 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
-import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
-import ReduxPersist from '../../../config/ReduxPersist';
-import queryString from 'query-string';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-interface ISearchTradeHistoryProps {
+interface IPropsSearchTradeHistory {
     getOrderSide: (item: number) => void
 }
 
-function SearchTradeHistory(props: ISearchTradeHistoryProps) {
+function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const { getOrderSide } = props
     const [ticker, setTicker] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false)
@@ -127,16 +125,17 @@ function SearchTradeHistory(props: ISearchTradeHistoryProps) {
     )
 
     const handleSearch = () => {
-        sendMessageTradeSearch()
-        getOrderSide(orderType)
+        sendMessageTradeSearch();
+        getOrderSide(orderType);
     }
 
     const handlKeyDown = (event: any) => {
         if (ticker !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
-                sendMessageTradeSearch()
-                const el: any = document.querySelectorAll('.input-select')
-                removeFocusInput(el)
+                sendMessageTradeSearch();
+                getOrderSide(orderType);;
+                const el: any = document.querySelectorAll('.input-select');
+                removeFocusInput(el);
             }
         }
     }
