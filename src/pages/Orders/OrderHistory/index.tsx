@@ -20,7 +20,7 @@ const OrderHistory = () => {
 
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
             if (orderSide !== 0) {
-                const historyListFilter = res.tradeList.filter((item: any) => item.orderType === orderSide)
+                const historyListFilter = res.orderList.filter(item => item.orderType === orderSide)
                 setListOrderHistory(historyListFilter)
                 return
             }
@@ -67,7 +67,7 @@ const OrderHistory = () => {
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch getOrderSide={getOrderSide}/>
+                        <OrderHistorySearch getOrderSide={getOrderSide} />
                         <OrderTable listOrderHistory={listOrderHistory} />
                     </div>
                 </div>

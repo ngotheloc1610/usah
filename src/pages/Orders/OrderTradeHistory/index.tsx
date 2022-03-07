@@ -7,6 +7,7 @@ import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { ITradeHistory } from "../../../interfaces/order.interface";
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [orderSide, setOrderSide] = useState(0);
@@ -20,7 +21,7 @@ const OrderTradeHistory = () => {
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
             if (orderSide !== 0) {
-                const tradeListFilter = res.tradeList.filter((item: any) => item.orderType === orderSide)
+                const tradeListFilter = res.tradeList.filter(item => item.orderType === orderSide)
                 setGetDataTradeHistory(tradeListFilter)
                 return
             };

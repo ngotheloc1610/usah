@@ -57,8 +57,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             let listOrderSortDate: IListOrder[] = [];
             if (orderSide !== 0) {
-                const historyListFilter = response.orderList.filter((item: any) => item.orderType === orderSide)
-                listOrderSortDate = historyListFilter.sort((a, b) => b.time - a.time);
+                const listOrderFilter = response.orderList.filter(item => item.orderType === orderSide)
+                listOrderSortDate = listOrderFilter.sort((a, b) => b.time - a.time);
                 setDataOrder(listOrderSortDate);
                 return
             };
@@ -82,8 +82,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             let listOrderSortDate: IListOrder[] = [];
             if (orderSide !== 0) {
-                const historyListFilter = response.orderList.filter((item: any) => item.orderType === orderSide)
-                listOrderSortDate = historyListFilter.sort((a, b) => b.time - a.time);
+                const listOrderFilter = response.orderList.filter(item => item.orderType === orderSide)
+                listOrderSortDate = listOrderFilter.sort((a, b) => b.time - a.time);
                 setDataOrder(listOrderSortDate);
                 return
             };
