@@ -33,7 +33,7 @@
 }
 
 .w-px-15 {
-    width: 15px;
+    width: 17px;
     background-color: #DCE7F4 !important;
 }
 
@@ -42,12 +42,16 @@
 }
 
 .w-px-150 {
-    width: 220px;
+    min-width: 196px;
     vertical-align: middle;
 }
 
+.w-110{
+    min-width: 95px;
+}
+
 .w-ss{
-    width: 74px;
+    min-width: 70px;
     vertical-align: middle;
 }
 

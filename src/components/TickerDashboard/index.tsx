@@ -172,6 +172,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
     }
 
+    const getNameClass = (item: number) => {
+        if (item > 0) {
+            return "text-success"
+        }
+        if(item < 0 ) {
+            return "text-danger"
+        }else{
+            return ""
+        }
+    }
 
     const headerTable = () => (
         <tr>
@@ -202,7 +212,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             <th className="text-end sorting_disabled header-cell w-ss fz-14">
                 Change
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-110 fz-14">
                 Change%
             </th>
             <th className="w-px-15">
@@ -220,10 +230,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-ss fw-600">{formatCurrency(item.open || '')}</td>
                 <td className="text-end w-ss fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-ss fw-600">{formatCurrency(item.low || '')}</td>
-                <td className="text-end w-ss fw-600"><span className={Number(item.lastPrice) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-ss fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-ss fw-600">{formatNumber(item.volume)}</td>
-                <td className="text-end w-ss fw-600"><span className={Number(item.change) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-ss fw-600"><span className={Number(item.changePrecent) >= 0 ? 'text-success' : 'text-danger'}>{formatCurrency(item.changePrecent)}%</span></td>
+                <td className="text-end w-ss fw-600"><span className={getNameClass(Number(item.change))}>{formatCurrency(item.change)}</span></td>
+                <td className="text-end w-110 fw-600"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
             </tr>
         ))
     }
