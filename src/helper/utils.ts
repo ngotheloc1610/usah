@@ -96,27 +96,27 @@ export const assignListPrice = (prvList, currentList, type: string) => {
                     });
                 }
             } else {
-                if (prvList.length < MARKET_DEPTH_LENGTH) {}
-                    prvList.push({
-                        numOrders: item.numOrders.toString(),
-                        price: item.price ? item.price : "-",
-                        tradable: false,
-                        volume: item.volume ? item.volume : "-"
-                    });
+                if (prvList.length < MARKET_DEPTH_LENGTH) { }
+                prvList.push({
+                    numOrders: item.numOrders.toString(),
+                    price: item.price ? item.price : "-",
+                    tradable: false,
+                    volume: item.volume ? item.volume : "-"
+                });
             }
         });
     }
     const output = [];
     let sortList = []
     if (type === LIST_PRICE_TYPE.askList) {
-        sortList =  prvList.sort((a, b) => a?.price.localeCompare(b?.price));
+        sortList = prvList.sort((a, b) => a?.price.localeCompare(b?.price));
     } else {
-        sortList =  prvList.sort((b, a) => b?.price.localeCompare(a?.price));
+        sortList = prvList.sort((b, a) => b?.price.localeCompare(a?.price));
     }
     let counter = 0;
-    while(counter < MARKET_DEPTH_LENGTH) {
-        output.push(sortList[counter]) ;
-        counter ++;
+    while (counter < MARKET_DEPTH_LENGTH) {
+        output.push(sortList[counter]);
+        counter++;
     }
     return output;
 }
@@ -145,4 +145,9 @@ export const calcPctChange = (lastPrice: string, open: string) => {
         return change / Number(open) * 100;
     }
     return 0;
+}
+
+export const toTimestamp = (strDate: string) => {
+    const dt = Date.parse(strDate);
+    return dt;
 }

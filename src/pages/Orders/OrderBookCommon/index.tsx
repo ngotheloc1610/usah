@@ -22,7 +22,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
-import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../../helper/utils';
+import { assignListPrice, calcChange, calcPctChange, checkValue, toTimestamp } from '../../../helper/utils';
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -43,6 +43,12 @@ const OrderBookCommon = () => {
     const [tickerSelect, setTickerSelect] = useState('');
     const [tradeEvent, setTradeEvent] = useState([]);
     const [symbolSearch, setSymbolSearch] = useState('');
+
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
+    const date = new Date().getDate();
+    const timeFrom = toTimestamp(`${month}/${date}/${year} 00:00:00`);
+    const timeTo = toTimestamp(`${month}/${date}/${year} 23:59:59`);
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -207,10 +213,12 @@ const OrderBookCommon = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
-
             tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(symbolId);
-
+            console.log(218, timeFrom);
+            console.log(219, timeTo);
+            tradeHistoryRequest.setFromDatetime(timeFrom);
+            tradeHistoryRequest.setToDatetime(timeTo);
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
