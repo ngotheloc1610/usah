@@ -215,8 +215,6 @@ const OrderBookCommon = () => {
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(symbolId);
-            console.log(218, timeFrom);
-            console.log(219, timeTo);
             tradeHistoryRequest.setFromDatetime(timeFrom);
             tradeHistoryRequest.setToDatetime(timeTo);
             const rpcPb: any = rpcpb;

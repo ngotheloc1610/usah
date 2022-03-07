@@ -96,13 +96,14 @@ export const assignListPrice = (prvList, currentList, type: string) => {
                     });
                 }
             } else {
-                if (prvList.length < MARKET_DEPTH_LENGTH) { }
-                prvList.push({
-                    numOrders: item.numOrders.toString(),
-                    price: item.price ? item.price : "-",
-                    tradable: false,
-                    volume: item.volume ? item.volume : "-"
-                });
+                if (prvList.length < MARKET_DEPTH_LENGTH) { 
+                    prvList.push({
+                        numOrders: item.numOrders.toString(),
+                        price: item.price ? item.price : "-",
+                        tradable: false,
+                        volume: item.volume ? item.volume : "-"
+                    });
+                }
             }
         });
     }
