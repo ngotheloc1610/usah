@@ -1,50 +1,49 @@
-import { LIST_NEWS_NAV, NOTIFICATION_LIST, NOTIFICATION_DETAIL } from '../../mocks'
-import { INewsNav, INotificationList, INotificationDetail, IDataNews, IReqNews, INews } from '../../interfaces/news.interface'
+import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS } from '../../mocks'
+import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
 import { BearerToken, get_api_news } from '../../constants/api.constant'
 import axios from 'axios';
-import { toast } from "react-toastify";
-import { KEY_LOCAL_STORAGE } from '../../constants/general.constant'
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import { ItemsPage } from '../../constants/news.constant'
-import { success } from '../../constants'
-
+import { success } from '../../constants';
+import parse from "html-react-parser";
 
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(2)
     const [pageSize, setPageSize] = useState<number>(5);
-    const [nextPage, setNextPage] = useState<number>(2);
-    const [prevPage, setPrevPage] = useState<number>(0);
     const [listDataNews, setListDataNews] = useState<[INews]>();
     const [totalPage, setTotalPage] = useState<number>(1);
+    const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
+    const [pageCurrent, setPageCurrent] = useState<number>(1);
+    const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
 
     useEffect(() => {
         const url = `${api_url}${get_api_news}`;
         const paramNews = {
             page_size: pageSize,
-            next_page: nextPage,
-            prev_page: prevPage,
+            page: pageCurrent,
         }
-        // const config = {
-        //     headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
-        //     params: paramNews
-        // }
-        const config = {...BearerToken, params: paramNews}
+        const config = { ...BearerToken, params: paramNews }
         axios.get<IReqNews, IReqNews>(url, config).then((resp) => {
-            // để check data trả về
-            console.log(37, resp);
-            if (resp.meta.code === success) {
-                setListDataNews(resp.data.results);
+            if (resp.status === success) {
+                setListDataNews(resp.data.data.results);
+                setTotalPage(resp.data.data.total_page);
+                let dem = 0;
+                resp.data.data.results.forEach(item => {
+                    if (item.read_flag) {
+                        dem++;
+                    }
+                });
+                setTotalNewUnread(dem);
             }
         },
             (error) => {
                 console.log("errors");
             });
-    }, [pageSize, nextPage, prevPage])
+    }, [pageSize, pageCurrent])
 
     const _renderNewsHeader = () => (
         <div className="card-header">
@@ -54,14 +53,12 @@ const News = () => {
 
 
     const _renderNewsBodyNavItemLeft = () => (
-        LIST_NEWS_NAV.map((item: INewsNav, index: number) => (
-            <li className="nav-item" key={index}>
-                <a className={item.active ? "nav-link active" : "nav-link"} aria-current="page" href="#">
-                    {item.title}
-                    <span className="badge bg-secondary rounded ml-4">{item.unRead}</span>
-                </a>
-            </li>
-        ))
+        <li className="nav-item">
+            <a className="nav-link active" aria-current="page" href="#">
+                Admin News
+                <span className="badge bg-secondary rounded ml-4">{totalNewUnread}</span>
+            </a>
+        </li>
     )
 
     const _renderNewsBodyNavItemRight = () => (
@@ -73,8 +70,11 @@ const News = () => {
         </li>
     )
 
-    const handleClick = (index: number) => {
-        setELActive(index)
+    const handleClick = (index: number, itemNews: INews) => {
+        setELActive(index);
+        if (itemNews) {
+            setDataDetailNews(itemNews);
+        }
     }
 
     const _renderNewsNotificationItem = () => (
@@ -82,14 +82,14 @@ const News = () => {
             <div className={item.read_flag ? "notification-item unread" : "notification-item"
                 && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
-                onClick={() => handleClick(index)}
+                onClick={() => handleClick(index, item)}
             >
                 <div className="item-icon">
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
                     <h6 className="item-title mb-0">{item?.title}</h6>
-                    <div className="item-summary opacity-75">{item?.content}</div>
+                    <div className="item-summary opacity-75">{parse(item?.content)}</div>
                 </div>
             </div>
 
@@ -97,10 +97,7 @@ const News = () => {
     )
 
     const handlePage = (e, value) => {
-        const resultNextPage = value + 1;
-        const resultPrevPage = value -1;
-        setNextPage(resultNextPage);
-        setPrevPage(resultPrevPage);
+        setPageCurrent(value);
     }
 
     const _renderItemsPage = () => (
@@ -120,7 +117,7 @@ const News = () => {
                 </select>
                 <div className="ms-3">items/page</div>
             </div>
-            <Pagination page={nextPage - 1} variant="outlined" onChange={handlePage} shape="rounded" count={3} showFirstButton showLastButton />
+            <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton />
         </nav>
     )
 
@@ -134,23 +131,24 @@ const News = () => {
         </div>
     )
 
-    const _renderNewsNotificationDetailItem = () => (
-        NOTIFICATION_DETAIL.map((item: INotificationDetail, index: number) => (
-            <div className="notification-detail border p-3 shadow-sm" key={index}>
-                <div className="d-flex mb-2 border-bottom pb-1">
-                    <div>
-                        {/* Sau này sẽ có api trả về hiện tại đang fake data */}
-                        <h6 className="mb-0">POEM<sup>2</sup> News</h6>
-                        <div className="small opacity-50"> {item.date} </div>
-                    </div>
-                    <a href="#" className="ms-auto close"><i className="bi bi-x-lg"></i></a>
-                </div>
-                <div>
-                    <p> {item.content} </p>
-                </div>
-            </div>
-        ))
+    const closeDetailNews = () => {
+        setDataDetailNews(DEFAULT_DETAIL_NEWS);
+    }
 
+    // detail
+    const _renderNewsNotificationDetailItem = () => (
+        <div className="notification-detail border p-3 shadow-sm" >
+            <div className="d-flex mb-2 border-bottom pb-1">
+                <div>
+                    <h6 className="mb-0">{dataDetailNews?.title}</h6>
+                    <div className="small opacity-50"> {dataDetailNews?.publish_date} </div>
+                </div>
+                <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
+            </div>
+            <div>
+                <p> {parse(dataDetailNews?.content)} </p>
+            </div>
+        </div>
     )
 
     const _renderNewsNotificationDetail = () => (

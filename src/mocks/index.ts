@@ -1,6 +1,6 @@
 import { ITickerInfo, IOrderHistory, IOrderTradeHistory, ITickerPortfolio, IHistorySearchStatus, ILastQuote, IListOrder, IPortfolioAccountId } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
-import { INewsNav, INotificationList, INotificationDetail, } from "../interfaces/news.interface"
+import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
 import { ITickerDetail } from "../interfaces/ticker.interface";
 
@@ -1640,4 +1640,12 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
 }
 
 export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
+
+export const DEFAULT_DETAIL_NEWS: INews = {
+    content: '',
+    id: 0,
+    publish_date: '',
+    read_flag: false,
+    title: '',
+}
 

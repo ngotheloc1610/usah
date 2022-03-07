@@ -1,3 +1,4 @@
+import { NumberLiteralType } from "typescript";
 import { IMeta } from ".";
 
 export interface INewsNav {
@@ -18,22 +19,26 @@ export interface INotificationDetail {
     content: string;
 }
 export interface IReqNews {
-    meta: IMeta;
-    data: IDataNews;
+    config: string;
+    data: {
+        meta: IMeta;
+        data: IDataNews;
+    }
+    status: number;
 }
-
 export interface IDataNews {
     count: number;
     page_size: number;
     next_page: number;
     prev_page: number;
-    results: [INews]
+    results: [INews];
+    total_page: number;
 }
 
 export interface INews {
     id: number;
     title: string;
     content: string;
-    read_flag: string;
+    read_flag: boolean;
     publish_date: string;
 }
