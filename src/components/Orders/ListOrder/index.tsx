@@ -19,8 +19,9 @@ import { ISymbolList } from "../../../interfaces/ticker.interface";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 interface IPropsListOrder {
-    msgSuccess: string;
+    getMsgSuccess: string;
     getShowData: (item: boolean) => void;
+    setMessageSuccess: (item: string) => void;
 }
 
 
@@ -36,7 +37,7 @@ const paramModifiCancelDefault: IParamOrder = {
 }
 
 const ListOrder = (props: IPropsListOrder) => {
-    const { msgSuccess, getShowData } = props;
+    const { getMsgSuccess, getShowData, setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
     const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
@@ -47,7 +48,6 @@ const ListOrder = (props: IPropsListOrder) => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [messageSuccess, setMessageSuccess] = useState<string>('');
     const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
 
     useEffect(() => {
@@ -75,7 +75,7 @@ const ListOrder = (props: IPropsListOrder) => {
             setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
-    }, [msgSuccess, messageSuccess]);
+    }, [getMsgSuccess]);
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
