@@ -96,7 +96,7 @@ export const assignListPrice = (prvList, currentList, type: string) => {
                     });
                 }
             } else {
-                if (prvList.length < MARKET_DEPTH_LENGTH) { 
+                if (prvList.length < MARKET_DEPTH_LENGTH) {
                     prvList.push({
                         numOrders: item.numOrders.toString(),
                         price: item.price ? item.price : "-",
@@ -151,4 +151,10 @@ export const calcPctChange = (lastPrice: string, open: string) => {
 export const toTimestamp = (strDate: string) => {
     const dt = Date.parse(strDate);
     return dt;
+}
+
+export const calcCurrentList = (currentPage: number, itemPerPage: number, listData) => {
+    const indexOfLastNews = currentPage * itemPerPage;
+    const indexOfFirstNews = indexOfLastNews - itemPerPage;
+    return listData.slice(indexOfFirstNews, indexOfLastNews);
 }
