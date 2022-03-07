@@ -36,7 +36,7 @@ export const STATE = [
 ];
 export const INVALID_DATE = 'Invalid date';
 
-export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss.SSS';
+export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss';
 
 export const RESPONSE_RESULT = {
     success: 1,
@@ -57,6 +57,11 @@ export const MSG_CODE = 'msgCode';
 export const MSG_TEXT = 'msgText';
 
 export const SYMBOL_LIST = 'symbol-list';
+
+export const LIST_PRICE_TYPE = {
+    askList: 'askList',
+    bidList: 'bidList'
+}
 
 export const TITLE_CONFIRM = {
     modify: 'Modify',

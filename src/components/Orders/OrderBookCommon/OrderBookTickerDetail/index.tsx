@@ -1,5 +1,5 @@
 import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
-import { calcChange, calcPctChange } from '../../../../helper/utils';
+import { calcChange, calcPctChange, formatCurrency, formatNumber } from '../../../../helper/utils';
 import { IPropsDetail } from '../../../../interfaces/order.interface';
 import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
 import './OrderBookTickerDetail.css';
@@ -29,19 +29,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end">{getTickerDetail.currentPrice}</td>
+                                <td className="text-end">{formatCurrency(getTickerDetail.currentPrice)}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
-                                <td className="text-end">{getTickerDetail.open}</td>
+                                <td className="text-end">{formatCurrency(getTickerDetail.open || '')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">High</strong></td>
-                                <td className="text-end">{getTickerDetail.high}</td>
+                                <td className="text-end">{formatCurrency(getTickerDetail.high || '')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Low</strong></td>
-                                <td className="text-end">{getTickerDetail.low}</td>
+                                <td className="text-end">{formatCurrency(getTickerDetail.low || '')}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -52,20 +52,20 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
-                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
-                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
+                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
-                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
-                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toFixed(2)}</span>}
+                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
+                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Daily Trading Vol</strong></td>
-                                <td className="text-end">{getTickerDetail.volumePerDay}</td>
+                                <td className="text-end">{formatNumber(getTickerDetail.volumePerDay.toString())}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>

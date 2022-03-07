@@ -35,6 +35,7 @@ const unsubscribeQuoteSubject = new Subject();
 const subscribeQuoteSubject = new Subject();
 const subscribeTradeEventSubject = new Subject();
 const unsubscribeTradeEventSubject = new Subject();
+const tradeSubject = new Subject();
 const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     
@@ -74,6 +75,12 @@ const startWs = async () => {
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
         }
+
+        if (payloadClass === rpc.RpcMessage.Payload.TRADE_EVENT) {
+            const tradeEvent = tradingService.TradeEvent.deserializeBinary(msg.getPayloadData());
+            tradeSubject.next(tradeEvent.toObject());
+        }
+
         if(payloadClass === rpc.RpcMessage.Payload.NEW_ORDER_SINGLE_RES){
             const singleOrderRes = tradingService.NewOrderSingleResponse.deserializeBinary(msg.getPayloadData());
             orderSubject.next(singleOrderRes.toObject());
@@ -164,6 +171,7 @@ export const wsService = {
     getUnsubscribeQuoteSubject: () => unsubscribeQuoteSubject.asObservable(),
     getSubscribeQuoteSubject: () => subscribeQuoteSubject.asObservable(),
     getSubscribeTradeSubject: () => subscribeTradeEventSubject.asObservable(),
-    getUnsubscribeTradeSubject: () => unsubscribeTradeEventSubject.asObservable()
+    getUnsubscribeTradeSubject: () => unsubscribeTradeEventSubject.asObservable(),
+    getTradeEvent: () => tradeSubject.asObservable()
 
 }

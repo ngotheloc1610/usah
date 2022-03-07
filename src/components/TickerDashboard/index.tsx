@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED, LIST_TICKER_INFO } from "../../constants/general.constant"
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE } from "../../constants/general.constant"
 import { assignListPrice, calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
 import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
@@ -95,8 +95,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         high: checkValue(tmpList[index].high, item.high),
                         low: checkValue(tmpList[index].low, item.low),
                         open: checkValue(tmpList[index].open, item.open),
-                        asks: !tmpList[index].asks ? assignListPrice([], item.asksList) : assignListPrice(tmpList[index].asks, item.asksList),
-                        bids: !tmpList[index].bids ? assignListPrice([], item.bidsList) : assignListPrice(tmpList[index].bids, item.bidsList),
+                        asks: !tmpList[index].asks ? assignListPrice([], item.asksList, LIST_PRICE_TYPE.askList) : assignListPrice(tmpList[index].asks, item.asksList, LIST_PRICE_TYPE.askList),
+                        bids: !tmpList[index].bids ? assignListPrice([], item.bidsList, LIST_PRICE_TYPE.bidList) : assignListPrice(tmpList[index].bids, item.bidsList, LIST_PRICE_TYPE.bidList),
                         previousClose: checkValue(tmpList[index].previousClose, item.close)
                         
                    }
