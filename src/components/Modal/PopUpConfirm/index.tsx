@@ -1,5 +1,5 @@
 import queryString from 'query-string';
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
 import { IAuthen } from '../../../interfaces';
 import { wsService } from '../../../services/websocket-service';
 import ReduxPersist from '../../../config/ReduxPersist';
@@ -16,32 +16,16 @@ interface IPropsConfirm {
     totalOrder: number;
     listOrder: IListOrder[];
     handleOrderResponse: (value: number, content: string) => void;
+    handleStatusCancelAll?: (value: boolean) => void;
 }
 
 const PopUpConfirm = (props: IPropsConfirm) => {
-    const { handleCloseConfirmPopup, totalOrder, listOrder, handleOrderResponse } = props;
+    const { handleCloseConfirmPopup, totalOrder, listOrder, handleOrderResponse, handleStatusCancelAll } = props;
 
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     
     const rProtoBuff: any = rpc;
-
-    useEffect(() => {
-        const systemModelPb: any = smpb;
-        const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
-            let tmp = 0;
-            if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                tmp = RESPONSE_RESULT.success;
-            } else {
-                tmp = RESPONSE_RESULT.error;
-            }
-            handleOrderResponse(tmp, resp[MSG_TEXT]);
-            handleCloseConfirmPopup(false);
-        });
-        return () => {
-            multiCancelOrder.unsubscribe();
-        } 
-    }, []);
 
     const sendRes = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
@@ -72,6 +56,25 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            const systemModelPb: any = smpb;
+            const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
+                let tmp = 0;
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    if (handleStatusCancelAll) {
+                        // Get status modify or cancel order response
+                        handleStatusCancelAll(MODIFY_CANCEL_STATUS.success)
+                    }
+                    tmp = RESPONSE_RESULT.success;
+                } else {
+                    if (handleStatusCancelAll) {
+                        // Get status modify or cancel order response
+                        handleStatusCancelAll(MODIFY_CANCEL_STATUS.error)
+                    }
+                    tmp = RESPONSE_RESULT.error;
+                }
+                handleOrderResponse(tmp, resp[MSG_TEXT]);
+                handleCloseConfirmPopup(false);
+            });
         }
     }
     return <>
