@@ -45,6 +45,7 @@ const OrderBookCommon = () => {
     const [symbolSearch, setSymbolSearch] = useState('');
 
     const year = new Date().getFullYear();
+    // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
     const month = new Date().getMonth() + 1;
     const date = new Date().getDate();
     const timeFrom = toTimestamp(`${month}/${date}/${year} 00:00:00`);
