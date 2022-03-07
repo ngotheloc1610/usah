@@ -6,18 +6,20 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { toast } from 'react-toastify';
-import ReduxPersist from '../../../config/ReduxPersist';
-import queryString from 'query-string';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
+interface IPropsOrderSearchHistory {
+    getOrderSide: (item: number) => void;
+}
 
-function OrderHistorySearch() {
+function OrderHistorySearch(props: IPropsOrderSearchHistory) {
+    const { getOrderSide } = props;
     const [ticker, setTicker] = useState('')
     const [orderState, setOrderState] = useState(0)
     const [orderBuy, setOrderBuy] = useState(false)
@@ -45,7 +47,13 @@ function OrderHistorySearch() {
     }, [])
 
     useEffect(() => {
-        var currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth()+1)}-${new Date().getDate()}`;
+        const today: number = new Date().getDate();
+        let currentDate = '';
+        if (today > 0 && today < 10) {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+        } else {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+        }
         setCurrentDate(currentDate);
         setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
@@ -60,7 +68,7 @@ function OrderHistorySearch() {
     }
 
     const sendMessageOrderHistory = () => {
-        
+
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
     }
@@ -121,19 +129,21 @@ function OrderHistorySearch() {
     )
 
     const handleSearch = () => {
-        sendMessageOrderHistory()
+        sendMessageOrderHistory();
+        getOrderSide(orderType);
     }
 
     const handlKeyDown = (event: any) => {
         if (ticker !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
-                sendMessageOrderHistory()
-                const el: any = document.querySelectorAll('.input-select')
-                removeFocusInput(el)
+                sendMessageOrderHistory();
+                getOrderSide(orderType);
+                const el: any = document.querySelectorAll('.input-select');
+                removeFocusInput(el);
             }
         }
     }
-    
+
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
             setTicker(getSymbolId(value, symbolList))
@@ -176,10 +186,10 @@ function OrderHistorySearch() {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSell === true && orderBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_SELL)
         }
         else if (orderSell === false && orderBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY_LIMIT)
+            setOrderType(tradingModelPb.OrderType.OP_BUY)
         }
         else {
             setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
