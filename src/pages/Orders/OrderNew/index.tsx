@@ -127,11 +127,14 @@ const OrderNew = () => {
     }
 
     const getTicker = (value: string) => {
-        wsService.getDataLastQuotes().subscribe(response => {
-            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === Number(value));
-            setItemTickerDetail(tickerDetail);
-        });
+        const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const itemTickerInfor = symbolLocalList.find(item => item.ticker === value.toUpperCase());
 
+
+        subscribeQuoteEvent(value)
+        if (currentTickerSearch) {
+            unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+        }
         setCurrentTickerSearch(value);
         assignDataGetLastQuote(Number(value));
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
@@ -140,8 +143,7 @@ const OrderNew = () => {
         const currentPrice = itemSymbolData?.currentPrice.toString();
         const currentVolume = itemSymbolData?.volumePerDay;
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
-        const changePercent = (calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(itemSymbolData?.open)) * 100;
-        const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const changePercent = (itemSymbolData && itemSymbolData.open) && calcPctChange(itemSymbolData.currentPrice, itemSymbolData.open);
         const itemLocal = symbolLocalList.find(o => o.symbolId === item.symbolId);
         const assignTickerInfo: ITickerInfo = {
             symbolId: Number(item.symbolId),
@@ -192,13 +194,13 @@ const OrderNew = () => {
             unsubscribeQuote.unsubscribe();
             subscribeQuote.unsubscribe();
         }
-    })
+    }, [])
 
     useEffect(() => {
         processQuotes(quoteEvent);
     }, [quoteEvent])
 
-    const processQuotes = (quotes: IQuoteEvent[]) => {
+    const processQuotes = (quotes: IQuoteEvent[]) => {        
         const quote = quotes.find(o => o?.symbolCode === dataSearchTicker?.symbolCode);
         const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === currentTickerSearch)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
@@ -223,7 +225,6 @@ const OrderNew = () => {
             }
             setCurrentTicker(tmpItem);
         }
-
     }
 
     const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
@@ -265,6 +266,7 @@ const OrderNew = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
+
     // wait handle ticker detail last quote in screen order book
     const handleItemSearch = (value: string) => {
 
