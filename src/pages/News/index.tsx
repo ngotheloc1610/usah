@@ -2,12 +2,13 @@ import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { BearerToken, get_api_news } from '../../constants/api.constant'
+import { get_api_news } from '../../constants/api.constant'
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import { ItemsPage } from '../../constants/news.constant'
 import { success } from '../../constants';
 import parse from "html-react-parser";
+import { defindConfig } from '../../helper/utils'
 
 const News = () => {
 
@@ -26,8 +27,7 @@ const News = () => {
             page_size: pageSize,
             page: pageCurrent,
         }
-        const config = { ...BearerToken, params: paramNews }
-        axios.get<IReqNews, IReqNews>(url, config).then((resp) => {
+        axios.get<IReqNews, IReqNews>(url, defindConfig(paramNews)).then((resp) => {
             if (resp.status === success) {
                 setListDataNews(resp.data.data.results);
                 setTotalPage(resp.data.data.total_page);
