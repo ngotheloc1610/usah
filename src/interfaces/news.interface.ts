@@ -26,6 +26,8 @@ export interface IReqNews {
     }
     status: number;
 }
+
+// declare fields of api
 export interface IDataNews {
     count: number;
     page_size: number;
@@ -35,6 +37,7 @@ export interface IDataNews {
     total_page: number;
 }
 
+// declare fields of api
 export interface INews {
     id: number;
     title: string;
