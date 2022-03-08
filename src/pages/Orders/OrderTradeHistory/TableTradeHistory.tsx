@@ -2,11 +2,12 @@ import { SIDE, ORDER_TYPE_NAME, SOCKET_CONNECTED, DEFAULT_ITEM_PER_PAGE, START_P
 import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
-import Pagination from '../../../Common/Pagination'
+import PaginationComponent from '../../../Common/Pagination'
 import { wsService } from "../../../services/websocket-service";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
+// import Pagination from "react-js-pagination";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const { getDataTradeHistory } = props
@@ -16,10 +17,10 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = getDataTradeHistory.length;
-
+    
     useEffect(() => {
         const currentList = calcCurrentList(currentPage, itemPerPage, getDataTradeHistory);
-        const tradeSortDate: ITradeHistory[] = currentList.sort((a, b) => Number(b.executedDatetime) - Number(a.executedDatetime));
+        const tradeSortDate: ITradeHistory[] = currentList.sort((a, b) => (b.executedDatetime)?.localeCompare((a.executedDatetime)));
         setListTradeSortDate(tradeSortDate);
     }, [getDataTradeHistory, itemPerPage, currentPage])
 
@@ -110,10 +111,10 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     </tbody>
                 </table>
             </div>
-            <Pagination totalItem={totalItem} currentPage={currentPage} itemPerPage={itemPerPage}
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
-            <p className="text-end border-top pt-3">
+            <p>
                 <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
             </p>
         </div>

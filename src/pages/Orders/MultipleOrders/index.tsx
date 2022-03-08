@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Pagination from "../../../Common/Pagination";
+import PaginationComponent from "../../../Common/Pagination";
 import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, START_PAGE, SYMBOL_LIST } from "../../../constants/general.constant";
 import { IListOrder, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
@@ -728,7 +728,7 @@ const MultipleOrders = () => {
     )
     const _renderPagination = () => (
         <div className="m-3">
-            <Pagination totalItem={totalItem} currentPage={currentPage} itemPerPage={itemPerPage}
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
         </div>

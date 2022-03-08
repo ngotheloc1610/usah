@@ -1,4 +1,4 @@
-import Pagination from "../../../Common/Pagination";
+import PaginationComponent from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -6,7 +6,7 @@ import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -48,10 +48,10 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const totalItem = listOrder.length;
 
     useEffect(() => {
-        const currentList = calcCurrentList(currentPage, itemPerPage, listOrder);        
-        const listOrderSortDate: IListOrder[] = currentList.sort((a, b) => b.time - a.time);
+        const currentList = calcCurrentList(currentPage, itemPerPage, listOrder);
+        const listOrderSortDate: IListOrder[] = currentList.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
         setDataOrder(listOrderSortDate);
-    }, [ listOrder, itemPerPage, currentPage])
+    }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -296,7 +296,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </table>
             </div>
         </div>
-        <Pagination totalItem={totalItem} currentPage={currentPage} itemPerPage={itemPerPage}
+        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
             getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
         />
         {isCancel && <ConfirmOrder isCancel={isCancel}

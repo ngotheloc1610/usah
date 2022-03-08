@@ -1,7 +1,7 @@
 import { DEFAULT_ITEM_PER_PAGE, ORDER_TYPE_NAME, SIDE, SOCKET_CONNECTED, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import Pagination from '../../../Common/Pagination'
+import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
@@ -23,7 +23,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
     useEffect(() => {
         const currentList = calcCurrentList(currentPage, itemPerPage, listOrderHistory);
-        const historySortDate: IListOrderHistory[] = currentList.sort((a, b) => b.time - a.time);
+        const historySortDate: IListOrderHistory[] = currentList.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
         setListHistorySortDate(historySortDate);
     }, [listOrderHistory, itemPerPage, currentPage])
 
@@ -154,7 +154,7 @@ function OrderTable(props: IPropListOrderHistory) {
                         </tbody>
                     </table>
                 </div>
-                <Pagination totalItem={totalItem} currentPage={currentPage} itemPerPage={itemPerPage}
+                <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
                     getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
                 />
                 <p className="text-end border-top pt-3">

@@ -1,38 +1,22 @@
 import { useEffect, useState } from 'react'
 import { START_PAGE } from '../constants/general.constant';
 import '../pages/Orders/OrderHistory/orderHistory.scss'
+import Pagination from "react-js-pagination";
 
 interface IPropsPagination {
     totalItem: number;
     itemPerPage: number;
-    currentPage: number;
     getItemPerPage: (item: number) => void;
     getCurrentPage: (item: number) => void;
 }
 
-function Pagination(props: IPropsPagination) {
+function PaginationComponent(props: IPropsPagination) {
+    const { totalItem, itemPerPage, getItemPerPage, getCurrentPage } = props
+    const [activePage, setActivePage] = useState(START_PAGE)
 
-    const { totalItem, currentPage, itemPerPage, getItemPerPage, getCurrentPage } = props
-    const [pageNumbers, setPageNumber] = useState<number[]>([])
-    const startPage = START_PAGE;
-    const lastPage = Math.ceil(totalItem / itemPerPage)
-
-    useEffect(() => {
-        const pageNumbers: number[] = [];
-        for (let i = 1; i <= lastPage; i++) {
-            pageNumbers.push(i);
-        }
-        setPageNumber(pageNumbers);
-    }, [totalItem, itemPerPage, currentPage])
-
-    const handlePrePage = () => {
-        const prePage = currentPage === 1 ? 1 : currentPage - 1;
-        getCurrentPage(prePage)
-    }
-
-    const handleNextPage = () => {
-        const nextPage = currentPage < lastPage ? currentPage + 1 : currentPage;
-        getCurrentPage(nextPage)
+    const handleChangePage = (pageNumber: number) => {
+        setActivePage(pageNumber)
+        getCurrentPage(pageNumber)
     }
 
     return (
@@ -52,27 +36,22 @@ function Pagination(props: IPropsPagination) {
                     entries
                 </label>
             </div>
+
             <div className="dataTables_paginate paging_simple_numbers" id="table_paginate">
-                <ul className="pagination pagination-sm">
-
-                    <li className={`paginate_button page-item previous ${currentPage === startPage && "disabled"}`} id="table_previous" onClick={handlePrePage}>
-                        <a href="#" aria-controls="table" tabIndex={0} className="page-link">Previous</a>
-                    </li>
-
-                    {pageNumbers.map((crrPage, index) => (
-                        <li className={`paginate_button page-item ${currentPage === crrPage ? "active" : ""}`} key={index}
-                            onClick={() => getCurrentPage(crrPage)}
-                        >
-                            <a href="#" aria-controls="table" data-dt-idx="1" tabIndex={0} className="page-link">{crrPage}</a>
-                        </li>
-                    ))}
-
-                    <li className={`paginate_button page-item next ${currentPage === lastPage && "disabled"}`} id="table_next" onClick={handleNextPage}>
-                        <a href="#" aria-controls="table" tabIndex={0} className="page-link">Next</a>
-                    </li>
-                </ul>
+                <Pagination
+                    activePage={activePage}
+                    totalItemsCount={totalItem}
+                    itemsCountPerPage={itemPerPage}
+                    pageRangeDisplayed={5}
+                    prevPageText={'Previous'}
+                    nextPageText={'Next'}
+                    onChange={handleChangePage}
+                    innerClass={'pagination pagination-sm'}
+                    itemClass={'paginate_button page-item'}
+                    linkClass={'page-link'}
+                />
             </div>
         </div>
     )
 }
-export default Pagination
+export default PaginationComponent
