@@ -7,7 +7,6 @@ import { wsService } from "../../../services/websocket-service";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
-// import Pagination from "react-js-pagination";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const { getDataTradeHistory } = props

@@ -54,8 +54,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
-        setCurrentPage(START_PAGE)
-    }, [listOrder])
+        isCancel ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
+    }, [listOrder, isCancel])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE);
+    }, [listOrder, orderSide])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -316,7 +320,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
             totalOrder={totalOrder} listOrder={dataSelected}
             handleOrderResponse={getStatusOrderResponse}
-            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti}/>}
+            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti} />}
     </div>
 }
 export default ListModifyCancel;

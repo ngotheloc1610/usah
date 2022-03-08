@@ -37,6 +37,7 @@ const MultipleOrders = () => {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listTickers.length;
+    const [isDelete, setIsDelete] = useState(false)
 
     useEffect(() => {
         const multiOrderResponse = wsService.getOrderSubject().subscribe(resp => {
@@ -57,18 +58,13 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const currentList = calcCurrentList(currentPage, itemPerPage, listTickers);
+
         setCurrentListTickers(currentList);
     }, [listTickers, itemPerPage, currentPage])
 
     useEffect(() => {
-        setCurrentPage(START_PAGE)
-    }, [listTickers])
-
-    useEffect(() => {
-        if (itemPerPage > totalItem) {
-            setCurrentPage(START_PAGE)
-        }
-    }, [totalItem])
+        isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
+    }, [listTickers, isDelete])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -211,6 +207,7 @@ const MultipleOrders = () => {
                 tmp.splice(index, 1);
             }
         });
+        setIsDelete(true)
         setListTickers(tmp);
         setListSelected([]);
     }
