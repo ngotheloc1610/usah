@@ -48,9 +48,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const totalItem = listOrder.length;
 
     useEffect(() => {
-        const currentList = calcCurrentList(currentPage, itemPerPage, listOrder);
-        const listOrderSortDate: IListOrder[] = currentList.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
-        setDataOrder(listOrderSortDate);
+        const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
+        const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {

@@ -22,9 +22,9 @@ function OrderTable(props: IPropListOrderHistory) {
     const totalItem = listOrderHistory.length;
 
     useEffect(() => {
-        const currentList = calcCurrentList(currentPage, itemPerPage, listOrderHistory);
-        const historySortDate: IListOrderHistory[] = currentList.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
-        setListHistorySortDate(historySortDate);
+        const historySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
+        const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
+        setListHistorySortDate(currentList);
     }, [listOrderHistory, itemPerPage, currentPage])
 
     const getItemPerPage = (item: number) => {
