@@ -2,7 +2,7 @@ import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { get_api_news } from '../../constants/api.constant'
+import { API_GET_NEWS } from '../../constants/api.constant'
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import { ItemsPage } from '../../constants/news.constant'
@@ -22,7 +22,7 @@ const News = () => {
     const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
 
     useEffect(() => {
-        const url = `${api_url}${get_api_news}`;
+        const url = `${api_url}${API_GET_NEWS}`;
         const paramNews = {
             page_size: pageSize,
             page: pageCurrent,

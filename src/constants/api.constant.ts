@@ -1,5 +1,3 @@
-import { KEY_LOCAL_STORAGE } from "./general.constant";
+export const API_LOGIN = '/v1/auth/login';
 
-export const api_login = '/v1/auth/login';
-
-export const get_api_news = '/v1/market/news';
+export const API_GET_NEWS = '/v1/market/news';

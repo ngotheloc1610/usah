@@ -5,7 +5,7 @@ import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
 import { success } from '../../../constants';
-import { api_login } from '../../../constants/api.constant';
+import { API_LOGIN } from '../../../constants/api.constant';
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -28,7 +28,7 @@ const Login = () => {
     }
 
     const requestLogin = () => {
-        const url = `${api_url}${api_login}`;
+        const url = `${api_url}${API_LOGIN}`;
         const param = {
             account_id: email.trim(),
             password: password.trim(),
