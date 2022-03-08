@@ -49,7 +49,6 @@ const ListTicker = (props: IListTickerProps) => {
     useEffect(() => {
 
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
-            console.log(resp);
         });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
@@ -75,7 +74,6 @@ const ListTicker = (props: IListTickerProps) => {
 
     const processQuote = (quotes: IQuoteEvent[]) => {
         const tmpList = [...pageShowCurrentLastQuote];
-
         if (quotes && quotes.length > 0) {
             quotes.forEach(item => {
                 const index = tmpList.findIndex(o => o?.symbolCode === item?.symbolCode);
@@ -83,9 +81,8 @@ const ListTicker = (props: IListTickerProps) => {
                 if (index >= 0) {
                     tmpList[index] = {
                         ...tmpList[index],
-
-                        asksList: !tmpList[index].asksList ? assignListPrice([], item.asksList, LIST_PRICE_TYPE.askList) : assignListPrice(tmpList[index].asksList, item.asksList, LIST_PRICE_TYPE.askList),
-                        bidsList: !tmpList[index].bidsList ? assignListPrice([], item.bidsList, LIST_PRICE_TYPE.bidList) : assignListPrice(tmpList[index].bidsList, item.bidsList, LIST_PRICE_TYPE.bidList),
+                        asksList: item.asksList,
+                        bidsList: item.bidsList
                     }
                 }
             });
