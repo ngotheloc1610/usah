@@ -41,16 +41,16 @@
     font-size: 14px;
 }
 
-.w-px-150 {
+.w-ticker-name {
     min-width: 196px;
     vertical-align: middle;
 }
 
-.w-110{
+.w-change-pct{
     min-width: 95px;
 }
 
-.w-ss{
+.w-header{
     min-width: 70px;
     vertical-align: middle;
 }
@@ -68,10 +68,10 @@
 }
 
 @media (max-width: 1599px) {
-    .w-px-150 {
+    .w-ticker-name {
         width: 180px;
     }
-    .w-ss{
+    .w-header{
         width: 60px;
     }
     .mb-35{
@@ -85,18 +85,18 @@
     }
 }
 @media (max-width: 1399px) {
-    .w-px-150 {
+    .w-ticker-name {
         width: 118px;
     }
-    .w-ss{
+    .w-header{
         max-width: 56px;
     }
 }
 @media (max-width: 1199px) {
-    .w-px-150 {
+    .w-ticker-name {
         min-width: 159px;
     }
-    .w-ss{
+    .w-header{
         min-width: 84px;
     }
     .h-500{

@@ -185,34 +185,34 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const headerTable = () => (
         <tr>
-            <th className="text-nowrap  sorting_disabled header-cell fz-14 w-px-150">
+            <th className="text-nowrap  sorting_disabled header-cell fz-14 w-ticker-name">
                 Ticker Name
             </th>
-            <th className="text-left sorting_disabled header-cell w-ss fz-14">
+            <th className="text-left sorting_disabled header-cell w-header fz-14">
                 Ticker Code
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss fz-14">
+            <th className=" text-end sorting_disabled header-cell w-header fz-14">
                 Prev. Close
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-header fz-14">
                 Open
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-header fz-14">
                 High
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-header fz-14">
                 Low
             </th>
-            <th className=" text-end sorting_disabled header-cell w-ss">
+            <th className=" text-end sorting_disabled header-cell w-header">
                 <span className="fz-14 pl-6">Last Price</span>
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-header fz-14">
                 Volume
             </th>
-            <th className="text-end sorting_disabled header-cell w-ss fz-14">
+            <th className="text-end sorting_disabled header-cell w-header fz-14">
                 Change
             </th>
-            <th className="text-end sorting_disabled header-cell w-110 fz-14">
+            <th className="text-end sorting_disabled header-cell w-change-pct fz-14">
                 Change%
             </th>
             <th className="w-px-15">
@@ -224,16 +224,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataListCompany = () => {
         return listData.map((item: ITickerInfo, index: number) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="text-left w-px-150 fw-600">{item.tickerName}</td>
-                <td className="text-left w-ss fw-600">{item.ticker}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.previousClose || '')}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.open || '')}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.high || '')}</td>
-                <td className="text-end w-ss fw-600">{formatCurrency(item.low || '')}</td>
-                <td className="text-end w-ss fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
-                <td className="text-end w-ss fw-600">{formatNumber(item.volume)}</td>
-                <td className="text-end w-ss fw-600"><span className={getNameClass(Number(item.change))}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-110 fw-600"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
+                <td className="text-left w-ticker-name fw-600">{item.tickerName}</td>
+                <td className="text-left w-header fw-600">{item.ticker}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.previousClose || '')}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
+                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
+                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.change))}>{formatCurrency(item.change)}</span></td>
+                <td className="text-end w-change-pct fw-600"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
             </tr>
         ))
     }
