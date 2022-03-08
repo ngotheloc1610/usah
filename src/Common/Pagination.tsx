@@ -11,12 +11,17 @@ interface IPropsPagination {
 }
 
 function PaginationComponent(props: IPropsPagination) {
-    const { totalItem, itemPerPage, getItemPerPage, getCurrentPage } = props
-    const [activePage, setActivePage] = useState(START_PAGE)
+    const { totalItem, itemPerPage, getItemPerPage, getCurrentPage } = props;
+    const [activePage, setActivePage] = useState(START_PAGE);
 
     const handleChangePage = (pageNumber: number) => {
-        setActivePage(pageNumber)
-        getCurrentPage(pageNumber)
+        setActivePage(pageNumber);
+        getCurrentPage(pageNumber);
+    }
+
+    const changeItemPerPage = (item: number) => {
+        getItemPerPage(item);
+        setActivePage(START_PAGE);
     }
 
     return (
@@ -26,7 +31,7 @@ function PaginationComponent(props: IPropsPagination) {
                     Show
                     <select name="table_length" aria-controls="table" className="form-select form-select-sm form-select-inline"
                         defaultValue="10"
-                        onChange={(event) => getItemPerPage(Number(event.target.value))}
+                        onChange={(event) => changeItemPerPage(Number(event.target.value))}
                     >
                         <option value="10">10</option>
                         <option value="25">25</option>
