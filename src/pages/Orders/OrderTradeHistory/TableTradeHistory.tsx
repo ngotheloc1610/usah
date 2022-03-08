@@ -21,11 +21,12 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     useEffect(() => {
         const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b.executedDatetime)?.localeCompare((a.executedDatetime)));
         const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
-        if (currentList.length === 0) {
-            setCurrentPage(START_PAGE)
-        }
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE)
+    }, [getDataTradeHistory])
     
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {

@@ -57,11 +57,12 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const currentList = calcCurrentList(currentPage, itemPerPage, listTickers);
-        if (currentList.length === 0) {
-            setCurrentPage(START_PAGE)
-        }
         setCurrentListTickers(currentList);
     }, [listTickers, itemPerPage, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE)
+    }, [listTickers])
 
     useEffect(() => {
         if (itemPerPage > totalItem) {

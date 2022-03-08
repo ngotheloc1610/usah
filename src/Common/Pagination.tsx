@@ -17,10 +17,6 @@ function PaginationComponent(props: IPropsPagination) {
         getCurrentPage(pageNumber);
     }
 
-    const changeItemPerPage = (item: number) => {
-        getItemPerPage(item);
-    }
-
     return (
         <div className="border-top pt-2 d-flex justify-content-between align-items-center mb-3">
             <div className="dataTables_length" id="table_length">
@@ -28,7 +24,7 @@ function PaginationComponent(props: IPropsPagination) {
                     Show
                     <select name="table_length" aria-controls="table" className="form-select form-select-sm form-select-inline"
                         defaultValue="10"
-                        onChange={(event) => changeItemPerPage(Number(event.target.value))}
+                        onChange={(event) => getItemPerPage(Number(event.target.value))}
                     >
                         <option value="10">10</option>
                         <option value="25">25</option>

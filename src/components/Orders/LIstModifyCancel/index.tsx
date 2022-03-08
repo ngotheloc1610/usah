@@ -50,11 +50,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
-        if (currentList.length === 0) {
-            setCurrentPage(START_PAGE)
-        }
         setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE)
+    }, [listOrder])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
