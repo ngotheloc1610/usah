@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
 import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
@@ -157,4 +157,13 @@ export const calcCurrentList = (currentPage: number, itemPerPage: number, listDa
     const indexOfLastNews = currentPage * itemPerPage;
     const indexOfFirstNews = indexOfLastNews - itemPerPage;
     return listData.slice(indexOfFirstNews, indexOfLastNews);
+}
+}
+
+export const defindConfig = (param: any) => {
+    const data = {
+        headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
+        params: param
+    }
+    return data;
 }

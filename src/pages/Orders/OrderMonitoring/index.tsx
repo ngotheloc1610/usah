@@ -81,7 +81,7 @@ const OrderMonitoring = () => {
                             </div>
                         </div>
                     </div>}
-                    <ListOrder msgSuccess={msgSuccess} getShowData={getShowData}/>
+                    <ListOrder getMsgSuccess={msgSuccess} getShowData={getShowData} setMessageSuccess={messageSuccess}/>
                 </div>
             </div>
         </div>

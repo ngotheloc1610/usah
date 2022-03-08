@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { formatNumber } from '../../helper/utils'
+import { formatCurrency, formatNumber } from '../../helper/utils'
 import { ITickerInfo } from '../../interfaces/order.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
@@ -55,8 +55,8 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     {lastPriceDisplay}
                 </div>
                 <div className={`${textColor} fw-600`}>
-                    {changeDisplay}
-                    ({changePercentDisplay}%)
+                    {formatCurrency(changeDisplay)}
+                    ({formatCurrency(changePercentDisplay)}%)
                 </div>
             </td>
         )
@@ -93,7 +93,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                 <div className='mt-10'>Minimum Bid Size</div>
             </th>
             <td className="text-end fw-600 w-precent-41">
-                <div>0</div>
+                <div>{formatNumber(currentTicker?.minLot ? currentTicker.minLot : '0')}</div>
                 <div>{formatNumber(currentTicker?.tickSize ? currentTicker.tickSize : '0')}</div>
             </td>
             <th className='w-precent-15'>Low</th>
@@ -104,6 +104,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
     const _renderTickerDetail = () => {
         const high = (currentTicker?.high) ? currentTicker.high.toString() : '0';
         const lotSize = (currentTicker?.lotSize) ? currentTicker.lotSize.toString() : '0';
+        
         return <div>
         <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
         <div className="table-responsive">

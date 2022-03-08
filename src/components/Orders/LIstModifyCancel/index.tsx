@@ -189,7 +189,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         return <></>;
     }
 
-    const getStatusModifyCancel = (value: boolean) => {
+    const getStatusModifyCancelOrCancelMulti = (value: boolean) => {
         if (value) {
             sendListOrder();
         }
@@ -303,15 +303,16 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
             params={paramModifyCancel}
-            handleStatusModifyCancel={getStatusModifyCancel} />}
+            handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
         {isModify && <ConfirmOrder isModify={isModify}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
             params={paramModifyCancel}
-            handleStatusModifyCancel={getStatusModifyCancel} />}
+            handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
             totalOrder={totalOrder} listOrder={dataSelected}
-            handleOrderResponse={getStatusOrderResponse} />}
+            handleOrderResponse={getStatusOrderResponse}
+            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti}/>}
     </div>
 }
 export default ListModifyCancel;
