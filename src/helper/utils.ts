@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
 import { ISymbolList } from '../interfaces/ticker.interface';
 
 export function formatOrderTime(date: number): string {
@@ -96,7 +96,7 @@ export const assignListPrice = (prvList, currentList, type: string) => {
                     });
                 }
             } else {
-                if (prvList.length < MARKET_DEPTH_LENGTH) { 
+                if (prvList.length < MARKET_DEPTH_LENGTH) {
                     prvList.push({
                         numOrders: item.numOrders.toString(),
                         price: item.price ? item.price : "-",
@@ -151,4 +151,12 @@ export const calcPctChange = (lastPrice: string, open: string) => {
 export const toTimestamp = (strDate: string) => {
     const dt = Date.parse(strDate);
     return dt;
+}
+
+export const defindConfig = (param: any) => {
+    const data = {
+        headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
+        params: param
+    }
+    return data;
 }
