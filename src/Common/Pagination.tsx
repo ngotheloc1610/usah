@@ -1,27 +1,24 @@
-import { useEffect, useState } from 'react'
-import { START_PAGE } from '../constants/general.constant';
+import { useEffect } from 'react'
 import '../pages/Orders/OrderHistory/orderHistory.scss'
 import Pagination from "react-js-pagination";
 
 interface IPropsPagination {
     totalItem: number;
     itemPerPage: number;
+    currentPage: number;
     getItemPerPage: (item: number) => void;
     getCurrentPage: (item: number) => void;
 }
 
 function PaginationComponent(props: IPropsPagination) {
-    const { totalItem, itemPerPage, getItemPerPage, getCurrentPage } = props;
-    const [activePage, setActivePage] = useState(START_PAGE);
+    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage } = props;
 
     const handleChangePage = (pageNumber: number) => {
-        setActivePage(pageNumber);
         getCurrentPage(pageNumber);
     }
 
     const changeItemPerPage = (item: number) => {
         getItemPerPage(item);
-        setActivePage(START_PAGE);
     }
 
     return (
@@ -44,7 +41,7 @@ function PaginationComponent(props: IPropsPagination) {
 
             <div className="dataTables_paginate paging_simple_numbers" id="table_paginate">
                 <Pagination
-                    activePage={activePage}
+                    activePage={currentPage}
                     totalItemsCount={totalItem}
                     itemsCountPerPage={itemPerPage}
                     pageRangeDisplayed={5}

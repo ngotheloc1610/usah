@@ -24,8 +24,17 @@ function OrderTable(props: IPropListOrderHistory) {
     useEffect(() => {
         const historySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
+        if (currentList.length === 0) {
+            setCurrentPage(START_PAGE)
+        }
         setListHistorySortDate(currentList);
     }, [listOrderHistory, itemPerPage, currentPage])
+
+    useEffect(() => {
+        if (itemPerPage > totalItem) {
+            setCurrentPage(START_PAGE)
+        }
+    }, [totalItem])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -154,7 +163,7 @@ function OrderTable(props: IPropListOrderHistory) {
                         </tbody>
                     </table>
                 </div>
-                <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
+                <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                     getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
                 />
                 <p className="text-end border-top pt-3">

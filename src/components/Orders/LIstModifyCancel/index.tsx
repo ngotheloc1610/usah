@@ -50,6 +50,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => b.time.toString()?.localeCompare(a.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        if (currentList.length === 0) {
+            setCurrentPage(START_PAGE)
+        }
         setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
 
@@ -296,7 +299,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </table>
             </div>
         </div>
-        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
+        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
             getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
         />
         {isCancel && <ConfirmOrder isCancel={isCancel}

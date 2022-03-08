@@ -57,9 +57,17 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const currentList = calcCurrentList(currentPage, itemPerPage, listTickers);
+        if (currentList.length === 0) {
+            setCurrentPage(START_PAGE)
+        }
         setCurrentListTickers(currentList);
     }, [listTickers, itemPerPage, currentPage])
 
+    useEffect(() => {
+        if (itemPerPage > totalItem) {
+            setCurrentPage(START_PAGE)
+        }
+    }, [totalItem])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -728,7 +736,7 @@ const MultipleOrders = () => {
     )
     const _renderPagination = () => (
         <div className="m-3">
-            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
         </div>

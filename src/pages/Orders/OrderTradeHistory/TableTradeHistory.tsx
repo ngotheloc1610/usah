@@ -17,13 +17,16 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = getDataTradeHistory.length;
-    
+        
     useEffect(() => {
         const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b.executedDatetime)?.localeCompare((a.executedDatetime)));
         const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
+        if (currentList.length === 0) {
+            setCurrentPage(START_PAGE)
+        }
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
-
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -111,10 +114,10 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     </tbody>
                 </table>
             </div>
-            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage}
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
-            <p>
+            <p className="text-end border-top pt-3">
                 <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
             </p>
         </div>
