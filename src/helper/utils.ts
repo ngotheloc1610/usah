@@ -158,7 +158,6 @@ export const calcCurrentList = (currentPage: number, itemPerPage: number, listDa
     const indexOfFirstNews = indexOfLastNews - itemPerPage;
     return listData.slice(indexOfFirstNews, indexOfLastNews);
 }
-}
 
 export const defindConfig = (param: any) => {
     const data = {
