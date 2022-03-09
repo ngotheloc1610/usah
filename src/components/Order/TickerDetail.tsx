@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
-import { formatCurrency, formatNumber } from '../../helper/utils'
-import { ITickerInfo } from '../../interfaces/order.interface'
+import { LIST_TICKER_INFO } from '../../constants/general.constant'
+import { checkValue, formatCurrency, formatNumber } from '../../helper/utils'
+import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
+import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
+import { wsService } from '../../services/websocket-service'
 
 interface ITickerDetailProps {
     currentTicker: ITickerInfo;
+    symbolId: string
 }
 
 const defaultProps = {
-    currentTicker: {}
+    currentTicker: {},
+    symbolId: ''
 }
 
 const defaultTickerDetails: ITickerDetail = {
@@ -30,7 +35,90 @@ const defaultTickerDetails: ITickerDetail = {
 }
 
 const TickerDetail = (props: ITickerDetailProps) => {
-    const { currentTicker } = props;
+    const { currentTicker, symbolId } = props;
+    const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [tickerInfo, setTickerInfo] = useState(currentTicker);
+
+    useEffect(() => {
+        const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuotes => {
+            if (lastQuotes && lastQuotes.quotesList) {
+                setLastQuote(lastQuotes.quotesList);
+            }
+        });
+
+        return () => {
+            getLastQuote.unsubscribe();
+        }
+
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuote);
+    }, [lastQuote, symbolId]);
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent);
+    }, [quoteEvent])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const symbol = symbolsList.find(o => o?.symbolId?.toString() === symbolId?.toString());
+        if (symbol) {
+            const item = quotes.find(o => o?.symbolCode === symbol?.symbolId.toString());
+            if (item) {
+                setTickerInfo({
+                    ...symbol,
+                    asks: item?.asksList,
+                    bids: item?.bidsList,
+                    high: item?.high,
+                    lastPrice: item?.currentPrice,
+                    open: item?.open,
+                    low: item?.low,
+                    previousClose: item?.close,
+                    volume: item?.volume,
+                });
+            }
+        }
+    }
+
+    const processQuoteEvent = (quoteEvent: IQuoteEvent[]) => {
+        const tempTickerInfo = {...tickerInfo};
+        const item = quoteEvent.find(o => o?.symbolCode === tempTickerInfo?.symbolId?.toString());
+        if (item) {
+            setTickerInfo({
+                ...tempTickerInfo,
+                    asks: item?.asksList,
+                    bids: item?.bidsList,
+                    high: checkValue(tempTickerInfo.high, item.high),
+                    lastPrice: checkValue(tempTickerInfo.lastPrice, item.currentPrice),
+                    open: checkValue(tempTickerInfo.open, item.open),
+                    low: checkValue(tempTickerInfo.low, item.low),
+                    previousClose: checkValue(tempTickerInfo.previousClose, item.close)
+            })
+        };
+
+        const tempLastQuote = [...lastQuote];
+        quoteEvent.forEach(ele => {
+            const index = tempLastQuote.findIndex(o => o?.symbolCode === ele?.symbolCode);
+            if (index >= 0) {
+                tempLastQuote[index] = {
+                    ...tempLastQuote[index],
+                    asksList: ele.asksList,
+                    bidsList: ele.bidsList,
+                    currentPrice: checkValue(tempLastQuote[index]?.currentPrice, ele?.currentPrice),
+                    close: checkValue(tempLastQuote[index]?.close, ele?.close),
+                    high: checkValue(tempLastQuote[index]?.high, ele?.high),
+                    low: checkValue(tempLastQuote[index]?.low, ele?.low),
+                    open: checkValue(tempLastQuote[index]?.open, ele?.open),
+                    volumePerDay: checkValue(tempLastQuote[index]?.volumePerDay, ele?.volumePerDay),
+                    quoteTime: checkValue(tempLastQuote[index]?.quoteTime, ele?.quoteTime)
+                }
+            }
+        });
+        setLastQuote(tempLastQuote);
+
+    }
 
     const _renderIconTicker = (changeDisplay: number) => (
         <i className={changeDisplay < 0 ? 'bi bi-arrow-down' : 'bi bi-arrow-up'}></i>
@@ -69,9 +157,9 @@ const TickerDetail = (props: ITickerDetailProps) => {
                 <div>Last Price</div>
                 <div className='mt-10'>Change</div>
             </th>
-            {_renderLastPriceTemplate(currentTicker.lastPrice, currentTicker.change, currentTicker.changePrecent)}
+            {_renderLastPriceTemplate(tickerInfo.lastPrice, tickerInfo.change, tickerInfo.changePrecent)}
             <th className='w-precent-15'>Open</th>
-            <td className="text-end fw-600">{currentTicker.open ? formatNumber(currentTicker.open) : defaultTickerDetails.open}</td>
+            <td className="text-end fw-600">{tickerInfo.open ? formatNumber(tickerInfo.open) : defaultTickerDetails.open}</td>
         </tr>
     )
 
@@ -80,9 +168,9 @@ const TickerDetail = (props: ITickerDetailProps) => {
             <th>
                 <div className="h-50px">{title1}</div>
             </th>
-            <td className="text-end fw-600 w-precent-41">{currentTicker.ticker ? value1 : '0'}</td>
+            <td className="text-end fw-600 w-precent-41">{tickerInfo.ticker ? value1 : '0'}</td>
             <th className='w-precent-15'>{title2}</th>
-            <td className="text-end fw-600">{currentTicker.ticker ? value2 : '0'}</td>
+            <td className="text-end fw-600">{tickerInfo.ticker ? value2 : '0'}</td>
         </tr>
     )
 
@@ -93,17 +181,17 @@ const TickerDetail = (props: ITickerDetailProps) => {
                 <div className='mt-10'>Minimum Bid Size</div>
             </th>
             <td className="text-end fw-600 w-precent-41">
-                <div>{formatNumber(currentTicker?.minLot ? currentTicker.minLot : '0')}</div>
-                <div>{formatNumber(currentTicker?.tickSize ? currentTicker.tickSize : '0')}</div>
+                <div>{formatNumber(tickerInfo?.minLot ? tickerInfo.minLot : '0')}</div>
+                <div>{formatNumber(tickerInfo?.tickSize ? tickerInfo.tickSize : '0')}</div>
             </td>
             <th className='w-precent-15'>Low</th>
-            <td className="text-end fw-600">{formatNumber(currentTicker?.low ? currentTicker?.low : '0')}</td>
+            <td className="text-end fw-600">{formatNumber(tickerInfo?.low ? tickerInfo?.low : '0')}</td>
         </tr>
     )
 
     const _renderTickerDetail = () => {
-        const high = (currentTicker?.high) ? currentTicker.high.toString() : '0';
-        const lotSize = (currentTicker?.lotSize) ? currentTicker.lotSize.toString() : '0';
+        const high = (tickerInfo?.high) ? tickerInfo.high.toString() : '0';
+        const lotSize = (tickerInfo?.lotSize) ? tickerInfo.lotSize.toString() : '0';
         
         return <div>
         <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
