@@ -1,4 +1,8 @@
-import { ITickerInfo } from "../../interfaces/order.interface"
+import { useEffect, useState } from "react";
+import { checkValue } from "../../helper/utils";
+import { ITickerInfo } from "../../interfaces/order.interface";
+import { IQuoteEvent } from "../../interfaces/quotes.interface";
+import { wsService } from "../../services/websocket-service";
 
 interface IStockInfo {
     listDataTicker: ITickerInfo[];
@@ -6,7 +10,46 @@ interface IStockInfo {
 }
 
 const StockInfo = (props: IStockInfo) => {
-    const { detailTicker } = props;
+    const [detailTicker, setDetailTicker] = useState(props.detailTicker);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+
+    useEffect(() => {
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
+        return () => {
+            quoteEvent.unsubscribe();
+        }
+    }, [])
+    useEffect(() => {
+        setDetailTicker(props.detailTicker);
+    }, [props.detailTicker])
+    useEffect(() => {
+        const itemChange = quoteEvent?.find(item => item?.symbolId === detailTicker?.symbolId);
+        const itemData = { ...detailTicker };
+        
+        if (itemChange) {
+            const assignData: ITickerInfo = {
+                change: detailTicker?.change ? detailTicker.change : '',
+                changePrecent: detailTicker?.changePrecent ? detailTicker?.changePrecent : '',
+                high: detailTicker?.high,
+                lastPrice: detailTicker?.lastPrice ? detailTicker?.lastPrice : '',
+                lotSize: detailTicker?.lotSize,
+                low: detailTicker?.low,
+                minLot: detailTicker?.minLot,
+                open: detailTicker?.open,
+                previousClose: detailTicker?.previousClose,
+                symbolId: detailTicker?.symbolId ? detailTicker?.symbolId : 0,
+                tickSize: detailTicker?.tickSize,
+                ticker: detailTicker?.ticker ? detailTicker?.ticker : '',
+                tickerName: detailTicker?.tickerName ? detailTicker?.tickerName : '',
+                volume: checkValue(itemData.volume, itemChange?.volumePerDay),
+            }
+            setDetailTicker(assignData);
+        }
+    }, [quoteEvent])
     return <>
         <div className="card">
             <div className="card-header">

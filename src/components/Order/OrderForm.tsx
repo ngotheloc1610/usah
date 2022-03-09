@@ -194,9 +194,9 @@ const OrderForm = (props: IOrderForm) => {
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                thousandseparator="{true}" value={currentTicker.tickerName ? value : '0'} placeholder=""
-                onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => {setVolume(e.target.value.replaceAll(',',''))}} />
+                <CurrencyInput type={Number} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                thousandseparator={true} value={currentTicker.tickerName ? value : '0'} placeholder=""
+                onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => handleChangeVolume(e.target.value)} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
