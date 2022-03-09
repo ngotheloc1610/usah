@@ -293,7 +293,7 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook itemTickerSearch={handleItemSearch} dataSearchTicker={dataSearchTicker} tickerDetailLastQuote={handleTickerDetailLastQuote} />
+                            <OrderBook itemTickerSearch={handleItemSearch} tickerDetailLastQuote={handleTickerDetailLastQuote} />
                         </div>
                     </div>
                 </div>
