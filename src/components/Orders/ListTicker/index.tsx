@@ -65,8 +65,8 @@ const ListTicker = (props: IListTickerProps) => {
     }, []);
 
     useEffect(() => {    
-        subscribeQuoteEvent(quoteEvent);
-    }, [quoteEvent]);
+        subscribeQuoteEvent(lstWatchingTickers);
+    }, [lstWatchingTickers]);
 
     useEffect(() => {
         processQuote(quoteEvent);
@@ -91,7 +91,7 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {        
+    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
