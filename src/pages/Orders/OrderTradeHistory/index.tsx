@@ -11,7 +11,7 @@ import { ITradeHistory } from "../../../interfaces/order.interface";
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [orderSide, setOrderSide] = useState(0);
-
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {

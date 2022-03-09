@@ -96,7 +96,8 @@ function Report() {
                         </tbody>
                     </table>
                 </div>
-                <Pagination />
+                {/* Màn này hiện đang bỏ nên tạm thời k phân trang ở page này */}
+                {/* <Pagination /> */}
             </div>
         </div>
     )

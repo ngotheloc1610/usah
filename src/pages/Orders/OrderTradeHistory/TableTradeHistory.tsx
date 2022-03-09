@@ -1,19 +1,32 @@
-import { SIDE, ORDER_TYPE_NAME, SOCKET_CONNECTED } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
+import { SIDE, ORDER_TYPE_NAME, SOCKET_CONNECTED, DEFAULT_ITEM_PER_PAGE, START_PAGE } from "../../../constants/general.constant";
+import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
 import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
-import Pagination from '../../../Common/Pagination'
+import PaginationComponent from '../../../Common/Pagination'
 import { wsService } from "../../../services/websocket-service";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
-    const {getDataTradeHistory} = props
+    const { getDataTradeHistory } = props
     const tradingModelPb: any = tspb;
-    const listOrderHistorySortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => Number(b.executedDatetime) - Number(a.executedDatetime));
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const [listTradeSortDate, setListTradeSortDate] = useState<ITradeHistory[]>([])
+    const [currentPage, setCurrentPage] = useState(START_PAGE);
+    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const totalItem = getDataTradeHistory.length;
+        
+    useEffect(() => {
+        const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+        const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
+        setListTradeSortDate(currentList);
+    }, [getDataTradeHistory, itemPerPage, currentPage])
 
+    useEffect(() => {
+        setCurrentPage(START_PAGE)
+    }, [getDataTradeHistory])
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -59,7 +72,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     </tr>)
 
     const _renderTradeHistoryTableBody = () => (
-        listOrderHistorySortDate.map((item: ITradeHistory, index: number) => (
+        listTradeSortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td className="td w-160"><a href="#">{item.orderId}</a></td>
                 <td className="td text-start w-120">{getTickerCode(item.tickerCode.toString())}</td>
@@ -80,28 +93,39 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         ))
     )
 
+    const getItemPerPage = (item: number) => {
+        setItemPerPage(item);
+        setCurrentPage(START_PAGE)
+    }
+
+    const getCurrentPage = (item: number) => {
+        setCurrentPage(item);
+    }
+
     const _renderTradeHistoryTable = () => (
-            <div className="card-body">
-                <div className="table-responsive mb-3">
-                    <table id="table" className="table table-sm table-hover mb-0 tableBodyScroll" cellSpacing="0" cellPadding="0">
-                        <thead>
-                            {_renderTradeHistoryTableHeader()}
-                        </thead>
-                        <tbody>
-                            {_renderTradeHistoryTableBody()}
-                        </tbody>
-                    </table>
-                </div>
-                    <Pagination />
-                <p className="text-end border-top pt-3">
-                    <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-                </p>
+        <div className="card-body">
+            <div className="table-responsive mb-3">
+                <table id="table" className="table table-sm table-hover mb-0 tableBodyScroll" cellSpacing="0" cellPadding="0">
+                    <thead>
+                        {_renderTradeHistoryTableHeader()}
+                    </thead>
+                    <tbody>
+                        {_renderTradeHistoryTableBody()}
+                    </tbody>
+                </table>
             </div>
-        )
-    
-    return(
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
+                getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+            />
+            <p className="text-end border-top pt-3">
+                <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+            </p>
+        </div>
+    )
+
+    return (
         <>
-        {_renderTradeHistoryTable()}
+            {_renderTradeHistoryTable()}
         </>
     )
 }
