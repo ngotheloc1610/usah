@@ -1,6 +1,6 @@
 import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import {  DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
+import { DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
@@ -15,7 +15,7 @@ interface IOrderBookProps {
     listDataTicker?: ITickerInfo[];
     itemTickerSearch: (item: string) => void;
     listTickerSearch?: string[];
-    tickerDetailLastQuote : (item: ITickerInfo) => void;
+    tickerDetailLastQuote: (item: ITickerInfo) => void;
     currentTicker?: ITickerInfo;
 }
 
@@ -66,7 +66,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
     const processQuoteEvent = (quotes: ILastQuote[]) => {
         if (quote) {
-            let temp = {...quote};
+            let temp = { ...quote };
             const item = quotes.find(o => o?.symbolCode === quote?.symbolCode);
             if (item) {
                 temp = {
@@ -88,8 +88,9 @@ const OrderBook = (props: IOrderBookProps) => {
                 if (index >= 0) {
                     tempLastQuote[index] = {
                         ...tempLastQuote[index],
-                        asksList: item.asksList,
-                        bidsList: item.bidsList
+                        asksList: item?.asksList,
+                        bidsList: item?.bidsList,
+                        currentPrice: checkValue(tempLastQuote[index]?.currentPrice, item?.currentPrice)
                     }
                 }
             });
@@ -117,7 +118,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: '-',
+                    symbolCode: itemData.symbolCode
                 });
             }
             counter--;
@@ -154,7 +155,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: '-'
+                    symbolCode: itemData.symbolCode
                 });
             }
             counter++;
@@ -183,7 +184,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderTilte = () => (
         <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
     )
-    
+
     const handleKeyUp = (value: string) => {
         itemTickerSearch(value);
     }
@@ -196,7 +197,6 @@ const OrderBook = (props: IOrderBookProps) => {
                     onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                     disablePortal
                     sx={{ width: 300 }}
-                    value={currentTicker?.ticker}
                     options={listTickerSearch ? listTickerSearch : []}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />
@@ -209,7 +209,7 @@ const OrderBook = (props: IOrderBookProps) => {
         const symbol = listSymbolListLocal.find(o => o.symbolId === Number(item.symbolCode));
         let ticker = DEFAULT_CURRENT_TICKER;
         if (symbol) {
-            ticker = {...symbol, volume: item.volume, lastPrice: item.price, side: side};
+            ticker = { ...symbol, volume: item.volume, lastPrice: item.price, side: side };
         }
         tickerDetailLastQuote(ticker)
     }

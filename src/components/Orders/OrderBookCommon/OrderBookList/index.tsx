@@ -103,7 +103,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         getTicerLastQuote(itemAssign);
         return;
     }
-    
+
     useEffect(() => {
         getListAsksBids(getTickerDetail);
     }, [getTickerDetail])
@@ -218,7 +218,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderTableEarmarkSpreadSheet = () => (
-        <table className="table table-sm table-hover border">
+        <table className="table table-sm table-hover border mb-0">
             <thead>
                 <tr>
                     {styleListBidsAsk.earmarkSpreadSheet && _renderTitleStyleEarmarkSpreadSheet()}
@@ -234,8 +234,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderTitleStyleGirdAsk = () => (
-        TITLE_LIST_BID_ASK.slice(0, 3).map(item => {
-            return <th className="text-end">{item}</th>
+        TITLE_LIST_BID_ASK.slice(0, 3).map((item, index) => {
+            return <th className="text-end" key={index}>{item}</th>
         })
     )
 
@@ -335,7 +335,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
         })
     )
-    
+
     const _renderDataStyleColumnsBids = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
@@ -348,7 +348,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderTableColumns = () => (
-        <table className="table table-sm table-borderless table-hover border  mb-0">
+        <table className="table table-sm table-borderless table-hover border mb-0">
             <thead>
                 <tr>
                     {_renderTitleStyleColumns()}
@@ -390,7 +390,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         </table>
     )
 
-    return <div className="order-block table-responsive">
+    return <div className="order-block table-responsive mb-2 fz-14">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
         {styleListBidsAsk.grid && _renderTableGidBids()}
         {(styleListBidsAsk.columns || styleListBidsAsk.columnsGap) && _renderTableColumns()}

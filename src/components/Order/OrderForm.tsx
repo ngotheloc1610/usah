@@ -39,7 +39,7 @@ const OrderForm = (props: IOrderForm) => {
     const [tickerName, setTickerName] = useState(currentTicker.tickerName || '');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
-    ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
+        ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
@@ -62,19 +62,21 @@ const OrderForm = (props: IOrderForm) => {
         const lotSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.lotSize
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
-    },[currentTicker])
+    }, [currentTicker])
 
     const handleSetPrice = () => {
-        setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
+        currentTicker.lastPrice === '-' ? setPrice(0) : setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
         setValidForm(currentTicker.lastPrice !== undefined);
     }
+
     const handleSetVolume = () => {
-        setVolume(Number(currentTicker.volume));
+        currentTicker.volume === '-' ? setVolume(0) : setVolume(Number(currentTicker.volume));
         setValidForm(currentTicker.volume !== undefined);
     }
+
     const handleSetSide = () => {
         setCurrentSide(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
-        ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
+            ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
         setValidForm(currentTicker.side !== undefined);
     }
 

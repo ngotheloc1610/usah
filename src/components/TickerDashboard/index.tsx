@@ -80,7 +80,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
     }
 
-    const processQuote = (quotes: IQuoteEvent[]) => {
+    const processQuote = (quotes: IQuoteEvent[]) => {        
         const tmpList = [...symbolList];
         if (quotes && quotes.length > 0 && tmpList && tmpList.length > 0) {
             quotes.forEach(item => {
@@ -238,7 +238,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.change))}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-change-pct fw-600"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
+                <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
             </tr>
         ))
     }

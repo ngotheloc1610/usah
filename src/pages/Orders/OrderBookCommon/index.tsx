@@ -11,10 +11,8 @@ import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
-import queryString from 'query-string';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
-import ReduxPersist from "../../../config/ReduxPersist";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE } from '../../../constants/general.constant';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
@@ -26,7 +24,7 @@ import { assignListPrice, calcChange, calcPctChange, checkValue, toTimestamp } f
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
- 
+
     const [tradeHistory, setTradeHistory] = useState<ITradeHistory[]>([]);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
     const [isGrid, setGrid] = useState<boolean>(false);
@@ -83,9 +81,9 @@ const OrderBookCommon = () => {
             listSymbolCode.push(item.ticker);
         });
         getTickerSearch(listSymbolCode[0]);
-        
+
         setListSymbolCode(listSymbolCode);
-        
+
         assignTickerToOrderForm(listSymbolCode[0]);
 
         const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
@@ -192,7 +190,7 @@ const OrderBookCommon = () => {
             }
             setItemTickerDetail(tmpItem);
         }
-        
+
     }
 
     const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
@@ -204,7 +202,7 @@ const OrderBookCommon = () => {
     const assignPctChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
         const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
         const open = checkValue(tickerInfo.open, quote.open);
-        return  calcPctChange(lastPrice, open);
+        return calcPctChange(lastPrice, open);
     }
 
     const getTradeHistory = (symbolId: string) => {
@@ -396,7 +394,7 @@ const OrderBookCommon = () => {
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
             unsubscribeQuoteReq.addSymbolCode(symbolId);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
@@ -405,25 +403,23 @@ const OrderBookCommon = () => {
         }
     }
 
-    
-
     const _renderTemplateSearchTicker = () => {
         return <div className="row g-2 justify-content-end">
-        <div className="col-md-3">
-            <div className="input-group input-group-sm mb-2">
-                <Autocomplete
-                    onChange={(event: any) => getTickerSearch(event.target.innerText)}
-                    onKeyUp={handleKeyUp}
-                    onClick={searchTicker}
-                    disablePortal
-                    options={listSymbolCode}
-                    value={tickerSelect}
-                    sx={{ width: 300 }}
-                    renderInput={(params) => <TextField {...params} placeholder="Search" />}
-                />
+            <div className="col-md-3">
+                <div className="input-group input-group-sm mb-2">
+                    <Autocomplete
+                        onChange={(event: any) => getTickerSearch(event.target.innerText)}
+                        onKeyUp={handleKeyUp}
+                        onClick={searchTicker}
+                        disablePortal
+                        options={listSymbolCode}
+                        value={tickerSelect}
+                        sx={{ width: 300 }}
+                        renderInput={(params) => <TextField {...params} placeholder="Search" />}
+                    />
+                </div>
             </div>
         </div>
-    </div>
     }
 
     const _renderTemplateOrderBookCommon = () => (
@@ -450,12 +446,12 @@ const OrderBookCommon = () => {
                                 <div className="row align-items-stretch g-2">
                                     <div className="col-md-9">
                                         <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} getTicerLastQuote={assgnDataFormNewOrder} />
-                                        <div className={`card card-ticker ${listStyleBidsAsk.columnsGap === true ? 'w-pr-135' : 'w-pr-100'}`}>
+                                        <div className={`card card-ticker ${isColumnsGap ? 'w-pr-135' : 'w-pr-100'}`} >
                                             <OrderBookTickerDetail getTickerDetail={itemTickerDetail} />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
-                                        <div className="card card-new-order d-flex flex-column h-100">
+                                        <div className={`card card-new-order d-flex flex-column mb-2 ${isColumnsGap ? 'h-new-order' : 'h-100'}`} >
                                             <div className="card-header">
                                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                             </div>
