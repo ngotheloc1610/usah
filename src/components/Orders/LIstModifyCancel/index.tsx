@@ -54,12 +54,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
-        isCancel ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
-    }, [listOrder, isCancel])
+        setCurrentPage(currentPage);
+    }, [isCancel])
 
     useEffect(() => {
         setCurrentPage(START_PAGE);
-    }, [listOrder, orderSide])
+    }, [orderSide])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
