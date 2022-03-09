@@ -47,4 +47,6 @@ export interface INews {
     newsStatus: string;
     publishDat: string;
     active: boolean;
+    read_flag: boolean;
+    createDate: string;
 }
