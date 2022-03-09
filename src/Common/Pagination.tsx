@@ -1,17 +1,30 @@
+import { useEffect } from 'react'
 import '../pages/Orders/OrderHistory/orderHistory.scss'
+import Pagination from "react-js-pagination";
 
+interface IPropsPagination {
+    totalItem: number;
+    itemPerPage: number;
+    currentPage: number;
+    getItemPerPage: (item: number) => void;
+    getCurrentPage: (item: number) => void;
+}
 
+function PaginationComponent(props: IPropsPagination) {
+    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage } = props;
 
-function Pagination() {    
+    const handleChangePage = (pageNumber: number) => {
+        getCurrentPage(pageNumber);
+    }
 
-   
     return (
         <div className="border-top pt-2 d-flex justify-content-between align-items-center mb-3">
             <div className="dataTables_length" id="table_length">
                 <label className='special'>
                     Show
                     <select name="table_length" aria-controls="table" className="form-select form-select-sm form-select-inline"
-                            defaultValue="10" 
+                        defaultValue="10"
+                        onChange={(event) => getItemPerPage(Number(event.target.value))}
                     >
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -21,25 +34,22 @@ function Pagination() {
                     entries
                 </label>
             </div>
+
             <div className="dataTables_paginate paging_simple_numbers" id="table_paginate">
-                <ul className="pagination pagination-sm">
-                    <li className="paginate_button page-item previous disabled" id="table_previous">
-                        <a href="#" aria-controls="table" data-dt-idx="0" tabIndex={0} className="page-link">Previous</a>
-                    </li><li className="paginate_button page-item active">
-                        <a href="#" aria-controls="table" data-dt-idx="1" tabIndex={0} className="page-link">1</a>
-                    </li>
-                    <li className="paginate_button page-item ">
-                        <a href="#" aria-controls="table" data-dt-idx="2" tabIndex={0} className="page-link">2</a>
-                    </li>
-                    <li className="paginate_button page-item ">
-                        <a href="#" aria-controls="table" data-dt-idx="3" tabIndex={0} className="page-link">3</a>
-                    </li>
-                    <li className="paginate_button page-item next" id="table_next">
-                        <a href="#" aria-controls="table" data-dt-idx="4" tabIndex={0} className="page-link">Next</a>
-                    </li>
-                </ul>
+                <Pagination
+                    activePage={currentPage}
+                    totalItemsCount={totalItem}
+                    itemsCountPerPage={itemPerPage}
+                    pageRangeDisplayed={5}
+                    prevPageText={'Previous'}
+                    nextPageText={'Next'}
+                    onChange={handleChangePage}
+                    innerClass={'pagination pagination-sm'}
+                    itemClass={'paginate_button page-item'}
+                    linkClass={'page-link'}
+                />
             </div>
         </div>
     )
 }
-export default Pagination
+export default PaginationComponent

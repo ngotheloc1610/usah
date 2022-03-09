@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Pagination from "../../../Common/Pagination";
-import { LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, SYMBOL_LIST } from "../../../constants/general.constant";
+import PaginationComponent from "../../../Common/Pagination";
+import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, START_PAGE, SYMBOL_LIST } from "../../../constants/general.constant";
 import { IListOrder, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -8,7 +8,7 @@ import ReduxPersist from "../../../config/ReduxPersist";
 import { IAuthen } from "../../../interfaces";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, calcCurrentList } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
 import './multipleOrders.css';
 import * as tdspb from '../../../models/proto/trading_service_pb';
@@ -24,6 +24,7 @@ const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
+    const [currentListTickers, setCurrentListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -33,6 +34,10 @@ const MultipleOrders = () => {
     const [isAddOrder, setIsAddOrder] = useState(false);
     const [ticker, setTicker] = useState('');
     const [sideAddNew, setSideAddNew] = useState('Sell');
+    const [currentPage, setCurrentPage] = useState(START_PAGE);
+    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const totalItem = listTickers.length;
+    const [isDelete, setIsDelete] = useState(false)
 
     useEffect(() => {
         const multiOrderResponse = wsService.getOrderSubject().subscribe(resp => {
@@ -50,6 +55,25 @@ const MultipleOrders = () => {
             multiOrderResponse.unsubscribe();
         }
     }, []);
+
+    useEffect(() => {
+        const currentList = calcCurrentList(currentPage, itemPerPage, listTickers);
+
+        setCurrentListTickers(currentList);
+    }, [listTickers, itemPerPage, currentPage])
+
+    useEffect(() => {
+        isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
+    }, [listTickers, isDelete])
+
+    const getItemPerPage = (item: number) => {
+        setItemPerPage(item);
+        setCurrentPage(START_PAGE)
+    }
+
+    const getCurrentPage = (item: number) => {
+        setCurrentPage(item);
+    }
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
         switch (value) {
@@ -183,6 +207,7 @@ const MultipleOrders = () => {
                 tmp.splice(index, 1);
             }
         });
+        setIsDelete(true)
         setListTickers(tmp);
         setListSelected([]);
     }
@@ -227,7 +252,7 @@ const MultipleOrders = () => {
     }
 
     const _renderDataMultipleOrders = () => (
-        listTickers.map((item: ISymbolMultiOrder, index: number) => {
+        currentListTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
@@ -709,7 +734,9 @@ const MultipleOrders = () => {
     )
     const _renderPagination = () => (
         <div className="m-3">
-            <Pagination />
+            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
+                getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+            />
         </div>
     )
     return <div className="site-main mt-3">
@@ -726,11 +753,11 @@ const MultipleOrders = () => {
                         {listTickers.length === 0 && <div className="upload-btn-wrapper">
                             <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" title={"template file"} download="MultiOrdersSample.csv"> DownLoad</a>
                         </div>}
-                        {listTickers.length > 0 &&<div className="upload-btn-wrapper">
+                        {listTickers.length > 0 && <div className="upload-btn-wrapper">
                             <button className="btn btn-upload">Import</button>
                             <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
                         </div>}
-                        
+
                     </div>
                     {listSelected.length > 0 &&
                         <div className="d-flex">

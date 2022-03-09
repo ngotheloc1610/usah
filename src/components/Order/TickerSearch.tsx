@@ -19,6 +19,7 @@ const TickerSearch = (props: ITickerSearch) => {
     const [ticker, setTicker] = useState('')
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolsLocals, setSymbolsLocals] = useState<ITickerBindingOrder[]>([]);
+    const [symbolSelected, setSymbolSeleted] = useState('');
 
     useEffect(() => {
         setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
@@ -28,8 +29,18 @@ const TickerSearch = (props: ITickerSearch) => {
             const displayText = `${item.ticker} - ${item.tickerName}`;
             listSymbolCode.push(displayText);
         });
+        if (listSymbolCode && listSymbolCode.length > 0) {
+            setSymbolSeleted(listSymbolCode[0]);
+        }
         setListSymbolCode(listSymbolCode);
     }, [])
+
+    useEffect(() => {
+        const symbolCode = symbolSelected?.split('-')[0]?.trim();
+        const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
+        setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+    }, [symbolSelected, listTicker]);
 
     const handleSymbols = (symbolCode: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -51,6 +62,7 @@ const TickerSearch = (props: ITickerSearch) => {
 
     const getTickerSearch = (value: string) => {
         const symbolCode = value !== undefined ? value?.split('-')[0]?.trim() : '';
+        setSymbolSeleted(value);
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
         storageSymbolList(symbolCode?.split('-')[0]?.trim(), value?.split('-')[1]?.trim());
         setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
@@ -60,6 +72,7 @@ const TickerSearch = (props: ITickerSearch) => {
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
             const symbolCode = event.target.value.split('-')[0]?.trim();
+            setSymbolSeleted(symbolCode);
             storageSymbolList(event.target.value?.split('-')[0]?.trim(), event.target.value?.split('-')[1]?.trim());
             const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
             setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
@@ -108,6 +121,7 @@ const TickerSearch = (props: ITickerSearch) => {
                     onClick={searchTicker}
                     disablePortal
                     options={listSymbolCode}
+                    value={symbolSelected}
                     sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />

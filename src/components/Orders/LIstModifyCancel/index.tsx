@@ -1,18 +1,15 @@
-import Pagination from "../../../Common/Pagination";
+import PaginationComponent from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
-import queryString from 'query-string';
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import ReduxPersist from "../../../config/ReduxPersist";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
-import { IAuthen } from "../../../interfaces";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -23,6 +20,7 @@ interface IPropsListModifyCancel {
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const { orderSide } = props;
+    const [listOrder, setListOrder] = useState<IListOrder[]>([]);
     const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
     const tradingModelPb: any = tspb;
@@ -45,6 +43,23 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
+    const [currentPage, setCurrentPage] = useState(START_PAGE);
+    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const totalItem = listOrder.length;
+
+    useEffect(() => {
+        const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
+        const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        setDataOrder(currentList);
+    }, [listOrder, itemPerPage, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(currentPage);
+    }, [isCancel])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE);
+    }, [orderSide])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -80,18 +95,24 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
-            let listOrderSortDate: IListOrder[] = [];
             if (orderSide !== 0) {
                 const listOrderFilter = response.orderList.filter(item => item.orderType === orderSide)
-                listOrderSortDate = listOrderFilter.sort((a, b) => b.time - a.time);
-                setDataOrder(listOrderSortDate);
+                setListOrder(listOrderFilter);
                 return
             };
-            listOrderSortDate = response.orderList.sort((a, b) => b.time - a.time);
-            setDataOrder(listOrderSortDate);
+            setListOrder(response.orderList);
         });
         return () => listOrder.unsubscribe();
     }, [msgSuccess, orderSide]);
+
+    const getItemPerPage = (item: number) => {
+        setItemPerPage(item);
+        setCurrentPage(START_PAGE)
+    }
+
+    const getCurrentPage = (item: number) => {
+        setCurrentPage(item);
+    }
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
@@ -283,7 +304,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </table>
             </div>
         </div>
-        <Pagination />
+        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
+            getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+        />
         {isCancel && <ConfirmOrder isCancel={isCancel}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
@@ -297,7 +320,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
             totalOrder={totalOrder} listOrder={dataSelected}
             handleOrderResponse={getStatusOrderResponse}
-            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti}/>}
+            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti} />}
     </div>
 }
 export default ListModifyCancel;

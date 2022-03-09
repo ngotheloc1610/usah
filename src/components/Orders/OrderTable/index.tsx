@@ -1,7 +1,7 @@
-import { ORDER_TYPE_NAME, SIDE, SOCKET_CONNECTED, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber } from "../../../helper/utils";
+import { DEFAULT_ITEM_PER_PAGE, ORDER_TYPE_NAME, SIDE, SOCKET_CONNECTED, START_PAGE, STATE } from "../../../constants/general.constant";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import Pagination from '../../../Common/Pagination'
+import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
@@ -14,9 +14,31 @@ function OrderTable(props: IPropListOrderHistory) {
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
-    const listOrderHistorySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => b.time - a.time);
+    const [listHistorySortDate, setListHistorySortDate] = useState<IListOrderHistory[]>([])
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [showModalDetail, setShowModalDetail] = useState(false)
+    const [currentPage, setCurrentPage] = useState(START_PAGE);
+    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const totalItem = listOrderHistory.length;
+
+    useEffect(() => {
+        const historySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
+        const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
+        setListHistorySortDate(currentList);
+    }, [listOrderHistory, itemPerPage, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE)
+    }, [listOrderHistory])
+
+    const getItemPerPage = (item: number) => {
+        setItemPerPage(item);
+        setCurrentPage(START_PAGE)
+    }
+
+    const getCurrentPage = (item: number) => {
+        setCurrentPage(item);
+    }
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -83,7 +105,7 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 
     const _renderOrderHistoryTableBody = () => (
-        listOrderHistorySortDate.map((item, index) => (
+        listHistorySortDate.map((item, index) => (
             <tr className="align-middle" key={index} onClick={() => setShowModalDetail(true)}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
                 <td className="text-ellipsis text-start w-220">
@@ -136,7 +158,9 @@ function OrderTable(props: IPropListOrderHistory) {
                         </tbody>
                     </table>
                 </div>
-                    <Pagination />
+                <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
+                    getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+                />
                 <p className="text-end border-top pt-3">
                     <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
                 </p>
