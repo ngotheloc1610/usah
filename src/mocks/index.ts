@@ -1649,12 +1649,6 @@ export const DEFAULT_DETAIL_NEWS: INews = {
     newsContent: '',
     newsStatus: '',
     publishDat: '',
-    active: false,
-    messageMainAttachmentI: '',
-    createUid : 0,
-    createDate: '',
-    writeUid  : 0,
-    writeDate : '',
-    read_flag : false
+    active: false
 }
 

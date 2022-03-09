@@ -47,10 +47,4 @@ export interface INews {
     newsStatus: string;
     publishDat: string;
     active: boolean;
-    messageMainAttachmentI: string;
-    createUid : number;
-    createDate: string;
-    writeUid  : number;
-    writeDate : string;
-    read_flag : boolean;
 }
