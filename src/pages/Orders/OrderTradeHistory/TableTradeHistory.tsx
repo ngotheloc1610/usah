@@ -18,7 +18,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const totalItem = getDataTradeHistory.length;
         
     useEffect(() => {
-        const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b.executedDatetime)?.localeCompare((a.executedDatetime)));
+        const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
         const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])

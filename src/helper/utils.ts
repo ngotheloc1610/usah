@@ -153,10 +153,14 @@ export const toTimestamp = (strDate: string) => {
     return dt;
 }
 
-export const calcCurrentList = (currentPage: number, itemPerPage: number, listData) => {
-    const indexOfLastNews = currentPage * itemPerPage;
-    const indexOfFirstNews = indexOfLastNews - itemPerPage;
-    return listData.slice(indexOfFirstNews, indexOfLastNews);
+// Do dùng chung nên listData là những mảng dữ liệu khác nhau => dùng any
+export const calcCurrentList = (currentPage: number, itemPerPage: number, listData: any) => {
+    if (listData && listData.length !== 0) {
+        const indexOfLastNews = currentPage * itemPerPage;
+        const indexOfFirstNews = indexOfLastNews - itemPerPage;
+        return listData.slice(indexOfFirstNews, indexOfLastNews);
+    }
+    return [];
 }
 
 export const defindConfig = (param: any) => {
