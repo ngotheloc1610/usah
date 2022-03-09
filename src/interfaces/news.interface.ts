@@ -40,8 +40,17 @@ export interface IDataNews {
 // declare fields of api
 export interface INews {
     id: number;
-    title: string;
-    content: string;
-    read_flag: boolean;
-    publish_date: string;
+    poemId: string;
+    newsTitle: string;
+    newsGroup: string;
+    newsContent: string;
+    newsStatus: string;
+    publishDat: string;
+    active: boolean;
+    messageMainAttachmentI: string;
+    createUid : number;
+    createDate: string;
+    writeUid  : number;
+    writeDate : string;
+    read_flag : boolean;
 }

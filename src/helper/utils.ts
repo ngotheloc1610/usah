@@ -170,3 +170,11 @@ export const defindConfig = (param: any) => {
     }
     return data;
 }
+
+export const formatDate = (datetime) =>{
+    if(datetime !== null && datetime !== ""){
+        let date = new Date(datetime);
+        let mDateStr = moment(date).format("DD Mo YYYY");
+        return mDateStr;
+    } return null;
+}

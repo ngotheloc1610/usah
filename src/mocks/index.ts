@@ -1642,10 +1642,19 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
 export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
 
 export const DEFAULT_DETAIL_NEWS: INews = {
-    content: '',
     id: 0,
-    publish_date: '',
-    read_flag: false,
-    title: '',
+    poemId: '',
+    newsTitle: '',
+    newsGroup: '',
+    newsContent: '',
+    newsStatus: '',
+    publishDat: '',
+    active: false,
+    messageMainAttachmentI: '',
+    createUid : 0,
+    createDate: '',
+    writeUid  : 0,
+    writeDate : '',
+    read_flag : false
 }
 

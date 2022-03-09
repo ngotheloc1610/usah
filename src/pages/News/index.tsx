@@ -8,7 +8,7 @@ import Pagination from '@mui/material/Pagination';
 import { ItemsPage } from '../../constants/news.constant'
 import { success } from '../../constants';
 import parse from "html-react-parser";
-import { defindConfig } from '../../helper/utils'
+import { defindConfig, formatDate } from '../../helper/utils'
 
 const News = () => {
 
@@ -20,6 +20,8 @@ const News = () => {
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(1);
     const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
+    const [isUnread, setIsUnread] = useState<boolean>(false);
+    const [listDataUnread, setListDataUnread] = useState<INews[]>([DEFAULT_DETAIL_NEWS]);
 
     useEffect(() => {
         const url = `${api_url}${API_GET_NEWS}`;
@@ -31,19 +33,22 @@ const News = () => {
             if (resp.status === success) {
                 setListDataNews(resp.data.data.results);
                 setTotalPage(resp.data.data.total_page);
-                let dem = 0;
-                resp.data.data.results.forEach(item => {
-                    if (item.read_flag) {
-                        dem++;
-                    }
-                });
-                setTotalNewUnread(dem);
+                const listDataUnRead: INews[] = resp.data.data.results.filter(item => item.read_flag === true);
+                if (listDataUnRead) {
+                    setTotalNewUnread(listDataUnRead.length);
+                    setListDataUnread(listDataUnRead);
+                }
             }
         },
             (error) => {
                 console.log("errors");
             });
     }, [pageSize, pageCurrent])
+
+    const handleShowUnread = (isCheck: boolean) => {
+        setIsUnread(isCheck);
+        setDataDetailNews(DEFAULT_DETAIL_NEWS);
+    }
 
     const _renderNewsHeader = () => (
         <div className="card-header">
@@ -64,7 +69,7 @@ const News = () => {
     const _renderNewsBodyNavItemRight = () => (
         <li className="nav-item ms-auto d-flex align-items-center">
             <div className="form-check form-switch">
-                <input className="form-check-input" type="checkbox" role="switch" id="onlyunread" />
+                <input className="form-check-input" checked={isUnread} onChange={(e) => handleShowUnread(e.target.checked)} type="checkbox" role="switch" id="onlyunread" />
                 <label className="form-check-label" htmlFor="onlyunread">Only show unread notifications</label>
             </div>
         </li>
@@ -77,8 +82,8 @@ const News = () => {
         }
     }
 
-    const _renderNewsNotificationItem = () => (
-        listDataNews?.map((item: INews, index: number) => (
+    const _renderNewsNotificationItem = (listDataCurr?: [INews]) => (
+        listDataCurr?.map((item: INews, index: number) => (
             <div className={item.read_flag ? "notification-item unread" : "notification-item"
                 && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
@@ -88,8 +93,8 @@ const News = () => {
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
-                    <h6 className="item-title mb-0">{item?.title}</h6>
-                    <div className="item-summary opacity-75">{parse(item?.content)}</div>
+                    <h6 className="item-title mb-0">{item?.newsTitle}</h6>
+                    <div className="item-summary opacity-75 fix-line-css">{parse(item?.newsContent)}</div>
                 </div>
             </div>
 
@@ -124,7 +129,8 @@ const News = () => {
     const _renderNewsNotificationList = () => (
         <div className="col-md-6">
             <div className="notification-list" >
-                {_renderNewsNotificationItem()}
+                {!isUnread && _renderNewsNotificationItem(listDataNews)}
+                {isUnread && _renderNewsNotificationItem()}
             </div>
 
             {_renderNewsPagination()}
@@ -140,13 +146,13 @@ const News = () => {
         <div className="notification-detail border p-3 shadow-sm" >
             <div className="d-flex mb-2 border-bottom pb-1">
                 <div>
-                    <h6 className="mb-0">{dataDetailNews?.title}</h6>
-                    <div className="small opacity-50"> {dataDetailNews?.publish_date} </div>
+                    <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>
+                    <div className="small opacity-50"> {formatDate(dataDetailNews?.createDate)} </div>
                 </div>
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
             <div>
-                <p> {parse(dataDetailNews?.content)} </p>
+                <p> {parse(dataDetailNews?.newsContent)} </p>
             </div>
         </div>
     )
