@@ -3,17 +3,17 @@ import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order
 import {  DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
 import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import TickerDetail from "./TickerDetail";
+import { wsService } from "../../services/websocket-service";
 
 
 interface IOrderBookProps {
     isDashboard: boolean;
     listDataTicker?: ITickerInfo[];
     itemTickerSearch: (item: string) => void;
-    dataSearchTicker?: ILastQuote;
     listTickerSearch?: string[];
     tickerDetailLastQuote : (item: ITickerInfo) => void;
     currentTicker?: ITickerInfo;
@@ -24,9 +24,80 @@ const defaultProps = {
 }
 
 const OrderBook = (props: IOrderBookProps) => {
-    const { isDashboard, itemTickerSearch, dataSearchTicker, listTickerSearch, tickerDetailLastQuote, currentTicker } = props;
-    const [tickerSearch, setTickerSearch] = useState<string>(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
+    const { isDashboard, itemTickerSearch, listTickerSearch, tickerDetailLastQuote, currentTicker } = props;
     const tradingModel: any = tdpb;
+    const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState([]);
+    const [quote, setQuote] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
+
+    useEffect(() => {
+        const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
+            if (lastQuote && lastQuote.quotesList) {
+                setLastQuote(lastQuote.quotesList);
+            }
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quotes => {
+            if (quotes && quotes.quoteList) {
+                setQuoteEvent(quotes.quoteList);
+            }
+        })
+
+        return () => {
+            getLastQuote.unsubscribe();
+            quoteEvent.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuote);
+    }, [lastQuote, currentTicker])
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent);
+    }, [quoteEvent])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        const item = quotes.find(o => o?.symbolCode === currentTicker?.symbolId.toString())
+        if (item) {
+            setQuote(item)
+        }
+    }
+
+    const processQuoteEvent = (quotes: ILastQuote[]) => {
+        if (quote) {
+            let temp = {...quote};
+            const item = quotes.find(o => o?.symbolCode === quote?.symbolCode);
+            if (item) {
+                temp = {
+                    ...temp,
+                    asksList: item.asksList,
+                    bidsList: item.bidsList,
+                    currentPrice: checkValue(temp?.currentPrice, item?.currentPrice),
+                    close: checkValue(temp?.close, item?.close),
+                    high: checkValue(temp?.high, item?.high),
+                    low: checkValue(temp?.low, item?.low),
+                    open: checkValue(temp?.open, item?.open)
+                }
+                setQuote(temp);
+            }
+
+            let tempLastQuote = [...lastQuote];
+            quotes.forEach(item => {
+                const index = tempLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (index >= 0) {
+                    tempLastQuote[index] = {
+                        ...tempLastQuote[index],
+                        asksList: item.asksList,
+                        bidsList: item.bidsList
+                    }
+                }
+            });
+            setLastQuote(tempLastQuote);
+        }
+
+    }
+
     const _renderAskPrice = (itemData: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = itemData.asksList;
         let arr: IAskAndBidPrice[] = [];
@@ -52,7 +123,7 @@ const OrderBook = (props: IOrderBookProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -63,10 +134,6 @@ const OrderBook = (props: IOrderBookProps) => {
             </tr>
         ));
     }
-
-    useEffect(() => {
-        setTickerSearch(dataSearchTicker?.ticker ? dataSearchTicker.ticker : '');
-    }, [dataSearchTicker?.ticker]);
 
     const _renderBidPrice = (itemData: ILastQuote) => {
         let bidItems: IAskAndBidPrice[] = itemData.bidsList;
@@ -93,7 +160,7 @@ const OrderBook = (props: IOrderBookProps) => {
             counter++;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>
                 <td className="text-end fw-600">&nbsp;</td>
                 <td className="fw-bold text-center fw-600">
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
@@ -137,16 +204,14 @@ const OrderBook = (props: IOrderBookProps) => {
         </div>
     )
 
-    const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
+    const handleTicker = (item: IAskAndBidPrice, side: string) => {
         const listSymbolListLocal = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}');
-        const detailTickerLocal = listSymbolListLocal.find(item => item.symbolId === Number(lastQuote.symbolCode));
-        let tickerDetail: ITickerInfo = DEFAULT_CURRENT_TICKER;
-        const itemPrice = item.price === '-' ? '0' : item.price;
-        const itemVolume = item.volume === '-' ? '0' : item.volume;
-        if (detailTickerLocal) {
-            tickerDetail = {...detailTickerLocal, volume: itemVolume, lastPrice: itemPrice, side: side};
+        const symbol = listSymbolListLocal.find(o => o.symbolId === Number(item.symbolCode));
+        let ticker = DEFAULT_CURRENT_TICKER;
+        if (symbol) {
+            ticker = {...symbol, volume: item.volume, lastPrice: item.price, side: side};
         }
-        tickerDetailLastQuote(tickerDetail);
+        tickerDetailLastQuote(ticker)
     }
 
     const _renderTemplate = () => (
@@ -162,13 +227,13 @@ const OrderBook = (props: IOrderBookProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {_renderAskPrice(dataSearchTicker ? dataSearchTicker : DEFAULT_DATA_TICKER)}
+                            {_renderAskPrice(quote)}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
-                                    <span className="fs-5 fw-bold text-primary">{(dataSearchTicker && dataSearchTicker.currentPrice !== '') ? dataSearchTicker.currentPrice : '-'}</span>
+                                    <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '') ? quote.currentPrice : '-'}</span>
                                 </td>
                             </tr>
-                            {_renderBidPrice(dataSearchTicker ? dataSearchTicker : DEFAULT_DATA_TICKER)}
+                            {_renderBidPrice(quote)}
                         </tbody>
                     </table>
                 </div>

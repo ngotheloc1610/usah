@@ -272,7 +272,6 @@ const Dashboard = () => {
                             <OrderBook isDashboard={isDashboard}
                                         listDataTicker={handleSymbolList}
                                         itemTickerSearch={handleTickerSearch}
-                                        dataSearchTicker={dataSearchTicker}
                                         listTickerSearch={listTickerSearch}
                                         tickerDetailLastQuote={getPriceOrder}
                                         currentTicker={ticker}/>
