@@ -1648,7 +1648,7 @@ export const DEFAULT_DETAIL_NEWS: INews = {
     newsGroup: '',
     newsContent: '',
     newsStatus: '',
-    publishDat: '',
+    publishDate: '',
     active: false,
     read_flag: false,
     createDate: ''
