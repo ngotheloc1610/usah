@@ -31,7 +31,7 @@ const defaultTickerInfo: ITickerInfo = {
     minLot: ''
 }
 const Dashboard = () => {
-    const [isDashboard, setIsDashboard] = useState(true);
+    const isDashboard = true;
     const [ticker, setTicker] = useState(defaultTickerInfo);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
@@ -265,7 +265,7 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
+                        <TickerDashboard handleTickerInfo={getTickerInfo}  listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>

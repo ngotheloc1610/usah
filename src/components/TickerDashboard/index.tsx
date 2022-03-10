@@ -25,6 +25,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [listData, setListData] = useState(listDataTicker ? listDataTicker : []);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -75,8 +76,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
     }, [quoteEvent])
 
     const renderData = () => {
-        if (listDataTicker) {
+        if (listDataTicker && listDataTicker.length > 0) {
             setListData(listDataTicker);
+            setTickerCode(listDataTicker[0]?.ticker);
+            handleTickerInfo(listDataTicker[0]);
         }
     }
 

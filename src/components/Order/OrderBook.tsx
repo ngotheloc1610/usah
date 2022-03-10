@@ -29,6 +29,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [quote, setQuote] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
+    const [ticker, setTicker] = useState<string>(currentTicker?.ticker || '');
 
     useEffect(() => {
         const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
@@ -51,6 +52,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
     useEffect(() => {
         processLastQuote(lastQuote);
+        setTicker(currentTicker?.ticker || '');
     }, [lastQuote, currentTicker])
 
     useEffect(() => {
@@ -187,6 +189,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
     const handleKeyUp = (value: string) => {
         itemTickerSearch(value);
+        setTicker(value);
     }
     const _renderSearchBox = () => (
         <div className="card-header-style">
@@ -195,6 +198,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     className='ticker-input'
                     onChange={(event: any) => handleKeyUp(event.target.innerText)}
                     onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                    value={ticker}
                     disablePortal
                     sx={{ width: 300 }}
                     options={listTickerSearch ? listTickerSearch : []}
