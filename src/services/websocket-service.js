@@ -59,10 +59,11 @@ const startWs = async () => {
     
     socket.onclose = () => {
         console.log("websocket closed -> reconnect websocket");
-        localStorage.removeItem(ACCOUNT_ID);
-        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-        localStorage.removeItem(EXPIRE_TIME);
-        window.location.href = '/login';
+        
+        // localStorage.removeItem(ACCOUNT_ID);
+        // localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        // localStorage.removeItem(EXPIRE_TIME);
+        // window.location.href = '/login';
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         setTimeout(function(){startWs()}, 5000);
