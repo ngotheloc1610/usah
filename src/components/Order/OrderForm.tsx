@@ -46,7 +46,7 @@ const OrderForm = (props: IOrderForm) => {
     const [lotSize, setLotSize] = useState(100);
     const [tickSize, setTickSize] = useState(0.01)
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
-    const [volume, setVolume] = useState(Number(currentTicker.volume));
+    const [volume, setVolume] = useState(Number(isDashboard ? currentTicker.lotSize || '0' : currentTicker.volume || '0'));
     const [statusOrder, setStatusOrder] = useState(0);
 
     useEffect(() => {
@@ -70,8 +70,12 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleSetVolume = () => {
-        currentTicker.volume === '-' ? setVolume(0) : setVolume(Number(currentTicker.volume));
-        setValidForm(currentTicker.volume !== undefined);
+        if (isDashboard) {
+            currentTicker.lotSize === '-' ? setVolume(0) : setVolume(Number(currentTicker.lotSize));
+        } else {
+            currentTicker.volume === '-' ? setVolume(0) : setVolume(Number(currentTicker.volume));
+        }
+        setValidForm(currentTicker.lotSize !== undefined);
     }
 
     const handleSetSide = () => {
