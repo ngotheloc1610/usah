@@ -86,10 +86,6 @@ const OrderBookCommon = () => {
 
         assignTickerToOrderForm(listSymbolCode[0]);
 
-        const getLastQuotesRes = wsService.getDataLastQuotes().subscribe(response => {
-            const tickerDetail = response.quotesList.find((item: ILastQuote) => Number(item.symbolCode) === 1);
-        });
-
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
             if (resp.msgText === "SUCCESS") {
                 if (symbolSearch !== '') {
@@ -124,7 +120,6 @@ const OrderBookCommon = () => {
             unsubscribeTradeEvent(symbolSearch);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
-            getLastQuotesRes.unsubscribe();
             unsubscribeQuote.unsubscribe();
             subscribeQuote.unsubscribe();
             quotes.unsubscribe();
@@ -445,9 +440,9 @@ const OrderBookCommon = () => {
                             <div id="layout-1">
                                 <div className="row align-items-stretch g-2">
                                     <div className="col-md-9">
-                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} getTickerDetail={itemTickerDetail} getTicerLastQuote={assgnDataFormNewOrder} />
+                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={itemTickerDetail.symbolCode} getTicerLastQuote={assgnDataFormNewOrder} />
                                         <div className={`card card-ticker ${isColumnsGap ? 'w-pr-135' : 'w-pr-100'}`} >
-                                            <OrderBookTickerDetail getTickerDetail={itemTickerDetail} />
+                                            <OrderBookTickerDetail symbolCode={itemTickerDetail.symbolCode} />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
