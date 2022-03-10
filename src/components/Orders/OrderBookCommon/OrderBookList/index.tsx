@@ -4,6 +4,9 @@ import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_SPREA
 import { IAskAndBidPrice, ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import './OrderBoolListBidsAsk.css';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
+import { wsService } from '../../../../services/websocket-service';
+import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
+import { checkValue } from '../../../../helper/utils';
 
 const defaultAskBidList: IListAskBid[] = [
     {
@@ -20,14 +23,80 @@ const defaultAskBidList: IListAskBid[] = [
     }
 ]
 const OrderBookList = (props: IPropsListBidsAsk) => {
-    const { styleListBidsAsk, getTickerDetail, getTicerLastQuote } = props;
+    const { styleListBidsAsk, symbolCode, getTicerLastQuote } = props;
     const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quotesEvent, setQuotesEvent] = useState<IQuoteEvent[]>([]);
     const tradingModel: any = tdpb;
-    const getListAsksBids = (itemTickerDetail: ILastQuote) => {
+
+    useEffect(() => {
+        const lastQuoteResponse = wsService.getDataLastQuotes().subscribe(lastQuote => {
+            if (lastQuote && lastQuote.quotesList) {
+                setLastQuotes(lastQuote.quotesList);
+            }
+        });
+        const quoteEventResponse = wsService.getQuoteSubject().subscribe(quotes => {
+            if (quotes && quotes.quoteList) {
+                setQuotesEvent(quotes.quoteList);
+            }
+        })
+        return () => {
+            lastQuoteResponse.unsubscribe();
+            quoteEventResponse.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuotes);
+    }, [lastQuotes, symbolCode])
+
+    useEffect(() => {
+        processQuoteEvent(quotesEvent)
+    }, [quotesEvent])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        if (quotes && quotes.length > 0) {
+            const quote = quotes.find(o => o?.symbolCode === symbolCode);
+            if (quote) {
+                mapDataTable(quote?.asksList, quote?.bidsList);
+            }
+        }
+    }
+
+    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        if (quotes && quotes.length > 0) {
+            const quote = quotes.find(o => o?.symbolCode === symbolCode);
+            if (quote) {
+                mapDataTable(quote?.asksList, quote?.bidsList);
+            }
+        }
+        const tempLastQuote = [...lastQuotes];
+        quotes.forEach(item => {
+            if (item) {
+                const index = tempLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (index >= 0) {
+                    tempLastQuote[index] = {
+                        ...tempLastQuote[index],
+                        asksList: item.asksList,
+                        bidsList: item.bidsList,
+                        currentPrice: checkValue(tempLastQuote[index].currentPrice, item?.currentPrice),
+                        open: checkValue(tempLastQuote[index]?.open, item?.open),
+                        high: checkValue(tempLastQuote[index]?.high, item?.high),
+                        low: checkValue(tempLastQuote[index]?.low, item?.low),
+                        close: checkValue(tempLastQuote[index]?.close, item.close)
+                    }
+                }
+            }
+        });
+        setLastQuotes(tempLastQuote);
+
+    }
+
+    const mapDataTable = (asksList: IAskAndBidPrice[], bidsList: IAskAndBidPrice[]) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
-        const askList = itemTickerDetail.asksList.sort((a, b) => b?.price.localeCompare(a?.price));
-        const bidList = itemTickerDetail.bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
+        const askList = asksList.sort((a, b) => b?.price.localeCompare(a?.price));
+        const bidList = bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
                 const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
@@ -103,10 +172,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         getTicerLastQuote(itemAssign);
         return;
     }
-
-    useEffect(() => {
-        getListAsksBids(getTickerDetail);
-    }, [getTickerDetail])
 
     const _renderTitleStyleEarmarkSpreadSheet = () => (
         TITLE_LIST_BID_ASK.map((item, index) => {

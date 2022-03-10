@@ -280,12 +280,12 @@ export interface IStyleBidsAsk {
 
 export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
-    getTickerDetail: ILastQuote;
+    symbolCode: string;
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
 }
 
 export interface IPropsDetail {
-    getTickerDetail: ILastQuote;
+    symbolCode: string;
 }
 export interface IListAskBid {
     totalBids: string;

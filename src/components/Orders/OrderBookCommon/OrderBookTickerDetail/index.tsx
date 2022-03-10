@@ -1,12 +1,100 @@
+import { useEffect, useState } from 'react';
 import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
-import { calcChange, calcPctChange, formatCurrency, formatNumber } from '../../../../helper/utils';
-import { IPropsDetail } from '../../../../interfaces/order.interface';
-import { MOCKDATA_ORDER_BOOK_DETAIL } from '../../../../mocks';
+import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from '../../../../helper/utils';
+import { ILastQuote, IPropsDetail } from '../../../../interfaces/order.interface';
+import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
+import { DEFAULT_DATA_TICKER } from '../../../../mocks';
+import { wsService } from '../../../../services/websocket-service';
 import './OrderBookTickerDetail.css';
 
-const mockDataTickerDetail = MOCKDATA_ORDER_BOOK_DETAIL;
 const OrderBookTickerDetail = (props: IPropsDetail) => {
-    const { getTickerDetail } = props;
+    const { symbolCode } = props;
+    const [tickerInfo, setTickerInfo] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
+    const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+
+    useEffect(() => {
+        const lastQuoteResponse = wsService.getDataLastQuotes().subscribe(resp => {
+            if (resp && resp.quotesList) {
+                setLastQuote(resp.quotesList);
+            }
+        });
+
+        const quoteEventResponse = wsService.getQuoteSubject().subscribe(quotes => {
+            if (quotes && quotes.quoteList) {
+                setQuoteEvent(quotes.quoteList);
+            }
+        })
+
+        return () => {
+            lastQuoteResponse.unsubscribe();
+            quoteEventResponse.unsubscribe();
+        }
+
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuote);
+    }, [lastQuote, symbolCode])
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent);
+    }, [quoteEvent])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        if (quotes && quotes.length > 0) {
+            const item = quotes.find(o => o?.symbolCode === symbolCode);
+            if (item) {
+                setTickerInfo(item);
+            }
+        }
+    }
+
+    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        if (quotes && quotes.length > 0) {
+            let temp = {...tickerInfo};
+            const index = quotes.findIndex(o => o?.symbolCode === temp?.symbolCode);
+            if (index >= 0) {
+                temp = {
+                    ...temp,
+                    asksList: quotes[index]?.asksList,
+                    bidsList: quotes[index]?.bidsList,
+                    close: checkValue(temp?.close, quotes[index]?.close),
+                    currentPrice: checkValue(temp?.currentPrice, quotes[index]?.currentPrice),
+                    high: checkValue(temp?.high, quotes[index]?.high),
+                    low: checkValue(temp?.low, quotes[index]?.low),
+                    open: checkValue(temp?.open, quotes[index]?.open),
+                    quoteTime: checkValue(temp?.quoteTime, quotes[index]?.quoteTime),
+                    scale: checkValue(temp?.scale, quotes[index]?.scale),
+                    tickPerDay: checkValue(temp?.tickPerDay, quotes[index]?.tickPerDay)
+                };
+                setTickerInfo(temp);
+            }
+
+            // Update lastquote
+            const tempLastQuote = [...lastQuote];
+            quotes.forEach(item => {
+                const idx = tempLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    tempLastQuote[idx] = {
+                        ...tempLastQuote[idx],
+                        asksList: item?.asksList,
+                        bidsList: item?.bidsList,
+                        close: checkValue(tempLastQuote[idx]?.close, item?.close),
+                        currentPrice: checkValue(tempLastQuote[idx]?.currentPrice, item?.currentPrice),
+                        high: checkValue(tempLastQuote[idx]?.high, item?.high),
+                        low: checkValue(tempLastQuote[idx]?.low, item?.low),
+                        open: checkValue(tempLastQuote[idx]?.open, item?.open),
+                        quoteTime: checkValue(tempLastQuote[idx]?.quoteTime, item?.quoteTime),
+                        scale: checkValue(tempLastQuote[idx]?.scale, item?.scale),
+                        tickPerDay: checkValue(tempLastQuote[idx]?.tickPerDay, item?.tickPerDay)
+                    }
+                }
+            });
+            setLastQuote(tempLastQuote);
+        }
+    }
+
     const getTickerName = (symbolId: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         return tickerList.find(item => item.symbolId.toString() === symbolId)?.tickerName;
@@ -20,7 +108,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
 
     return <>
         <div className="card-header">
-            {getTickerDetail.symbolCode !== "" ? <h6 className="card-title mb-0">{getTickerName(getTickerDetail.symbolCode)}</h6> : <h6 className="card-title mb-0">&nbsp;</h6>}
+            {symbolCode !== "" ? <h6 className="card-title mb-0">{getTickerName(symbolCode)}</h6> : <h6 className="card-title mb-0">&nbsp;</h6>}
         </div>
         <div className="card-body">
             <div className="row">
@@ -29,19 +117,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end">{formatCurrency(getTickerDetail.currentPrice)}</td>
+                                <td className="text-end">{formatCurrency(tickerInfo.currentPrice)}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
-                                <td className="text-end">{formatCurrency(getTickerDetail.open || '')}</td>
+                                <td className="text-end">{formatCurrency(tickerInfo.open || '')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">High</strong></td>
-                                <td className="text-end">{formatCurrency(getTickerDetail.high || '')}</td>
+                                <td className="text-end">{formatCurrency(tickerInfo.high || '')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Low</strong></td>
-                                <td className="text-end">{formatCurrency(getTickerDetail.low || '')}</td>
+                                <td className="text-end">{formatCurrency(tickerInfo.low || '')}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -52,20 +140,20 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
-                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
-                                    {calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
-                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
-                                    {calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcPctChange(getTickerDetail.currentPrice, getTickerDetail.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Daily Trading Vol</strong></td>
-                                <td className="text-end">{formatNumber(getTickerDetail.volumePerDay.toString())}</td>
+                                <td className="text-end">{formatNumber(tickerInfo.volumePerDay.toString())}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
@@ -86,7 +174,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
                                 {/* Waiting Proto */}
-                                <td className="text-end">{getTickerInfor(getTickerDetail.symbolCode)?.lotSize}</td>
+                                <td className="text-end">{getTickerInfor(tickerInfo.symbolCode)?.lotSize}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
