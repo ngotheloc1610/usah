@@ -16,7 +16,8 @@ export interface ITickerInfo {
     minLot?: string;
     lotSize?: string;
     asks?: IAskAndBidPrice[];
-    bids?: IAskAndBidPrice[]
+    bids?: IAskAndBidPrice[];
+    volumeStock?: string;
 }
 
 export interface IDetailTickerInfo {

@@ -91,6 +91,7 @@ const Dashboard = () => {
                 tickSize: item.tickSize,
                 lotSize: item.lotSize,
                 minLot: item.minLot,
+                volumeStock: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
             }
             listData.push(itemData);
         })

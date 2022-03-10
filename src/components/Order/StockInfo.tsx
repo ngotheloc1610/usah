@@ -46,6 +46,7 @@ const StockInfo = (props: IStockInfo) => {
                 ticker: detailTicker?.ticker ? detailTicker?.ticker : '',
                 tickerName: detailTicker?.tickerName ? detailTicker?.tickerName : '',
                 volume: checkValue(itemData.volume, itemChange?.volumePerDay),
+                volumeStock: checkValue(itemData.volumeStock, itemChange?.volumePerDay),
             }
             setDetailTicker(assignData);
         }
@@ -69,7 +70,7 @@ const StockInfo = (props: IStockInfo) => {
                             </tr>
                             <tr>
                                 <th className="fs-14">Volume</th>
-                                <td className="text-end fw-600">{detailTicker?.volume}</td>
+                                <td className="text-end fw-600">{detailTicker?.volumeStock}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w High</th>
