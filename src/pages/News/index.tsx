@@ -88,7 +88,7 @@ const News = () => {
             poem_id: poemId
         }
         axios.post<IReqNews, IReqNews>(urlPostNews, param, defindConfigPost()).then((resp) => {
-            if (resp.data.meta.code === success) {
+            if (resp?.data?.meta?.code === success) {
                 getDataNews();
             }
         },
@@ -101,10 +101,11 @@ const News = () => {
         setELActive(index);
         if (itemNews) {
             setDataDetailNews(itemNews);
+            if (!itemNews.read_flag) {
+                handleNewsReaded(itemNews?.id, Number(itemNews?.poemId));
+            }
         }
-        if (!itemNews.read_flag) {
-            handleNewsReaded(itemNews?.id, Number(itemNews?.poemId));
-        }
+        
     }
 
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
