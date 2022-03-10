@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ACCOUNT_ID, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
@@ -20,7 +20,6 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 interface IPropsListOrder {
     getMsgSuccess: string;
-    getShowData: (item: boolean) => void;
     setMessageSuccess: (item: string) => void;
 }
 
@@ -37,7 +36,7 @@ const paramModifiCancelDefault: IParamOrder = {
 }
 
 const ListOrder = (props: IPropsListOrder) => {
-    const { getMsgSuccess, getShowData, setMessageSuccess } = props;
+    const { getMsgSuccess, setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
     const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
@@ -49,6 +48,12 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
+    const [position, setPosition] = useState({
+        x: 0,
+        y: 0
+    })
+    // dùng useRef để lấy element nên biến myRef sẽ khai báo any
+    const myRef: any = useRef()
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -143,8 +148,15 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const btnShowFullData = () => {
         setShowFullData(!isShowFullData);
-        getShowData(isShowFullData)
+        setPosition({
+            x: myRef.current.getBoundingClientRect().left,
+            y: myRef.current.getBoundingClientRect().top
+        })
     }
+
+    useEffect(() => {
+        window.scrollTo(position.x, position.y)
+    }, [position])
 
     const getTickerCode = (symbolId: string): string => {
         return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
@@ -322,7 +334,11 @@ const ListOrder = (props: IPropsListOrder) => {
             <div className="card order-list">
                 <div className="card-header d-flex justify-content-between align-items-center">
                     <h6 className="card-title mb-0"><i className="bi bi-clipboard"></i> Order List</h6>
-                    <div><a href="#" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white"><i className={`bi bi-chevron-compact-${isShowFullData ? 'down' : 'up'}`}></i></a></div>
+                    <div>
+                        <a id="show-data" onClick={btnShowFullData} className="btn btn-sm btn-order-list-toggle pt-0 pb-0 text-white" ref={myRef}>
+                            <i className={`bi bi-chevron-compact-${isShowFullData ? 'down' : 'up'}`}></i>
+                        </a>
+                    </div>
                 </div>
                 <div className="card-body p-0">
                     <div className={`table-responsive ${!isShowFullData ? 'mh-350' : ''} tableFixHead`}>
