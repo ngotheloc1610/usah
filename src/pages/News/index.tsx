@@ -82,8 +82,8 @@ const News = () => {
     )
 
     const handleNewsReaded = (idNews: number) => {
-        const urlValiable = `${urlPostNews}/${idNews}/read-flag`
-        axios.post<IReqNews, IReqNews>(urlValiable, '', defindConfigPost()).then((resp) => {
+        const urlPostNew = `${urlPostNews}/${idNews}/read-flag`
+        axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
                 getDataNews();
             }
