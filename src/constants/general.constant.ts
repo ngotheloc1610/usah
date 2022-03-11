@@ -128,3 +128,5 @@ export const EXPIRE_TIME = 'expire_time';
 export const START_PAGE = 1;
 
 export const DEFAULT_ITEM_PER_PAGE = 10;
+
+export const DEFAULT_TIME_ZONE = 'SG';
