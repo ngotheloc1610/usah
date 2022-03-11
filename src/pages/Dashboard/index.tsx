@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { DEFAULT_TIME_ZONE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.scss';
