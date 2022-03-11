@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
+import { DEFAULT_TIME_ZONE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
-import './Dashboard.css';
+import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
 import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
 import { DEFAULT_DATA_TICKER } from "../../mocks";
+import moment from "moment";
+import 'moment-timezone';
 
 const defaultTickerInfo: ITickerInfo = {
     symbolId: 0,
@@ -40,64 +42,11 @@ const Dashboard = () => {
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
-    
-    const calculateChange = (lastPrice?: string, open?: string) => {
-        return Number(lastPrice) - Number(open)
-    }
+    const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
+    const usTime: any = useRef();
+    const zoneTime: any = useRef();
 
     useEffect(() => mapArrayDashboardList(), [lastQuotes])
-
-    const mapArrayDashboardList = () => {
-
-        const getItemSymbolData = (symbolCode: string) => {
-            return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-        }
-
-        let listData: ITickerInfo[] = [];
-
-        let itemData: ITickerInfo = {
-            symbolId: 0,
-            tickerName: '',
-            ticker: '',
-            stockPrice: '',
-            previousClose: '',
-            open: '',
-            high: '',
-            low: '',
-            lastPrice: '',
-            volume: '',
-            change: '',
-            changePrecent: '',
-            side: '',
-            lotSize: '',
-            minLot: '',
-            tickSize: '',
-        };
-
-        symbolList.forEach(item => {
-            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
-            itemData = {
-                tickerName: item.symbolName,
-                symbolId: item.symbolId,
-                ticker: item.symbolCode,
-                previousClose: itemSymbolData?.close,
-                open: itemSymbolData?.open,
-                high: itemSymbolData?.high,
-                low: itemSymbolData?.low,
-                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
-                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
-                tickSize: item.tickSize,
-                lotSize: item.lotSize,
-                minLot: item.minLot,
-            }
-            listData.push(itemData);
-        })
-
-        sethandleSymbolList(listData)
-        localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(listData).toString())
-    }
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -152,6 +101,89 @@ const Dashboard = () => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
+
+    useEffect(() => {
+        const timer = setInterval(() => handleUsTime(), 1000);
+
+        return () => clearTimeout(timer);
+    }, [timeZone]);
+
+    useEffect(() => {
+        const timer = setInterval(() => handleSetTimeZone(), 1000);
+
+        return () => clearTimeout(timer);
+    }, [timeZone]);
+
+    const handleUsTime = () => {
+        if (usTime.current) {
+            usTime.current.innerText = moment.tz(moment(), "America/New_York").format('LTS');
+        }
+    }
+
+    const handleSetTimeZone = () => {
+        let time: string = '';
+        timeZone === DEFAULT_TIME_ZONE ? time = moment.tz(moment(), "Asia/Singapore").format('LTS') : time = moment.tz(moment(), "Asia/Tokyo").format('LTS');
+        if (zoneTime.current) {
+            zoneTime.current.innerText = time;
+        }
+    }
+
+    const mapArrayDashboardList = () => {
+
+        const getItemSymbolData = (symbolCode: string) => {
+            return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
+        }
+
+        let listData: ITickerInfo[] = [];
+
+        let itemData: ITickerInfo = {
+            symbolId: 0,
+            tickerName: '',
+            ticker: '',
+            stockPrice: '',
+            previousClose: '',
+            open: '',
+            high: '',
+            low: '',
+            lastPrice: '',
+            volume: '',
+            change: '',
+            changePrecent: '',
+            side: '',
+            lotSize: '',
+            minLot: '',
+            tickSize: '',
+        };
+
+        symbolList.forEach(item => {
+            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
+            itemData = {
+                tickerName: item.symbolName,
+                symbolId: item.symbolId,
+                ticker: item.symbolCode,
+                previousClose: itemSymbolData?.close,
+                open: itemSymbolData?.open,
+                high: itemSymbolData?.high,
+                low: itemSymbolData?.low,
+                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
+                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
+                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
+                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
+                tickSize: item.tickSize,
+                lotSize: item.lotSize,
+                minLot: item.minLot,
+            }
+            listData.push(itemData);
+        })
+
+        sethandleSymbolList(listData)
+        localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(listData).toString())
+    }
+
+    const calculateChange = (lastPrice?: string, open?: string) => {
+        return Number(lastPrice) - Number(open)
+    }
+
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
             <div className="d-flex justify-content-center align-items-center col-md-4">
@@ -170,14 +202,13 @@ const Dashboard = () => {
             </div>
             <div className="col-md-4"></div>
             <div className="small text-end col-md-4">
-                <div>US <span className="ms-2">01:19:03 PM</span></div>
+                <div>US <span className="ms-2" ref={usTime}></span></div>
                 <div className="d-flex align-items-center justify-content-end">
-                    <select className="form-select form-select-sm lh-1 me-2 w-5">
-                        <option>Zone</option>
-                        <option value="1" >SG</option>
-                        <option value="2">JP</option>
+                    <select className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => setTimeZone(e.target.value)}>
+                        <option value="SG" >SG</option>
+                        <option value="JP">JP</option>
                     </select>
-                    <span>02:19:03 AM</span>
+                    <span ref={zoneTime}></span>
                 </div>
             </div>
         </div>
@@ -189,7 +220,7 @@ const Dashboard = () => {
     }
 
     const getPriceOrder = (value: ITickerInfo) => {
-         setTicker(value);
+        setTicker(value);
     }
 
     const getQuoteEventValue = (value: ITickerInfo) => {
@@ -250,7 +281,7 @@ const Dashboard = () => {
             symbolId = itemTicker.symbolId;
             if (symbolId && lastQuotes) {
                 const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolId);
-                return setDataSearchTicker(dataSearch ? {...dataSearch, ticker: itemTicker.ticker} : DEFAULT_DATA_TICKER);
+                return setDataSearchTicker(dataSearch ? { ...dataSearch, ticker: itemTicker.ticker } : DEFAULT_DATA_TICKER);
             }
             setTicker(defaultTickerInfo);
             return setDataSearchTicker(DEFAULT_DATA_TICKER);
@@ -258,26 +289,26 @@ const Dashboard = () => {
         setTicker(defaultTickerInfo);
         return setDataSearchTicker(DEFAULT_DATA_TICKER);
     }
-    
+
     return (
         <div className="site-main">
             <div className="container">
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo}  listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
+                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
                             <OrderBook isDashboard={isDashboard}
-                                        listDataTicker={handleSymbolList}
-                                        itemTickerSearch={handleTickerSearch}
-                                        listTickerSearch={listTickerSearch}
-                                        tickerDetailLastQuote={getPriceOrder}
-                                        currentTicker={ticker}/>
+                                listDataTicker={handleSymbolList}
+                                itemTickerSearch={handleTickerSearch}
+                                listTickerSearch={listTickerSearch}
+                                tickerDetailLastQuote={getPriceOrder}
+                                currentTicker={ticker} />
                         </div>
                         <div>
-                            <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker}/>
+                            <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker} />
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
