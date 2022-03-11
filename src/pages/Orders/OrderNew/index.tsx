@@ -4,11 +4,12 @@ import OrderBook from '../../../components/Order/OrderBook'
 import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
-import { LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
+import { ACCOUNT_ID, LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
 import { ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
+import * as qspb from '../../../models/proto/query_service_pb';
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
 import { DEFAULT_DATA_TICKER } from '../../../mocks'
@@ -61,7 +62,7 @@ const OrderNew = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
+                callSymbolList();
             }
         });
 
@@ -92,6 +93,23 @@ const OrderNew = () => {
     useEffect(() => {
         sendMessageQuotes()
     }, [symbolList])
+
+    const callSymbolList = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID);
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let symbolListRequest = new queryServicePb.SymbolListRequest();
+            symbolListRequest.setAccountId(Number(accountId));
+            const rpcModel: any = rpcpb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
+            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;

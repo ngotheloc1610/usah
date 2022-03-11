@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE } from "../../constants/general.constant"
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE, SYMBOL_LIST } from "../../constants/general.constant"
 import { assignListPrice, calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
-import { IDetailTickerInfo, ITickerInfo } from "../../interfaces/order.interface";
+import { IDetailTickerInfo, ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../models/proto/rpc_pb';
 import { IListDashboard } from "../../interfaces/ticker.interface";
@@ -10,7 +10,7 @@ import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 interface ITickerDashboard {
-    handleTickerInfo: (item: ITickerInfo) => void;
+    handleTickerInfo: (item: ILastQuote) => void;
     handleQuoteEvent: (item: ITickerInfo) => void;
     listDataTicker: ITickerInfo[];
 }
@@ -22,24 +22,19 @@ const defaultProps = {
 const TickerDashboard = (props: ITickerDashboard) => {
     const { handleTickerInfo, handleQuoteEvent, listDataTicker } = props;
     const [tickerCode, setTickerCode] = useState('');
-    const [listData, setListData] = useState(listDataTicker ? listDataTicker : []);
-    const [quoteEvent, setQuoteEvent] = useState([]);
+    const [listData, setListData] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                getLastQuote();
+                // getLastQuote();
                 unSubscribeQuoteEvent();
             }
         });
-
-        const unsubscribeResp = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
-            if (resp.msgText === "SUCCESS") {
-                subscribeQuoteEvent();
-            }
-            
-        })
 
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
@@ -53,7 +48,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
             if (quote && quote.quotesList) {
-                setListData(quote.quotesList);
+                setLastQuotes(quote.quotesList);
             }
         })
 
@@ -63,52 +58,40 @@ const TickerDashboard = (props: ITickerDashboard) => {
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
-            unsubscribeResp.unsubscribe();
         }
     }, []);
-
-    useEffect(() => {
-        renderData();
-    }, [listDataTicker]);
 
     useEffect(() => {
         processQuote(quoteEvent);
     }, [quoteEvent])
 
-    const renderData = () => {
-        if (listDataTicker && listDataTicker.length > 0) {
-            setListData(listDataTicker);
-            setTickerCode(listDataTicker[0]?.ticker);
-            handleTickerInfo(listDataTicker[0]);
-        }
+    useEffect(() => {
+        processLastQuote(lastQuotes)
+    }, [lastQuotes])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        setListData(quotes);
     }
 
     const processQuote = (quotes: IQuoteEvent[]) => {        
-        const tmpList = [...symbolList];
+        const tmpList = [...lastQuotes];
         if (quotes && quotes.length > 0 && tmpList && tmpList.length > 0) {
             quotes.forEach(item => {
-               const index = tmpList.findIndex(o => o?.symbolId.toString() === item?.symbolCode);
+               const index = tmpList.findIndex(o => o?.symbolCode === item?.symbolCode);
                if (index >= 0) {
                    tmpList[index] = {
                        ...tmpList[index],
-                        change: assignChangeValue(tmpList[index], item).toString(),
-                        changePrecent: assignPctChangeValue(tmpList[index], item).toString(),
-                        lastPrice: checkValue(tmpList[index].lastPrice, item.currentPrice),
+                        currentPrice: checkValue(tmpList[index].currentPrice, item.currentPrice),
                         volume: checkValue(tmpList[index].volume, item.volumePerDay),
                         high: checkValue(tmpList[index].high, item.high),
                         low: checkValue(tmpList[index].low, item.low),
                         open: checkValue(tmpList[index].open, item.open),
-                        asks: !tmpList[index].asks ? assignListPrice([], item.asksList, LIST_PRICE_TYPE.askList) : assignListPrice(tmpList[index].asks, item.asksList, LIST_PRICE_TYPE.askList),
-                        bids: !tmpList[index].bids ? assignListPrice([], item.bidsList, LIST_PRICE_TYPE.bidList) : assignListPrice(tmpList[index].bids, item.bidsList, LIST_PRICE_TYPE.bidList),
-                        previousClose: checkValue(tmpList[index].previousClose, item.close)
-                        
+                        asksList: item.asksList,
+                        bidsList: item.bidsList,
+                        close: checkValue(tmpList[index].close, item.close)
                    }
                }
             });
-            const element = tmpList.find(o => o?.ticker === tickerCode);
-            if (element) {
-                handleQuoteEvent(element);
-            }
             setListData(tmpList);
         }
     }
@@ -125,22 +108,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         return  calcPctChange(lastPrice, open);
     }
 
-    const subscribeQuoteEvent = () => {
-        const pricingServicePb: any = psbp;
-        const rpc: any = rpcpb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            symbolList.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolId.toString());
-            })
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const unSubscribeQuoteEvent = () => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
@@ -148,7 +115,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         if (wsConnected) {
             let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest ();
             symbolList.forEach(item => {
-                unsubscribeQuoteReq.addSymbolCode(item.symbolId.toString());
+                unsubscribeQuoteReq.addSymbolCode(item.ticker);
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
@@ -164,7 +131,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         if (wsConnected) {
             let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
             symbolList.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId.toString())
+                lastQoutes.addSymbolCode(item.ticker)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -173,9 +140,9 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
     }
 
-    const onClickTickerInfo = (item: ITickerInfo) => {
+    const onClickTickerInfo = (item: ILastQuote) => {
         if (item) {
-            setTickerCode(item.ticker);
+            setTickerCode(item.symbolCode);
             handleTickerInfo(item);
         }
     }
@@ -229,19 +196,28 @@ const TickerDashboard = (props: ITickerDashboard) => {
         </tr>
     )
 
+    const renderSymbolName = (symbolCode) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        if (lstSymbols.length > 0) {
+            const item = lstSymbols.find(o => o?.ticker === symbolCode);
+            return item?.tickerName;
+        }
+        return '';
+    }
+
     const renderDataListCompany = () => {
-        return listData.map((item: ITickerInfo, index: number) => (
+        return listData.map((item: ILastQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="text-left w-ticker-name fw-600">{item.tickerName}</td>
-                <td className="text-left w-header fw-600">{item.ticker}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.previousClose || '')}</td>
+                <td className="text-left w-ticker-name fw-600">{renderSymbolName(item.symbolCode)}</td>
+                <td className="text-left w-header fw-600">{item.symbolCode}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.close || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
-                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
-                <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
-                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.change))}>{formatCurrency(item.change)}</span></td>
-                <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(Number(item.changePrecent))}>{formatCurrency(item.changePrecent)}%</span></td>
+                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.currentPrice))}>{formatCurrency(item.currentPrice)}</span></td>
+                <td className="text-end w-header fw-600">{formatNumber(item.volumePerDay)}</td>
+                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.netChange))}>{formatCurrency(item.netChange || '')}</span></td>
+                <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(Number(item.pctChange))}>{formatCurrency(item.pctChange)}%</span></td>
             </tr>
         ))
     }

@@ -200,7 +200,7 @@ const OrderBookCommon = () => {
         return calcPctChange(lastPrice, open);
     }
 
-    const getTradeHistory = (symbolId: string) => {
+    const getTradeHistory = (symbolCode: string) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -208,7 +208,7 @@ const OrderBookCommon = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(symbolId);
+            tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setFromDatetime(timeFrom);
             tradeHistoryRequest.setToDatetime(timeTo);
             const rpcPb: any = rpcpb;
@@ -217,6 +217,7 @@ const OrderBookCommon = () => {
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("ws send")
         }
     }
 
@@ -234,7 +235,7 @@ const OrderBookCommon = () => {
         if (wsConnected) {
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
             listTicker.forEach(item => {
-                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
+                lastQuotesRequest.addSymbolCode(item.ticker)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -296,14 +297,15 @@ const OrderBookCommon = () => {
         setTickerSelect(symbolCode);
         assignTickerToOrderForm(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
+        
         if (symbolSearch) {
-            unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
-            unsubscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
+            unSubscribeQuoteEvent(itemTickerInfor?.ticker || '');
+            unsubscribeTradeEvent(itemTickerInfor?.ticker || '');
         }
-        subscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
-        subscribeTradeEvent(itemTickerInfor?.symbolId.toString() || '');
-        getTradeHistory(itemTickerInfor?.symbolId.toString() || '');
-        setSymbolSearch(itemTickerInfor?.symbolId.toString() || '');
+        subscribeQuoteEvent(itemTickerInfor?.ticker || '');
+        subscribeTradeEvent(itemTickerInfor?.ticker || '');
+        getTradeHistory(itemTickerInfor?.ticker || '');
+        setSymbolSearch(itemTickerInfor?.ticker || '');
         setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
@@ -341,13 +343,13 @@ const OrderBookCommon = () => {
         setCurrentTicker(itemTicker);
     }
 
-    const subscribeTradeEvent = (symbolId: string) => {
+    const subscribeTradeEvent = (symbolCode: string) => {
         const tradingServicePb: any = tspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
-            subscribeTradeEvent.addSymbolCode(symbolId);
+            subscribeTradeEvent.addSymbolCode(symbolCode);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
             rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
@@ -355,13 +357,13 @@ const OrderBookCommon = () => {
         }
     }
 
-    const unsubscribeTradeEvent = (symbolId: string) => {
+    const unsubscribeTradeEvent = (symbolCode: string) => {
         const tradingServicePb: any = tspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let unsubscribeTradeEventReq = new tradingServicePb.UnsubscribeTradeEventRequest();
-            unsubscribeTradeEventReq.addSymbolCode(symbolId);
+            unsubscribeTradeEventReq.addSymbolCode(symbolCode);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_TRADE_REQ);
             rpcMsg.setPayloadData(unsubscribeTradeEventReq.serializeBinary());
@@ -370,13 +372,13 @@ const OrderBookCommon = () => {
     }
 
 
-    const subscribeQuoteEvent = (symbolId: string) => {
+    const subscribeQuoteEvent = (symbolCode: string) => {
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            subscribeQuoteEventReq.addSymbolCode(symbolId);
+            subscribeQuoteEventReq.addSymbolCode(symbolCode);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
@@ -440,9 +442,9 @@ const OrderBookCommon = () => {
                             <div id="layout-1">
                                 <div className="row align-items-stretch g-2">
                                     <div className="col-md-9">
-                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={itemTickerDetail.symbolCode} getTicerLastQuote={assgnDataFormNewOrder} />
+                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} getTicerLastQuote={assgnDataFormNewOrder} />
                                         <div className={`card card-ticker ${isColumnsGap ? 'w-pr-135' : 'w-pr-100'}`} >
-                                            <OrderBookTickerDetail symbolCode={itemTickerDetail.symbolCode} />
+                                            <OrderBookTickerDetail symbolCode={tickerSelect} />
                                         </div>
                                     </div>
                                     <div className="col-md-3">

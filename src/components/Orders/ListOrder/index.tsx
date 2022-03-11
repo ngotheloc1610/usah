@@ -129,7 +129,7 @@ const ListOrder = (props: IPropsListOrder) => {
         if (wsConnected) {
             let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
             symbolList.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId.toString())
+                lastQoutes.addSymbolCode(item.symbolCode)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -158,15 +158,19 @@ const ListOrder = (props: IPropsListOrder) => {
         window.scrollTo(position.x, position.y)
     }, [position])
 
-    const getTickerCode = (symbolId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
+    const getTickerCode = (symbolCode: string): string => {
+        const ticker = symbolList.find(item => item.symbolCode === symbolCode);
+        if (ticker) {
+            return `${ticker.symbolCode} - ${ticker.symbolName}`;
+        }
+        return '';
     }
 
     const handleModify = (item: IListOrder) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
-            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
-            tickerName: getTickerName(item.symbolCode.toString())?.toString(),
+            tickerCode: item.symbolCode.split('-')[0]?.trim(),
+            tickerName: item.symbolCode.split('-')[1]?.trim(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
@@ -181,8 +185,8 @@ const ListOrder = (props: IPropsListOrder) => {
     const handleCancel = (item: IListOrder) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
-            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
-            tickerName: getTickerName(item.symbolCode.toString())?.toString(),
+            tickerCode: item.symbolCode.split('-')[0]?.trim(),
+            tickerName: item.symbolCode.split('-')[1]?.trim(),
             orderType: ORDER_TYPE_NAME.limit,
             volume: item.amount,
             price: Number(item.price),
@@ -310,7 +314,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         </div>
                     </td>
                     <td className="fm">{item.orderId}</td>
-                    <td>{getTickerCode(item.symbolCode.toString())}</td>
+                    <td>{getTickerCode(item.symbolCode)}</td>
                     <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                     <td className="text-end ">{formatCurrency(item.price.toString())}</td>

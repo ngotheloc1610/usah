@@ -62,8 +62,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setAmount(`${volumeModify}`);
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
-            order.setSymbolCode(params.tickerId);
-            order.setOrderType(params.side);
+            order.setSymbolCode(params.tickerCode);
+            order.setSide(params.side);
+            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -95,7 +96,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessagee = (accountId: string) => {
+    const callSigleOrderRequest = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
@@ -108,8 +109,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setAmount(`${params.volume}`);
             order.setPrice(`${params.price}`);
             order.setUid(uid);
-            order.setSymbolCode(params.tickerId);
-            order.setOrderType(params.side);
+            order.setSymbolCode(params.tickerCode);
+            order.setSide(params.side);
+            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -147,8 +149,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setAmount(`${volumeModify}`);
             order.setPrice(`${priceModify}`);
             order.setUid(uid);
-            order.setSymbolCode(params.tickerId);
-            order.setOrderType(params.side);
+            order.setSymbolCode(params.tickerCode);
+            order.setSide(params.side);
+            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -187,7 +190,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         else if (isModify) {
             prepareMessageeModify(accountId);
         } else {
-            prepareMessagee(accountId);
+            callSigleOrderRequest(accountId);
         }
         return;
     }
@@ -245,7 +248,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                             :
                             <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
-                                onChange={(e, maskedVal) => { setPriceModify(+maskedVal) }} value={formatCurrency(priceModify.toString())} />
+                                onChange={(e, maskedVal) => { 
+                                    console.log(maskedVal);
+                                    setPriceModify(+maskedVal)
+                                 }} value={formatCurrency(priceModify.toString())} />
                         }
                     </div>
                     <div className="border-start d-flex flex-column">

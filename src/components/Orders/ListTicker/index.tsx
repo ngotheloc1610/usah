@@ -204,7 +204,7 @@ const ListTicker = (props: IListTickerProps) => {
         if (wsConnected) {
             let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
             symbolList.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolId.toString())
+                lastQoutes.addSymbolCode(item.ticker)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);

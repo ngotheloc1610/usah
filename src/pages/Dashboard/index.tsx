@@ -9,6 +9,7 @@ import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
+import * as qspb from '../../models/proto/query_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
 import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
 import { DEFAULT_DATA_TICKER } from "../../mocks";
@@ -51,7 +52,7 @@ const Dashboard = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
+                callSymbolListRequest();
             }
         });
 
@@ -65,6 +66,7 @@ const Dashboard = () => {
                     });
                     setListTickerSearch(tmp);
                 }
+                subscribeQuoteEvent(res.symbolList);
             }
         });
 
@@ -84,6 +86,40 @@ const Dashboard = () => {
         }
     }, [symbolList])
 
+    const subscribeQuoteEvent = (symbols) => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            symbols.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const callSymbolListRequest = () => {
+        const accountId = localStorage.getItem(ACCOUNT_ID);
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let symbolListRequest = new queryServicePb.SymbolListRequest();
+            symbolListRequest.setAccountId(Number(accountId));
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
+            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;
         let wsConnected = wsService.getWsConnected();
@@ -91,7 +127,7 @@ const Dashboard = () => {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
             symbolList.forEach(item => {
-                lastQuotesRequest.addSymbolCode(item.symbolId.toString())
+                lastQuotesRequest.addSymbolCode(item.symbolCode)
             });
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
@@ -214,9 +250,23 @@ const Dashboard = () => {
         </div>
     )
 
-    const getTickerInfo = (value: ITickerInfo) => {
-        handleGetTicker(value);
-        setTicker(value);
+    const getTickerInfo = (value: ILastQuote) => {
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const ticker = symbols?.find(o => o?.ticker === value.symbolCode)
+        const  element: ITickerInfo = {
+            ...defaultTickerInfo,
+            ticker: value.symbolCode,
+            previousClose: value.close,
+            open: value.open,
+            high: value.high,
+            low: value.low,
+            lastPrice: value.currentPrice,
+            volume: value.volumePerDay,
+            lotSize: ticker.lotSize,
+            tickSize: ticker.tickSize
+        }
+        handleGetTicker(element);
+        setTicker(element);
     }
 
     const getPriceOrder = (value: ITickerInfo) => {

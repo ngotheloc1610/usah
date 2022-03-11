@@ -44,12 +44,12 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         }
     }, [])
 
-    const getTickerCode = (symbolId: string) => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
+    const getTickerCode = (symbolCode: string) => {
+        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolCode;
     }
 
-    const getTickerName = (symbolId: string) => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
+    const getTickerName = (symbolCode: string) => {
+        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolName;
     }
 
     const getSideName = (sideId: number) => {
@@ -75,8 +75,8 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         listTradeSortDate.map((item: ITradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td className="td w-160"><a href="#">{item.orderId}</a></td>
-                <td className="td text-start w-120">{getTickerCode(item.tickerCode.toString())}</td>
-                <td className="td text-start w-180">{getTickerName(item.tickerCode.toString())}</td>
+                <td className="td text-start w-120">{getTickerCode(item.tickerCode)}</td>
+                <td className="td text-start w-180">{getTickerName(item.tickerCode)}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>
                         {getSideName(item.orderType)}

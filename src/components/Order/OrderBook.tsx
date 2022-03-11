@@ -60,7 +60,7 @@ const OrderBook = (props: IOrderBookProps) => {
     }, [quoteEvent])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
-        const item = quotes.find(o => o?.symbolCode === currentTicker?.symbolId.toString())
+        const item = quotes.find(o => o?.symbolCode === currentTicker?.ticker)
         if (item) {
             setQuote(item)
         }
@@ -126,7 +126,7 @@ const OrderBook = (props: IOrderBookProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -163,7 +163,7 @@ const OrderBook = (props: IOrderBookProps) => {
             counter++;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL)}>
                 <td className="text-end fw-600">&nbsp;</td>
                 <td className="fw-bold text-center fw-600">
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
@@ -210,7 +210,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
     const handleTicker = (item: IAskAndBidPrice, side: string) => {
         const listSymbolListLocal = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}');
-        const symbol = listSymbolListLocal.find(o => o.symbolId === Number(item.symbolCode));
+        const symbol = listSymbolListLocal.find(o => o.ticker === item.symbolCode);
         let ticker = DEFAULT_CURRENT_TICKER;
         if (symbol) {
             ticker = { ...symbol, volume: item.volume, lastPrice: item.price, side: side };

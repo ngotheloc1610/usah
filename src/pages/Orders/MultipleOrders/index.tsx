@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PaginationComponent from "../../../Common/Pagination";
-import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, START_PAGE, SYMBOL_LIST } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, START_PAGE, SYMBOL_LIST } from "../../../constants/general.constant";
 import { IListOrder, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import queryString from 'query-string';
@@ -28,7 +28,7 @@ const MultipleOrders = () => {
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
-    const [currentSide, setCurrentSide] = useState(tradingModel.OrderType.OP_SELL);
+    const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
     const [price, setPrice] = useState(0);
     const [volume, setVolume] = useState(0);
     const [isAddOrder, setIsAddOrder] = useState(false);
@@ -77,7 +77,7 @@ const MultipleOrders = () => {
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
         switch (value) {
-            case tradingModelPb.OrderType.OP_BUY.toString(): {
+            case tradingModelPb.Side.BUY.toString(): {
                 listTickers[index].orderSide = SIDE_NAME.buy;
                 break;
             }
@@ -241,10 +241,10 @@ const MultipleOrders = () => {
         if (orderSide) {
             switch (orderSide.toLocaleLowerCase()) {
                 case SIDE_NAME.buy.toLocaleLowerCase(): {
-                    return tradingModelPb.OrderType.OP_BUY;
+                    return tradingModelPb.Side.BUY;
                 }
                 default: {
-                    return tradingModelPb.OrderType.OP_SELL;
+                    return tradingModelPb.Side.SELL;
                 }
             }
         }
@@ -261,10 +261,10 @@ const MultipleOrders = () => {
                 <td className="text-left">Limit</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
-                    ${(getOrderSideValue(item.orderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
+                    ${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
                         onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
-                        <option value={tradingModelPb.OrderType.OP_BUY} className="text-danger text-left">Buy</option>
-                        <option value={tradingModelPb.OrderType.OP_SELL} className="text-success text-left">Sell</option>
+                        <option value={tradingModelPb.Side.BUY} className="text-danger text-left">Buy</option>
+                        <option value={tradingModelPb.Side.SELL} className="text-success text-left">Sell</option>
                     </select>
                 </td>
                 <td className="text-end">
@@ -331,7 +331,7 @@ const MultipleOrders = () => {
                 <td className="text-nowrap">{item.ticker}</td>
                 <td className="text-nowrap">{getTickerName(item.ticker)}</td>
                 <td className="text-end">Limit</td>
-                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.OrderType.OP_BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
                     {item.orderSide}
                 </td>
                 <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
@@ -340,31 +340,8 @@ const MultipleOrders = () => {
         })
     )
 
-    const sendMessMultiRequest = () => {
-        const paramStr = window.location.search;
-        const objAuthen = queryString.parse(paramStr);
-        let accountId: string | any = '';
-        if (objAuthen.access_token) {
-            accountId = objAuthen.account_id;
-            ReduxPersist.storeConfig.storage.setItem(OBJ_AUTHEN, JSON.stringify(objAuthen));
-            prepareMessage(accountId);
-            return;
-        }
-        ReduxPersist.storeConfig.storage.getItem(OBJ_AUTHEN).then(resp => {
-            if (resp) {
-                const obj: IAuthen = JSON.parse(resp);
-                accountId = obj.account_id;
-                prepareMessage(accountId);
-                return;
-            } else {
-                accountId = process.env.REACT_APP_TRADING_ID;
-                prepareMessage(accountId);
-                return;
-            }
-        });
-    }
-
-    const prepareMessage = (accountId: string) => {
+    const callOrderRequest = () => {
+        const accountId = localStorage.getItem(ACCOUNT_ID)
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();
@@ -380,7 +357,8 @@ const MultipleOrders = () => {
                 order.setPrice(item.price.replaceAll(',', ''));
                 order.setUid(accountId);
                 order.setSymbolCode(symbol?.symbolId);
-                order.setOrderType(getOrderSideValue(item.orderSide));
+                order.setSide(getOrderSideValue(item.orderSide));
+                order.setOrderType(tradingModel.OrderType.OP_LIMIT);
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -470,11 +448,11 @@ const MultipleOrders = () => {
         setSideAddNew(value);
         switch (value.toLowerCase()) {
             case SIDE_NAME.buy.toLowerCase(): {
-                setCurrentSide(tradingModel.OrderType.OP_BUY);
+                setCurrentSide(tradingModel.Side.BUY);
                 break;
             }
             default: {
-                setCurrentSide(tradingModel.OrderType.OP_SELL);
+                setCurrentSide(tradingModel.Side.SELL);
                 break;
             }
         }
@@ -482,7 +460,7 @@ const MultipleOrders = () => {
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
         <button type="button"
-            className={side === tradingModel.OrderType.OP_SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+            className={side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -612,7 +590,7 @@ const MultipleOrders = () => {
 
     const getSideName = (side: number) => {
         switch (side) {
-            case tradingModelPb.OrderType.OP_BUY: {
+            case tradingModelPb.Side.BUY: {
                 return 'Buy';
             }
             default: {
@@ -693,7 +671,7 @@ const MultipleOrders = () => {
 
                 <div className="text-end mb-3 mt-10">
                     <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
-                    <a href="#" className="btn btn-primary btn-submit" onClick={sendMessMultiRequest}>
+                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>
                         Settlement</a>
                 </div>
             </div>
