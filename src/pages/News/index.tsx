@@ -2,38 +2,44 @@ import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { API_GET_NEWS } from '../../constants/api.constant'
+import { API_GET_NEWS, API_POST_NEWS } from '../../constants/api.constant'
 import axios from 'axios';
 import Pagination from '@mui/material/Pagination';
 import { ItemsPage } from '../../constants/news.constant'
 import { success } from '../../constants';
 import parse from "html-react-parser";
-import { defindConfig, formatDate } from '../../helper/utils'
+import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils'
 
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(2)
     const [pageSize, setPageSize] = useState<number>(5);
-    const [listDataNews, setListDataNews] = useState<[INews]>();
+    const [listDataNews, setListDataNews] = useState<INews[]>();
     const [totalPage, setTotalPage] = useState<number>(1);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(1);
     const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
-    const [listDataUnread, setListDataUnread] = useState<INews[]>([DEFAULT_DETAIL_NEWS]);
+    const [listDataUnread, setListDataUnread] = useState<INews[]>();
+
+    const urlGetNews = `${api_url}${API_GET_NEWS}`;
+    const urlPostNews = `${api_url}${API_POST_NEWS}`; 
+    const paramNews = {
+        page_size: pageSize,
+        page: pageCurrent,
+    }
 
     useEffect(() => {
-        const url = `${api_url}${API_GET_NEWS}`;
-        const paramNews = {
-            page_size: pageSize,
-            page: pageCurrent,
-        }
-        axios.get<IReqNews, IReqNews>(url, defindConfig(paramNews)).then((resp) => {
+        getDataNews();
+    }, [pageSize, pageCurrent])
+
+    const getDataNews = () => {
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {
             if (resp.status === success) {
-                setListDataNews(resp.data.data.results);
-                setTotalPage(resp.data.data.total_page);
-                const listDataUnRead: INews[] = resp.data.data.results.filter(item => item.read_flag === true);
+                setListDataNews(resp?.data?.data?.results);
+                setTotalPage(resp?.data?.data?.total_page);
+                const listDataUnRead: INews[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
                 if (listDataUnRead) {
                     setTotalNewUnread(listDataUnRead.length);
                     setListDataUnread(listDataUnRead);
@@ -43,7 +49,7 @@ const News = () => {
             (error) => {
                 console.log("errors");
             });
-    }, [pageSize, pageCurrent])
+    }
 
     const handleShowUnread = (isCheck: boolean) => {
         setIsUnread(isCheck);
@@ -75,16 +81,32 @@ const News = () => {
         </li>
     )
 
+    const handleNewsReaded = (idNews: number) => {
+        const urlPostNew = `${urlPostNews}/${idNews}/read-flag`
+        axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
+            if (resp?.data?.meta?.code === success) {
+                getDataNews();
+            }
+        },
+            (error) => {
+                console.log("errors");
+            });
+    }
+
     const handleClick = (index: number, itemNews: INews) => {
         setELActive(index);
         if (itemNews) {
             setDataDetailNews(itemNews);
+            if (!itemNews.read_flag) {
+                handleNewsReaded(itemNews?.id);
+            }
         }
+
     }
 
-    const _renderNewsNotificationItem = (listDataCurr?: [INews]) => (
+    const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
         listDataCurr?.map((item: INews, index: number) => (
-            <div className={item.read_flag ? "notification-item unread" : "notification-item"
+            <div className={!item.read_flag ? "notification-item unread" : "notification-item"
                 && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
                 onClick={() => handleClick(index, item)}
@@ -130,7 +152,7 @@ const News = () => {
         <div className="col-md-6">
             <div className="notification-list" >
                 {!isUnread && _renderNewsNotificationItem(listDataNews)}
-                {isUnread && _renderNewsNotificationItem()}
+                {isUnread && _renderNewsNotificationItem(listDataUnread)}
             </div>
 
             {_renderNewsPagination()}

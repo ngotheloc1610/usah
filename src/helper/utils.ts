@@ -163,7 +163,7 @@ export const calcCurrentList = (currentPage: number, itemPerPage: number, listDa
     return [];
 }
 
-export const defindConfig = (param: any) => {
+export const defindConfigGet = (param: any) => {
     const data = {
         headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
         params: param
@@ -171,6 +171,12 @@ export const defindConfig = (param: any) => {
     return data;
 }
 
+export const defindConfigPost = () => {
+    const data = {
+        headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` }
+    }
+    return data;
+}
 export const formatDate = (datetime) =>{
     if(datetime !== null && datetime !== ""){
         let date = new Date(datetime);
