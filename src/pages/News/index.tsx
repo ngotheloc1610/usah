@@ -21,11 +21,10 @@ const News = () => {
     const [pageCurrent, setPageCurrent] = useState<number>(1);
     const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
-    const [listDataUnread, setListDataUnread] = useState<INews[]>([DEFAULT_DETAIL_NEWS]);
-    const [newIdDetail, setNewIdDetail] = useState<number>(0);
+    const [listDataUnread, setListDataUnread] = useState<INews[]>();
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
-    const urlPostNews = `${api_url}${API_POST_NEWS}`;
+    const urlPostNews = `${api_url}${API_POST_NEWS}`; 
     const paramNews = {
         page_size: pageSize,
         page: pageCurrent,
@@ -82,12 +81,9 @@ const News = () => {
         </li>
     )
 
-    const handleNewsReaded = (idNews: number, poemId: number) => {
-        const param = {
-            news_id: idNews,
-            poem_id: poemId
-        }
-        axios.post<IReqNews, IReqNews>(urlPostNews, param, defindConfigPost()).then((resp) => {
+    const handleNewsReaded = (idNews: number) => {
+        const urlValiable = `${urlPostNews}/${idNews}/read-flag`
+        axios.post<IReqNews, IReqNews>(urlValiable, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
                 getDataNews();
             }
@@ -102,10 +98,10 @@ const News = () => {
         if (itemNews) {
             setDataDetailNews(itemNews);
             if (!itemNews.read_flag) {
-                handleNewsReaded(itemNews?.id, Number(itemNews?.poemId));
+                handleNewsReaded(itemNews?.id);
             }
         }
-        
+
     }
 
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
