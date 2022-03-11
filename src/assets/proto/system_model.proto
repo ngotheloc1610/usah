@@ -35,6 +35,24 @@ message Account {
 	enum TradingRights {TRADING_RIGHTS_NONE = 0; TRADING_OPEN_ONLY = 1; TRADING_CLOSE_ONLY = 2; TRADING_NORMAL = 3; }
 }
 
+message AdminSettings {
+	int64 gross_buy_limit	= 1;
+	int64 gross_sell_limit	= 2;
+}
+
+message GroupAccount {
+	int64 group_id 				= 1;
+	string group_name			= 2;
+	GroupType group_type		= 3;
+	int64 max_order_volume 		= 4;
+}
+
+enum GroupType {
+	GT_NONE		= 0;
+	GT_LP		= 1;
+	GT_RETAIL	= 2;
+}
+
 message AccountBalance {
 	int64 account_id 			= 1;
 	string balance				= 2;

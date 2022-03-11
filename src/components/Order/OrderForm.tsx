@@ -36,10 +36,10 @@ const defaultProps = {
 
 const OrderForm = (props: IOrderForm) => {
     const { currentTicker, isDashboard, messageSuccess, isOrderBook, tickerCode } = props;
-    const [tickerName, setTickerName] = useState(currentTicker.tickerName || '');
+    const [tickerName, setTickerName] = useState(currentTicker.ticker || '');
     const tradingModel: any = tdpb;
-    const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
-        ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
+    const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.Side.BUY)
+        ? tradingModel.Side.BUY : tradingModel.Side.SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
@@ -53,11 +53,11 @@ const OrderForm = (props: IOrderForm) => {
         handleSetPrice();
         handleSetVolume();
         handleSetSide();
-        setTickerName(currentTicker.tickerName)
+        setTickerName(currentTicker.ticker)
     }, [currentTicker])
 
     useEffect(() => {
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
         const tickSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.tickSize
         const lotSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.lotSize
         setTickSize(Number(tickSize));
@@ -79,8 +79,8 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleSetSide = () => {
-        setCurrentSide(Number(currentTicker.side) === Number(tradingModel.OrderType.OP_BUY)
-            ? tradingModel.OrderType.OP_BUY : tradingModel.OrderType.OP_SELL);
+        setCurrentSide(Number(currentTicker.side) === Number(tradingModel.Side.BUY)
+            ? tradingModel.Side.BUY : tradingModel.Side.SELL);
         setValidForm(currentTicker.side !== undefined);
     }
 
@@ -101,6 +101,7 @@ const OrderForm = (props: IOrderForm) => {
     const handelUpperVolume = () => {
         const currentVol = Number(volume);
         const nerwVol = currentVol + lotSize;
+
         setVolume(nerwVol);
         setValidForm(price > 0 && nerwVol > 0);
     }
@@ -185,7 +186,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
         <button type="button"
-            className={side === tradingModel.OrderType.OP_SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+            className={side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -202,20 +203,20 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(convertValueToNumber);
         }
     }
-    const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
-        <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-            <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary">{title}</label>
-                <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                thousandseparator="{true}" value={currentTicker.tickerName ? value : '0'} placeholder=""
-                onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => handleChangeVolume(e.target.value)} />
-            </div>
-            <div className="border-start d-flex flex-column">
-                <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
-            </div>
+    const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
+        return <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
+        <div className="flex-grow-1 py-1 px-2">
+            <label className="text text-secondary">{title}</label>
+            <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+            thousandseparator="{true}" value={currentTicker.ticker ? value : '0'} placeholder=""
+            onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => handleChangeVolume(e.target.value)} />
         </div>
-    )
+        <div className="border-start d-flex flex-column">
+            <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+            <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+        </div>
+        </div>
+    }
 
     const _renderPlaceButton = () => (
         <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
@@ -232,8 +233,8 @@ const OrderForm = (props: IOrderForm) => {
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
-                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.OrderType.OP_SELL, 'selected', '')}
-                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.OrderType.OP_BUY, '', 'selected')}
+                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
+                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.Side.BUY, '', 'selected')}
             </div>
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>

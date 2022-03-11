@@ -1549,7 +1549,7 @@ export const defaultListDataOrder: IListOrder[] = [
         slippage: '',
         state: '',
         swap: '',
-        symbolCode: 0,
+        symbolCode: '',
         time: 0,
         tp: '',
         triggerPrice: '',

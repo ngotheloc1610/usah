@@ -28,6 +28,7 @@ message Order {
   string filled_amount = 25;
   string last_price = 26;
   string executed_datetime = 27;
+  Side side					= 28;
 }
 
 message Trade {
@@ -41,6 +42,7 @@ message Trade {
 	string executed_price		= 8;
 	string matched_value 		= 9;
 	string executed_datetime	= 10;
+	Side side					= 11;
 }
 
 message Contract {
@@ -82,19 +84,13 @@ enum ExchangeCode {
 }
 
 enum OrderType {
- 	ORDER_TYPE_NONE = 0;
- 	OP_BUY_LIMIT = 2;
- 	OP_SELL_LIMIT = 3;
- 	OP_BUY_STOP = 4;
- 	OP_SELL_STOP = 5;
- 	OP_BUY_STOP_LIMIT = 6;
-	OP_SELL_STOP_LIMIT = 7;
-	OP_SELL_MTL        = 8;
-	OP_BUY_MTL		   = 9;
-	OP_SELL_STM		   = 10;
-	OP_BUY_STM         = 11;
-	OP_BUY			   = 100;
-	OP_SELL            = 101;
+	OP_NONE 	= 0;
+	OP_LIMIT 		= 1;
+	OP_STOP 		= 2;
+	OP_MARKET 		= 3;
+	OP_STOP_LIMIT 		= 4;
+   	OP_MTL 			= 5;		//Market to Limit
+  	OP_STM 			= 6;
 }
 enum ExecutionMode {
  	EXECUTION_MODE_NONE = 0;
@@ -138,6 +134,12 @@ enum ExecutionMode {
  	ENTRY_OUT = 1;	//Close Order
 	ENTRY_IN = 2;	//New order
  }
+
+ enum Side {
+	NONE = 0;
+	BUY = 1;
+	SELL = 2;
+}
 
  enum OrderReason {
  	REASON_NONE = 0;

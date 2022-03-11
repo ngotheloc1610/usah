@@ -13,6 +13,11 @@ message Symbol {
   string tick_size					= 10;
   string lot_size					= 11;
   string min_lot				= 12;
+  string ceiling = 13;
+  string floor        = 14;
+  string limit_rate   = 15;
+  string spread = 16;
+  SymbolStatus symbol_status = 17;
 }
 
 enum CalculationMode {
@@ -20,4 +25,10 @@ enum CalculationMode {
 	CAL_CFD = 4;
 	CAL_SPAN = 90;
 	CAL_FOREX = 100;
+}
+
+enum SymbolStatus {
+	SYMBOL_NONE = 0;
+	SYMBOL_ACTIVE = 1;
+	SYMBOL_DEACTIVE = 2;;
 }

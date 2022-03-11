@@ -4,11 +4,11 @@ const tradingModelPb: any = tspb;
 export const SIDE = [
     {
         title: 'Buy',
-        code: Number(tradingModelPb.OrderType.OP_BUY),
+        code: Number(tradingModelPb.Side.BUY),
     },
     {
         title: 'Sell',
-        code: Number(tradingModelPb.OrderType.OP_SELL)
+        code: Number(tradingModelPb.Side.SELL)
     }
 ];
 

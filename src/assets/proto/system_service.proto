@@ -135,3 +135,36 @@ message AccountPortfolioResponse {
 	string currency_code 				= 4;
 	repeated AccountPortfolio account_portfolio	= 5;
 }
+
+// Update admin settings
+message UpdateAdminSettingsRequest {
+	AdminSettings admin_settings = 1;
+}
+
+message UpdateAdminSettingsResponse {
+	MsgCode msg_code 					= 1;
+	string  msg_text					= 2;
+}
+
+//Multiple group create
+message GroupCreateRequest {
+	repeated GroupAccount group_account = 1;
+}
+message GroupCreateResponse {
+	MsgCode msg_code				= 1;
+	string msg_text		= 2;
+	repeated GroupAccount group_account 				= 3;
+}
+
+// Update group info
+message GroupUpdateRequest {
+	int64 group_id				= 1;
+	string group_name			= 2;
+	int64 max_order_volume 		= 3;
+}
+
+message GroupUpdateResponse {
+	MsgCode msg_code					= 1;
+	string msg_text			= 2;
+	GroupAccount group_account 					= 3;
+}

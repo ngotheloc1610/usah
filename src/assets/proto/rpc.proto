@@ -110,6 +110,7 @@ message RpcMessage {
 	SYMBOL_LIST_REQ								= 103;
 	TRADE_HISTORY_REQ							= 104;
 	ORDER_HISTORY_REQ							= 105;
+	SYMBOL_UPDATE_REQ							= 106;
 
 	POSITION_RES                        		= 110;
 	ORDER_LIST_RES                         		= 111;
@@ -117,11 +118,20 @@ message RpcMessage {
 	SYMBOL_LIST_RES								= 113;
 	TRADE_HISTORY_RES							= 114;
 	ORDER_HISTORY_RES							= 115;
-
+	SYMBOL_UPDATE_RES							= 116;
 
 	//SPAN message
 	SPAN_SIMULATE_REQ                      		= 120;
 
 	SPAN_SIMULATE_RES                      		= 130;
+
+	// Admin message
+	UPDATE_AMIN_SETTINGS_REQ					= 140;
+	GROUP_CREATE_REQ							= 141;
+	UPDATE_GROUP_REQ							= 142;
+
+	UPDATE_AMIN_SETTINGS_RES					= 150;
+	GROUP_CREATE_RES							= 151;
+	UPDATE_GROUP_RES							= 152;
   }
 }

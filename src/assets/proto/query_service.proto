@@ -7,6 +7,7 @@ import "query_model.proto";
 message GetOrderRequest {
   string symbol_code = 1;
   int64 account_id = 2;
+  Side side = 3;
 }
 
 message GetOrderResponse {
@@ -62,6 +63,7 @@ message GetTradeHistoryRequest {
     int64 from_datetime = 3; // Timestamp in milliseconds
     int64 to_datetime = 4; // Timestamp in milliseconds
     int64 account_id = 5;
+	Side side = 6;
 }
 
 message GetTradeHistoryResponse {
@@ -79,6 +81,7 @@ message GetOrderHistoryRequest {
     int64 to_datetime = 4; // Timestamp in milliseconds
 	OrderState order_state = 5;
 	int64 account_id = 6;
+	Side side = 7;
 }
 
 message GetOrderHistoryResponse {
@@ -87,4 +90,16 @@ message GetOrderHistoryResponse {
 	repeated Order order = 3;
 	int64 account_id =4;
 }
+
+// Update symbols info in trading core
+message SymbolUpdateRequest {
+	repeated Symbol symbols = 1;
+}
+
+message SymbolUpdateResponse {
+	// TODO: Check response detail
+	MsgCode msg_code = 1;
+	string msg_text	= 2;
+}
+
 
