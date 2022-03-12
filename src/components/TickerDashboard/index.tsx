@@ -29,13 +29,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
     
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                // getLastQuote();
-                unSubscribeQuoteEvent();
-            }
-        });
-
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
         });
@@ -54,7 +47,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         return () => {
             unSubscribeQuoteEvent();
-            ws.unsubscribe();
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
@@ -73,7 +65,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         setListData(quotes);
     }
 
-    const processQuote = (quotes: IQuoteEvent[]) => {        
+    const processQuote = (quotes: IQuoteEvent[]) => {
         const tmpList = [...lastQuotes];
         if (quotes && quotes.length > 0 && tmpList && tmpList.length > 0) {
             quotes.forEach(item => {
@@ -93,19 +85,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                }
             });
             setListData(tmpList);
+            setLastQuotes(tmpList);
         }
-    }
-
-    const assignChangeValue = (tickerInfo: ITickerInfo, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.lastPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcChange(lastPrice, open);
-    }
-
-    const assignPctChangeValue = (tickerInfo: ITickerInfo, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.lastPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return  calcPctChange(lastPrice, open);
     }
 
     const unSubscribeQuoteEvent = () => {
@@ -120,22 +101,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const getLastQuote = () => {
-        const pricingServicePb: any = psbp;
-        const rpc: any = rpcpb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
-            symbolList.forEach(item => {
-                lastQoutes.addSymbolCode(item.ticker)
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -204,6 +169,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
         return '';
     }
+    
 
     const renderDataListCompany = () => {
         return listData.map((item: ILastQuote, index) => (
@@ -216,8 +182,12 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
                 <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.currentPrice))}>{formatCurrency(item.currentPrice)}</span></td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volumePerDay)}</td>
-                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.netChange))}>{formatCurrency(item.netChange || '')}</span></td>
-                <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(Number(item.pctChange))}>{formatCurrency(item.pctChange)}%</span></td>
+                <td className="text-end w-header fw-600"><span className={getNameClass(calcChange(item.currentPrice, item.open || ''))}>
+                    {formatNumber(calcChange(item.currentPrice, item.open || '').toString())}
+                </span></td>
+                <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(calcPctChange(item.currentPrice, item.open || ''))}>
+                    {formatCurrency(calcPctChange(item.currentPrice, item.open || '').toString())}%</span>
+                </td>
             </tr>
         ))
     }
