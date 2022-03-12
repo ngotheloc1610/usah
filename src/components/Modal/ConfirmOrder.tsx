@@ -37,8 +37,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const tickSize = tickerList.find(item => item.ticker === params.tickerCode)?.tickSize
-        const lotSize = tickerList.find(item => item.ticker === params.tickerCode)?.lotSize
+        const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize
+        const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
     }, [])

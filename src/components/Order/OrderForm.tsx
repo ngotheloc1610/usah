@@ -60,8 +60,8 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
-        const tickSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.tickSize
-        const lotSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.lotSize
+        const tickSize = tickerList.find(item => item.symbolCode === currentTicker.ticker)?.tickSize
+        const lotSize = tickerList.find(item => item.symbolCode === currentTicker.ticker)?.lotSize
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
     }, [currentTicker])
