@@ -25,13 +25,19 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [listData, setListData] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const [symbolList, setSymbolList] = useState<any[]>([])
     
 
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
         });
+
+        const symbols =  wsService.getSymbolListSubject().subscribe(resp => {
+            if (resp && resp.symbolList) {
+                setSymbolList(resp.symbolList);
+            }
+        })
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
@@ -50,6 +56,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
+            symbols.unsubscribe();
         }
     }, []);
 
@@ -161,11 +168,12 @@ const TickerDashboard = (props: ITickerDashboard) => {
         </tr>
     )
 
-    const renderSymbolName = (symbolCode) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        if (lstSymbols.length > 0) {
-            const item = lstSymbols.find(o => o?.ticker === symbolCode);
-            return item?.tickerName;
+    const renderSymbolName = (symbolCode: string) => {
+        if (symbolList.length > 0) {
+            const item = symbolList.find(o => o?.symbolCode === symbolCode);
+            if (item) {
+                return item.symbolName;
+            }
         }
         return '';
     }
