@@ -48,6 +48,8 @@ const OrderForm = (props: IOrderForm) => {
     const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
     const [volume, setVolume] = useState(Number(isDashboard ? currentTicker.lotSize || '0' : currentTicker.volume || '0'));
     const [statusOrder, setStatusOrder] = useState(0);
+    const [invalidPrice, setInvalidPrice] = useState(false);
+    const [invalidVolume, setInvalidVolume] = useState(false);
 
     useEffect(() => {
         handleSetPrice();
@@ -101,8 +103,8 @@ const OrderForm = (props: IOrderForm) => {
     const handelUpperVolume = () => {
         const currentVol = Number(volume);
         const nerwVol = currentVol + lotSize;
-
         setVolume(nerwVol);
+        setInvalidVolume(nerwVol % lotSize !== 0);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
@@ -114,14 +116,20 @@ const OrderForm = (props: IOrderForm) => {
         }
         const nerwVol = currentVol - lotSize;
         setVolume(nerwVol);
+        setInvalidVolume(nerwVol % lotSize !== 0);
         setValidForm(price > 0 && nerwVol > 0);
     }
 
     const handleUpperPrice = () => {
+        setInvalidPrice(false)
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
+        const decimal = newPrice.toString().split('.')[1] ? newPrice.toString().split('.')[1].length : 0;
+        const temp = Number(newPrice) * Math.pow(10, decimal);
+        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
     }
 
@@ -135,6 +143,10 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
+        const decimal = newPrice.toString().split('.')[1] ? newPrice.toString().split('.')[1].length : 0;
+        const temp = Number(newPrice) * Math.pow(10, decimal);
+        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
     }
 
@@ -181,7 +193,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable;
+        return isDisable || invalidPrice || invalidVolume;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -201,21 +213,42 @@ const OrderForm = (props: IOrderForm) => {
         const convertValueToNumber = Number(value.replaceAll(',', ''));
         if (convertValueToNumber > 0 && convertValueToNumber) {
             setVolume(convertValueToNumber);
+            setInvalidVolume(convertValueToNumber % lotSize !== 0)
         }
     }
+
+    const handleChangePrice = (value: string) => {
+        setPrice(Number(value))
+        const decimal = value.split('.')[1] ? value.split('.')[1].length : 0;
+        const temp = Number(value) * Math.pow(10, decimal);
+        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        setInvalidPrice(temp % tempTickeSize !== 0);
+    }
+
+
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
-        return <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-        <div className="flex-grow-1 py-1 px-2">
-            <label className="text text-secondary">{title}</label>
-            <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-            thousandseparator="{true}" value={currentTicker.ticker ? value : '0'} placeholder=""
-            onChange={title.toLocaleLowerCase() === 'price' ? (e, maskedVal) => {setPrice(+maskedVal)} : (e) => handleChangeVolume(e.target.value)} />
+        return <>
+        <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
+            <div className="flex-grow-1 py-1 px-2">
+                <label className="text text-secondary">{title}</label>
+                <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                thousandseparator="{true}" value={currentTicker.ticker ? value : '0'} placeholder=""
+                onChange={title.toLocaleLowerCase() === 'price' ? (e: any) => handleChangePrice(e?.target.value) : (e: any) => handleChangeVolume(e.target.value)} />
+            </div>
+            <div className="border-start d-flex flex-column">
+                <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+            </div>
         </div>
-        <div className="border-start d-flex flex-column">
-            <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-            <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+        <div>
+            {title.toLocaleLowerCase() === 'price' && <>
+                {invalidPrice && <span className='text-danger'>Invalid Price</span>}
+            </>}
+            {title.toLocaleLowerCase() === 'volume' && <>
+                {invalidVolume && <span className='text-danger'>Invalid volume</span>}
+            </>}
         </div>
-        </div>
+    </>
     }
 
     const _renderPlaceButton = () => (

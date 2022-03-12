@@ -11,7 +11,6 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
-import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
 import { DEFAULT_DATA_TICKER } from "../../mocks";
 import moment from "moment";
 import 'moment-timezone';
@@ -62,6 +61,15 @@ const Dashboard = () => {
                         tmp.push(item.symbolCode);
                     });
                     setListTickerSearch(tmp);
+                }
+               if (res.symbolList[0]) {
+                    const temp = {
+                        ...defaultTickerInfo,
+                        symbolId: res.symbolList[0].symbolId,
+                        tickerName: res.symbolList[0].symbolName,
+                        ticker: res.symbolList[0].symbolCode,
+                    }
+                    setTicker(temp);
                 }
                 subscribeQuoteEvent(res.symbolList);
                 sendMessageQuotes(res.symbolList)
