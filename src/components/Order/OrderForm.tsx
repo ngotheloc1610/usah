@@ -121,14 +121,12 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleUpperPrice = () => {
-        setInvalidPrice(false)
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
-        const decimal = newPrice.toString().split('.')[1] ? newPrice.toString().split('.')[1].length : 0;
-        const temp = Number(newPrice) * Math.pow(10, decimal);
-        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
+        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
     }
@@ -143,9 +141,8 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
-        const decimal = newPrice.toString().split('.')[1] ? newPrice.toString().split('.')[1].length : 0;
-        const temp = Number(newPrice) * Math.pow(10, decimal);
-        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
+        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
     }
@@ -219,9 +216,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleChangePrice = (value: string) => {
         setPrice(Number(value))
-        const decimal = value.split('.')[1] ? value.split('.')[1].length : 0;
-        const temp = Number(value) * Math.pow(10, decimal);
-        const tempTickeSize = tickSize * Math.pow(10, decimal);
+        const temp = Math.round(Number(value) * Math.pow(10, 2));
+        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
     }
 
