@@ -15,8 +15,10 @@ interface IOrderBookProps {
     listDataTicker?: ITickerInfo[];
     itemTickerSearch: (item: string) => void;
     listTickerSearch?: string[];
-    tickerDetailLastQuote: (item: ITickerInfo) => void;
+    tickerDetailLastQuote: (item: IAskAndBidPrice) => void;
     currentTicker?: ITickerInfo;
+    symbolCode?:  string;
+    handleSide?: (side: number) => void;
 }
 
 const defaultProps = {
@@ -24,12 +26,12 @@ const defaultProps = {
 }
 
 const OrderBook = (props: IOrderBookProps) => {
-    const { isDashboard, itemTickerSearch, listTickerSearch, tickerDetailLastQuote, currentTicker } = props;
+    const { isDashboard, itemTickerSearch, listTickerSearch, tickerDetailLastQuote, symbolCode, handleSide } = props;
     const tradingModel: any = tdpb;
     const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [quote, setQuote] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
-    const [ticker, setTicker] = useState<string>(currentTicker?.ticker || '');
+    const [ticker, setTicker] = useState<string>('');
 
     useEffect(() => {
         const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
@@ -51,16 +53,19 @@ const OrderBook = (props: IOrderBookProps) => {
     }, [])
 
     useEffect(() => {
+        setTicker(symbolCode || '');
+    }, [symbolCode])
+
+    useEffect(() => {
         processLastQuote(lastQuote);
-        setTicker(currentTicker?.ticker || '');
-    }, [lastQuote, currentTicker])
+    }, [lastQuote, ticker])
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
     }, [quoteEvent])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
-        const item = quotes.find(o => o?.symbolCode === currentTicker?.ticker)
+        const item = quotes.find(o => o?.symbolCode === ticker)
         if (item) {
             setQuote(item)
         }
@@ -208,14 +213,11 @@ const OrderBook = (props: IOrderBookProps) => {
         </div>
     )
 
-    const handleTicker = (item: IAskAndBidPrice, side: string) => {
-        const listSymbolListLocal = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '{}');
-        const symbol = listSymbolListLocal.find(o => o.ticker === item.symbolCode);
-        let ticker = DEFAULT_CURRENT_TICKER;
-        if (symbol) {
-            ticker = { ...symbol, volume: item.volume, lastPrice: item.price, side: side };
+    const handleTicker = (item: IAskAndBidPrice, side: number) => {
+        tickerDetailLastQuote(item);
+        if (handleSide) {
+            handleSide(side);
         }
-        tickerDetailLastQuote(ticker)
     }
 
     const _renderTemplate = () => (

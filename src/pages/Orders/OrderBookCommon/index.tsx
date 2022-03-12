@@ -217,7 +217,6 @@ const OrderBookCommon = () => {
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log("ws send")
         }
     }
 

@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
+import { LIST_TICKER_INFO } from "../../constants/general.constant";
 import { checkValue } from "../../helper/utils";
-import { ITickerInfo } from "../../interfaces/order.interface";
+import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 import { wsService } from "../../services/websocket-service";
 
 interface IStockInfo {
     listDataTicker: ITickerInfo[];
-    detailTicker?: ITickerInfo;
+    symbolCode: string;
 }
 
 const StockInfo = (props: IStockInfo) => {
-    const [detailTicker, setDetailTicker] = useState(props.detailTicker);
+    const { symbolCode } = props;
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
+    const [minBidSize, setMinBidSize] = useState(0);
+    const [lotSize, setLotSize] = useState(0);
+    const [volume, setVolume] = useState(0);
+    const [high, setHigh] = useState(0);
+    const [low, setLow] = useState(0);
 
     useEffect(() => {
+        const lastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
+            if (lastQuote && lastQuote.quotesList) {
+                setLastQuote(lastQuote.quotesList);
+            }
+        })
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
                 setQuoteEvent(quote.quoteList);
@@ -21,36 +33,58 @@ const StockInfo = (props: IStockInfo) => {
         });
         return () => {
             quoteEvent.unsubscribe();
+            lastQuote.unsubscribe();
         }
     }, [])
+
     useEffect(() => {
-        setDetailTicker(props.detailTicker);
-    }, [props.detailTicker])
+        processLastQuote(lastQuote);
+    }, [lastQuote, symbolCode])
+
     useEffect(() => {
-        const itemChange = quoteEvent?.find(item => item?.symbolId === detailTicker?.symbolId);
-        const itemData = { ...detailTicker };
-        
-        if (itemChange) {
-            const assignData: ITickerInfo = {
-                change: detailTicker?.change ? detailTicker.change : '',
-                changePrecent: detailTicker?.changePrecent ? detailTicker?.changePrecent : '',
-                high: detailTicker?.high,
-                lastPrice: detailTicker?.lastPrice ? detailTicker?.lastPrice : '',
-                lotSize: detailTicker?.lotSize,
-                low: detailTicker?.low,
-                minLot: detailTicker?.minLot,
-                open: detailTicker?.open,
-                previousClose: detailTicker?.previousClose,
-                symbolId: detailTicker?.symbolId ? detailTicker?.symbolId : 0,
-                tickSize: detailTicker?.tickSize,
-                ticker: detailTicker?.ticker ? detailTicker?.ticker : '',
-                tickerName: detailTicker?.tickerName ? detailTicker?.tickerName : '',
-                volume: checkValue(itemData.volume, itemChange?.volumePerDay),
-                volumeStock: checkValue(itemData.volumeStock, itemChange?.volumePerDay),
-            }
-            setDetailTicker(assignData);
-        }
+        processQuoteEvent(quoteEvent);
     }, [quoteEvent])
+
+    const processLastQuote = (lastQuote: ILastQuote[]) => {
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const symbol = symbols.find(o => o?.symbolCode === symbolCode);
+        if (symbol) {
+            setMinBidSize(symbol.tickSize);
+            setLotSize(symbol.lotSize)
+        }
+        const quote = lastQuote.find(o => o?.symbolCode === symbolCode);
+        if (quote) {
+            setVolume(Number(quote.volumePerDay));
+            setHigh(Number(quote.high));
+            setLow(Number(quote.low));
+        }
+    }
+
+    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        const quote = quotes.find(o => o?.symbolCode === symbolCode);
+        if (quote) {
+            const volumeChange = checkValue(volume, quote.volumePerDay);
+            const highChange = checkValue(high, quote.high);
+            const lowChange = checkValue(low, quote.low);
+            setVolume(Number(volumeChange));
+            setHigh(Number(highChange));
+            setLow(Number(lowChange));
+        }
+        const tmpLastQuote = [...lastQuote];
+        quotes.forEach(item => {
+            const idx = tmpLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
+            if (idx >= 0) {
+                tmpLastQuote[idx] = {
+                    ...tmpLastQuote[idx],
+                    high: checkValue(tmpLastQuote[idx]?.high, item?.high),
+                    volumePerDay: checkValue(tmpLastQuote[idx]?.volumePerDay, item?.volumePerDay),
+                    low: checkValue(tmpLastQuote[idx]?.low, item?.low)
+                }
+            }
+        });
+        setLastQuote(tmpLastQuote);
+    }
+
     return <>
         <div className="card">
             <div className="card-header">
@@ -62,23 +96,23 @@ const StockInfo = (props: IStockInfo) => {
                         <tbody>
                             <tr>
                                 <th className="fs-14">Mininum bid size</th>
-                                <td className="text-end fw-600">{detailTicker?.tickSize}</td>
+                                <td className="text-end fw-600">{minBidSize}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">Lot size</th>
-                                <td className="text-end fw-600">{detailTicker?.lotSize}</td>
+                                <td className="text-end fw-600">{lotSize}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">Volume</th>
-                                <td className="text-end fw-600">{detailTicker?.volumeStock}</td>
+                                <td className="text-end fw-600">{volume}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w High</th>
-                                <td className="text-end fw-600">{detailTicker?.high}</td>
+                                <td className="text-end fw-600">{high}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w Low</th>
-                                <td className="text-end fw-600">{detailTicker?.low}</td>
+                                <td className="text-end fw-600">{low}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -3,7 +3,7 @@ import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
 import { ACCOUNT_ID, DEFAULT_TIME_ZONE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
-import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
+import { IAskAndBidPrice, ILastQuote, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { ISymbolList } from "../../interfaces/ticker.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -11,37 +11,26 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
-import { DEFAULT_DATA_TICKER } from "../../mocks";
+import { DEFAULT_DATA_TICKER, DEFAULT_SYMBOL } from "../../mocks";
 import moment from "moment";
 import 'moment-timezone';
 
-const defaultTickerInfo: ITickerInfo = {
-    symbolId: 0,
-    tickerName: '',
-    ticker: '',
-    stockPrice: '',
-    previousClose: '',
-    open: '',
-    high: '',
-    low: '',
-    lastPrice: '',
-    volume: '',
-    change: '',
-    changePrecent: '',
-    tickSize: '',
-    lotSize: '',
-    minLot: ''
-}
 const Dashboard = () => {
     const isDashboard = true;
-    const [ticker, setTicker] = useState(defaultTickerInfo);
+    const [symbolCode, setSymbolCode] = useState('');
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
     const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
+
+
+    const [side, setSide] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
+    const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
+    const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
     const usTime: any = useRef();
     const zoneTime: any = useRef();
 
@@ -51,28 +40,24 @@ const Dashboard = () => {
                 callSymbolListRequest();
             }
         });
-
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList) {
                 setSymbolList(res.symbolList);
                 if (res.symbolList.length > 0) {
-                    const tmp: string[] = [];
-                    res.symbolList.forEach((item: ISymbolList) => {
-                        tmp.push(item.symbolCode);
+                    localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(res.symbolList));
+                    const temps: string[] = [];
+                    res.symbolList.forEach(item => {
+                        if (item) {
+                            temps.push(item?.symbolCode);
+                        }
                     });
-                    setListTickerSearch(tmp);
+                    setListTickerSearch(temps);
                 }
                if (res.symbolList[0]) {
-                    const temp = {
-                        ...defaultTickerInfo,
-                        symbolId: res.symbolList[0].symbolId,
-                        tickerName: res.symbolList[0].symbolName,
-                        ticker: res.symbolList[0].symbolCode,
-                    }
-                    setTicker(temp);
+                    setSymbolCode(res.symbolList[0]?.symbolCode || '');
                 }
                 subscribeQuoteEvent(res.symbolList);
-                sendMessageQuotes(res.symbolList)
+                callLastQuoteRequest(res.symbolList)
             }
         });
 
@@ -133,7 +118,7 @@ const Dashboard = () => {
         }
     }
 
-    const sendMessageQuotes = (symbolList: ILastQuote[]) => {
+    const callLastQuoteRequest = (symbolList: ILastQuote[]) => {
         const pricingServicePb: any = pspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -195,27 +180,29 @@ const Dashboard = () => {
         </div>
     )
 
-    const getTickerInfo = (value: ILastQuote) => {
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const ticker = symbols?.find(o => o?.ticker === value.symbolCode)
-        const  element: ITickerInfo = {
-            ...defaultTickerInfo,
-            ticker: value.symbolCode,
-            previousClose: value.close,
-            open: value.open,
-            high: value.high,
-            low: value.low,
-            lastPrice: value.currentPrice,
-            volume: value.volumePerDay,
-            lotSize: ticker.lotSize,
-            tickSize: ticker.tickSize
-        }
-        handleGetTicker(element);
-        setTicker(element);
+    const getTickerInfo = (value: ISymbolQuote) => {
+        setSymbolCode(value?.symbolCode);
+        setSymbolQuote(value);
+        // const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        // const ticker = symbols?.find(o => o?.ticker === value.symbolCode)
+        // const  element: ITickerInfo = {
+        //     ...defaultTickerInfo,
+        //     ticker: value.symbolCode,
+        //     previousClose: value.close,
+        //     open: value.open,
+        //     high: value.high,
+        //     low: value.low,
+        //     lastPrice: value.currentPrice,
+        //     volume: value.volumePerDay,
+        //     lotSize: ticker.lotSize,
+        //     tickSize: ticker.tickSize
+        // }
+        // handleGetTicker(element);
+        // setTicker(element);
     }
 
-    const getPriceOrder = (value: ITickerInfo) => {
-        setTicker(value);
+    const getPriceOrder = (value: IAskAndBidPrice) => {
+        setQuoteInfo(value);
     }
 
     const getQuoteEventValue = (value: ITickerInfo) => {
@@ -269,20 +256,11 @@ const Dashboard = () => {
     }
 
     const handleTickerSearch = (value: string) => {
-        const itemTicker = handleSymbolList.find(item => item.ticker === value.toLocaleUpperCase());
-        let symbolId = {};
-        if (itemTicker) {
-            setTicker(itemTicker);
-            symbolId = itemTicker.symbolId;
-            if (symbolId && lastQuotes) {
-                const dataSearch = lastQuotes.find(item => Number(item.symbolCode) === symbolId);
-                return setDataSearchTicker(dataSearch ? { ...dataSearch, ticker: itemTicker.ticker } : DEFAULT_DATA_TICKER);
-            }
-            setTicker(defaultTickerInfo);
-            return setDataSearchTicker(DEFAULT_DATA_TICKER);
-        }
-        setTicker(defaultTickerInfo);
-        return setDataSearchTicker(DEFAULT_DATA_TICKER);
+        setSymbolCode(value)
+    }
+
+    const getSide = (value: number) => {
+        setSide(value);
     }
 
     return (
@@ -300,10 +278,12 @@ const Dashboard = () => {
                                 itemTickerSearch={handleTickerSearch}
                                 listTickerSearch={listTickerSearch}
                                 tickerDetailLastQuote={getPriceOrder}
-                                currentTicker={ticker} />
+                                symbolCode={symbolCode}
+                                handleSide={getSide}
+                                 />
                         </div>
                         <div>
-                            <StockInfo listDataTicker={handleSymbolList} detailTicker={ticker} />
+                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode}  />
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
@@ -312,7 +292,12 @@ const Dashboard = () => {
                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                             </div>
                             <div className="card-body h-500" >
-                                <OrderForm isDashboard={isDashboard} currentTicker={ticker} messageSuccess={messageSuccess} />
+                                <OrderForm isDashboard={isDashboard}
+                                        messageSuccess={messageSuccess}
+                                        symbolCode={symbolCode}
+                                        symbolQuote={symbolQuote}
+                                        quoteInfo={quoteInfo}
+                                        side={side} />
                             </div>
                         </div>
                     </div>

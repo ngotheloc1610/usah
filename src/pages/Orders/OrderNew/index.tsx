@@ -5,7 +5,7 @@ import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
 import { ACCOUNT_ID, LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
-import { ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
+import { IAskAndBidPrice, ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
@@ -290,7 +290,7 @@ const OrderNew = () => {
 
     }
     // wait handle ticker detail last quote in screen order book
-    const handleTickerDetailLastQuote = (value: ITickerInfo) => {
+    const handleTickerDetailLastQuote = (value: IAskAndBidPrice) => {
     }
 
     return <div className="site-main mt-3">
@@ -311,7 +311,9 @@ const OrderNew = () => {
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook currentTicker={currentTicker} itemTickerSearch={handleItemSearch} tickerDetailLastQuote={handleTickerDetailLastQuote} />
+                            <OrderBook currentTicker={currentTicker}
+                                    itemTickerSearch={handleItemSearch} 
+                                    tickerDetailLastQuote={handleTickerDetailLastQuote} />
                         </div>
                     </div>
                 </div>

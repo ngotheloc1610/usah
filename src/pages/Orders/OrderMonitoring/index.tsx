@@ -4,56 +4,48 @@ import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { wsService } from "../../../services/websocket-service";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import { SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { DEFAULT_CURRENT_TICKER } from "../../../mocks";
 
 const OrderMonitoring = () => {
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolName, setSymbolName] = useState<string[]>([]);
+    const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
+    const [symbolCode, setSymbolCode] = useState('');
+    const [side, setSide] = useState(0);
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
+    // useEffect(() => {
+    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
+    //         setSymbolList(res.symbolList)
+    //         const listSymbolName: string[] = []
+    //         res.symbolList.forEach((item: ISymbolList) => {
+    //             listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+    //         });
+    //         setSymbolName(listSymbolName)
+    //     });
 
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-            const listSymbolName: string[] = []
-            res.symbolList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-            });
-            setSymbolName(listSymbolName)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
+    //     return () => {
+    //         renderDataSymbolList.unsubscribe();
+    //     }
+    // }, [])
 
     const handleTicker = (itemTicker: IAskAndBidPrice) => {
-        const tickerData = symbolList.find((itemData: ISymbolList) => itemData.symbolCode === itemTicker.symbolCode);
-        const assignItemTicker = {
-            tickerName: tickerData?.symbolName,
-            ticker: tickerData?.symbolCode,
-            lastPrice: itemTicker.price === '-' ? '0' : itemTicker.price,
-            volume: itemTicker.volume === '-' ? '0' : itemTicker.volume,
-            side: itemTicker.side,
-            symbolId: itemTicker.symbolCode
+        setQuoteInfo(itemTicker);
+        if (itemTicker?.symbolCode) {
+            setSymbolCode(itemTicker.symbolCode);
         }
-        setCurrentTicker(assignItemTicker);
     }
 
     const messageSuccess = (item: string) => {
         setMsgSuccess('');
         setMsgSuccess(item);
+    }
+
+    const getSide = (value: number) => {
+        setSide(value);
     }
 
     return (
@@ -62,7 +54,7 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} symbolName={symbolName} />
+                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="card flex-grow-1 card-order-form mb-2">
@@ -70,7 +62,11 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                    <OrderForm currentTicker={currentTicker}
+                                            symbolCode={symbolCode}
+                                            side={side}
+                                            messageSuccess={messageSuccess}
+                                    />
                                 </div>
                             </div>
                         </div>

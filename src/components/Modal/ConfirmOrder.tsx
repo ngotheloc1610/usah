@@ -248,8 +248,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                             :
                             <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
-                                onChange={(e, maskedVal) => { 
-                                    console.log(maskedVal);
+                                onChange={(e, maskedVal) => {
                                     setPriceModify(+maskedVal)
                                  }} value={formatCurrency(priceModify.toString())} />
                         }

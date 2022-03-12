@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IParamOrder, ITickerInfo } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, IParamOrder, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
@@ -15,6 +15,10 @@ interface IOrderForm {
     tickerCode?: string;
     currentTicker: ITickerInfo;
     isDashboard: boolean;
+    symbolCode?: string;
+    symbolQuote?: ISymbolQuote;
+    quoteInfo?: IAskAndBidPrice;
+    side?: number;
     messageSuccess: (item: string) => void;
 }
 
@@ -35,36 +39,64 @@ const defaultProps = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard, messageSuccess, isOrderBook, tickerCode } = props;
-    const [tickerName, setTickerName] = useState(currentTicker.ticker || '');
+    const { currentTicker, isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
+    const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
-    const [currentSide, setCurrentSide] = useState(Number(currentTicker.side) === Number(tradingModel.Side.BUY)
-        ? tradingModel.Side.BUY : tradingModel.Side.SELL);
+    const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultData);
     const [lotSize, setLotSize] = useState(100);
     const [tickSize, setTickSize] = useState(0.01)
-    const [price, setPrice] = useState(Number(currentTicker.lastPrice?.replaceAll(',', '')));
-    const [volume, setVolume] = useState(Number(isDashboard ? currentTicker.lotSize || '0' : currentTicker.volume || '0'));
+    const [price, setPrice] = useState(0);
+    const [volume, setVolume] = useState(0);
     const [statusOrder, setStatusOrder] = useState(0);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
+    const [floorPrice, setFloorPrice] = useState(0);
+    const [ceilingPrice, setCeilingPrice] = useState(0);
 
     useEffect(() => {
-        handleSetPrice();
-        handleSetVolume();
-        handleSetSide();
-        setTickerName(currentTicker.ticker)
-    }, [currentTicker])
+        if (symbolCode) {
+            handleSetPrice();
+            handleSetVolume();
+            handleSetSide();
+            setTickerName(symbolCode);
+            const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const tickSize = ticker?.tickSize;
+            const lotSize = ticker?.lotSize;
+            const floor = ticker?.floor;
+            setFloorPrice(Number(ticker?.floor));
+            setCeilingPrice(Number(ticker?.ceiling));
+            setTickSize(Number(tickSize));
+            setLotSize(Number(lotSize));
+            setPrice(Number(floor))
+            setVolume(Number(lotSize))
+        }
+    }, [symbolCode])
 
     useEffect(() => {
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
-        const tickSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.tickSize
-        const lotSize = tickerList.find(item => item.ticker === currentTicker.ticker)?.lotSize
-        setTickSize(Number(tickSize));
-        setLotSize(Number(lotSize));
-    }, [currentTicker])
+        if (side) {
+            setCurrentSide(side);
+        }
+    }, [side])
+
+    useEffect(() => {
+        if (quoteInfo) {
+            if (!isNaN(Number(quoteInfo.price))) {
+                setPrice(Number(quoteInfo.price));
+            } else {
+                setPrice(floorPrice);
+            }
+
+            if (!isNaN(Number(quoteInfo.volume))) {
+                setVolume(Number(quoteInfo.volume));
+            } else {
+                setVolume(lotSize);
+            }
+        }
+    }, [quoteInfo])
 
     const handleSetPrice = () => {
         currentTicker.lastPrice === '-' ? setPrice(0) : setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
@@ -123,7 +155,10 @@ const OrderForm = (props: IOrderForm) => {
     const handleUpperPrice = () => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
-        const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        if (newPrice > ceilingPrice) {
+            newPrice = ceilingPrice;
+        }
         setPrice(newPrice);
         const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
@@ -139,7 +174,10 @@ const OrderForm = (props: IOrderForm) => {
             return;
         }
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
-        const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        if (newPrice < floorPrice) {
+            newPrice = floorPrice;
+        }
         setPrice(newPrice);
         const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
@@ -175,7 +213,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const handlePlaceOrder = () => {
         const param = {
-            tickerCode: currentTicker.ticker,
+            tickerCode: symbolCode || '',
             tickerName: currentTicker.tickerName,
             orderType: ORDER_TYPE_NAME.limit,
             volume: volume.toString(),
@@ -190,7 +228,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable || invalidPrice || invalidVolume;
+        return isDisable;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -202,9 +240,8 @@ const OrderForm = (props: IOrderForm) => {
     )
 
     const resetFormNewOrder = () => {
-        setPrice(0);
-        setVolume(0);
-        setTickerName('');
+        setPrice(floorPrice);
+        setVolume(lotSize);
     }
     const handleChangeVolume = (value: string) => {
         const convertValueToNumber = Number(value.replaceAll(',', ''));
@@ -215,7 +252,13 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleChangePrice = (value: string) => {
-        setPrice(Number(value))
+        if (Number(value) > ceilingPrice) {
+            setPrice(ceilingPrice);
+        } else if (Number(value) < floorPrice) {
+            setPrice(floorPrice);
+        } else {
+            setPrice(Number(value))
+        }
         const temp = Math.round(Number(value) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
@@ -228,7 +271,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
                 <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                thousandseparator="{true}" value={currentTicker.ticker ? value : '0'} placeholder=""
+                thousandseparator="{true}" value={value} placeholder=""
                 onChange={title.toLocaleLowerCase() === 'price' ? (e: any) => handleChangePrice(e?.target.value) : (e: any) => handleChangeVolume(e.target.value)} />
             </div>
             <div className="border-start d-flex flex-column">
@@ -236,14 +279,14 @@ const OrderForm = (props: IOrderForm) => {
                 <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
             </div>
         </div>
-        <div>
+        {/* <div>
             {title.toLocaleLowerCase() === 'price' && <>
                 {invalidPrice && <span className='text-danger'>Invalid Price</span>}
             </>}
             {title.toLocaleLowerCase() === 'volume' && <>
                 {invalidVolume && <span className='text-danger'>Invalid volume</span>}
             </>}
-        </div>
+        </div> */}
     </>
     }
 
@@ -268,7 +311,7 @@ const OrderForm = (props: IOrderForm) => {
             <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
                 <label className="text text-secondary">Ticker</label>
                 <div className="fs-18 mr-3">
-                    <b>{currentTicker ? currentTicker.ticker : ''}</b>
+                    <b>{symbolCode ? symbolCode : ''}</b>
                 </div>
             </div>
 
