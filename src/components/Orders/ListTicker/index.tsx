@@ -337,7 +337,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const handleLastQuote = () => {
 
-        const lstSymbolCode: string[] = lstSymbolCodeAdd !== [] ? lstSymbolCodeAdd : [];
+        const lstSymbolCode: string[] = lstSymbolCodeAdd.length > 0 ? lstSymbolCodeAdd : [];
         if (lstSymbolCode.length === 0 || lstSymbolCode.indexOf(symbolCodeAdd) === -1) {
             lstSymbolCode.push(symbolCodeAdd);
             setLstSymbolCodeAdd(lstSymbolCode);
@@ -350,7 +350,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleAddTicker = () => {
-        const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
+        const listLastQuote: ILastQuote[] = lstWatchingTickers.length > 0 ? lstWatchingTickers : [];
         if (symbolCodeAdd !== '') {
             const itemLastQuote = lastQoutes.find(item => item.symbolCode === symbolCodeAdd);            
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
