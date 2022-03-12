@@ -452,7 +452,7 @@ const OrderBookCommon = () => {
                                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                             </div>
                                             <div className="card-body">
-                                                <OrderForm isOrderBook={true} currentTicker={currentTicker} tickerCode={tickerSelect} messageSuccess={messageSuccess} />
+                                                <OrderForm isOrderBook={true} isDashboard={false} tickerCode={tickerSelect} messageSuccess={messageSuccess} />
                                             </div>
                                         </div>
                                     </div>

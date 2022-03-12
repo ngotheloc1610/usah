@@ -33,6 +33,7 @@ const OrderMonitoring = () => {
     // }, [])
 
     const handleTicker = (itemTicker: IAskAndBidPrice) => {
+        console.log(35, itemTicker)
         setQuoteInfo(itemTicker);
         if (itemTicker?.symbolCode) {
             setSymbolCode(itemTicker.symbolCode);
@@ -62,10 +63,11 @@ const OrderMonitoring = () => {
                                     <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                 </div>
                                 <div className="card-body">
-                                    <OrderForm currentTicker={currentTicker}
-                                            symbolCode={symbolCode}
+                                    <OrderForm symbolCode={symbolCode}
                                             side={side}
+                                            isDashboard={false}
                                             messageSuccess={messageSuccess}
+                                            quoteInfo={quoteInfo}
                                     />
                                 </div>
                             </div>

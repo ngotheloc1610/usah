@@ -13,7 +13,6 @@ toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
     tickerCode?: string;
-    currentTicker: ITickerInfo;
     isDashboard: boolean;
     symbolCode?: string;
     symbolQuote?: ISymbolQuote;
@@ -33,13 +32,8 @@ const defaultData: IParamOrder = {
     tickerId: ''
 }
 
-const defaultProps = {
-    currentTicker: {},
-    isDashboard: false
-}
-
 const OrderForm = (props: IOrderForm) => {
-    const { currentTicker, isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
+    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
@@ -58,9 +52,6 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (symbolCode) {
-            handleSetPrice();
-            handleSetVolume();
-            handleSetSide();
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
@@ -93,30 +84,12 @@ const OrderForm = (props: IOrderForm) => {
             if (!isNaN(Number(quoteInfo.volume))) {
                 setVolume(Number(quoteInfo.volume));
             } else {
-                setVolume(lotSize);
+                if (!isNaN(lotSize)) {
+                    setVolume(lotSize);
+                }
             }
         }
     }, [quoteInfo])
-
-    const handleSetPrice = () => {
-        currentTicker.lastPrice === '-' ? setPrice(0) : setPrice(Number(currentTicker.lastPrice?.replaceAll(',', '')));
-        setValidForm(currentTicker.lastPrice !== undefined);
-    }
-
-    const handleSetVolume = () => {
-        if (isDashboard) {
-            currentTicker.lotSize === '-' ? setVolume(0) : setVolume(Number(currentTicker.lotSize));
-        } else {
-            currentTicker.volume === '-' ? setVolume(0) : setVolume(Number(currentTicker.volume));
-        }
-        setValidForm(currentTicker.lotSize !== undefined);
-    }
-
-    const handleSetSide = () => {
-        setCurrentSide(Number(currentTicker.side) === Number(tradingModel.Side.BUY)
-            ? tradingModel.Side.BUY : tradingModel.Side.SELL);
-        setValidForm(currentTicker.side !== undefined);
-    }
 
     const _rendetMessageSuccess = (message: string) => {
         // To handle when order success then update new data without having to press f5
@@ -196,33 +169,26 @@ const OrderForm = (props: IOrderForm) => {
         return <></>;
     }
 
-    const togglePopup = (isOrder: boolean) => {
-        if (isOrder) {
-            setPrice(0);
-            setVolume(0);
-            setValidForm(false);
-        } else {
-            if (Number(currentTicker.lastPrice) <= 0 || lotSize <= 0) {
-                setValidForm(false);
-            } else {
-                setValidForm(true);
-            }
-        }
+    const togglePopup = () => {
         setIsConfirm(false);
     }
 
     const handlePlaceOrder = () => {
-        const param = {
-            tickerCode: symbolCode || '',
-            tickerName: currentTicker.tickerName,
-            orderType: ORDER_TYPE_NAME.limit,
-            volume: volume.toString(),
-            price: price,
-            side: currentSide,
-            confirmationConfig: false,
-            tickerId: currentTicker.symbolId?.toString()
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const symbol = symbols?.find(o => o?.symbolCode === symbolCode);
+        if (symbol) {
+            const param = {
+                tickerCode: symbol.symbolCode,
+                tickerName: symbol.symbolName,
+                orderType: ORDER_TYPE_NAME.limit,
+                volume: volume.toString(),
+                price: price,
+                side: currentSide,
+                confirmationConfig: false,
+                tickerId: symbol.symbolId?.toString()
+            }
+            setParamOrder(param);
         }
-        setParamOrder(param);
         setIsConfirm(true);
     }
 
@@ -332,6 +298,5 @@ const OrderForm = (props: IOrderForm) => {
     </div>
 }
 
-OrderForm.defaultProps = defaultProps;
 
 export default OrderForm

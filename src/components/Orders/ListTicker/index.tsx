@@ -56,6 +56,7 @@ const ListTicker = (props: IListTickerProps) => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
+                subscribeQuoteEvent(symbols);
             }
         });
 
@@ -81,16 +82,44 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }, []);
 
-    useEffect(() => {    
-        subscribeQuoteEvent(lstWatchingTickers);
-    }, [lstWatchingTickers]);
-
     useEffect(() => {
         processQuote(quoteEvent);
     }, [quoteEvent]);
 
+    useEffect(() => {
+        processLastQuote(lastQoutes)
+    }, [lastQoutes])
+
+    const processLastQuote = (lastQoutes: ILastQuote[]) => {
+        const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        lastQoutes.forEach(item => {
+            if (item) {
+                const idx = watchList.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    watchList[idx] = {
+                        ...watchList[idx],
+                        asksList: item?.asksList,
+                        bidsList: item?.bidsList,
+                        close: item?.close,
+                        currentPrice: item?.currentPrice,
+                        high: item?.high,
+                        low: item?.low,
+                        open: item?.open,
+                        quoteTime: item?.quoteTime,
+                        scale: item?.scale,
+                        tickPerDay: item?.tickPerDay,
+                        volumePerDay: item?.volumePerDay
+                    }
+                }
+            }
+        });
+        setPageShowCurrentLastQuote(watchList);
+        localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchList));
+    }
+
     const processQuote = (quotes: IQuoteEvent[]) => {
         const tmpList = [...pageShowCurrentLastQuote];
+        const tempLastQuote = [...lastQoutes];
         if (quotes && quotes.length > 0) {
             quotes.forEach(item => {
                 const index = tmpList.findIndex(o => o?.symbolCode === item?.symbolCode);
@@ -102,10 +131,21 @@ const ListTicker = (props: IListTickerProps) => {
                         bidsList: item.bidsList
                     }
                 }
+
+                const idx = tempLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    tempLastQuote[idx] = {
+                        ...tempLastQuote[idx],
+                        asksList: item?.asksList,
+                        bidsList: item?.bidsList
+                    }
+                }
+
             });
-            
+            // setLastQoutes(tempLastQuote);
             setPageShowCurrentLastQuote(tmpList);
         }
+
     }
 
     const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -139,29 +179,6 @@ const ListTicker = (props: IListTickerProps) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }        
     }
-
-    // useEffect(() => {
-    //     const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
-    //         setLastQoutes(resp.quotesList);
-    //         const lstLastQuote = resp.quotesList;
-    //         const listWatchingTickersCode: string[] = [];
-    //         const lstArrLastQuote: ILastQuote[] = [];
-    //         if (lstWatchingTickers.length > 0 && lstLastQuote.length > 0) {
-    //             lstWatchingTickers.forEach(item => listWatchingTickersCode.push(item.symbolCode));
-    //             listWatchingTickersCode.forEach(itemLastQuoteId => {
-    //                 const itemLastQuote = lstLastQuote.find(item => item.symbolCode === itemLastQuoteId);
-    //                 if (itemLastQuote) {
-    //                     lstArrLastQuote.push(itemLastQuote);
-    //                 }
-    //             });
-    //             setLstWatchingTickers(lstArrLastQuote);
-    //             localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(lstArrLastQuote));
-    //         }
-    //     });
-    //     return () => {
-    //         lastQuotesRes.unsubscribe();
-    //     }
-    // }, []);
 
     useEffect(() => {
         if (lstWatchingTickers.length > 0) {
@@ -253,7 +270,6 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderAskPrice = (itemData: ILastQuote) => {
-
         let askItems: IAskAndBidPrice[] = itemData ? itemData.asksList : [];
         let arr: IAskAndBidPrice[] = [];
         let counter = MARKET_DEPTH_LENGTH - pageFirst;
@@ -264,7 +280,7 @@ const ListTicker = (props: IListTickerProps) => {
                     price: askItems[counter].numOrders !== 0 ? askItems[counter].price : '-',
                     tradable: askItems[counter].numOrders !== 0 ? askItems[counter].tradable : false,
                     volume: askItems[counter].numOrders !== 0 ? askItems[counter].volume : '-',
-                    symbolCode: askItems[counter].numOrders !== 0 ? itemData.symbolCode : '-',
+                    symbolCode: itemData.symbolCode,
                 });
             } else {
                 arr.push({
@@ -272,7 +288,7 @@ const ListTicker = (props: IListTickerProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: '-',
+                    symbolCode: itemData.symbolCode,
                 });
             }
             counter--;
@@ -301,7 +317,7 @@ const ListTicker = (props: IListTickerProps) => {
                     price: bidItems[counter].numOrders !== 0 ? bidItems[counter].price : '-',
                     tradable: bidItems[counter].numOrders !== 0 ? bidItems[counter].tradable : false,
                     volume: bidItems[counter].numOrders !== 0 ? bidItems[counter].volume : '-',
-                    symbolCode: bidItems[counter].numOrders !== 0 ? itemData.symbolCode : '-'
+                    symbolCode: itemData.symbolCode
                 });
             } else {
                 arr.push({
@@ -309,7 +325,7 @@ const ListTicker = (props: IListTickerProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: '-'
+                    symbolCode: itemData.symbolCode
                 });
             }
             counter++;
@@ -354,6 +370,7 @@ const ListTicker = (props: IListTickerProps) => {
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
+                subscribeQuoteEvent([assignItemLastQuote])
             }
             setLstWatchingTickers(listLastQuote);
             localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(listLastQuote));
@@ -363,6 +380,7 @@ const ListTicker = (props: IListTickerProps) => {
         const dataCurrentPage = getDataCurrentPage(pageSizeTicker, currentPage, lstWatchingTickers);
         setPageShowCurrentLastQuote(dataCurrentPage);
         setCurrentPage(pageCurrent);
+        getOrderBooks();
     }
 
     const removeTicker = (itemLstQuote: ILastQuote) => {

@@ -306,7 +306,7 @@ const OrderNew = () => {
                             <TickerDetail currentTicker={currentTicker} symbolId={currentTicker.symbolId.toString()} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
-                                    <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                    <OrderForm isDashboard={false} messageSuccess={messageSuccess} />
                                 </div>
                             </div>
                         </div>
