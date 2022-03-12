@@ -11,7 +11,6 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import StockInfo from "../../components/Order/StockInfo";
-import sendMsgSymbolList from "../../Common/sendMsgSymbolList";
 import { DEFAULT_DATA_TICKER } from "../../mocks";
 import moment from "moment";
 import 'moment-timezone';
@@ -39,15 +38,12 @@ const Dashboard = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    // const [listDataTicker, setListDataTicker] = useState<IListDashboard[]>([]);
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
     const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
     const usTime: any = useRef();
     const zoneTime: any = useRef();
-
-    useEffect(() => mapArrayDashboardList(), [lastQuotes])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -66,27 +62,44 @@ const Dashboard = () => {
                     });
                     setListTickerSearch(tmp);
                 }
+               if (res.symbolList[0]) {
+                    const temp = {
+                        ...defaultTickerInfo,
+                        symbolId: res.symbolList[0].symbolId,
+                        tickerName: res.symbolList[0].symbolName,
+                        ticker: res.symbolList[0].symbolCode,
+                    }
+                    setTicker(temp);
+                }
                 subscribeQuoteEvent(res.symbolList);
+                sendMessageQuotes(res.symbolList)
             }
+        });
+
+        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
+            setLastQuotes(res.quotesList);
         });
 
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
+            lastQuotesRes.unsubscribe();
         }
     }, [])
 
     useEffect(() => {
-        sendMessageQuotes()
-        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
-            setLastQuotes(res.quotesList);
-        });
-        return () => {
-            lastQuotesRes.unsubscribe();
-        }
-    }, [symbolList])
+        const timer = setInterval(() => handleUsTime(), 1000);
 
-    const subscribeQuoteEvent = (symbols) => {
+        return () => clearTimeout(timer);
+    }, [timeZone]);
+
+    useEffect(() => {
+        const timer = setInterval(() => handleSetTimeZone(), 1000);
+
+        return () => clearTimeout(timer);
+    }, [timeZone]);
+
+    const subscribeQuoteEvent = (symbols: ILastQuote[]) => {
         const pricingServicePb: any = pspb;
         const rpc: any = rspb;
         const wsConnected = wsService.getWsConnected();
@@ -120,7 +133,7 @@ const Dashboard = () => {
         }
     }
 
-    const sendMessageQuotes = () => {
+    const sendMessageQuotes = (symbolList: ILastQuote[]) => {
         const pricingServicePb: any = pspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -138,18 +151,6 @@ const Dashboard = () => {
         }
     }
 
-    useEffect(() => {
-        const timer = setInterval(() => handleUsTime(), 1000);
-
-        return () => clearTimeout(timer);
-    }, [timeZone]);
-
-    useEffect(() => {
-        const timer = setInterval(() => handleSetTimeZone(), 1000);
-
-        return () => clearTimeout(timer);
-    }, [timeZone]);
-
     const handleUsTime = () => {
         if (usTime.current) {
             usTime.current.innerText = moment.tz(moment(), "America/New_York").format('LTS');
@@ -162,63 +163,6 @@ const Dashboard = () => {
         if (zoneTime.current) {
             zoneTime.current.innerText = time;
         }
-    }
-
-    const mapArrayDashboardList = () => {
-
-        const getItemSymbolData = (symbolCode: string) => {
-            return lastQuotes.find(lastQuotesItem => lastQuotesItem.symbolCode === symbolCode);
-        }
-
-        let listData: ITickerInfo[] = [];
-
-        let itemData: ITickerInfo = {
-            symbolId: 0,
-            tickerName: '',
-            ticker: '',
-            stockPrice: '',
-            previousClose: '',
-            open: '',
-            high: '',
-            low: '',
-            lastPrice: '',
-            volume: '',
-            change: '',
-            changePrecent: '',
-            side: '',
-            lotSize: '',
-            minLot: '',
-            tickSize: '',
-        };
-
-        symbolList.forEach(item => {
-            const itemSymbolData = getItemSymbolData(item.symbolId.toString());
-            itemData = {
-                tickerName: item.symbolName,
-                symbolId: item.symbolId,
-                ticker: item.symbolCode,
-                previousClose: itemSymbolData?.close,
-                open: itemSymbolData?.open,
-                high: itemSymbolData?.high,
-                low: itemSymbolData?.low,
-                lastPrice: (itemSymbolData && itemSymbolData.currentPrice) ? itemSymbolData?.currentPrice : '',
-                volume: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-                change: calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open).toString(),
-                changePrecent: ((calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open) / Number(getItemSymbolData(item.symbolId.toString())?.open)) * 100).toString(),
-                tickSize: item.tickSize,
-                lotSize: item.lotSize,
-                minLot: item.minLot,
-                volumeStock: (itemSymbolData && itemSymbolData.volumePerDay) ? itemSymbolData?.volumePerDay : '',
-            }
-            listData.push(itemData);
-        })
-
-        sethandleSymbolList(listData)
-        localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(listData).toString())
-    }
-
-    const calculateChange = (lastPrice?: string, open?: string) => {
-        return Number(lastPrice) - Number(open)
     }
 
     const setGeneralTemplate = () => (
