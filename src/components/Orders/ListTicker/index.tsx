@@ -13,7 +13,7 @@ import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 interface IListTickerProps {
-    getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
+    getTicerLastQuote: (item: IAskAndBidPrice) => void;
     msgSuccess?: string;
     symbolName: string[];
 }
@@ -218,7 +218,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
-        getTicerLastQuote(itemTicker, lastQuote.currentPrice);
+        getTicerLastQuote(itemTicker);
     }
 
     const onChangeTicker = (event) => {
@@ -280,7 +280,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY, itemData)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -317,7 +317,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter++;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>

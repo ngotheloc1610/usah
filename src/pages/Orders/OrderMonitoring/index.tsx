@@ -38,9 +38,8 @@ const OrderMonitoring = () => {
         }
     }, [])
 
-    const handleTicker = (itemTicker: IAskAndBidPrice, curentPrice: string) => {
-
-        const tickerData = symbolList.find((itemData: ISymbolList) => itemData.symbolId === Number(itemTicker.symbolCode));
+    const handleTicker = (itemTicker: IAskAndBidPrice) => {
+        const tickerData = symbolList.find((itemData: ISymbolList) => itemData.symbolCode === itemTicker.symbolCode);
         const assignItemTicker = {
             tickerName: tickerData?.symbolName,
             ticker: tickerData?.symbolCode,
