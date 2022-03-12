@@ -174,8 +174,6 @@ const ListTicker = (props: IListTickerProps) => {
             lstWatchingTickers.forEach(item => {
                 lstSymbolId.push(Number(item.symbolCode));
             });
-
-
             setLstSymbolIdAdd(lstSymbolId);
         }
         if (!msgSuccess) {
@@ -228,11 +226,9 @@ const ListTicker = (props: IListTickerProps) => {
         if (symbolCode) {
             const itemTickerAdd = symbolList.find(item => item.ticker === symbolCode);
             if (itemTickerAdd) {
-                // setSymbolIdAdd(itemTickerAdd.symbolId);
                 setSymbolCodeAdd(itemTickerAdd.ticker);
                 return;
             }
-            // setSymbolIdAdd(0);
             setSymbolCodeAdd('');
             return;
         }
