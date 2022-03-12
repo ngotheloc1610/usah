@@ -308,8 +308,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
                 {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
             </span>
-            {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.OrderType.OP_BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === Number(tradingModelPb.OrderType.OP_BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}
+            {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.Side.BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
+                {Number(currentSide) === Number(tradingModelPb.Side.BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}
             </b></span>} &nbsp;
             <span className='fs-18'><b>?</b></span>
         </div>

@@ -125,7 +125,7 @@ export interface IListOrderHistory {
     slippage: string;
     state: number;
     swap: string;
-    symbolCode: number;
+    symbolCode: string;
     time: number;
     tp: string;
     triggerPrice: string;

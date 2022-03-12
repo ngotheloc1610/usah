@@ -13,7 +13,7 @@ import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 interface IListTickerProps {
-    getTicerLastQuote: (item: IAskAndBidPrice, curentPrice: string) => void;
+    getTicerLastQuote: (item: IAskAndBidPrice) => void;
     msgSuccess?: string;
     symbolName: string[];
 }
@@ -36,7 +36,10 @@ const ListTicker = (props: IListTickerProps) => {
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
     const [quoteEvent, setQuoteEvent] = useState([]);
-    const [listSymbol, setListSymbol] = useState<string[]>([])
+    const [listSymbol, setListSymbol] = useState<string[]>([]);
+
+    const [symbolCodeAdd, setSymbolCodeAdd] = useState<string>('');
+    const [lstSymbolCodeAdd, setLstSymbolCodeAdd] = useState<string[]>([]);
 
     useEffect(() => {
         const listSymbol: string[] = []
@@ -146,12 +149,12 @@ const ListTicker = (props: IListTickerProps) => {
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
             setLastQoutes(resp.quotesList);
             const lstLastQuote = resp.quotesList;
-            const listWatchingTickersCode: number[] = [];
+            const listWatchingTickersCode: string[] = [];
             const lstArrLastQuote: ILastQuote[] = [];
             if (lstWatchingTickers.length > 0 && lstLastQuote.length > 0) {
-                lstWatchingTickers.forEach(item => listWatchingTickersCode.push(Number(item.symbolCode)));
+                lstWatchingTickers.forEach(item => listWatchingTickersCode.push(item.symbolCode));
                 listWatchingTickersCode.forEach(itemLastQuoteId => {
-                    const itemLastQuote = lstLastQuote.find(item => Number(item.symbolCode) === itemLastQuoteId);
+                    const itemLastQuote = lstLastQuote.find(item => item.symbolCode === itemLastQuoteId);
                     if (itemLastQuote) {
                         lstArrLastQuote.push(itemLastQuote);
                     }
@@ -215,7 +218,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const handleTicker = (item: IAskAndBidPrice, side: string, lastQuote: ILastQuote) => {
         const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
-        getTicerLastQuote(itemTicker, lastQuote.currentPrice);
+        getTicerLastQuote(itemTicker);
     }
 
     const onChangeTicker = (event) => {
@@ -223,10 +226,10 @@ const ListTicker = (props: IListTickerProps) => {
         if (symbolCode) {
             const itemTickerAdd = symbolList.find(item => item.ticker === symbolCode);
             if (itemTickerAdd) {
-                setSymbolIdAdd(itemTickerAdd.symbolId);
+                setSymbolCodeAdd(itemTickerAdd.ticker);
                 return;
             }
-            setSymbolIdAdd(0);
+            setSymbolCodeAdd('');
             return;
         }
     }
@@ -277,7 +280,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter--;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY, itemData)}>
                 <td className="text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
@@ -314,7 +317,7 @@ const ListTicker = (props: IListTickerProps) => {
             counter++;
         }
         return arr.map((item: IAskAndBidPrice, index: number) => (
-            <tr key={index} onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL, itemData)}>
+            <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL, itemData)}>
                 <td className="w-33">&nbsp;</td>
                 <td className="text-center">
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
@@ -333,12 +336,12 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleLastQuote = () => {
-        const lstSymbolId: number[] = lstSymbolIdAdd !== [] ? lstSymbolIdAdd : [];
-        if (lstSymbolId.length === 0 || lstSymbolId.indexOf(symbolIdAdd) === -1) {
-            lstSymbolId.push(symbolIdAdd);
-            setLstSymbolIdAdd(lstSymbolId);
 
-            const newItem = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);
+        const lstSymbolCode: string[] = lstSymbolCodeAdd.length > 0 ? lstSymbolCodeAdd : [];
+        if (lstSymbolCode.length === 0 || lstSymbolCode.indexOf(symbolCodeAdd) === -1) {
+            lstSymbolCode.push(symbolCodeAdd);
+            setLstSymbolCodeAdd(lstSymbolCode);
+            const newItem = lastQoutes.find(item => item.symbolCode === symbolCodeAdd);
             newItem && subscribeQuoteEvent([newItem])
         } else {
             return;
@@ -347,9 +350,9 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleAddTicker = () => {
-        const listLastQuote: ILastQuote[] = lstWatchingTickers !== [] ? lstWatchingTickers : [];
-        if (symbolIdAdd !== 0) {
-            const itemLastQuote = lastQoutes.find(item => Number(item.symbolCode) === symbolIdAdd);            
+        const listLastQuote: ILastQuote[] = lstWatchingTickers.length > 0 ? lstWatchingTickers : [];
+        if (symbolCodeAdd !== '') {
+            const itemLastQuote = lastQoutes.find(item => item.symbolCode === symbolCodeAdd);            
             const assignItemLastQuote: ILastQuote = itemLastQuote ? itemLastQuote : DEFAULT_DATA_TICKER;
             if (assignItemLastQuote !== DEFAULT_DATA_TICKER) {
                 listLastQuote.push(assignItemLastQuote);
@@ -387,7 +390,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const renderListDataTicker = pageShowCurrentLastQuote.map((item: ILastQuote, index: number) => {
-        const symbol = symbolList.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
+        // const symbol = symbolList.find((o: ITickerInfo) => o.symbolId.toString() === item.symbolCode);
         return <div className="col-xl-3" key={index}>
             <table
                 className="table-item-ticker table table-sm table-hover border mb-1" key={item.symbolCode}
@@ -396,7 +399,7 @@ const ListTicker = (props: IListTickerProps) => {
                     <tr>
                         <th colSpan={3} className="text-center">
                             <div className="position-relative">
-                                <strong className="px-4 pointer">{symbol?.ticker}</strong>
+                                <strong className="px-4 pointer">{item?.symbolCode}</strong>
                                 <a onClick={(e) => removeTicker(item)} href="#" className="position-absolute me-1" style={{ right: 0 }} >
                                     <i className="bi bi-x-lg" />
                                 </a>
