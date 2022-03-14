@@ -57,7 +57,7 @@ const OrderNew = () => {
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [currentTickerSearch, setCurrentTickerSearch] = useState<string>('');
     const [quoteEvent, setQuoteEvent] = useState([]);
-    const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
+    const [symbolCode, setSymbolCode] = useState('')
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -145,24 +145,23 @@ const OrderNew = () => {
     }
 
     const getTicker = (value: string) => {
+        setSymbolCode(value);
         const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const itemTickerInfor = symbolLocalList.find(item => item.ticker === value.toUpperCase());
-
-
         subscribeQuoteEvent(value)
         if (currentTickerSearch) {
-            unSubscribeQuoteEvent(itemTickerInfor?.symbolId.toString() || '');
+            unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
         }
         setCurrentTickerSearch(value);
         assignDataGetLastQuote(Number(value));
-        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === value)
+        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolCode === value)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
-        const itemSymbolData = getItemSymbolData(item.symbolId.toString());
+        const itemSymbolData = getItemSymbolData(item.symbolCode);
         const currentPrice = itemSymbolData?.currentPrice.toString();
         const currentVolume = itemSymbolData?.volumePerDay;
         const currentChange = calculateChange(itemSymbolData?.currentPrice, itemSymbolData?.open);
         const changePercent = (itemSymbolData && itemSymbolData.open) && calcPctChange(itemSymbolData.currentPrice, itemSymbolData.open);
-        const itemLocal = symbolLocalList.find(o => o.symbolId === item.symbolId);
+        const itemLocal = symbolLocalList.find(o => o.symbolCode === item.symbolCode);
         const assignTickerInfo: ITickerInfo = {
             symbolId: Number(item.symbolId),
             tickerName: item.symbolName,
@@ -306,12 +305,13 @@ const OrderNew = () => {
                             <TickerDetail currentTicker={currentTicker} symbolCode={currentTicker.ticker} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
-                                    <OrderForm isDashboard={false} messageSuccess={messageSuccess} />
+                                    <OrderForm isDashboard={false} messageSuccess={messageSuccess} symbolCode={symbolCode} />
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
                             <OrderBook currentTicker={currentTicker}
+                                    symbolCode={symbolCode}
                                     itemTickerSearch={handleItemSearch} 
                                     tickerDetailLastQuote={handleTickerDetailLastQuote} />
                         </div>
