@@ -65,6 +65,7 @@ const OrderForm = (props: IOrderForm) => {
         if (symbolCode) {
             setIsShowNotiErrorPrice(false);
             setInvalidVolume(false);
+            setInvalidPrice(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
@@ -250,14 +251,14 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleChangePrice = (value: string, maskedVal: number) => {
         setPrice(+maskedVal);
-        if (Number(value) > ceilingPrice) {
+        if (+maskedVal > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
-        } else if (Number(value) < floorPrice) {
+        } else if (+maskedVal < floorPrice) {
             setIsShowNotiErrorPrice(true);
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(Number(value) * Math.pow(10, 2));
+        const temp = Math.round(+maskedVal * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
     }
