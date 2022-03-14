@@ -182,7 +182,8 @@ proto.Order.toObject = function(includeInstance, msg) {
     lastPrice: jspb.Message.getFieldWithDefault(msg, 26, ""),
     executedDatetime: jspb.Message.getFieldWithDefault(msg, 27, ""),
     side: jspb.Message.getFieldWithDefault(msg, 28, 0),
-    externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, "")
+    externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, ""),
+    currencyCode: jspb.Message.getFieldWithDefault(msg, 30, "")
   };
 
   if (includeInstance) {
@@ -334,6 +335,10 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 29:
       var value = /** @type {string} */ (reader.readString());
       msg.setExternalOrderId(value);
+      break;
+    case 30:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCurrencyCode(value);
       break;
     default:
       reader.skipField();
@@ -564,6 +569,13 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       29,
+      f
+    );
+  }
+  f = message.getCurrencyCode();
+  if (f.length > 0) {
+    writer.writeString(
+      30,
       f
     );
   }
@@ -1089,6 +1101,24 @@ proto.Order.prototype.getExternalOrderId = function() {
  */
 proto.Order.prototype.setExternalOrderId = function(value) {
   return jspb.Message.setProto3StringField(this, 29, value);
+};
+
+
+/**
+ * optional string currency_code = 30;
+ * @return {string}
+ */
+proto.Order.prototype.getCurrencyCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 30, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setCurrencyCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 30, value);
 };
 
 

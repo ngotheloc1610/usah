@@ -72,15 +72,19 @@ message AccountBalance {
 message AccountPortfolio {
 	int64 account_id 			= 1;
 	string symbol_code			= 2;
-	string owned_volume			= 3;
-	string pending_volume		= 4;
-	string avg_price			= 5;
-	string market_price			= 6;
-	string invested_value		= 7;
-	string current_value		= 8;
-	string realized_pl			= 9;
-	string unrealized_pl 		= 10;
-	string currency_code		= 11;
+	
+	int64 total_buy_volume = 3;
+	string avg_buy_price = 4;
+
+	int64 total_sell_volume = 5;
+	string avg_sell_price = 6;
+	
+	string market_price			= 7;
+	string invested_value		= 8;
+	string current_value		= 9;
+	string realized_pl			= 10;
+	string unrealized_pl 		= 11;
+	string currency_code		= 12;
 }
 
 enum DealAction {

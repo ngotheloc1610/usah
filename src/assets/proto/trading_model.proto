@@ -30,6 +30,7 @@ message Order {
   string executed_datetime = 27;
   Side side					= 28;
   string external_order_id			= 29;
+  string currency_code				= 30;
 }
 
 message Trade {

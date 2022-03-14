@@ -1851,15 +1851,16 @@ proto.AccountPortfolio.toObject = function(includeInstance, msg) {
   var f, obj = {
     accountId: jspb.Message.getFieldWithDefault(msg, 1, 0),
     symbolCode: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    ownedVolume: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    pendingVolume: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    avgPrice: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    marketPrice: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    investedValue: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    currentValue: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    realizedPl: jspb.Message.getFieldWithDefault(msg, 9, ""),
-    unrealizedPl: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    currencyCode: jspb.Message.getFieldWithDefault(msg, 11, "")
+    totalBuyVolume: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    avgBuyPrice: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    totalSellVolume: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    avgSellPrice: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    marketPrice: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    investedValue: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    currentValue: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    realizedPl: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    unrealizedPl: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    currencyCode: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -1905,38 +1906,42 @@ proto.AccountPortfolio.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSymbolCode(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setOwnedVolume(value);
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setTotalBuyVolume(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setPendingVolume(value);
+      msg.setAvgBuyPrice(value);
       break;
     case 5:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setAvgPrice(value);
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setTotalSellVolume(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setMarketPrice(value);
+      msg.setAvgSellPrice(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setInvestedValue(value);
+      msg.setMarketPrice(value);
       break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCurrentValue(value);
+      msg.setInvestedValue(value);
       break;
     case 9:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRealizedPl(value);
+      msg.setCurrentValue(value);
       break;
     case 10:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUnrealizedPl(value);
+      msg.setRealizedPl(value);
       break;
     case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUnrealizedPl(value);
+      break;
+    case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setCurrencyCode(value);
       break;
@@ -1983,66 +1988,73 @@ proto.AccountPortfolio.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getOwnedVolume();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getTotalBuyVolume();
+  if (f !== 0) {
+    writer.writeInt64(
       3,
       f
     );
   }
-  f = message.getPendingVolume();
+  f = message.getAvgBuyPrice();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getAvgPrice();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getTotalSellVolume();
+  if (f !== 0) {
+    writer.writeInt64(
       5,
       f
     );
   }
-  f = message.getMarketPrice();
+  f = message.getAvgSellPrice();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getInvestedValue();
+  f = message.getMarketPrice();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = message.getCurrentValue();
+  f = message.getInvestedValue();
   if (f.length > 0) {
     writer.writeString(
       8,
       f
     );
   }
-  f = message.getRealizedPl();
+  f = message.getCurrentValue();
   if (f.length > 0) {
     writer.writeString(
       9,
       f
     );
   }
-  f = message.getUnrealizedPl();
+  f = message.getRealizedPl();
   if (f.length > 0) {
     writer.writeString(
       10,
       f
     );
   }
-  f = message.getCurrencyCode();
+  f = message.getUnrealizedPl();
   if (f.length > 0) {
     writer.writeString(
       11,
+      f
+    );
+  }
+  f = message.getCurrencyCode();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
       f
     );
   }
@@ -2086,28 +2098,28 @@ proto.AccountPortfolio.prototype.setSymbolCode = function(value) {
 
 
 /**
- * optional string owned_volume = 3;
- * @return {string}
+ * optional int64 total_buy_volume = 3;
+ * @return {number}
  */
-proto.AccountPortfolio.prototype.getOwnedVolume = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+proto.AccountPortfolio.prototype.getTotalBuyVolume = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setOwnedVolume = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+proto.AccountPortfolio.prototype.setTotalBuyVolume = function(value) {
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional string pending_volume = 4;
+ * optional string avg_buy_price = 4;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getPendingVolume = function() {
+proto.AccountPortfolio.prototype.getAvgBuyPrice = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -2116,34 +2128,34 @@ proto.AccountPortfolio.prototype.getPendingVolume = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setPendingVolume = function(value) {
+proto.AccountPortfolio.prototype.setAvgBuyPrice = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string avg_price = 5;
- * @return {string}
+ * optional int64 total_sell_volume = 5;
+ * @return {number}
  */
-proto.AccountPortfolio.prototype.getAvgPrice = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+proto.AccountPortfolio.prototype.getTotalSellVolume = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setAvgPrice = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
+proto.AccountPortfolio.prototype.setTotalSellVolume = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional string market_price = 6;
+ * optional string avg_sell_price = 6;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getMarketPrice = function() {
+proto.AccountPortfolio.prototype.getAvgSellPrice = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
@@ -2152,16 +2164,16 @@ proto.AccountPortfolio.prototype.getMarketPrice = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setMarketPrice = function(value) {
+proto.AccountPortfolio.prototype.setAvgSellPrice = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
 /**
- * optional string invested_value = 7;
+ * optional string market_price = 7;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getInvestedValue = function() {
+proto.AccountPortfolio.prototype.getMarketPrice = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -2170,16 +2182,16 @@ proto.AccountPortfolio.prototype.getInvestedValue = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setInvestedValue = function(value) {
+proto.AccountPortfolio.prototype.setMarketPrice = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string current_value = 8;
+ * optional string invested_value = 8;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getCurrentValue = function() {
+proto.AccountPortfolio.prototype.getInvestedValue = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
@@ -2188,16 +2200,16 @@ proto.AccountPortfolio.prototype.getCurrentValue = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setCurrentValue = function(value) {
+proto.AccountPortfolio.prototype.setInvestedValue = function(value) {
   return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 
 /**
- * optional string realized_pl = 9;
+ * optional string current_value = 9;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getRealizedPl = function() {
+proto.AccountPortfolio.prototype.getCurrentValue = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
 };
 
@@ -2206,16 +2218,16 @@ proto.AccountPortfolio.prototype.getRealizedPl = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setRealizedPl = function(value) {
+proto.AccountPortfolio.prototype.setCurrentValue = function(value) {
   return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 
 /**
- * optional string unrealized_pl = 10;
+ * optional string realized_pl = 10;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getUnrealizedPl = function() {
+proto.AccountPortfolio.prototype.getRealizedPl = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
 };
 
@@ -2224,16 +2236,16 @@ proto.AccountPortfolio.prototype.getUnrealizedPl = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setUnrealizedPl = function(value) {
+proto.AccountPortfolio.prototype.setRealizedPl = function(value) {
   return jspb.Message.setProto3StringField(this, 10, value);
 };
 
 
 /**
- * optional string currency_code = 11;
+ * optional string unrealized_pl = 11;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getCurrencyCode = function() {
+proto.AccountPortfolio.prototype.getUnrealizedPl = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
@@ -2242,8 +2254,26 @@ proto.AccountPortfolio.prototype.getCurrencyCode = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setCurrencyCode = function(value) {
+proto.AccountPortfolio.prototype.setUnrealizedPl = function(value) {
   return jspb.Message.setProto3StringField(this, 11, value);
+};
+
+
+/**
+ * optional string currency_code = 12;
+ * @return {string}
+ */
+proto.AccountPortfolio.prototype.getCurrencyCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountPortfolio} returns this
+ */
+proto.AccountPortfolio.prototype.setCurrencyCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 
