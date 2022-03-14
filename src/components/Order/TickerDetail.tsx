@@ -63,7 +63,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = symbolsList.find(o => o?.sumbolCode === symbolCode);
+        const symbol = symbolsList.find(o => o?.symbolCode === symbolCode);
         if (symbol) {
             const item = quotes.find(o => o?.symbolCode === symbolCode);
             if (item) {
@@ -77,6 +77,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     low: item?.low,
                     previousClose: item?.close,
                     volume: item?.volume,
+                    lotSize: symbol.lotSize
                 });
             }
         }
@@ -84,7 +85,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[]) => {
         const tempTickerInfo = {...tickerInfo};
-        const item = quoteEvent.find(o => o?.symbolCode === tempTickerInfo?.symbolId?.toString());
+        const item = quoteEvent.find(o => o?.symbolCode === symbolCode);
         if (item) {
             setTickerInfo({
                 ...tempTickerInfo,
