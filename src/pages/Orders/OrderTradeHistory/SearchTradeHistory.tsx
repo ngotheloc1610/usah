@@ -134,7 +134,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         if (symbolCode !== '' || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageTradeSearch();
-                getOrderSide(side);;
+                getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
