@@ -26,8 +26,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
-
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
 
