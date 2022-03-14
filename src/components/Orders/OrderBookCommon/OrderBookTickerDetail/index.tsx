@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
+import { ItemsPage } from '../../../../constants/news.constant';
 import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from '../../../../helper/utils';
 import { ILastQuote, IPropsDetail } from '../../../../interfaces/order.interface';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
@@ -12,6 +13,20 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
     const [tickerInfo, setTickerInfo] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [floorPrice, setFloorPrice] = useState(0);
+    const [ceilingPrice, setCeilingPrice] = useState(0);
+    const [lotSize, setLotSize] = useState(0);
+    const [vwap, setVwap] = useState(0);
+    useEffect(() => {
+        if (tickerInfo.symbolCode) {
+            const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const lotSize = ticker?.lotSize;
+            setFloorPrice(Number(ticker?.floor));
+            setCeilingPrice(Number(ticker?.ceiling));
+            setLotSize(Number(lotSize));
+        }
+    }, [tickerInfo])
 
     useEffect(() => {
         const lastQuoteResponse = wsService.getDataLastQuotes().subscribe(resp => {
@@ -92,7 +107,30 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                 }
             });
             setLastQuote(tempLastQuote);
+
+            calVWAP(quoteEvent)
         }
+    }
+
+    const calVWAP = (quoteEvent: IQuoteEvent[]) => {
+        const askList = quoteEvent[0].asksList || [];
+        const bidsList = quoteEvent[0].bidsList || [];
+        let totalNumeratorVwap = 0;
+        let totalVolume = 0;
+        if (askList.length > 0) {
+            askList?.map(item => {
+                totalNumeratorVwap += (Number(item.price) * Number(item.volume));
+                totalVolume += Number(item.volume);
+            });
+        }
+        if (bidsList.length > 0) {
+            bidsList?.map(item => {
+                totalNumeratorVwap += (Number(item.price) * Number(item.volume));
+                totalVolume += Number(item.volume);
+            });
+        }
+        const resultVWAP = totalVolume > 0 ? totalNumeratorVwap / totalVolume : 0;
+        setVwap(resultVWAP);
     }
 
     const getTickerName = (symbolId: string) => {
@@ -141,14 +179,16 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
                                     {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
                                     {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') <= 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
@@ -168,23 +208,19 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
-                                {/* Waiting Proto */}
-                                <td className="text-end">-</td>
+                                <td className="text-end">{vwap}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
-                                {/* Waiting Proto */}
-                                <td className="text-end">{getTickerInfor(tickerInfo.symbolCode)?.lotSize}</td>
+                                <td className="text-end">{lotSize}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Floor</strong></td>
-                                {/* Waiting Proto */}
-                                <td className="text-end">-</td>
+                                <td className="text-end">{floorPrice}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Ceiling</strong></td>
-                                {/* Waiting Proto */}
-                                <td className="text-end">-</td>
+                                <td className="text-end">{ceilingPrice}</td>
                             </tr>
                         </tbody>
                     </table>

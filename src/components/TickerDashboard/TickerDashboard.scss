@@ -128,7 +128,9 @@
     width: 100%;
     table-layout: fixed;
 }
-
+.pointer_dashboard {
+    cursor: pointer;
+}
 .tableFixHead {
     overflow: auto;
 }
