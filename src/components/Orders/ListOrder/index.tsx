@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCOUNT_ID, MESSAGE_TOAST, OBJ_AUTHEN, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
-import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
+import { IListOrderMonitoring, IParamOrder } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
-import queryString from 'query-string';
-import ReduxPersist from "../../../config/ReduxPersist";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { formatNumber } from "../../../helper/utils";
-import { IAuthen } from "../../../interfaces";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
@@ -39,7 +36,7 @@ const paramModifiCancelDefault: IParamOrder = {
 const ListOrder = (props: IPropsListOrder) => {
     const { getMsgSuccess, setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
-    const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
+    const [dataOrder, setDataOrder] = useState<IListOrderMonitoring[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
     const [isCancel, setIsCancel] = useState(false);
     const [isModify, setIsModify] = useState(false);
@@ -48,7 +45,7 @@ const ListOrder = (props: IPropsListOrder) => {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
+    const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
 
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
@@ -72,7 +69,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
-            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
@@ -81,7 +78,7 @@ const ListOrder = (props: IPropsListOrder) => {
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
-            const listOrderSortDate: IListOrder[] = response.orderList.sort((a, b) => b.time - a.time);
+            const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
         });
         return () => listOrder.unsubscribe();
@@ -171,7 +168,7 @@ const ListOrder = (props: IPropsListOrder) => {
         return '';
     }
 
-    const handleModify = (item: IListOrder) => {
+    const handleModify = (item: IListOrderMonitoring) => {
         const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
@@ -188,7 +185,7 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsModify(true);
     }
 
-    const handleCancel = (item: IListOrder) => {
+    const handleCancel = (item: IListOrderMonitoring) => {
         const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
@@ -343,7 +340,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     </td>
                     <td className="fm">{item.orderId}</td>
                     <td>{getTickerCode(item.symbolCode)}</td>
-                    <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                    <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                     <td className="text-end ">{formatCurrency(item.price.toString())}</td>
                     <td className="text-end ">{formatNumber(item.amount.toString())}</td>
