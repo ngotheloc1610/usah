@@ -95,6 +95,40 @@ export interface IListOrder {
     volumeChange?: string;
     priceChange?: string;
 }
+
+export interface IListOrderModifyCancel {
+    amount: string;
+    entry: string;
+    executeMode: string;
+    expireTime: string;
+    fee: string;
+    note: string;
+    orderFilling: string;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: string;
+    route: string;
+    side: number;
+    sl: string;
+    slippage: string;
+    state: string;
+    swap: string;
+    symbolCode: string;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: string;
+    filledAmount: string;
+    isChecked?: boolean;
+    orderSideChange?: number;
+    volumeChange?: string;
+    priceChange?: string;
+}
+
 export interface ISymbolMultiOrder {
     no: string;
     orderSide: string;
