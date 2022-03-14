@@ -78,7 +78,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());            
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
