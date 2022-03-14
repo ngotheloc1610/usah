@@ -22,13 +22,13 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
-    const symsbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
         const listSymbolName: string[] = []
-        symsbolList.forEach((item: ISymbolList) => {
+        symbolsList.forEach((item: ISymbolList) => {
             listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
         setListSymbolName(listSymbolName)
@@ -111,7 +111,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symsbolList));
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
             setSymbolCode('');
         }
@@ -119,7 +119,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symsbolList));
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
             setSymbolCode('');
         }
