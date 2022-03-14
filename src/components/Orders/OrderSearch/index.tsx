@@ -61,7 +61,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     useEffect(() => {
             const listSymbolName: string[] = []
             symbolsList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+                listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
             });
             setListSymbolName(listSymbolName)
     }, [])
@@ -125,19 +125,11 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleChangeTicker = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const _renderTicker = () => (

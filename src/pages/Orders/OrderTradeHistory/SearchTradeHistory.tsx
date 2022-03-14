@@ -58,7 +58,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     useEffect(() => {
         const listSymbolName: string[] = [];
         symbolsList.forEach(item => {
-            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         setListSymbolName(listSymbolName)
     }, [])
@@ -135,19 +135,11 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handleChangeTicker = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const _renderTicker = () => (

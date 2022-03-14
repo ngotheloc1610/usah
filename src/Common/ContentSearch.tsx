@@ -29,7 +29,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     useEffect(() => {
         const listSymbolName: string[] = []
         symbolsList.forEach((item: ISymbolList) => {
-            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         setListSymbolName(listSymbolName)
     }, [])
@@ -110,19 +110,11 @@ const ContentSearch = (props: IPropsContentSearch) => {
     )
 
     const handleChangeTicker = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList));
-        } else {
-            setSymbolCode('');
-        }
+        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
 
