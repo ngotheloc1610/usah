@@ -22,7 +22,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
-    const [orderType, setOrderType] = useState(0);
+    const [side, setSide] = useState(0);
     const [fromDatetime, setDateTimeFrom] = useState(0);
     const [toDatetime, setDateTimeTo] = useState(0);
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
@@ -101,10 +101,10 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(symbolCode)
-            tradeHistoryRequest.setOrderType(orderType)
-            tradeHistoryRequest.setFromDatetime(fromDatetime)
-            tradeHistoryRequest.setToDatetime(toDatetime)
+            tradeHistoryRequest.setSymbolCode(symbolCode);
+            tradeHistoryRequest.setSide(side);
+            tradeHistoryRequest.setFromDatetime(fromDatetime);
+            tradeHistoryRequest.setToDatetime(toDatetime);
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
@@ -127,14 +127,14 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleSearch = () => {
         sendMessageTradeSearch();
-        getOrderSide(orderType);
+        getOrderSide(side);
     }
 
     const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+        if (symbolCode !== '' || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageTradeSearch();
-                getOrderSide(orderType);;
+                getOrderSide(side);;
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
@@ -144,13 +144,13 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setSide(tradingModelPb.OrderType.OP_SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setSide(tradingModelPb.OrderType.OP_BUY);
         }
         else {
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+            setSide(tradingModelPb.OrderType.ORDER_TYPE_NONE);
         }
     }
 

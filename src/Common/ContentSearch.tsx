@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
 import * as qspb from "../models/proto/query_service_pb"
 import * as rpcpb from "../models/proto/rpc_pb";
 import * as smpb from '../models/proto/system_model_pb';
-import sendMsgSymbolList from "./sendMsgSymbolList";
 import { toast } from "react-toastify";
 import { getSymbolCode, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
@@ -21,7 +20,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const [symbolCode, setSymbolCode] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
-    const [orderType, setOrderType] = useState(0);
+    const [side, setSide] = useState(0);
     const [symbolName, setSymbolName] = useState<string[]>([]);
     const symsbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
@@ -50,13 +49,13 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setSide(tradingModelPb.OrderType.OP_SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setSide(tradingModelPb.OrderType.OP_BUY);
         }
         else {
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+            setSide(tradingModelPb.OrderType.ORDER_TYPE_NONE);
         }
     }
 
@@ -75,7 +74,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
             let rpcMsg = new rpcModel.RpcMessage();
 
             orderRequest.setAccountId(Number(accountId));
-            orderRequest.setSymbolCode(symbolCode)
+            orderRequest.setSymbolCode(symbolCode);
+            orderRequest.setSide(side);
 
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
@@ -86,14 +86,14 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleSearch = () => {
         sendMessageSearch();
-        getOrderSide(orderType);
+        getOrderSide(side);
     }
 
     const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || orderType !== 0) {
+        if (symbolCode !== '' || side !== 0) {
             if (event.key === 'Enter') {
                 sendMessageSearch();
-                getOrderSide(orderType);
+                getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }

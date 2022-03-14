@@ -6,7 +6,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -23,7 +23,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [orderState, setOrderState] = useState(0);
     const [orderBuy, setOrderBuy] = useState(false);
     const [orderSell, setOrderSell] = useState(false);
-    const [orderType, setOrderType] = useState(0);
+    const [side, setSide] = useState(0);
     const [fromDatetime, setFromDatetime] = useState(0);
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
@@ -84,7 +84,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
             orderHistoryRequest.setAccountId(Number(accountId));
             orderHistoryRequest.setSymbolCode(symbolCode);
-            orderHistoryRequest.setOrderType(orderType);
+            orderHistoryRequest.setSide(side);
             orderHistoryRequest.setFromDatetime(fromDatetime);
             orderHistoryRequest.setToDatetime(toDatetime);
             orderHistoryRequest.setOrderState(orderState);
@@ -110,14 +110,14 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleSearch = () => {
         sendMessageOrderHistory();
-        getOrderSide(orderType);
+        getOrderSide(side);
     }
 
     const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+        if (symbolCode !== '' || orderState !== 0 || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageOrderHistory();
-                getOrderSide(orderType);
+                getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
@@ -166,13 +166,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSell === true && orderBuy === false) {
-            setOrderType(tradingModelPb.Side.SELL)
+            setSide(tradingModelPb.Side.SELL)
         }
         else if (orderSell === false && orderBuy === true) {
-            setOrderType(tradingModelPb.Side.BUY)
+            setSide(tradingModelPb.Side.BUY)
         }
         else {
-            setOrderType(tradingModelPb.Side.NONE)
+            setSide(tradingModelPb.Side.NONE)
         }
     }
 
