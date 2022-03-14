@@ -58,7 +58,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     useEffect(() => {
         const listSymbolName: string[] = [];
         symbolsList.forEach(item => {
-            listSymbolName.push(`${item.tickerName} (${item.ticker})`);
+            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
         setListSymbolName(listSymbolName)
     }, [])

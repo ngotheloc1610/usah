@@ -57,9 +57,9 @@ export const removeFocusInput = (element: any) => {
 }
 
 export const getSymbolCode = (str: string, symbolsList: ISymbolInfo[]) => {
-    const positionStartOfString = str.indexOf('(')
-    const positionEndOfString = str.lastIndexOf(')')
-    const symbolCode = symbolsList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
+    const positionStartOfString = str.lastIndexOf('(');
+    const positionEndOfString = str.lastIndexOf(')');
+    const symbolCode = symbolsList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode;
     return symbolCode ?? ''
 }
 
