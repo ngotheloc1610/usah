@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
+import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 interface IPropsListOrder {
     getMsgSuccess: string;
     setMessageSuccess: (item: string) => void;
@@ -48,6 +49,10 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
+
+    const [statusCancel, setStatusCancel] = useState(0);
+    const [statusModify, setStatusModify] = useState(0);
+
     const [position, setPosition] = useState({
         x: 0,
         y: 0
@@ -206,20 +211,41 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = () => {
+    const _rendetMessageSuccess = (typeOrderRes: string) => {
         setMessageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
-        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+        switch (typeOrderRes) {
+            case (TYPE_ORDER_RES.Order):
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+            case TYPE_ORDER_RES.Cancel:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_CANCEL)}</div>
+            case TYPE_ORDER_RES.Modify:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_MODIFY)}</div>
+        }
     }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
 
-    const getStatusOrderResponse = (value: number, content: string) => {
-        if (statusOrder === 0) {
+    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string) => {
+        if (statusOrder === 0 && typeOrderRes === TYPE_ORDER_RES.Order) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess()}
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
+            setStatusCancel(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (statusModify === 0 && typeOrderRes === TYPE_ORDER_RES.Modify) {
+            setStatusModify(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
             </>
         }
