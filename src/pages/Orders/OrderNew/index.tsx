@@ -118,7 +118,7 @@ const OrderNew = () => {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
 
-            const symbolCodes: string[] = symbolList.map(item => item.symbolId.toString());
+            const symbolCodes: string[] = symbolList.map(item => item.symbolCode);
             lastQuotesRequest.setSymbolCodeList(symbolCodes);
 
             const rpcModel: any = rpcpb;
