@@ -12,6 +12,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
@@ -28,7 +29,7 @@ const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote, msgSuccess, handleSide } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ITickerInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
     const [lstWatchingTickers, setLstWatchingTickers] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]'));
