@@ -179,7 +179,7 @@ export const defindConfigPost = () => {
 export const formatDate = (datetime) =>{
     if(datetime !== null && datetime !== ""){
         let date = new Date(datetime);
-        let mDateStr = moment(date).format("DD Mo YYYY");
+        let mDateStr = moment(date).format("MMMM DD, YYYY");
         return mDateStr;
     } return null;
 }
