@@ -1,24 +1,21 @@
-import { SIDE, ORDER_TYPE_NAME, SOCKET_CONNECTED, DEFAULT_ITEM_PER_PAGE, START_PAGE } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
-import { ITradeHistory, IPropListTradeHistory } from '../../../interfaces/order.interface'
-import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { IPropListTradeHistory, IListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
-import { wsService } from "../../../services/websocket-service";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const { getDataTradeHistory } = props
     const tradingModelPb: any = tspb;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [listTradeSortDate, setListTradeSortDate] = useState<ITradeHistory[]>([])
+    const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistory[]>([])
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = getDataTradeHistory.length;
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         
     useEffect(() => {
-        const tradeSortDate: ITradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+        const tradeSortDate: IListTradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
         const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
@@ -26,30 +23,13 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     useEffect(() => {
         setCurrentPage(START_PAGE)
     }, [getDataTradeHistory])
-    
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();;
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
 
     const getTickerCode = (symbolCode: string) => {
-        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolCode;
+        return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolCode;
     }
 
     const getTickerName = (symbolCode: string) => {
-        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolName;
+        return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolName;
     }
 
     const getSideName = (sideId: number) => {
@@ -72,14 +52,14 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     </tr>)
 
     const _renderTradeHistoryTableBody = () => (
-        listTradeSortDate.map((item: ITradeHistory, index: number) => (
+        listTradeSortDate.map((item: IListTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td className="td w-160"><a href="#">{item.orderId}</a></td>
                 <td className="td text-start w-120">{getTickerCode(item.tickerCode)}</td>
                 <td className="td text-start w-180">{getTickerName(item.tickerCode)}</td>
                 <td className="td text-center w-80">
-                    <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>
-                        {getSideName(item.orderType)}
+                    <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>
+                        {getSideName(item.side)}
                     </span>
                 </td>
                 <td className="text-center w-80">{ORDER_TYPE_NAME.limit}</td>

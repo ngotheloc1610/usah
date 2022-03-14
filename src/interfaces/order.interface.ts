@@ -56,7 +56,7 @@ export interface IPropListOrderHistory {
 }
 
 export interface IPropListTradeHistory {
-    getDataTradeHistory: ITradeHistory[];
+    getDataTradeHistory: IListTradeHistory[];
 }
 
 export interface IStateListOrder {
@@ -172,6 +172,20 @@ export interface ITradeHistory {
     orderId: string;
     orderType: number;
     price: string;
+    tickerCode: string;
+    tickerName: string;
+}
+
+export interface IListTradeHistory {
+    amount: string;
+    executedDatetime: string;
+    executedPrice: string;
+    executedVolume: string;
+    matchedValue: string;
+    orderId: string;
+    orderType: number;
+    price: string;
+    side: number;
     tickerCode: string;
     tickerName: string;
 }
