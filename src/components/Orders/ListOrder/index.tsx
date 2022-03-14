@@ -167,10 +167,11 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleModify = (item: IListOrder) => {
+        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: item.symbolCode.split('-')[0]?.trim(),
-            tickerName: item.symbolCode.split('-')[1]?.trim(),
+            tickerName: symbolName || '',
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
@@ -183,10 +184,11 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleCancel = (item: IListOrder) => {
+        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: item.symbolCode.split('-')[0]?.trim(),
-            tickerName: item.symbolCode.split('-')[1]?.trim(),
+            tickerName: symbolName || '',
             orderType: ORDER_TYPE_NAME.limit,
             volume: item.amount,
             price: Number(item.price),
