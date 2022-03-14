@@ -57,8 +57,8 @@ export const removeFocusInput = (element: any) => {
 }
 
 export const getSymbolCode = (str: string) => {
-    const position = str.indexOf('-');
-    const symbolCode = str.slice(0, position - 1);
+    const newArr = str.split('-');
+    const symbolCode = newArr[0].trim();
     return symbolCode ?? ''
 }
 

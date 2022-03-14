@@ -125,11 +125,11 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleChangeTicker = (value: string) => {
-        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
+        value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
+        value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const _renderTicker = () => (

@@ -110,11 +110,11 @@ const ContentSearch = (props: IPropsContentSearch) => {
     )
 
     const handleChangeTicker = (value: string) => {
-        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
+        value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        value !== undefined ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
+        value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
 
