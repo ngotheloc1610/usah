@@ -1,99 +1,245 @@
-import { IPropsListPortfolio, IListPortfolio } from '../../../interfaces/order.interface'
-import { formatCurrency, formatNumber } from '../../../helper/utils'
-import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
+import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
-import { SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { LIST_TICKER_INFO, SYMBOL_LIST } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
-import sendMsgSymbolList from '../../../Common/sendMsgSymbolList'
-function PortfolioTable(props: IPropsListPortfolio) {
-    const { accountPortfolio } = props
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+import * as pspb from '../../../models/proto/pricing_service_pb';
+import * as rspb from '../../../models/proto/rpc_pb';
+import { IQuoteEvent } from '../../../interfaces/quotes.interface';
+
+function PortfolioTable() {
+    const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();;
+        const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
+            if (res && res.accountPortfolioList) {
+                setPortfolio(res.accountPortfolioList)
+                callLastQuoteReq(res.accountPortfolioList);
+                subscribeQuoteEvent(res.accountPortfolioList);
             }
         });
 
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+        const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuotes => {
+            if (lastQuotes && lastQuotes.quotesList) {
+                setLastQuotes(lastQuotes.quotesList);
+            }
         });
 
+        const getQuoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
+            if (quoteEvent && quoteEvent.quoteList) {
+                setQuoteEvent(quoteEvent.quoteList);
+            }
+        })
+
         return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
+            if (portfolio) {
+                unsubscribeQuoteEvent(portfolio);
+            }
+            portfolioRes.unsubscribe();
+            getLastQuote.unsubscribe();
+            getQuoteEvent.unsubscribe();
         }
     }, [])
 
+    useEffect(() => {
+        processLastQuote(lastQuotes, portfolio);
+    }, [lastQuotes]);
 
-    const getTickerCode = (symbolId: string) => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode;
+    useEffect(() => {
+        processQuoteEvent(quoteEvent, portfolio);
+    }, [quoteEvent]);
+
+    const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
+        if (portfolio) {}
+        const temp = [...portfolio];
+        temp.forEach(item => {
+            if (item) {
+                const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    temp[idx] = {
+                        ...item,
+                        marketPrice: lastQuotes[idx]?.currentPrice
+                    }
+                }
+            }
+        });
+        setPortfolio(temp);
     }
 
-    const getTickerName = (symbolId: string) => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName;
+    const processQuoteEvent = (quoteEvent: IQuoteEvent[] = [], portfolio: IPortfolio[] = []) => {
+        if (portfolio) {
+            const temp = [...portfolio];
+            temp.forEach(item => {
+                if (item) {}
+                const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    temp[idx] = {
+                        ...item,
+                        marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+                    }
+                }
+            });
+            setPortfolio(temp);
+        }
     }
 
     const getNameClass = (item: number) => {
         if (item > 0) {
             return "text-success"
         }
-        if(item < 0 ) {
+        if (item < 0) {
             return "text-danger"
-        }else{
+        } else {
             return ""
         }
     }
 
-    const _rederPortfolioInvest = () => {
-        const totalInvestedValue = accountPortfolio.reduce((acc, crr) => {
-            return acc + Number(crr.investedValue)
-        }, 0)
+    const callLastQuoteReq = (portfolios: IPortfolio[]) => {
+        const pricingServicePb: any = pspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+            portfolios.forEach((item: IPortfolio) => {
+                lastQuotesRequest.addSymbolCode(item.symbolCode)
+            });
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
-        const totalCurrentValue = accountPortfolio.reduce((acc, crr) => {
-            return acc + Number(crr.currentValue)
-        }, 0)
+    const subscribeQuoteEvent = (portfolio: IPortfolio[]) => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            portfolio.forEach((item: IPortfolio) => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
-        const TotalUnrealizedPl = accountPortfolio.reduce((acc, crr) => {
-            return acc + Number(crr.unrealizedPl)
-        }, 0)
+    const unsubscribeQuoteEvent = (portfolio: IPortfolio[]) => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            portfolio.forEach((item: IPortfolio) => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
-        const TotalRealizedPl = accountPortfolio.reduce((acc, crr) => {
-            return acc + Number(crr.realizedPl)
-        }, 0)        
+    const getSymbol = (symbolCode: string) => {
+        const symbol = symbolList.find((o: ISymbolInfo) => o?.symbolCode === symbolCode);
+        return symbol;
+    }
 
-        return (
-            <div className="border p-3 mb-3">
-                <div className="row">
-                    <div className="col-md-2 text-center">
-                        <div>Total Invested Value:</div>
-                        <div className="fs-5 fw-bold">{formatCurrency(totalInvestedValue.toString())}</div>
-                    </div>
-                    <div className="col-md-2 text-center">
-                        <div>Total Current Value:</div>
-                        <div className="fs-5 fw-bold">{formatCurrency(totalCurrentValue.toString())}</div>
-                    </div>
-                    <div className="col-md-2 text-center">
-                        <div>Total Unrealized PL:</div>
-                        <div className={`fs-5 fw-bold ${getNameClass(TotalUnrealizedPl)} `}>{formatCurrency(TotalUnrealizedPl.toString())}</div>
-                    </div>
-                    <div className="col-md-2 text-center">
-                        <div>Total Realized PL:</div>
-                        <div className={`fs-5 fw-bold ${getNameClass(TotalRealizedPl)} `}>{formatCurrency(TotalRealizedPl.toString())}</div>
-                    </div>
-                    <div className="col-md-4 order-0 order-md-4">
-                        <p className="text-end small opacity-50 mb-2">Currency: USD</p>
-                    </div>
+    const totalInvestedValue = (portfolios: IPortfolio[]) => {
+        let total = 0;
+        if (portfolios) {
+            portfolios.forEach(item => {
+                if (item) {
+                    total += calcInvestedValue(item);
+                }
+            });
+        }
+        return total;
+    }
+
+    const totalCurrentValue = (portfolios: IPortfolio[]) => {
+        let total = 0;
+        if (portfolios) {
+            portfolios.forEach(item => {
+                if (item) {
+                    total += calcCurrentValue(item);
+                }
+            });
+        }
+        return total;
+    }
+
+    const totalUnrealizedPL = (portfolios: IPortfolio[]) => {
+        let total = 0;
+        if (portfolios) {
+            portfolios.forEach(item => {
+                if (item) {
+                    total += calcUnrealizedPL(item);
+                }
+            });
+        }
+        return total;
+    }
+
+    const _rederPortfolioInvest = () => (
+        <div className="border p-3 mb-3">
+            <div className="row">
+                <div className="col-md-2 text-center">
+                    <div>Total Invested Value:</div>
+                    <div className="fs-5 fw-bold">{formatCurrency(totalInvestedValue(portfolio).toFixed(2))}</div>
+                </div> 
+                <div className="col-md-2 text-center">
+                    <div>Total Current Value:</div>
+                    <div className="fs-5 fw-bold">{formatCurrency(totalCurrentValue(portfolio).toFixed(2))}</div>
+                </div>
+                <div className="col-md-2 text-center">
+                    <div>Total Unrealized PL:</div>
+                    <div className={`fs-5 fw-bol `}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
+                </div>
+                <div className="col-md-4 order-0 order-md-4">
+                    <p className="text-end small opacity-50 mb-2">Currency: USD</p>
                 </div>
             </div>
-        )
+        </div>
+    )
+
+    const calcTransactionVolume = (item: IPortfolio) => {
+        const buyVolume = item.totalBuyVolume;
+        const sellVolume = item.totalSellVolume;
+        return buyVolume - sellVolume;
+    }
+
+    const calcInvestedValue = (item: IPortfolio) => {
+        const transactionVolume = calcTransactionVolume(item);
+        return transactionVolume * convertNumber(item.avgBuyPrice);
+    }
+
+    const calcCurrentValue = (item: IPortfolio) => {
+        return calcTransactionVolume(item) * convertNumber(item.marketPrice);
+    }
+
+    const calcUnrealizedPL = (item: IPortfolio) => {
+        return calcCurrentValue(item) - calcInvestedValue(item);
+    }
+
+    const calcPctUnrealizedPL = (item: IPortfolio) => {
+        if (calcCurrentValue(item) === 0) {
+            return 0;
+        } 
+        return calcCurrentValue(item) / calcCurrentValue(item) * 100;
     }
 
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-start fz-14 w-200" >Ticker Name</th>
             <th className="text-start fz-14 w-s" >Ticker Code</th >
+            <th className="text-start fz-14 w-200" >Ticker Name</th>
             <th className="text-end fz-14 w-s" >Transactions Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
             <th className="text-end fz-14 w-s" >Invested Value</th>
@@ -101,31 +247,24 @@ function PortfolioTable(props: IPropsListPortfolio) {
             <th className="text-end fz-14 w-s" >Current Value</th>
             <th className="text-end fz-14 w-s" >Unrealized PL</th>
             <th className="text-end fz-14 w-s" >% Unrealized PL</th>
-            <th className="text-end fz-14 w-s" >Realized PL</th>
-            {accountPortfolio.length > 6 && <th className="text-end fz-14 w-17"></th>}
         </tr>
     )
 
     const _renderPortfolioTableBody = () => (
-        accountPortfolio.map((item: IListPortfolio, index: number) => (
-            <tr className="odd " key={index}>
-                <td className="text-start w-200 td" >{getTickerName(item.symbolCode)}</td>
-                <td className="text-start w-s td">{getTickerCode(item.symbolCode)}</td>
-                {
-                    Number(item.pendingVolume) === 0 ? <td className="text-end w-s td">&nbsp;</td> : <td className="text-end w-s td">{formatNumber(item.pendingVolume)}</td>
-                }
-                <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
-                <td className="text-end w-s td" >{formatCurrency(item.investedValue)}</td>
+        portfolio?.map((item: IPortfolio, index: number) => (
+            <tr className="odd " key={index}> 
+                <td className="text-start w-s td">{getSymbol(item.symbolCode)?.symbolName}</td>
+                <td className="text-start w-200 td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
+                <td className='text-end w-s td'>{formatNumber(calcTransactionVolume(item).toString())}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.avgBuyPrice)}</td>
+                <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
-                <td className="text-end w-s td"  >{formatCurrency(item.currentValue)}</td>
-                <td className="text-end w-s td fw-600" ><span className={getNameClass(Number(item.unrealizedPl))}>
-                    {formatCurrency(item.unrealizedPl)}</span>
+                <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>
+                <td className="text-end w-s td fw-600" ><span className={getNameClass(calcUnrealizedPL(item))}>
+                    {formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
-                <td className="text-end w-s td fw-600"><span className={getNameClass(Number(item.unrealizedPl))}>
-                    {(Number(item.unrealizedPl) / Number(item.investedValue) * 100).toFixed(2) + '%'}</span>
-                </td>
-                <td className="text-end w-s td fw-600"><span className={getNameClass(Number(item.realizedPl))}>
-                    {formatCurrency(item.realizedPl)}</span>
+                <td className="text-end w-s td fw-600"><span className={getNameClass(calcUnrealizedPL(item))}>
+                    {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
             </tr>
         ))

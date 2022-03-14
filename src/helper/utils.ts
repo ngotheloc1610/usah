@@ -183,3 +183,10 @@ export const formatDate = (datetime) =>{
         return mDateStr;
     } return null;
 }
+
+export const convertNumber = (value: string) => {
+    if (!isNaN(Number(value))) {
+        return Number(value);
+    }
+    return 0;
+}
