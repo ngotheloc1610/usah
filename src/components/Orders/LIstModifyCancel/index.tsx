@@ -11,6 +11,7 @@ import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, forma
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
+import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 
 interface IPropsListModifyCancel {
     orderSide: number;
@@ -25,6 +26,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+
+    const [statusCancel, setStatusCancel] = useState(0);
+    const [statusModify, setStatusModify] = useState(0);
+
     const defaultData: IParamOrder = {
         tickerCode: '',
         tickerName: '',
@@ -164,21 +170,42 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = (message: string) => {
+    const _rendetMessageSuccess = (message: string, typeOrderRes: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
-        setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE)
-        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+        setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
+        switch(typeOrderRes) {
+            case TYPE_ORDER_RES.Order:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+            case TYPE_ORDER_RES.Modify:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_MODIFY)}</div>
+            case TYPE_ORDER_RES.Cancel:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_CANCEL)}</div>
+        }
     }
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
 
-    const getStatusOrderResponse = (value: number, content: string) => {
-        if (statusOrder === 0) {
+    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string) => {
+        if (typeOrderRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
+            setStatusCancel(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (typeOrderRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
+            setStatusModify(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
             </>
         }

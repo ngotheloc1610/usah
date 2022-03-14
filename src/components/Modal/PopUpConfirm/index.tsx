@@ -10,12 +10,13 @@ import * as sspb from '../../../models/proto/system_service_pb'
 import { IListOrder } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { useEffect } from 'react';
+import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
     totalOrder: number;
     listOrder: IListOrder[];
-    handleOrderResponse: (value: number, content: string) => void;
+    handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
     handleStatusCancelAll?: (value: boolean) => void;
 }
 
@@ -72,7 +73,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT]);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel);
                 handleCloseConfirmPopup(false);
             });
         }

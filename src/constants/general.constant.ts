@@ -110,6 +110,9 @@ export enum MESSAGE_TOAST {
     SUCCESS_PLACE = 'Place order successfully',
     SUCCESS_UPDATE = 'Update successfully',
 
+    SUCCESS_CANCEL = 'Cancel order successfully',
+    SUCCESS_MODIFY = 'Modify order successfully',
+
     ERROR_UPDATE = 'Update error'
 };
 

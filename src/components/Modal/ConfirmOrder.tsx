@@ -14,9 +14,10 @@ import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT,
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
+import { TYPE_ORDER_RES } from '../../constants/order.constant';
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
-    handleOrderResponse: (value: number, content: string) => void;
+    handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
     handleStatusModifyCancel?: (value: boolean) => void;
     params: IParamOrder;
     isModify?: boolean;
@@ -90,7 +91,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT]);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Modify);
             });
             handleCloseConfirmPopup(false);
         }
@@ -128,7 +129,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT]);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Order);
             });
 
             handleCloseConfirmPopup(true);
@@ -176,7 +177,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT]);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel);
             });
             handleCloseConfirmPopup(false);
         }
@@ -197,7 +198,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
 
     const handleUpperVolume = () => {
-        debugger;
         const currentVol = Number(volumeModify);
         let nerwVol = currentVol + lotSize;
         setVolumeModify(nerwVol.toString());
