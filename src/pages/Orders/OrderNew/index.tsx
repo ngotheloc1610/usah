@@ -57,7 +57,9 @@ const OrderNew = () => {
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [currentTickerSearch, setCurrentTickerSearch] = useState<string>('');
     const [quoteEvent, setQuoteEvent] = useState([]);
-    const [symbolCode, setSymbolCode] = useState('')
+    const [symbolCode, setSymbolCode] = useState('');
+    const [side, setSide] = useState(0);
+    const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -290,8 +292,12 @@ const OrderNew = () => {
     }
     // wait handle ticker detail last quote in screen order book
     const handleTickerDetailLastQuote = (value: IAskAndBidPrice) => {
+        setQuoteInfo(value);
     }
 
+    const getSide = (value: number) => {
+        setSide(value);
+    }
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -305,7 +311,11 @@ const OrderNew = () => {
                             <TickerDetail currentTicker={currentTicker} symbolCode={currentTicker.ticker} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
-                                    <OrderForm isDashboard={false} messageSuccess={messageSuccess} symbolCode={symbolCode} />
+                                    <OrderForm isDashboard={false}
+                                               messageSuccess={messageSuccess}
+                                               symbolCode={symbolCode}
+                                               quoteInfo={quoteInfo}
+                                               side={side} />
                                 </div>
                             </div>
                         </div>
@@ -313,7 +323,8 @@ const OrderNew = () => {
                             <OrderBook currentTicker={currentTicker}
                                     symbolCode={symbolCode}
                                     itemTickerSearch={handleItemSearch} 
-                                    tickerDetailLastQuote={handleTickerDetailLastQuote} />
+                                    tickerDetailLastQuote={handleTickerDetailLastQuote}
+                                    handleSide={getSide} />
                         </div>
                     </div>
                 </div>

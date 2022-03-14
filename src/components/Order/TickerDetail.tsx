@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LIST_TICKER_INFO } from '../../constants/general.constant'
-import { checkValue, formatCurrency, formatNumber } from '../../helper/utils'
+import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from '../../helper/utils'
 import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
 import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
@@ -47,7 +47,14 @@ const TickerDetail = (props: ITickerDetailProps) => {
             }
         });
 
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
+
         return () => {
+            quoteEvent.unsubscribe();
             getLastQuote.unsubscribe();
         }
 
@@ -127,8 +134,8 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const _renderLastPriceTemplate = (lastPrice: string, change: string, changePercent: string) => {
         const lastPriceDisplay = lastPrice ? lastPrice : defaultTickerDetails.lastPrice;
-        const changeDisplay = change ? change : defaultTickerDetails.change;
-        const changePercentDisplay = changePercent ? changePercent : defaultTickerDetails.changePrecent;
+        const changeDisplay = formatNumber(calcChange(tickerInfo.lastPrice, tickerInfo.open || '').toString());
+        const changePercentDisplay = formatCurrency(calcPctChange(tickerInfo.lastPrice, tickerInfo.open || '').toString());
         let textColor = '';
         if (Number(changeDisplay) === 0) {
             textColor = 'text-warning';
@@ -141,7 +148,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
             <td className="text-end w-precent-19">
                 <div className={`${textColor} fs-20 fw-bold lastPriceStyle fw-600`}>
                     {Number(changeDisplay) !== 0 && _renderIconTicker(Number(changeDisplay))}
-                    {lastPriceDisplay}
+                    {formatCurrency(lastPriceDisplay)}
                 </div>
                 <div className={`${textColor} fw-600`}>
                     {formatCurrency(changeDisplay)}
