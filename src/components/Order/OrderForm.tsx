@@ -242,7 +242,7 @@ const OrderForm = (props: IOrderForm) => {
     }
     const handleChangeVolume = (value: string) => {
         const convertValueToNumber = Number(value.replaceAll(',', ''));
-        if (convertValueToNumber > 0 && convertValueToNumber) {
+        if (convertValueToNumber || convertValueToNumber === 0) {
             setVolume(convertValueToNumber);
             setInvalidVolume(convertValueToNumber % lotSize !== 0)
         }
