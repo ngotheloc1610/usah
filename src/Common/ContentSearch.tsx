@@ -21,7 +21,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
-    const [symbolName, setSymbolName] = useState<string[]>([]);
+    const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const symsbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
@@ -31,6 +31,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
         symsbolList.forEach((item: ISymbolList) => {
             listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
+        setListSymbolName(listSymbolName)
     }, [])
 
     useEffect(() => {
@@ -49,13 +50,13 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setSide(tradingModelPb.OrderType.OP_SELL);
+            setSide(tradingModelPb.Side.SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setSide(tradingModelPb.OrderType.OP_BUY);
+            setSide(tradingModelPb.Side.BUY);
         }
         else {
-            setSide(tradingModelPb.OrderType.ORDER_TYPE_NONE);
+            setSide(tradingModelPb.Side.NONE);
         }
     }
 
@@ -133,7 +134,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
-                options={symbolName}
+                options={listSymbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
             />
         </div>

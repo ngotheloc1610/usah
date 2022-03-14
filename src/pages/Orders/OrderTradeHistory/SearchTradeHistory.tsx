@@ -26,7 +26,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [fromDatetime, setDateTimeFrom] = useState(0);
     const [toDatetime, setDateTimeTo] = useState(0);
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
-    const [symbolName, setSymbolName] = useState<string[]>([]);
+    const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
@@ -79,7 +79,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             res.symbolList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
-            setSymbolName(listSymbolName)
+            setListSymbolName(listSymbolName)
         });
 
         return () => {
@@ -144,13 +144,13 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setSide(tradingModelPb.OrderType.OP_SELL);
+            setSide(tradingModelPb.Side.SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setSide(tradingModelPb.OrderType.OP_BUY);
+            setSide(tradingModelPb.Side.BUY);
         }
         else {
-            setSide(tradingModelPb.OrderType.ORDER_TYPE_NONE);
+            setSide(tradingModelPb.Side.NONE);
         }
     }
 
@@ -178,7 +178,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
-                options={symbolName}
+                options={listSymbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
             />
         </div>
