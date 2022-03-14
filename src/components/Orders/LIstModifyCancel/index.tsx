@@ -4,30 +4,27 @@ import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import { IListOrder, IParamOrder } from "../../../interfaces/order.interface";
+import { IListOrderModifyCancel, IParamOrder } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
-import { ISymbolList } from "../../../interfaces/ticker.interface";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 
 interface IPropsListModifyCancel {
     orderSide: number;
+    symbolCode: string;
 }
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
-    const { orderSide } = props;
-    const [listOrder, setListOrder] = useState<IListOrder[]>([]);
-    const [dataOrder, setDataOrder] = useState<IListOrder[]>([]);
+    const { orderSide, symbolCode } = props;
+    const [listOrder, setListOrder] = useState<IListOrderModifyCancel[]>([]);
+    const [dataOrder, setDataOrder] = useState<IListOrderModifyCancel[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-
     const defaultData: IParamOrder = {
         tickerCode: '',
         tickerName: '',
@@ -42,13 +39,14 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [dataSelected, setDataSelected] = useState<IListOrder[]>([]);
+    const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listOrder.length;
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
-        const listOrderSortDate: IListOrder[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
+        const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
         setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
@@ -65,45 +63,40 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendListOrder();
-                sendMsgSymbolList();
             }
         });
 
         const listOrder = wsService.getListOrder().subscribe(response => {
-            let listOrderSortDate: IListOrder[] = [];
+            let listOrderFilter: IListOrderModifyCancel[] = response.orderList;
+            if (symbolCode !== '') {
+                listOrderFilter = listOrderFilter.filter(item => item.symbolCode === symbolCode)
+            }
             if (orderSide !== 0) {
-                const listOrderFilter = response.orderList.filter(item => item.orderType === orderSide)
-                listOrderSortDate = listOrderFilter.sort((a, b) => b.time - a.time);
-                setDataOrder(listOrderSortDate);
-                return
-            };
-            listOrderSortDate = response.orderList.sort((a, b) => b.time - a.time);
-            setDataOrder(listOrderSortDate);
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+                listOrderFilter = listOrderFilter.filter(item => item.side === orderSide)
+            }
+            setListOrder(listOrderFilter);
         });
 
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
-            renderDataSymbolList.unsubscribe();
         }
-    }, [orderSide]);
+    }, [symbolCode, orderSide]);
 
     useEffect(() => {
         sendListOrder();
         const listOrder = wsService.getListOrder().subscribe(response => {
+            let listOrderFilter: IListOrderModifyCancel[] = response.orderList;
+            if (symbolCode !== '') {
+                listOrderFilter = listOrderFilter.filter(item => item.symbolCode === symbolCode)
+            }
             if (orderSide !== 0) {
-                const listOrderFilter = response.orderList.filter(item => item.orderType === orderSide)
-                setListOrder(listOrderFilter);
-                return
-            };
-            setListOrder(response.orderList);
+                listOrderFilter = listOrderFilter.filter(item => item.side === orderSide)
+            }
+            setListOrder(listOrderFilter);
         });
         return () => listOrder.unsubscribe();
-    }, [msgSuccess, orderSide]);
+    }, [msgSuccess]);
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -116,11 +109,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        prepareMessage(accountId);
-    }
-
-    const prepareMessage = (accountId: string) => {
-        const uid = accountId;
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -129,7 +117,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
 
-            orderRequest.setAccountId(uid);
+            orderRequest.setAccountId(accountId);
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
 
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
@@ -139,18 +127,18 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const getTickerCode = (symbolCode: string): string => {
-        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolCode || '';
+        return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolCode || '';
     }
 
     const getTickerName = (symbolCode: string): string => {
-        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolName || '';
+        return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolName || '';
     }
 
-    const getSideName = (sideId: number) => {
-        return SIDE.find(item => item.code === sideId)?.title;
+    const getSideName = (side: number) => {
+        return SIDE.find(item => item.code === side)?.title;
     }
 
-    const handleModifyCancel = (item: IListOrder, value: string) => {
+    const handleModifyCancel = (item: IListOrderModifyCancel, value: string) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode),
@@ -239,7 +227,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </td>
                 <td className="fm">{item.orderId}</td>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
-                <td className="text-center "><span className={`${item.orderType === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                 <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                 <td className="text-end ">{formatCurrency(item.price.toString())}</td>
                 <td className="text-end ">{formatNumber(item.amount.toString())}</td>

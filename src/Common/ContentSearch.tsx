@@ -12,11 +12,11 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 interface IPropsContentSearch {
-    getOrderSide: (item: number) => void;
+    getParamSearch: ( symbolCode: string, orderSide: number) => void;
 }
 
 const ContentSearch = (props: IPropsContentSearch) => {
-    const { getOrderSide } = props;
+    const { getParamSearch } = props;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
@@ -62,10 +62,6 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const sendMessageSearch = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-    }
-
-    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -75,26 +71,27 @@ const ContentSearch = (props: IPropsContentSearch) => {
             let rpcMsg = new rpcModel.RpcMessage();
 
             orderRequest.setAccountId(Number(accountId));
-            orderRequest.setSymbolCode(symbolCode);
-            orderRequest.setSide(side);
+            // Filter đang chưa có nên tạm thời chưa gửi symbolCode và side lên và sẽ tự lọc tránh lỗi
+            // orderRequest.setSymbolCode(symbolCode);
+            // orderRequest.setSide(side);
 
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());            
         }
     }
 
     const handleSearch = () => {
         sendMessageSearch();
-        getOrderSide(side);
+        getParamSearch(symbolCode, side);
     }
 
     const handlKeyDown = (event: any) => {
         if (symbolCode !== '' || side !== 0) {
             if (event.key === 'Enter') {
                 sendMessageSearch();
-                getOrderSide(side);
+                getParamSearch(symbolCode, side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
