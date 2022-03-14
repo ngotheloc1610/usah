@@ -56,11 +56,11 @@ export const removeFocusInput = (element: any) => {
     });
 }
 
-export const getSymbolId = (str: string, symbolsList: ISymbolInfo[]) => {
+export const getSymbolCode = (str: string, symbolsList: ISymbolInfo[]) => {
     const positionStartOfString = str.indexOf('(')
     const positionEndOfString = str.lastIndexOf(')')
-    const symbolId = symbolsList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
-    return symbolId ?? '0'
+    const symbolCode = symbolsList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
+    return symbolCode ?? ''
 }
 
 export const calcPriceIncrease = (currentPrice: number, tickSize: number, decimalLenght: number) => {

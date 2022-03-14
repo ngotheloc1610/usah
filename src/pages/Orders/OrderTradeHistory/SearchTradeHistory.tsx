@@ -7,7 +7,7 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
@@ -19,7 +19,7 @@ interface IPropsSearchTradeHistory {
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const { getOrderSide } = props
-    const [ticker, setTicker] = useState('')
+    const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [orderType, setOrderType] = useState(0);
@@ -101,7 +101,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(ticker)
+            tradeHistoryRequest.setSymbolCode(symbolCode)
             tradeHistoryRequest.setOrderType(orderType)
             tradeHistoryRequest.setFromDatetime(fromDatetime)
             tradeHistoryRequest.setToDatetime(toDatetime)
@@ -131,7 +131,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handlKeyDown = (event: any) => {
-        if (ticker !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+        if (symbolCode !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageTradeSearch();
                 getOrderSide(orderType);;
@@ -156,17 +156,17 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList))
         } else {
-            setTicker('0')
+            setSymbolCode('')
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList))
         } else {
-            setTicker('0')
+            setSymbolCode('')
         }
     }
 

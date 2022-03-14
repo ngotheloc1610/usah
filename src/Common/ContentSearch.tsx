@@ -8,7 +8,7 @@ import * as rpcpb from "../models/proto/rpc_pb";
 import * as smpb from '../models/proto/system_model_pb';
 import sendMsgSymbolList from "./sendMsgSymbolList";
 import { toast } from "react-toastify";
-import { getSymbolId, removeFocusInput } from "../helper/utils";
+import { getSymbolCode, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -18,7 +18,7 @@ interface IPropsContentSearch {
 
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getOrderSide } = props;
-    const [ticker, setTicker] = useState('');
+    const [symbolCode, setSymbolCode] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [orderType, setOrderType] = useState(0);
@@ -75,7 +75,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
             let rpcMsg = new rpcModel.RpcMessage();
 
             orderRequest.setAccountId(Number(accountId));
-            orderRequest.setSymbolCode(ticker)
+            orderRequest.setSymbolCode(symbolCode)
 
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
@@ -90,7 +90,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     }
 
     const handlKeyDown = (event: any) => {
-        if (ticker !== '' || orderType !== 0) {
+        if (symbolCode !== '' || orderType !== 0) {
             if (event.key === 'Enter') {
                 sendMessageSearch();
                 getOrderSide(orderType);
@@ -110,17 +110,17 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symsbolList))
+            setSymbolCode(getSymbolCode(value, symsbolList))
         } else {
-            setTicker('0')
+            setSymbolCode('')
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symsbolList))
+            setSymbolCode(getSymbolCode(value, symsbolList))
         } else {
-            setTicker('0')
+            setSymbolCode('')
         }
     }
 

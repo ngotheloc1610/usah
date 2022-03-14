@@ -7,7 +7,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
@@ -19,7 +19,7 @@ interface IPropsOrderSearchHistory {
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const { getOrderSide } = props;
-    const [ticker, setTicker] = useState('');
+    const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
     const [orderBuy, setOrderBuy] = useState(false);
     const [orderSell, setOrderSell] = useState(false);
@@ -83,7 +83,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
 
             orderHistoryRequest.setAccountId(Number(accountId));
-            orderHistoryRequest.setSymbolCode(ticker);
+            orderHistoryRequest.setSymbolCode(symbolCode);
             orderHistoryRequest.setOrderType(orderType);
             orderHistoryRequest.setFromDatetime(fromDatetime);
             orderHistoryRequest.setToDatetime(toDatetime);
@@ -114,7 +114,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handlKeyDown = (event: any) => {
-        if (ticker !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+        if (symbolCode !== '' || orderState !== 0 || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageOrderHistory();
                 getOrderSide(orderType);
@@ -126,17 +126,17 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList))
         } else {
-            setTicker('')
+            setSymbolCode('')
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList))
         } else {
-            setTicker('')
+            setSymbolCode('')
         }
     }
 
