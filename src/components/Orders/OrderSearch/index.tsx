@@ -126,17 +126,17 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setSymbolCode('')
+            setSymbolCode('');
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symbolsList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setSymbolCode('')
+            setSymbolCode('');
         }
     }
 

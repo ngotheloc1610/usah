@@ -110,17 +110,17 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symsbolList))
+            setSymbolCode(getSymbolCode(value, symsbolList));
         } else {
-            setSymbolCode('')
+            setSymbolCode('');
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setSymbolCode(getSymbolCode(value, symsbolList))
+            setSymbolCode(getSymbolCode(value, symsbolList));
         } else {
-            setSymbolCode('')
+            setSymbolCode('');
         }
     }
 
