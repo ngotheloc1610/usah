@@ -49,7 +49,7 @@ const TickerSearch = (props: ITickerSearch) => {
             setTicker(element.symbolCode);
             handleTicker(element.symbolCode);
         }
-        setSymbolSeleted(`${symbolCode} - ${element.tickerName}`)
+        setSymbolSeleted(`${symbolCode} - ${element.symbolName}`)
     }
 
     const _renderRecentSearch = () => {

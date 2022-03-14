@@ -10,7 +10,7 @@ import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, OBJ_AUTHEN, SOCKET_CONNEC
 import { ITickerDetail } from "../../../interfaces/ticker.interface";
 import { MOCDATA_LIST_ID } from "../../../mocks";
 import { convertDatetoTimeStamp, formatCurrency } from "../../../helper/utils";
-import { IListPortfolio, IPortfolioAccountId, ITotalGrossFollowAccountId, ITotalNetFollowAccountId, ITotalPLFollowAccountId, ITradingAccountVertical } from "../../../interfaces/order.interface";
+import { IListPortfolio, ITotalGrossFollowAccountId, ITotalNetFollowAccountId, ITotalPLFollowAccountId, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);

@@ -288,10 +288,6 @@ export interface IParamTradeSearch {
     toDatetime: string;
 }
 
-export interface IPropsListPortfolio {
-    accountPortfolio: IListPortfolio[];
-}
-
 export interface IListPortfolio {
     accountId: number;
     avgPrice: string;
@@ -376,11 +372,19 @@ export interface ITradingAccountVertical {
     totalPl: number;
 }
 
-export interface IPortfolioAccountId {
+export interface IPortfolio {
     accountId: number;
-    avgPrice: string;
-    ownedVolume: string;
-    symbolCode: string;
+	symbolCode: string;
+	totalBuyVolume: number;
+	avgBuyPrice: string;
+    totalSellVolume: number;
+	avgSellPrice: string;
+	marketPrice: string;
+	investedValue: string;
+	currentValue: string;
+	realizedPl: string;
+	unrealizedPl: string;
+	currencyCode: string;
 }
 
 export interface ITotalNetFollowAccountId {

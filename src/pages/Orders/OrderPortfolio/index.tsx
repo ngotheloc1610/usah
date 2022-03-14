@@ -1,15 +1,12 @@
 import { wsService } from "../../../services/websocket-service";
 import * as sspb from "../../../models/proto/system_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
-import ReduxPersist from "../../../config/ReduxPersist";
-import queryString from 'query-string';
-import { useEffect, useState } from 'react';
-import { ACCOUNT_ID, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { useEffect } from 'react';
+import { ACCOUNT_ID, SOCKET_CONNECTED } from '../../../constants/general.constant';
 import PortfolioTable from './PortfoioTable'
 import './orderPortfolio.scss'
 
 function OrderPortfolio() {
-    const [accountPortfolio, setAccountPortfolio] = useState([]);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -18,13 +15,8 @@ function OrderPortfolio() {
             }
         });
 
-        const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-            setAccountPortfolio(res.accountPortfolioList)
-        });
-
         return () => {
             ws.unsubscribe();
-            renderDataToScreen.unsubscribe();
         }
     }, [])
 
@@ -58,7 +50,7 @@ function OrderPortfolio() {
                             <h6 className="card-title fs-6 mb-0">Summary Trading</h6>
                         </div>
                         <div className="card-body">
-                            <PortfolioTable accountPortfolio = {accountPortfolio}/>
+                            <PortfolioTable/>
                         </div>
                     </div>
                 </div>

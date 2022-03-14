@@ -93,6 +93,9 @@ const OrderForm = (props: IOrderForm) => {
                     }
                 }
             }
+        } else {
+            setPrice(0);
+            setVolume(0);
         }
         
     }, [symbolCode, quoteInfo])
