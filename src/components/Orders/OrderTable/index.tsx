@@ -1,28 +1,25 @@
-import { DEFAULT_ITEM_PER_PAGE, ORDER_TYPE_NAME, SIDE, SOCKET_CONNECTED, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IListOrderHistory } from "../../../interfaces/order.interface";
-import { ISymbolList } from '../../../interfaces/ticker.interface'
-import { wsService } from "../../../services/websocket-service";
+import { IPropListOrderHistory, IOrderHistory } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
-import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import ModalMatching from "../../Modal/ModalMatching";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory } = props;
     const tradingModelPb: any = tspb;
-    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED
-    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL
-    const [listHistorySortDate, setListHistorySortDate] = useState<IListOrderHistory[]>([])
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
+    const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
+    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL;
+    const [listHistorySortDate, setListHistorySortDate] = useState<IOrderHistory[]>([]);
     const [showModalDetail, setShowModalDetail] = useState(false)
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listOrderHistory.length;
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
-        const historySortDate: IListOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
+        const historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
         setListHistorySortDate(currentList);
     }, [listOrderHistory, itemPerPage, currentPage])
@@ -40,25 +37,8 @@ function OrderTable(props: IPropListOrderHistory) {
         setCurrentPage(item);
     }
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
-
     const getTickerName = (symbolCode: string) => {
-        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolName;
+        return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolName;
     }
 
     const getSideName = (sideId: number) => {
@@ -109,7 +89,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <div>{getTickerName(item?.symbolCode)}</div>
                 </td>
                 <td className="text-center w-120">
-                    <span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span>
+                    <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
                 </td>
 
                 <td className="text-center w-120">

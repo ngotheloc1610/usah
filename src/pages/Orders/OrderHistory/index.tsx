@@ -20,7 +20,7 @@ const OrderHistory = () => {
 
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
             if (orderSide !== 0) {
-                const historyListFilter = res.orderList.filter(item => item.orderType === orderSide)
+                const historyListFilter = res.orderList.filter(item => item.side === orderSide)
                 setListOrderHistory(historyListFilter)
                 return
             }

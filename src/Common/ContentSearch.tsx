@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
 import * as qspb from "../models/proto/query_service_pb"
 import * as rpcpb from "../models/proto/rpc_pb";
 import * as smpb from '../models/proto/system_model_pb';
-import sendMsgSymbolList from "./sendMsgSymbolList";
-import queryString from 'query-string';
-import ReduxPersist from "../config/ReduxPersist";
 import { toast } from "react-toastify";
-import { getSymbolId, removeFocusInput } from "../helper/utils";
+import { getSymbolCode, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -20,35 +17,21 @@ interface IPropsContentSearch {
 
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getOrderSide } = props;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [ticker, setTicker] = useState('')
-    const [orderSideBuy, setOrderSideBuy] = useState(false)
-    const [orderSideSell, setOrderSideSell] = useState(false)
-    const [orderType, setOrderType] = useState(0)
-    const [symbolName, setSymbolName] = useState<string[]>([])
+    const [symbolCode, setSymbolCode] = useState('');
+    const [orderSideBuy, setOrderSideBuy] = useState(false);
+    const [orderSideSell, setOrderSideSell] = useState(false);
+    const [side, setSide] = useState(0);
+    const [listSymbolName, setListSymbolName] = useState<string[]>([]);
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
+        const listSymbolName: string[] = []
+        symbolsList.forEach((item: ISymbolList) => {
+            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-            const listSymbolName: string[] = []
-            res.symbolList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-            });
-            setSymbolName(listSymbolName)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
+        setListSymbolName(listSymbolName)
     }, [])
 
     useEffect(() => {
@@ -67,13 +50,13 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setSide(tradingModelPb.Side.SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setSide(tradingModelPb.Side.BUY);
         }
         else {
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+            setSide(tradingModelPb.Side.NONE);
         }
     }
 
@@ -92,7 +75,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
             let rpcMsg = new rpcModel.RpcMessage();
 
             orderRequest.setAccountId(Number(accountId));
-            orderRequest.setSymbolCode(ticker)
+            orderRequest.setSymbolCode(symbolCode);
+            orderRequest.setSide(side);
 
             rpcMsg.setPayloadData(orderRequest.serializeBinary());
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
@@ -103,14 +87,14 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleSearch = () => {
         sendMessageSearch();
-        getOrderSide(orderType);
+        getOrderSide(side);
     }
 
     const handlKeyDown = (event: any) => {
-        if (ticker !== '' || orderType !== 0) {
+        if (symbolCode !== '' || side !== 0) {
             if (event.key === 'Enter') {
                 sendMessageSearch();
-                getOrderSide(orderType);
+                getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
@@ -127,17 +111,17 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setTicker('0')
+            setSymbolCode('');
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setTicker('0')
+            setSymbolCode('');
         }
     }
 
@@ -150,7 +134,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
-                options={symbolName}
+                options={listSymbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
             />
         </div>

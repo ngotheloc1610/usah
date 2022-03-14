@@ -7,8 +7,8 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
-import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
-import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -19,15 +19,16 @@ interface IPropsSearchTradeHistory {
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const { getOrderSide } = props
-    const [ticker, setTicker] = useState('')
-    const [orderSideBuy, setOrderSideBuy] = useState(false)
-    const [orderSideSell, setOrderSideSell] = useState(false)
-    const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setDateTimeFrom] = useState(0)
-    const [toDatetime, setDateTimeTo] = useState(0)
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [symbolName, setSymbolName] = useState<string[]>([])
-    const [currentDate, setCurrentDate] = useState('')
+    const [symbolCode, setSymbolCode] = useState('')
+    const [orderSideBuy, setOrderSideBuy] = useState(false);
+    const [orderSideSell, setOrderSideSell] = useState(false);
+    const [side, setSide] = useState(0);
+    const [fromDatetime, setDateTimeFrom] = useState(0);
+    const [toDatetime, setDateTimeTo] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [listSymbolName, setListSymbolName] = useState<string[]>([]);
+    const [currentDate, setCurrentDate] = useState('');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const today: number = new Date().getDate();
@@ -78,7 +79,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             res.symbolList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
-            setSymbolName(listSymbolName)
+            setListSymbolName(listSymbolName)
         });
 
         return () => {
@@ -100,10 +101,10 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
 
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(ticker)
-            tradeHistoryRequest.setOrderType(orderType)
-            tradeHistoryRequest.setFromDatetime(fromDatetime)
-            tradeHistoryRequest.setToDatetime(toDatetime)
+            tradeHistoryRequest.setSymbolCode(symbolCode);
+            tradeHistoryRequest.setSide(side);
+            tradeHistoryRequest.setFromDatetime(fromDatetime);
+            tradeHistoryRequest.setToDatetime(toDatetime);
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
@@ -126,14 +127,14 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleSearch = () => {
         sendMessageTradeSearch();
-        getOrderSide(orderType);
+        getOrderSide(side);
     }
 
     const handlKeyDown = (event: any) => {
-        if (ticker !== '' || orderType !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
+        if (symbolCode !== '' || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
                 sendMessageTradeSearch();
-                getOrderSide(orderType);;
+                getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
@@ -143,29 +144,29 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setSide(tradingModelPb.Side.SELL);
         }
         else if (orderSideSell === false && orderSideBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setSide(tradingModelPb.Side.BUY);
         }
         else {
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+            setSide(tradingModelPb.Side.NONE);
         }
     }
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setTicker('0')
+            setSymbolCode('');
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setSymbolCode(getSymbolCode(value, symbolsList));
         } else {
-            setTicker('0')
+            setSymbolCode('');
         }
     }
 
@@ -177,7 +178,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
-                options={symbolName}
+                options={listSymbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
             />
         </div>

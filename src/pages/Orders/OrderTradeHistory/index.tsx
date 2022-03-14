@@ -7,7 +7,6 @@ import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
-import { ITradeHistory } from "../../../interfaces/order.interface";
 const OrderTradeHistory = () => {
     const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
     const [orderSide, setOrderSide] = useState(0);
