@@ -236,7 +236,7 @@ const OrderBook = (props: IOrderBookProps) => {
                             {_renderAskPrice(quote)}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
-                                    <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '') ? quote.currentPrice : '-'}</span>
+                                    <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '') ? formatCurrency(quote.currentPrice) : '-'}</span>
                                 </td>
                             </tr>
                             {_renderBidPrice(quote)}

@@ -49,9 +49,12 @@ const OrderForm = (props: IOrderForm) => {
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [floorPrice, setFloorPrice] = useState(0);
     const [ceilingPrice, setCeilingPrice] = useState(0);
+    const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
 
     useEffect(() => {
         if (symbolCode) {
+            setIsShowNotiErrorPrice(false);
+            setInvalidVolume(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
@@ -129,33 +132,44 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
-        if (newPrice > ceilingPrice) {
-            newPrice = ceilingPrice;
-        }
         setPrice(newPrice);
         const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
+        if (newPrice > ceilingPrice) {
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
+        if (newPrice < floorPrice) {
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
+        setIsShowNotiErrorPrice(false);
+        
     }
 
     const handleLowerPrice = () => {
         const currentPrice = Number(price);
         if (currentPrice <= tickSize) {
-            setPrice(tickSize);
+            setPrice(currentPrice);
+            setIsShowNotiErrorPrice(true);
             setValidForm(volume > 0);
             return;
         }
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
-        if (newPrice < floorPrice) {
-            newPrice = floorPrice;
-        }
         setPrice(newPrice);
         const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
+        if (newPrice < floorPrice) {
+            // newPrice = floorPrice;
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
+        setIsShowNotiErrorPrice(true);
     }
 
     const getStatusOrderResponse = (value: number, content: string) => {
@@ -194,7 +208,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable;
+        return isDisable || isShowNotiErrorPrice || invalidVolume;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -218,19 +232,22 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleChangePrice = (value: string) => {
+        setPrice(Number(value))
         if (Number(value) > ceilingPrice) {
-            setPrice(ceilingPrice);
+            setIsShowNotiErrorPrice(true);
         } else if (Number(value) < floorPrice) {
-            setPrice(floorPrice);
+            setIsShowNotiErrorPrice(true);
         } else {
-            setPrice(Number(value))
+            setIsShowNotiErrorPrice(false);
         }
         const temp = Math.round(Number(value) * Math.pow(10, 2));
         const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
         setInvalidPrice(temp % tempTickeSize !== 0);
     }
 
-
+    const _renderNotiErrorPrice = () => (
+        <div className='text-danger'>Order price is out of day's price range</div>
+    )
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
@@ -245,14 +262,15 @@ const OrderForm = (props: IOrderForm) => {
                 <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
             </div>
         </div>
+            {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
         {/* <div>
             {title.toLocaleLowerCase() === 'price' && <>
                 {invalidPrice && <span className='text-danger'>Invalid Price</span>}
             </>}
+        </div> */}
             {title.toLocaleLowerCase() === 'volume' && <>
                 {invalidVolume && <span className='text-danger'>Invalid volume</span>}
             </>}
-        </div> */}
     </>
     }
 
