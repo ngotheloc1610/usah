@@ -4,11 +4,11 @@ import './New.css'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_POST_NEWS } from '../../constants/api.constant'
 import axios from 'axios';
-import Pagination from '@mui/material/Pagination';
 import { ItemsPage } from '../../constants/news.constant'
 import { success } from '../../constants';
 import parse from "html-react-parser";
-import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils'
+import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
+import Pagination from "react-js-pagination";
 
 const News = () => {
 
@@ -16,12 +16,13 @@ const News = () => {
     const [elActive, setELActive] = useState(2)
     const [pageSize, setPageSize] = useState<number>(5);
     const [listDataNews, setListDataNews] = useState<INews[]>();
-    const [totalPage, setTotalPage] = useState<number>(1);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(1);
     const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
     const [listDataUnread, setListDataUnread] = useState<INews[]>();
+    const [totalItem, setTotalItem] = useState<number>(0);
+    const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`; 
@@ -38,7 +39,7 @@ const News = () => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {
             if (resp.status === success) {
                 setListDataNews(resp?.data?.data?.results);
-                setTotalPage(resp?.data?.data?.total_page);
+                setTotalItem(resp?.data?.data?.count);
                 const listDataUnRead: INews[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
                 if (listDataUnRead) {
                     setTotalNewUnread(listDataUnRead.length);
@@ -54,6 +55,7 @@ const News = () => {
     const handleShowUnread = (isCheck: boolean) => {
         setIsUnread(isCheck);
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
+        setTotalItemUnRead(listDataUnread?.length || 0);
     }
 
     const _renderNewsHeader = () => (
@@ -123,7 +125,7 @@ const News = () => {
         ))
     )
 
-    const handlePage = (e, value) => {
+    const handlePage = (value) => {
         setPageCurrent(value);
     }
 
@@ -134,6 +136,7 @@ const News = () => {
     )
 
     const handleItemsPage = (event) => {
+        setPageCurrent(1);
         setPageSize(event.target.value);
     }
     const _renderNewsPagination = () => (
@@ -144,7 +147,19 @@ const News = () => {
                 </select>
                 <div className="ms-3">items/page</div>
             </div>
-            <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton />
+            <Pagination
+                    activePage={pageCurrent}
+                    totalItemsCount={isUnread ? totalItemUnRead : totalItem}
+                    itemsCountPerPage={pageSize}
+                    pageRangeDisplayed={5}
+                    prevPageText={'Previous'}
+                    nextPageText={'Next'}
+                    onChange={handlePage}
+                    innerClass={'pagination pagination-sm'}
+                    itemClass={'paginate_button page-item'}
+                    linkClass={'page-link'}
+                />
+            {/* <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton /> */}
         </nav>
     )
 

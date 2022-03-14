@@ -8,6 +8,7 @@ import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } fro
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
+import { TYPE_ORDER_RES } from '../../constants/order.constant';
 
 toast.configure()
 interface IOrderForm {
@@ -51,6 +52,15 @@ const OrderForm = (props: IOrderForm) => {
     const [ceilingPrice, setCeilingPrice] = useState(0);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
 
+    const [statusCancel, setStatusCancel] = useState(0);
+    const [statusModify, setStatusModify] = useState(0); 
+
+    useEffect(() => {
+        if (side) {
+            setCurrentSide(side);
+        }
+    }, [side])
+
     useEffect(() => {
         if (symbolCode) {
             setIsShowNotiErrorPrice(false);
@@ -65,39 +75,39 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            setPrice(Number(floor))
-            setVolume(Number(lotSize))
-        }
-    }, [symbolCode])
+            setPrice(Number(floor));
+            setVolume(Number(lotSize));
 
-    useEffect(() => {
-        if (side) {
-            setCurrentSide(side);
-        }
-    }, [side])
-
-    useEffect(() => {
-        if (quoteInfo) {
-            if (!isNaN(Number(quoteInfo.price))) {
-                setPrice(Number(quoteInfo.price));
-            } else {
-                setPrice(floorPrice);
-            }
-
-            if (!isNaN(Number(quoteInfo.volume))) {
-                setVolume(Number(quoteInfo.volume));
-            } else {
-                if (!isNaN(lotSize)) {
-                    setVolume(lotSize);
+            if (quoteInfo) {
+                if (!isNaN(Number(quoteInfo.price))) {
+                    setPrice(Number(quoteInfo.price));
+                } else {
+                    setPrice(ticker?.floor);
+                }
+    
+                if (!isNaN(Number(quoteInfo.volume))) {
+                    setVolume(Number(quoteInfo.volume));
+                } else {
+                    if (!isNaN(lotSize)) {
+                        setVolume(lotSize);
+                    }
                 }
             }
         }
-    }, [quoteInfo])
+        
+    }, [symbolCode, quoteInfo])
 
-    const _rendetMessageSuccess = (message: string) => {
+    const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
         messageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
-        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+        switch(typeStatusRes) {
+            case TYPE_ORDER_RES.Order:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
+            case TYPE_ORDER_RES.Cancel:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_CANCEL)}</div>
+            case TYPE_ORDER_RES.Modify:
+                return <div>{toast.success(MESSAGE_TOAST.SUCCESS_MODIFY)}</div>
+        }
     }
 
     const _rendetMessageError = (message: string) => (
@@ -172,11 +182,25 @@ const OrderForm = (props: IOrderForm) => {
         setIsShowNotiErrorPrice(true);
     }
 
-    const getStatusOrderResponse = (value: number, content: string) => {
-        if (statusOrder === 0) {
+    const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string) => {
+        if (typeStatusRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
+            setStatusModify(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+            </>
+        }
+        if (typeStatusRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
+            setStatusCancel(value);
+            return <>
+                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
             </>
         }
@@ -231,8 +255,8 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const handleChangePrice = (value: string) => {
-        setPrice(Number(value))
+    const handleChangePrice = (value: string, maskedVal: number) => {
+        setPrice(+maskedVal);
         if (Number(value) > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
         } else if (Number(value) < floorPrice) {
@@ -255,7 +279,7 @@ const OrderForm = (props: IOrderForm) => {
                 <label className="text text-secondary">{title}</label>
                 <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
                 thousandseparator="{true}" value={value} placeholder=""
-                onChange={title.toLocaleLowerCase() === 'price' ? (e: any) => handleChangePrice(e?.target.value) : (e: any) => handleChangeVolume(e.target.value)} />
+                onChange={title.toLocaleLowerCase() === 'price' ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
