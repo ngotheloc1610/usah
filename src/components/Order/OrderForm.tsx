@@ -151,12 +151,6 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleLowerPrice = () => {
         const currentPrice = Number(price);
-        if (currentPrice <= tickSize) {
-            setPrice(currentPrice);
-            setIsShowNotiErrorPrice(true);
-            setValidForm(volume > 0);
-            return;
-        }
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
@@ -165,11 +159,10 @@ const OrderForm = (props: IOrderForm) => {
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
         if (newPrice < floorPrice) {
-            // newPrice = floorPrice;
             setIsShowNotiErrorPrice(true);
             return;
         }
-        setIsShowNotiErrorPrice(true);
+        setIsShowNotiErrorPrice(false);
     }
 
     const getStatusOrderResponse = (value: number, content: string) => {
@@ -208,7 +201,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable || isShowNotiErrorPrice || invalidVolume;
+        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -263,11 +256,11 @@ const OrderForm = (props: IOrderForm) => {
             </div>
         </div>
             {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
-        {/* <div>
+        <div>
             {title.toLocaleLowerCase() === 'price' && <>
                 {invalidPrice && <span className='text-danger'>Invalid Price</span>}
             </>}
-        </div> */}
+        </div>
             {title.toLocaleLowerCase() === 'volume' && <>
                 {invalidVolume && <span className='text-danger'>Invalid volume</span>}
             </>}
