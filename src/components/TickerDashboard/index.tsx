@@ -233,8 +233,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const renderDataListCompany = () => {
         return listData.map((item: ISymbolQuote, index) => (
-            <tr key={index} onClick={() => onClickTickerInfo(item)}>
-                <td className="text-left w-header fw-600">{item.symbolCode}</td>
+            <tr key={index} onClick={() => onClickTickerInfo(item)} className="pointer_dashboard">
+                <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.previousClose || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.ceiling || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.floor || '')}</td>
