@@ -29,11 +29,8 @@ const ListTicker = (props: IListTickerProps) => {
     const { getTicerLastQuote, msgSuccess, handleSide } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
-    const [symbolIdAdd, setSymbolIdAdd] = useState<number>(0);
     const [lstWatchingTickers, setLstWatchingTickers] = useState<ILastQuote[]>(JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]'));
-    const [lstSymbolIdAdd, setLstSymbolIdAdd] = useState<number[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
     const [quoteEvent, setQuoteEvent] = useState([]);
@@ -184,11 +181,11 @@ const ListTicker = (props: IListTickerProps) => {
 
     useEffect(() => {
         if (lstWatchingTickers.length > 0) {
-            let lstSymbolId: number[] = [];
+            let lstSymbolCode: string[] = [];
             lstWatchingTickers.forEach(item => {
-                lstSymbolId.push(Number(item.symbolCode));
+                lstSymbolCode.push(item.symbolCode);
             });
-            setLstSymbolIdAdd(lstSymbolId);
+            setLstSymbolCodeAdd(lstSymbolCode);
         }
         if (!msgSuccess) {
             setCurrentPage(pageFirst)
@@ -349,7 +346,6 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleLastQuote = () => {
-
         const lstSymbolCode: string[] = lstSymbolCodeAdd.length > 0 ? lstSymbolCodeAdd : [];
         if (lstSymbolCode.length === 0 || lstSymbolCode.indexOf(symbolCodeAdd) === -1) {
             lstSymbolCode.push(symbolCodeAdd);
@@ -390,11 +386,11 @@ const ListTicker = (props: IListTickerProps) => {
         if (itemTickerAdded !== -1) {
             lstLastQuoteCurrent.splice(itemTickerAdded, pageFirst);
         }
-        let lstSymbolId: number[] = [];
+        let lstSymbolCode: string[] = [];
         lstLastQuoteCurrent.forEach(item => {
-            lstSymbolId.push(Number(item.symbolCode));
+            lstSymbolCode.push(item.symbolCode);
         });
-        setLstSymbolIdAdd(lstSymbolId);
+        setLstSymbolCodeAdd(lstSymbolCode);
         setLstWatchingTickers(lstLastQuoteCurrent);
         localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(lstLastQuoteCurrent));
         const assignPageCurrent = lstLastQuoteCurrent.length % pageSizeTicker === 0 ? Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) : Math.trunc(lstLastQuoteCurrent.length / pageSizeTicker) + pageFirst;
