@@ -23,7 +23,7 @@ const defaultAskBidList: IListAskBid[] = [
     }
 ]
 const OrderBookList = (props: IPropsListBidsAsk) => {
-    const { styleListBidsAsk, symbolCode, getTicerLastQuote } = props;
+    const { styleListBidsAsk, symbolCode, getTicerLastQuote, handleSide } = props;
     const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quotesEvent, setQuotesEvent] = useState<IQuoteEvent[]>([]);
@@ -150,14 +150,13 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         return isNaN(Number(value)) ? 0 : Number(value);
     }
 
-    const handleTicker = (itemTicker: IListAskBid, side: string) => {
-        if (side === tradingModel.OrderType.OP_BUY) {
+    const handleTicker = (itemTicker: IListAskBid, side: number) => {
+        if (side === tradingModel.Side.BUY) {
             const itemAssign: IAskAndBidPrice = {
                 numOrders: Number(itemTicker.numberAsks),
                 price: itemTicker.askPrice,
                 tradable: itemTicker.tradableAsk,
                 volume: itemTicker.volumeAsk,
-                side: side,
             }
             getTicerLastQuote(itemAssign);
             return;
@@ -167,9 +166,9 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             price: itemTicker.bidPrice,
             tradable: itemTicker.tradableBid,
             volume: itemTicker.volumeBid,
-            side: side,
         }
         getTicerLastQuote(itemAssign);
+        handleSide(side)
         return;
     }
 
@@ -182,12 +181,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleEarmarkSpreadSheet = () => {
         return listAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.totalBids}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.volumeBid}</td>
-                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.OrderType.OP_SELL)}>{item.bidPrice}</td>
-                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.askPrice}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.volumeAsk}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.OrderType.OP_BUY)}>{item.totalAsks}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.totalBids}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.volumeBid}</td>
+                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.bidPrice}</td>
+                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.volumeAsk}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.totalAsks}</td>
             </tr>
         })
     }

@@ -29,6 +29,7 @@ message Order {
   string last_price = 26;
   string executed_datetime = 27;
   Side side					= 28;
+  string external_order_id			= 29;
 }
 
 message Trade {
@@ -43,6 +44,7 @@ message Trade {
 	string matched_value 		= 9;
 	string executed_datetime	= 10;
 	Side side					= 11;
+	string external_order_id			= 12;
 }
 
 message Contract {

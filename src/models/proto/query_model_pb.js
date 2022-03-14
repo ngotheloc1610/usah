@@ -93,7 +93,8 @@ proto.Symbol.toObject = function(includeInstance, msg) {
     floor: jspb.Message.getFieldWithDefault(msg, 14, ""),
     limitRate: jspb.Message.getFieldWithDefault(msg, 15, ""),
     spread: jspb.Message.getFieldWithDefault(msg, 16, ""),
-    symbolStatus: jspb.Message.getFieldWithDefault(msg, 17, 0)
+    prevClosePrice: jspb.Message.getFieldWithDefault(msg, 17, ""),
+    symbolStatus: jspb.Message.getFieldWithDefault(msg, 18, 0)
   };
 
   if (includeInstance) {
@@ -195,6 +196,10 @@ proto.Symbol.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSpread(value);
       break;
     case 17:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPrevClosePrice(value);
+      break;
+    case 18:
       var value = /** @type {!proto.SymbolStatus} */ (reader.readEnum());
       msg.setSymbolStatus(value);
       break;
@@ -339,10 +344,17 @@ proto.Symbol.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getPrevClosePrice();
+  if (f.length > 0) {
+    writer.writeString(
+      17,
+      f
+    );
+  }
   f = message.getSymbolStatus();
   if (f !== 0.0) {
     writer.writeEnum(
-      17,
+      18,
       f
     );
   }
@@ -638,11 +650,29 @@ proto.Symbol.prototype.setSpread = function(value) {
 
 
 /**
- * optional SymbolStatus symbol_status = 17;
+ * optional string prev_close_price = 17;
+ * @return {string}
+ */
+proto.Symbol.prototype.getPrevClosePrice = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 17, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setPrevClosePrice = function(value) {
+  return jspb.Message.setProto3StringField(this, 17, value);
+};
+
+
+/**
+ * optional SymbolStatus symbol_status = 18;
  * @return {!proto.SymbolStatus}
  */
 proto.Symbol.prototype.getSymbolStatus = function() {
-  return /** @type {!proto.SymbolStatus} */ (jspb.Message.getFieldWithDefault(this, 17, 0));
+  return /** @type {!proto.SymbolStatus} */ (jspb.Message.getFieldWithDefault(this, 18, 0));
 };
 
 
@@ -651,7 +681,7 @@ proto.Symbol.prototype.getSymbolStatus = function() {
  * @return {!proto.Symbol} returns this
  */
 proto.Symbol.prototype.setSymbolStatus = function(value) {
-  return jspb.Message.setProto3EnumField(this, 17, value);
+  return jspb.Message.setProto3EnumField(this, 18, value);
 };
 
 

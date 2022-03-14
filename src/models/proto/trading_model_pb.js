@@ -181,7 +181,8 @@ proto.Order.toObject = function(includeInstance, msg) {
     filledAmount: jspb.Message.getFieldWithDefault(msg, 25, ""),
     lastPrice: jspb.Message.getFieldWithDefault(msg, 26, ""),
     executedDatetime: jspb.Message.getFieldWithDefault(msg, 27, ""),
-    side: jspb.Message.getFieldWithDefault(msg, 28, 0)
+    side: jspb.Message.getFieldWithDefault(msg, 28, 0),
+    externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, "")
   };
 
   if (includeInstance) {
@@ -329,6 +330,10 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 28:
       var value = /** @type {!proto.Side} */ (reader.readEnum());
       msg.setSide(value);
+      break;
+    case 29:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setExternalOrderId(value);
       break;
     default:
       reader.skipField();
@@ -552,6 +557,13 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       28,
+      f
+    );
+  }
+  f = message.getExternalOrderId();
+  if (f.length > 0) {
+    writer.writeString(
+      29,
       f
     );
   }
@@ -1062,6 +1074,24 @@ proto.Order.prototype.setSide = function(value) {
 };
 
 
+/**
+ * optional string external_order_id = 29;
+ * @return {string}
+ */
+proto.Order.prototype.getExternalOrderId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 29, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setExternalOrderId = function(value) {
+  return jspb.Message.setProto3StringField(this, 29, value);
+};
+
+
 
 
 
@@ -1104,7 +1134,8 @@ proto.Trade.toObject = function(includeInstance, msg) {
     executedPrice: jspb.Message.getFieldWithDefault(msg, 8, ""),
     matchedValue: jspb.Message.getFieldWithDefault(msg, 9, ""),
     executedDatetime: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    side: jspb.Message.getFieldWithDefault(msg, 11, 0)
+    side: jspb.Message.getFieldWithDefault(msg, 11, 0),
+    externalOrderId: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -1184,6 +1215,10 @@ proto.Trade.deserializeBinaryFromReader = function(msg, reader) {
     case 11:
       var value = /** @type {!proto.Side} */ (reader.readEnum());
       msg.setSide(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setExternalOrderId(value);
       break;
     default:
       reader.skipField();
@@ -1288,6 +1323,13 @@ proto.Trade.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       11,
+      f
+    );
+  }
+  f = message.getExternalOrderId();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
       f
     );
   }
@@ -1489,6 +1531,24 @@ proto.Trade.prototype.getSide = function() {
  */
 proto.Trade.prototype.setSide = function(value) {
   return jspb.Message.setProto3EnumField(this, 11, value);
+};
+
+
+/**
+ * optional string external_order_id = 12;
+ * @return {string}
+ */
+proto.Trade.prototype.getExternalOrderId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Trade} returns this
+ */
+proto.Trade.prototype.setExternalOrderId = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
 };
 
 

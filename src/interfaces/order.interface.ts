@@ -19,7 +19,6 @@ export interface ITickerInfo {
     bids?: IAskAndBidPrice[];
     volumeStock?: string;
 }
-
 export interface IDetailTickerInfo {
     symbolId: number;
     change: number;
@@ -283,6 +282,7 @@ export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
     symbolCode: string;
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
+    handleSide: (side: number) => void;
 }
 
 export interface IPropsDetail {
@@ -337,4 +337,39 @@ export interface ITotalPLFollowAccountId {
     title: string;
     totalPlFollowAccountId: string[];
     totalPlRow: string;
+}
+
+export interface ISymbolInfo {
+    calculationMode: number;
+    ceiling: string;
+    contractSize: number;
+    currencyCode: string;
+    description: string;
+    digits: number;
+    exchange: string;
+    floor: string;
+    limitRate: string;
+    lotSize: string;
+    minLot: string;
+    spread: string;
+    symbolCode: string;
+    symbolId: number;
+    symbolName: string;
+    symbolStatus: number;
+    tickSize: string;
+    previousClose: string;
+}
+
+export interface ISymbolQuote {
+    open: string;
+    high: string;
+    low: string;
+    lastPrice: string;
+    volume: string;
+    symbolCode: string;
+    symbolId: number;
+    symbolName: string;
+    previousClose: string;
+    ceiling: string;
+    floor: string;
 }

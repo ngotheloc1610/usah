@@ -37,8 +37,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize
-        const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize
+        const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize;
+        const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize;
         setTickSize(Number(tickSize));
         setLotSize(Number(lotSize));
     }, [])
@@ -197,6 +197,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
 
     const handleUpperVolume = () => {
+        debugger;
         const currentVol = Number(volumeModify);
         let nerwVol = currentVol + lotSize;
         setVolumeModify(nerwVol.toString());
@@ -248,8 +249,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                             :
                             <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
-                                onChange={(e, maskedVal) => { 
-                                    console.log(maskedVal);
+                                onChange={(e, maskedVal) => {
                                     setPriceModify(+maskedVal)
                                  }} value={formatCurrency(priceModify.toString())} />
                         }

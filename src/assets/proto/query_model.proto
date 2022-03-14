@@ -17,7 +17,8 @@ message Symbol {
   string floor        = 14;
   string limit_rate   = 15;
   string spread = 16;
-  SymbolStatus symbol_status = 17;
+  string prev_close_price = 17;
+  SymbolStatus symbol_status = 18;
 }
 
 enum CalculationMode {

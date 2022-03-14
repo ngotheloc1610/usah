@@ -25,8 +25,8 @@ const TickerSearch = (props: ITickerSearch) => {
         setSymbolsLocals(JSON.parse(localStorage.getItem(SYMBOL_LIST) || '[{}]'));
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const listSymbolCode: string[] = [];
-        tickerList.forEach((item: ITickerInfo) => {
-            const displayText = `${item.ticker} - ${item.tickerName}`;
+        tickerList.forEach((item: ISymbolList) => {
+            const displayText = `${item.symbolCode} - ${item.symbolName}`;
             listSymbolCode.push(displayText);
         });
         if (listSymbolCode && listSymbolCode.length > 0) {
@@ -66,8 +66,8 @@ const TickerSearch = (props: ITickerSearch) => {
         setSymbolSeleted(value);
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
         storageSymbolList(symbolCode?.split('-')[0]?.trim(), value?.split('-')[1]?.trim());
-        setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
-        handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+        handleTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
     }
 
     const handleKeyUp = (event: any) => {
@@ -76,8 +76,8 @@ const TickerSearch = (props: ITickerSearch) => {
             setSymbolSeleted(symbolCode);
             storageSymbolList(event.target.value?.split('-')[0]?.trim(), event.target.value?.split('-')[1]?.trim());
             const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
-            setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
-            handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+            setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+            handleTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
         }
     }
 

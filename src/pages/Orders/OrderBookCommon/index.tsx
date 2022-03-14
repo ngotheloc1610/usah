@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IStyleBidsAsk, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IStyleBidsAsk, ISymbolInfo, ISymbolQuote, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
@@ -14,7 +14,6 @@ import './OrderBookCommon.scss';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
 import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE } from '../../../constants/general.constant';
-import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -33,14 +32,16 @@ const OrderBookCommon = () => {
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>(0);
-    const [itemTickerInfor, setItemTickerInfor] = useState<ITickerDetail>(DEFAULT_TICKER_INFO);
-    const [listTicker, setListTicker] = useState<ITickerDetail[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
+    const [itemTickerInfor, setItemTickerInfor] = useState<ISymbolInfo>();
+    const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'))
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [tickerSelect, setTickerSelect] = useState('');
     const [tradeEvent, setTradeEvent] = useState([]);
     const [symbolSearch, setSymbolSearch] = useState('');
+    const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
+    const [side, setSide] = useState(0);
 
     const year = new Date().getFullYear();
     // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
@@ -62,12 +63,11 @@ const OrderBookCommon = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList()
                 getOrderBooks();
             }
             const listSymbolCode: string[] = []
-            listTicker.forEach((item: ITickerDetail) => {
-                listSymbolCode.push(item.ticker);
+            listTicker.forEach((item: ISymbolInfo) => {
+                listSymbolCode.push(item.symbolCode);
             });
             getTickerSearch(listSymbolCode[0]);
         });
@@ -76,9 +76,9 @@ const OrderBookCommon = () => {
             setTradeHistory(res.tradeList)
         });
 
-        const listSymbolCode: string[] = []
-        listTicker.forEach((item: ITickerDetail) => {
-            listSymbolCode.push(item.ticker);
+        const listSymbolCode: string[] = [];
+        listTicker.forEach((item: ISymbolInfo) => {
+            listSymbolCode.push(item.symbolCode);
         });
         getTickerSearch(listSymbolCode[0]);
 
@@ -137,13 +137,13 @@ const OrderBookCommon = () => {
         processTradeEvent(tradeEvent);
     }, [tradeEvent])
 
-    const assignTickerToOrderForm = (ticker: string) => {
-        const element = listTicker.find(o => o?.ticker === ticker);
+    const assignTickerToOrderForm = (symbolCode: string) => {
+        const element = listTicker.find(o => o?.symbolCode === symbolCode);
         const tradingModelPb: any = tmpb
         if (element) {
             const itemTicker = {
-                tickerName: element?.tickerName,
-                ticker: element?.ticker,
+                tickerName: element?.symbolName,
+                ticker: element?.symbolCode,
                 lastPrice: '0',
                 volume: '0',
                 side: tradingModelPb.OrderType.OP_SELL,
@@ -217,7 +217,6 @@ const OrderBookCommon = () => {
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log("ws send")
         }
     }
 
@@ -235,7 +234,7 @@ const OrderBookCommon = () => {
         if (wsConnected) {
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
             listTicker.forEach(item => {
-                lastQuotesRequest.addSymbolCode(item.ticker)
+                lastQuotesRequest.addSymbolCode(item.symbolCode)
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -296,17 +295,17 @@ const OrderBookCommon = () => {
         setSymbolSearch(symbolCode);
         setTickerSelect(symbolCode);
         assignTickerToOrderForm(symbolCode);
-        const itemTickerInfor = listTicker.find(item => item.ticker === symbolCode.toUpperCase());
+        const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
         
         if (symbolSearch) {
-            unSubscribeQuoteEvent(itemTickerInfor?.ticker || '');
-            unsubscribeTradeEvent(itemTickerInfor?.ticker || '');
+            unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
+            unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
         }
-        subscribeQuoteEvent(itemTickerInfor?.ticker || '');
-        subscribeTradeEvent(itemTickerInfor?.ticker || '');
-        getTradeHistory(itemTickerInfor?.ticker || '');
-        setSymbolSearch(itemTickerInfor?.ticker || '');
-        setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
+        subscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
+        subscribeTradeEvent(itemTickerInfor?.symbolCode || '');
+        getTradeHistory(itemTickerInfor?.symbolCode || '');
+        setSymbolSearch(itemTickerInfor?.symbolCode || '');
+        setItemTickerInfor(itemTickerInfor);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
@@ -321,9 +320,9 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listTicker.find(item => item.ticker === (event.target.value).toUpperCase());
+            const itemTickerInfor = listTicker.find(item => item.symbolCode === (event.target.value).toUpperCase());
             setSymbolSearch(event.target.value);
-            setItemTickerInfor(itemTickerInfor ? itemTickerInfor : DEFAULT_TICKER_INFO);
+            setItemTickerInfor(itemTickerInfor);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
         }
@@ -332,14 +331,25 @@ const OrderBookCommon = () => {
     const assgnDataFormNewOrder = (item: IAskAndBidPrice) => {
         const assTickerInfor = itemTickerInfor;
         const itemTicker = {
-            tickerName: assTickerInfor?.tickerName,
-            ticker: assTickerInfor?.ticker,
+            tickerName: assTickerInfor?.symbolName,
+            ticker: assTickerInfor?.symbolCode,
             lastPrice: item.price === '-' ? '0' : item.price,
             volume: item.volume === '-' ? '0' : item.volume,
             side: item.side,
             symbolId: assTickerInfor?.symbolId
         }
-        setTickerSelect(itemTicker.ticker)
+
+        const temp: IAskAndBidPrice = {
+            numOrders: item.numOrders,
+            price: item.price,
+            tradable: item.tradable,
+            volume: item.volume,
+            symbolCode: assTickerInfor?.symbolCode
+        }
+
+        setQuoteInfo(temp);
+
+        setTickerSelect(itemTicker.ticker || '')
         setCurrentTicker(itemTicker);
     }
 
@@ -419,6 +429,10 @@ const OrderBookCommon = () => {
         </div>
     }
 
+    const getSide = (value: number) => {
+        setSide(value);
+    }
+
     const _renderTemplateOrderBookCommon = () => (
         <div className="site-main">
             <div className="container">
@@ -442,7 +456,7 @@ const OrderBookCommon = () => {
                             <div id="layout-1">
                                 <div className="row align-items-stretch g-2">
                                     <div className="col-md-9">
-                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} getTicerLastQuote={assgnDataFormNewOrder} />
+                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} handleSide={getSide} getTicerLastQuote={assgnDataFormNewOrder} />
                                         <div className={`card card-ticker ${isColumnsGap ? 'w-pr-135' : 'w-pr-100'}`} >
                                             <OrderBookTickerDetail symbolCode={tickerSelect} />
                                         </div>
@@ -453,7 +467,7 @@ const OrderBookCommon = () => {
                                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                             </div>
                                             <div className="card-body">
-                                                <OrderForm isOrderBook={true} currentTicker={currentTicker} tickerCode={tickerSelect} messageSuccess={messageSuccess} />
+                                                <OrderForm isOrderBook={true} quoteInfo={quoteInfo} side={side} isDashboard={false} symbolCode={tickerSelect} messageSuccess={messageSuccess} />
                                             </div>
                                         </div>
                                     </div>

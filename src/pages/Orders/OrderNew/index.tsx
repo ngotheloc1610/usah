@@ -5,7 +5,7 @@ import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
 import { ACCOUNT_ID, LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
-import { ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
+import { IAskAndBidPrice, ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
@@ -118,7 +118,7 @@ const OrderNew = () => {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
 
-            const symbolCodes: string[] = symbolList.map(item => item.symbolId.toString());
+            const symbolCodes: string[] = symbolList.map(item => item.symbolCode);
             lastQuotesRequest.setSymbolCodeList(symbolCodes);
 
             const rpcModel: any = rpcpb;
@@ -290,7 +290,7 @@ const OrderNew = () => {
 
     }
     // wait handle ticker detail last quote in screen order book
-    const handleTickerDetailLastQuote = (value: ITickerInfo) => {
+    const handleTickerDetailLastQuote = (value: IAskAndBidPrice) => {
     }
 
     return <div className="site-main mt-3">
@@ -303,15 +303,17 @@ const OrderNew = () => {
                 <div className="card-body">
                     <div className="row align-items-stretch">
                         <div className="col-lg-9 col-md-8 border-end">
-                            <TickerDetail currentTicker={currentTicker} symbolId={currentTicker.symbolId.toString()} />
+                            <TickerDetail currentTicker={currentTicker} symbolCode={currentTicker.ticker} />
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
-                                    <OrderForm currentTicker={currentTicker} messageSuccess={messageSuccess} />
+                                    <OrderForm isDashboard={false} messageSuccess={messageSuccess} />
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-3 col-md-4">
-                            <OrderBook currentTicker={currentTicker} itemTickerSearch={handleItemSearch} tickerDetailLastQuote={handleTickerDetailLastQuote} />
+                            <OrderBook currentTicker={currentTicker}
+                                    itemTickerSearch={handleItemSearch} 
+                                    tickerDetailLastQuote={handleTickerDetailLastQuote} />
                         </div>
                     </div>
                 </div>

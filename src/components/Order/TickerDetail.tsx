@@ -9,7 +9,7 @@ import { wsService } from '../../services/websocket-service'
 
 interface ITickerDetailProps {
     currentTicker: ITickerInfo;
-    symbolId: string
+    symbolCode: string
 }
 
 const defaultProps = {
@@ -35,7 +35,7 @@ const defaultTickerDetails: ITickerDetail = {
 }
 
 const TickerDetail = (props: ITickerDetailProps) => {
-    const { currentTicker, symbolId } = props;
+    const { currentTicker, symbolCode } = props;
     const [lastQuote, setLastQuote] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [tickerInfo, setTickerInfo] = useState(currentTicker);
@@ -55,7 +55,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     useEffect(() => {
         processLastQuote(lastQuote);
-    }, [lastQuote, symbolId]);
+    }, [lastQuote, symbolCode]);
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
@@ -63,9 +63,9 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = symbolsList.find(o => o?.symbolId?.toString() === symbolId?.toString());
+        const symbol = symbolsList.find(o => o?.symbolCode === symbolCode);
         if (symbol) {
-            const item = quotes.find(o => o?.symbolCode === symbol?.symbolId.toString());
+            const item = quotes.find(o => o?.symbolCode === symbolCode);
             if (item) {
                 setTickerInfo({
                     ...symbol,
@@ -77,6 +77,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     low: item?.low,
                     previousClose: item?.close,
                     volume: item?.volume,
+                    lotSize: symbol.lotSize
                 });
             }
         }
@@ -84,7 +85,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[]) => {
         const tempTickerInfo = {...tickerInfo};
-        const item = quoteEvent.find(o => o?.symbolCode === tempTickerInfo?.symbolId?.toString());
+        const item = quoteEvent.find(o => o?.symbolCode === symbolCode);
         if (item) {
             setTickerInfo({
                 ...tempTickerInfo,
