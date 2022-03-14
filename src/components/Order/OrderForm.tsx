@@ -64,8 +64,6 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         if (symbolCode) {
             setIsShowNotiErrorPrice(false);
-            setInvalidVolume(false);
-            setInvalidPrice(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
@@ -82,15 +80,23 @@ const OrderForm = (props: IOrderForm) => {
             if (quoteInfo) {
                 if (!isNaN(Number(quoteInfo.price))) {
                     setPrice(Number(quoteInfo.price));
+                    const temp = Math.round(Number(quoteInfo.price) * Math.pow(10, 2));
+                    const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+                    setInvalidPrice(temp % tempTickeSize !== 0);
                 } else {
                     setPrice(ticker?.floor);
+                    const temp = Math.round(Number(ticker?.floor) * Math.pow(10, 2));
+                    const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+                    setInvalidPrice(temp % tempTickeSize !== 0);
                 }
     
                 if (!isNaN(Number(quoteInfo.volume))) {
                     setVolume(Number(quoteInfo.volume));
+                    setInvalidVolume(Number(quoteInfo.volume) % lotSize !== 0)
                 } else {
                     if (!isNaN(lotSize)) {
                         setVolume(lotSize);
+                        setInvalidVolume(false);
                     }
                 }
             }
