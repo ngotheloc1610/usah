@@ -7,20 +7,22 @@ import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { IListTradeHistory } from "../../../interfaces/order.interface";
+
 const OrderTradeHistory = () => {
-    const [getDataTradeHistory, setGetDataTradeHistory] = useState([]);
+    const [getDataTradeHistory, setGetDataTradeHistory] = useState<IListTradeHistory[]>([]);
     const [orderSide, setOrderSide] = useState(0);
-    
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendTradeHistoryReq();;
+                sendTradeHistoryReq();
             }
         });
 
-        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
             if (orderSide !== 0) {
-                const tradeListFilter = res.tradeList.filter(item => item.orderType === orderSide)
+                const tradeListFilter = res.tradeList.filter(item => item.side === orderSide)
                 setGetDataTradeHistory(tradeListFilter)
                 return
             };
@@ -29,7 +31,7 @@ const OrderTradeHistory = () => {
 
         return () => {
             ws.unsubscribe();
-            renderDataToScreen.unsubscribe();
+            tradeHistoryRes.unsubscribe();
         };
     }, [orderSide])
 
@@ -37,7 +39,8 @@ const OrderTradeHistory = () => {
         setOrderSide(item)
     }
 
-    const buildMessage = (accountId: string) => {
+    const sendTradeHistoryReq = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
 
         const queryServicePb: any = qspb;
@@ -55,12 +58,6 @@ const OrderTradeHistory = () => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
-    }
-
-    const sendTradeHistoryReq = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-
     }
 
     const _renderTradeHistory = () => {

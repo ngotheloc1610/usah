@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
-import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -25,7 +23,6 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [side, setSide] = useState(0);
     const [fromDatetime, setDateTimeFrom] = useState(0);
     const [toDatetime, setDateTimeTo] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -58,6 +55,14 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         return () => tradeHistoryRes.unsubscribe()
     }, [])
 
+    useEffect(() => {
+        const listSymbolName: string[] = [];
+        symbolsList.forEach(item => {
+            listSymbolName.push(`${item.tickerName} (${item.ticker})`);
+        });
+        setListSymbolName(listSymbolName)
+    }, [])
+
     const handleChangeFromDate = (value: string) => {
         setDateTimeFrom(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -66,34 +71,9 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-            const listSymbolName: string[] = []
-            res.symbolList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-            });
-            setListSymbolName(listSymbolName)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
-
     const sendMessageTradeSearch = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-    }
 
-    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {

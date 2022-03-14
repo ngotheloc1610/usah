@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IStyleBidsAsk, ISymbolInfo, ISymbolQuote, ITickerInfo, ITradeHistory } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IListTradeHistory, IStyleBidsAsk, ISymbolInfo, ISymbolQuote, ITickerInfo } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
@@ -24,7 +24,7 @@ import { assignListPrice, calcChange, calcPctChange, checkValue, toTimestamp } f
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
 
-    const [tradeHistory, setTradeHistory] = useState<ITradeHistory[]>([]);
+    const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
     const [isGrid, setGrid] = useState<boolean>(false);
     const [isColumns, setColumns] = useState<boolean>(false);
@@ -153,7 +153,7 @@ const OrderBookCommon = () => {
         }
     }
 
-    const processTradeEvent = (trades: ITradeHistory[]) => {
+    const processTradeEvent = (trades: IListTradeHistory[]) => {
         const tmp = [...tradeHistory];
         trades.forEach(item => {
             tmp.unshift(item);
