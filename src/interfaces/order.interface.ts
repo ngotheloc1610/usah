@@ -282,6 +282,7 @@ export interface IPropsListBidsAsk {
     styleListBidsAsk: IStyleBidsAsk;
     symbolCode: string;
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
+    handleSide: (side: number) => void;
 }
 
 export interface IPropsDetail {

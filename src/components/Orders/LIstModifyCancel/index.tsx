@@ -138,12 +138,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
     }
 
-    const getTickerCode = (symbolId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolCode || '';
+    const getTickerCode = (symbolCode: string): string => {
+        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolCode || '';
     }
 
-    const getTickerName = (symbolId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
+    const getTickerName = (symbolCode: string): string => {
+        return symbolList.find(item => item.symbolCode === symbolCode)?.symbolName || '';
     }
 
     const getSideName = (sideId: number) => {
@@ -153,8 +153,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const handleModifyCancel = (item: IListOrder, value: string) => {
         const param: IParamOrder = {
             orderId: item.orderId.toString(),
-            tickerCode: getTickerCode(item.symbolCode.toString())?.toString(),
-            tickerName: getTickerName(item.symbolCode.toString())?.toString(),
+            tickerCode: getTickerCode(item.symbolCode),
+            tickerName: getTickerName(item.symbolCode),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
@@ -239,7 +239,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </td>
                 <td className="fm">{item.orderId}</td>
                 <td>{getTickerCode(item.symbolCode.toString())}</td>
-                <td className="text-center "><span className={`${item.orderType === tradingModelPb.OrderType.OP_BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
+                <td className="text-center "><span className={`${item.orderType === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.orderType)}</span></td>
                 <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                 <td className="text-end ">{formatCurrency(item.price.toString())}</td>
                 <td className="text-end ">{formatNumber(item.amount.toString())}</td>

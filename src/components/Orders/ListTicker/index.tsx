@@ -113,7 +113,8 @@ const ListTicker = (props: IListTickerProps) => {
                 }
             }
         });
-        setPageShowCurrentLastQuote(watchList);
+        const temp = getDataCurrentPage(pageSizeTicker, currentPage, watchList);
+        setPageShowCurrentLastQuote(temp);
         localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchList));
     }
 
@@ -229,11 +230,8 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleTicker = (item: IAskAndBidPrice, side: number) => {
-        console.log(item)
         getTicerLastQuote(item);
         handleSide(side);
-        // const itemTicker = { ...item, side: side, symbolCode: lastQuote.symbolCode };
-        // getTicerLastQuote(itemTicker);
     }
 
     const onChangeTicker = (event) => {

@@ -17,23 +17,7 @@ const OrderMonitoring = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
 
-    // useEffect(() => {
-    //     const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-    //         setSymbolList(res.symbolList)
-    //         const listSymbolName: string[] = []
-    //         res.symbolList.forEach((item: ISymbolList) => {
-    //             listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-    //         });
-    //         setSymbolName(listSymbolName)
-    //     });
-
-    //     return () => {
-    //         renderDataSymbolList.unsubscribe();
-    //     }
-    // }, [])
-
     const handleTicker = (itemTicker: IAskAndBidPrice) => {
-        console.log(35, itemTicker)
         setQuoteInfo(itemTicker);
         if (itemTicker?.symbolCode) {
             setSymbolCode(itemTicker.symbolCode);
