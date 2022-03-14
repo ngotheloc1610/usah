@@ -9,7 +9,6 @@ import { wsService } from "../../../services/websocket-service";
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
-import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -29,7 +28,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
-    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
@@ -61,7 +60,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     useEffect(() => {
             const listSymbolName: string[] = []
-            listTicker.forEach((item: ISymbolList) => {
+            symbolsList.forEach((item: ISymbolList) => {
                 listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
             });
             setListSymbolName(listSymbolName)
@@ -127,7 +126,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symbolsList))
         } else {
             setTicker('')
         }
@@ -135,7 +134,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symbolsList))
         } else {
             setTicker('')
         }

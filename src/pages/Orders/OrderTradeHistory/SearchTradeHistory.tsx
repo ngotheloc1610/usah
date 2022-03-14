@@ -28,7 +28,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [symbolName, setSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
-    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const today: number = new Date().getDate();
@@ -156,7 +156,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symbolsList))
         } else {
             setTicker('0')
         }
@@ -164,7 +164,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symbolsList))
         } else {
             setTicker('0')
         }

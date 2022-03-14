@@ -56,10 +56,10 @@ export const removeFocusInput = (element: any) => {
     });
 }
 
-export const getSymbolId = (str: string, listTicker: ISymbolInfo[]) => {
+export const getSymbolId = (str: string, symbolsList: ISymbolInfo[]) => {
     const positionStartOfString = str.indexOf('(')
     const positionEndOfString = str.lastIndexOf(')')
-    const symbolId = listTicker.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
+    const symbolId = symbolsList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
     return symbolId ?? '0'
 }
 

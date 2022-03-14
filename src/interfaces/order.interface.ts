@@ -52,7 +52,7 @@ export interface IOrderBook {
 }
 
 export interface IPropListOrderHistory {
-    listOrderHistory: IListOrderHistory[];
+    listOrderHistory: IOrderHistory[];
 }
 
 export interface IPropListTradeHistory {
@@ -103,6 +103,36 @@ export interface ISymbolMultiOrder {
     volume: string;
 }
 export interface IListOrderHistory {
+    amount: string;
+    entry: string;
+    executeMode: string;
+    executedDatetime: string;
+    expireTime: string;
+    fee: string;
+    lastPrice: string;
+    note: string;
+    orderFilling: string;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: string;
+    route: string;
+    sl: string;
+    slippage: string;
+    state: number;
+    swap: string;
+    symbolCode: string;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: string;
+    filledAmount: string;
+}
+
+export interface IOrderHistory  {
     amount: string;
     entry: string;
     executeMode: string;
@@ -187,23 +217,6 @@ export interface ILastQuote {
     volumePerDay: string;
     volume: string;
     ticker?: string;
-}
-
-
-export interface IOrderHistory {
-    orderId: string;
-    ticker: string;
-    companyName: string;
-    side: string;
-    orderStatus: string;
-    orderType: string;
-    orderVolume: string;
-    remainVolume: string;
-    executedVolume: string;
-    orderPrice: string;
-    lastPrice: string;
-    orderDatetime: string;
-    excutedDatetime: string;
 }
 
 export interface IOrderTradeHistory {
