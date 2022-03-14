@@ -7,8 +7,6 @@ import * as qspb from "../models/proto/query_service_pb"
 import * as rpcpb from "../models/proto/rpc_pb";
 import * as smpb from '../models/proto/system_model_pb';
 import sendMsgSymbolList from "./sendMsgSymbolList";
-import queryString from 'query-string';
-import ReduxPersist from "../config/ReduxPersist";
 import { toast } from "react-toastify";
 import { getSymbolId, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
@@ -20,36 +18,20 @@ interface IPropsContentSearch {
 
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getOrderSide } = props;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
     const [ticker, setTicker] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [orderType, setOrderType] = useState(0);
     const [symbolName, setSymbolName] = useState<string[]>([]);
-    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symsbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
+        const listSymbolName: string[] = []
+        symsbolList.forEach((item: ISymbolList) => {
+            listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
         });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-            const listSymbolName: string[] = []
-            res.symbolList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-            });
-            setSymbolName(listSymbolName)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
     }, [])
 
     useEffect(() => {
@@ -128,7 +110,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symsbolList))
         } else {
             setTicker('0')
         }
@@ -136,7 +118,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, listTicker))
+            setTicker(getSymbolId(value, symsbolList))
         } else {
             setTicker('0')
         }
