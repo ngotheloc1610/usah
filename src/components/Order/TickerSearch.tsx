@@ -38,16 +38,16 @@ const TickerSearch = (props: ITickerSearch) => {
     useEffect(() => {
         const symbolCode = symbolSelected?.split('-')[0]?.trim();
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
-        setTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
-        handleTicker(itemTickerInfor ? itemTickerInfor.symbolId.toString() : '');
+        setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+        handleTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
     }, [symbolSelected, listTicker]);
 
     const handleSymbols = (symbolCode: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        const element = tickerList.find(o => o?.ticker === symbolCode);
+        const element = tickerList.find(o => o?.symbolCode === symbolCode);
         if (element) {
-            setTicker(element.symbolId.toString());
-            handleTicker(element.symbolId.toString());
+            setTicker(element.symbolCode);
+            handleTicker(element.symbolCode);
         }
         setSymbolSeleted(`${symbolCode} - ${element.tickerName}`)
     }

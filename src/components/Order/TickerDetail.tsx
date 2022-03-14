@@ -169,9 +169,9 @@ const TickerDetail = (props: ITickerDetailProps) => {
             <th>
                 <div className="h-50px">{title1}</div>
             </th>
-            <td className="text-end fw-600 w-precent-41">{tickerInfo.ticker ? value1 : '0'}</td>
+            <td className="text-end fw-600 w-precent-41">{value1}</td>
             <th className='w-precent-15'>{title2}</th>
-            <td className="text-end fw-600">{tickerInfo.ticker ? value2 : '0'}</td>
+            <td className="text-end fw-600">{value2}</td>
         </tr>
     )
 
@@ -193,7 +193,6 @@ const TickerDetail = (props: ITickerDetailProps) => {
     const _renderTickerDetail = () => {
         const high = (tickerInfo?.high) ? tickerInfo.high.toString() : '0';
         const lotSize = (tickerInfo?.lotSize) ? tickerInfo.lotSize.toString() : '0';
-        
         return <div>
         <div className="text-uppercase small text-secondary mb-2"><strong>Ticker Detail</strong></div>
         <div className="table-responsive">
