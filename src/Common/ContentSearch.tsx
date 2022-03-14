@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SOCKET_CONNECTED } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
@@ -20,12 +20,13 @@ interface IPropsContentSearch {
 
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getOrderSide } = props;
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [ticker, setTicker] = useState('')
-    const [orderSideBuy, setOrderSideBuy] = useState(false)
-    const [orderSideSell, setOrderSideSell] = useState(false)
-    const [orderType, setOrderType] = useState(0)
-    const [symbolName, setSymbolName] = useState<string[]>([])
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [ticker, setTicker] = useState('');
+    const [orderSideBuy, setOrderSideBuy] = useState(false);
+    const [orderSideSell, setOrderSideSell] = useState(false);
+    const [orderType, setOrderType] = useState(0);
+    const [symbolName, setSymbolName] = useState<string[]>([]);
+    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -127,7 +128,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }
@@ -135,7 +136,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }

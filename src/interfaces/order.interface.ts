@@ -120,6 +120,7 @@ export interface IListOrderHistory {
     price: string;
     reason: string;
     route: string;
+    side: number;
     sl: string;
     slippage: string;
     state: number;

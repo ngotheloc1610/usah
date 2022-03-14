@@ -8,7 +8,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
-import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -20,14 +20,15 @@ interface IPropsSearchTradeHistory {
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const { getOrderSide } = props
     const [ticker, setTicker] = useState('')
-    const [orderSideBuy, setOrderSideBuy] = useState(false)
-    const [orderSideSell, setOrderSideSell] = useState(false)
-    const [orderType, setOrderType] = useState(0)
-    const [fromDatetime, setDateTimeFrom] = useState(0)
-    const [toDatetime, setDateTimeTo] = useState(0)
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [symbolName, setSymbolName] = useState<string[]>([])
-    const [currentDate, setCurrentDate] = useState('')
+    const [orderSideBuy, setOrderSideBuy] = useState(false);
+    const [orderSideSell, setOrderSideSell] = useState(false);
+    const [orderType, setOrderType] = useState(0);
+    const [fromDatetime, setDateTimeFrom] = useState(0);
+    const [toDatetime, setDateTimeTo] = useState(0);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [symbolName, setSymbolName] = useState<string[]>([]);
+    const [currentDate, setCurrentDate] = useState('');
+    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const today: number = new Date().getDate();
@@ -155,7 +156,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }
@@ -163,7 +164,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
             setTicker('0')
         }

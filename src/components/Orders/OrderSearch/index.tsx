@@ -6,7 +6,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FROM_DATE_TIME, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolId, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import sendMsgSymbolList from '../../../Common/sendMsgSymbolList';
@@ -20,16 +20,16 @@ interface IPropsOrderSearchHistory {
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const { getOrderSide } = props;
-    const [ticker, setTicker] = useState('')
-    const [orderState, setOrderState] = useState(0)
-    const [orderBuy, setOrderBuy] = useState(false)
-    const [orderSell, setOrderSell] = useState(false)
-    const [orderType, setOrderType] = useState(0)
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([])
-    const [fromDatetime, setFromDatetime] = useState(0)
-    const [toDatetime, setToDatetime] = useState(0)
-    const [symbolName, setSymbolName] = useState<string[]>([])
-    const [currentDate, setCurrentDate] = useState('')
+    const [ticker, setTicker] = useState('');
+    const [orderState, setOrderState] = useState(0);
+    const [orderBuy, setOrderBuy] = useState(false);
+    const [orderSell, setOrderSell] = useState(false);
+    const [orderType, setOrderType] = useState(0);
+    const [fromDatetime, setFromDatetime] = useState(0);
+    const [toDatetime, setToDatetime] = useState(0);
+    const [listSymbolName, setListSymbolName] = useState<string[]>([]);
+    const [currentDate, setCurrentDate] = useState('');
+    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
@@ -59,6 +59,14 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
     }, [])
 
+    useEffect(() => {
+            const listSymbolName: string[] = []
+            listTicker.forEach((item: ISymbolList) => {
+                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
+            });
+            setListSymbolName(listSymbolName)
+    }, [])
+
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
     }
@@ -68,12 +76,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const sendMessageOrderHistory = () => {
-
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-    }
-
-    const buildMessage = (accountId: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -95,28 +98,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
-
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
-                sendMsgSymbolList();
-            }
-        });
-
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
-            const listSymbolName: string[] = []
-            res.symbolList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolName} (${item.symbolCode})`);
-            });
-            setSymbolName(listSymbolName)
-        });
-
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-        }
-    }, [])
 
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
@@ -146,17 +127,17 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeTicker = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
-            setTicker('0')
+            setTicker('')
         }
     }
 
     const handleKeyUp = (value: string) => {
         if (value !== undefined) {
-            setTicker(getSymbolId(value, symbolList))
+            setTicker(getSymbolId(value, listTicker))
         } else {
-            setTicker('0')
+            setTicker('')
         }
     }
 
@@ -168,7 +149,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
-                options={symbolName}
+                options={listSymbolName}
                 renderInput={(params) => <TextField {...params} placeholder="Search" />}
             />
         </div>
@@ -186,13 +167,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSell === true && orderBuy === false) {
-            setOrderType(tradingModelPb.OrderType.OP_SELL)
+            setOrderType(tradingModelPb.Side.SELL)
         }
         else if (orderSell === false && orderBuy === true) {
-            setOrderType(tradingModelPb.OrderType.OP_BUY)
+            setOrderType(tradingModelPb.Side.BUY)
         }
         else {
-            setOrderType(tradingModelPb.OrderType.ORDER_TYPE_NONE)
+            setOrderType(tradingModelPb.Side.NONE)
         }
     }
 

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
-import { ISymbolList } from '../interfaces/ticker.interface';
+import { ISymbolInfo } from '../interfaces/order.interface';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -56,10 +56,10 @@ export const removeFocusInput = (element: any) => {
     });
 }
 
-export const getSymbolId = (str: string, symbolList: ISymbolList[]) => {
+export const getSymbolId = (str: string, listTicker: ISymbolInfo[]) => {
     const positionStartOfString = str.indexOf('(')
     const positionEndOfString = str.lastIndexOf(')')
-    const symbolId = symbolList.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolId.toString()
+    const symbolId = listTicker.find(item => item.symbolCode === str.slice(positionStartOfString + 1, positionEndOfString))?.symbolCode
     return symbolId ?? '0'
 }
 
