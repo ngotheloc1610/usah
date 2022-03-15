@@ -133,3 +133,8 @@ export const START_PAGE = 1;
 export const DEFAULT_ITEM_PER_PAGE = 10;
 
 export const DEFAULT_TIME_ZONE = 'SG';
+
+export const STATUS_ORDER = {
+    success: 'SUCCESS',
+    rejected: 'REJECTED'
+}
