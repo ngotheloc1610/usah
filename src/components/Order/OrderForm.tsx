@@ -80,13 +80,13 @@ const OrderForm = (props: IOrderForm) => {
             if (quoteInfo) {
                 if (!isNaN(Number(quoteInfo.price))) {
                     setPrice(Number(quoteInfo.price));
-                    const temp = Math.round(Number(quoteInfo.price) * Math.pow(10, 2));
-                    const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+                    const temp = Math.round(Number(quoteInfo.price) * 100);
+                    const tempTickeSize = Math.round(tickSize * 100);
                     setInvalidPrice(temp % tempTickeSize !== 0);
                 } else {
                     setPrice(ticker?.floor);
-                    const temp = Math.round(Number(ticker?.floor) * Math.pow(10, 2));
-                    const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+                    const temp = Math.round(Number(ticker?.floor) * 100);
+                    const tempTickeSize = Math.round(tickSize * 100);
                     setInvalidPrice(temp % tempTickeSize !== 0);
                 }
     
@@ -150,8 +150,8 @@ const OrderForm = (props: IOrderForm) => {
         const currentPrice = Number(price);
         let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
-        const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
-        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+        const temp = Math.round(Number(newPrice) * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
         if (newPrice > ceilingPrice) {
@@ -171,8 +171,8 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setPrice(newPrice);
-        const temp = Math.round(Number(newPrice) * Math.pow(10, 2));
-        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+        const temp = Math.round(Number(newPrice) * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
         if (newPrice < floorPrice) {
@@ -264,8 +264,8 @@ const OrderForm = (props: IOrderForm) => {
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(+maskedVal * Math.pow(10, 2));
-        const tempTickeSize = Math.round(tickSize * Math.pow(10, 2));
+        const temp = Math.round(+maskedVal * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
     }
 
