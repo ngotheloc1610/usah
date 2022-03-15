@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import PaginationComponent from "../../../Common/Pagination";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, SOCKET_CONNECTED, START_PAGE, SYMBOL_LIST } from "../../../constants/general.constant";
-import { IListOrder, ISymbolMultiOrder } from "../../../interfaces/order.interface";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
+import { IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
-import queryString from 'query-string';
-import ReduxPersist from "../../../config/ReduxPersist";
-import { IAuthen } from "../../../interfaces";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, calcCurrentList } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, calcCurrentList, convertNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
 import './multipleOrders.css';
 import * as tdspb from '../../../models/proto/trading_service_pb';
@@ -37,10 +34,12 @@ const MultipleOrders = () => {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listTickers.length;
-    const [isDelete, setIsDelete] = useState(false)
+    const [isDelete, setIsDelete] = useState(false);
+    const [statusPlace, setStatusPlace] = useState(false);
+    const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
 
     useEffect(() => {
-        const multiOrderResponse = wsService.getOrderSubject().subscribe(resp => {
+        const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
             const systemModelPb: any = smpb;
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -49,6 +48,11 @@ const MultipleOrders = () => {
                 tmp = RESPONSE_RESULT.error;
             }
             getStatusOrderResponse(tmp, resp[MSG_TEXT]);
+            if (resp && resp.orderList) {
+                setOrderListResponse(resp.orderList);
+                setStatusPlace(true);
+                setListSelected([]);
+            }
         });
 
         return () => {
@@ -65,6 +69,28 @@ const MultipleOrders = () => {
     useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
     }, [listTickers, isDelete])
+
+    useEffect(() => {
+        processOrderListResponse(orderListResponse)
+    }, [orderListResponse])
+
+    const processOrderListResponse = (orderList: IOrderListResponse[]) => {
+        if (orderList && orderList.length > 0) {
+            const temps = [...currentListTickers];
+            orderList.forEach((item: IOrderListResponse) => {
+                if (item) {
+                    const idx = temps.findIndex(o => o?.ticker === item?.symbolCode);
+                    if (idx >= 0) {
+                        temps[idx] = {
+                            ...temps[idx],
+                            status: item.note
+                        }
+                    }
+                }
+            });
+            setCurrentListTickers(temps);
+        }
+    }
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -228,12 +254,13 @@ const MultipleOrders = () => {
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Volume</span></th>
             <th className="text-end"><span>Price</span></th>
+            {statusPlace && <th className="text-end"><span>Status</span></th>}
         </tr>
     )
 
     const getTickerName = (ticker: string) => {
         const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickerName = listSymbols.find(o => o?.ticker === ticker)?.tickerName;
+        const tickerName = listSymbols.find(o => o?.symbolCode === ticker)?.symbolName;
         return tickerName ? tickerName : '';
     }
 
@@ -311,6 +338,7 @@ const MultipleOrders = () => {
                         </svg>
                     </div>
                 </td>
+                {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>
         })
     )
@@ -351,18 +379,20 @@ const MultipleOrders = () => {
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
             multiOrder.setSecretKey('');
             listSelected.forEach((item: ISymbolMultiOrder) => {
-                const symbol = symbols.find(o => o.ticker === item.ticker);
-                let order = new tradingModelPb.Order();
-                order.setAmount(item.volume.replaceAll(',', ''));
-                order.setPrice(item.price.replaceAll(',', ''));
-                order.setUid(accountId);
-                order.setSymbolCode(symbol?.symbolId);
-                order.setSide(getOrderSideValue(item.orderSide));
-                order.setOrderType(tradingModel.OrderType.OP_LIMIT);
-                order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
-                order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
-                order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-                multiOrder.addOrder(order);
+                const symbol = symbols.find(o => o.symbolCode === item.ticker);
+                if (symbol) {
+                    let order = new tradingModelPb.Order();
+                    order.setAmount(item.volume.replaceAll(',', ''));
+                    order.setPrice(item.price.replaceAll(',', ''));
+                    order.setUid(accountId);
+                    order.setSymbolCode(symbol?.symbolCode);
+                    order.setSide(getOrderSideValue(item.orderSide));
+                    order.setOrderType(tradingModel.OrderType.OP_LIMIT);
+                    order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
+                    order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
+                    order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+                    multiOrder.addOrder(order);
+                }
             })
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
@@ -560,6 +590,13 @@ const MultipleOrders = () => {
 
     const handleChangeTicker = (value: string) => {
         setTicker(value);
+        const symbolCode = value.split('-')[0]?.trim();
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const item = symbols.find(o => o?.symbolCode === symbolCode);
+        if (item) {
+            setPrice(convertNumber(item.floor));
+            setVolume(convertNumber(item.lotSize));
+        }
     }
 
     const disableControl = () => {
@@ -570,7 +607,7 @@ const MultipleOrders = () => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const lstStr: string[] = [];
         symbols.forEach(item => {
-            lstStr.push(`${item.ticker} - ${item.tickerName}`);
+            lstStr.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         return <Autocomplete
             className='ticker-input'
@@ -614,6 +651,13 @@ const MultipleOrders = () => {
         setIsAddOrder(false);
         setPrice(0);
         setVolume(0);
+    }
+
+    const defindStatusOrder = (order: ISymbolMultiOrder) => {
+        if (order.status?.toLocaleLowerCase().includes('success')) {
+            return <span className="text-success">{STATUS_ORDER.success}</span>
+        }
+        return <span className="text-danger">{STATUS_ORDER.faild}</span>
     }
 
     const _renderOrderForm = () => (

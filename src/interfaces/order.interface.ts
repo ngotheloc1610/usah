@@ -168,6 +168,7 @@ export interface ISymbolMultiOrder {
     price: string;
     ticker: string;
     volume: string;
+    status?: string;
 }
 export interface IListOrderHistory {
     amount: string;
@@ -199,7 +200,7 @@ export interface IListOrderHistory {
     filledAmount: string;
 }
 
-export interface IOrderHistory  {
+export interface IOrderHistory {
     amount: string;
     entry: string;
     executeMode: string;
@@ -407,17 +408,17 @@ export interface ITradingAccountVertical {
 
 export interface IPortfolio {
     accountId: number;
-	symbolCode: string;
-	totalBuyVolume: number;
-	avgBuyPrice: string;
+    symbolCode: string;
+    totalBuyVolume: number;
+    avgBuyPrice: string;
     totalSellVolume: number;
-	avgSellPrice: string;
-	marketPrice: string;
-	investedValue: string;
-	currentValue: string;
-	realizedPl: string;
-	unrealizedPl: string;
-	currencyCode: string;
+    avgSellPrice: string;
+    marketPrice: string;
+    investedValue: string;
+    currentValue: string;
+    realizedPl: string;
+    unrealizedPl: string;
+    currencyCode: string;
 }
 
 export interface ITotalNetFollowAccountId {
@@ -471,4 +472,37 @@ export interface ISymbolQuote {
     previousClose: string;
     ceiling: string;
     floor: string;
+}
+
+export interface IOrderListResponse {
+    amount: string;
+    currencyCode: string;
+    entry: number;
+    executeMode: number;
+    executedDatetime: string;
+    expireTime: number;
+    externalOrderId: string;
+    fee: string;
+    filledAmount: string;
+    lastPrice: string;
+    note: string;
+    orderFilling: number;
+    orderId: string;
+    orderMode: number;
+    orderTime: number;
+    orderType: number;
+    pl: string;
+    price: string;
+    reason: number;
+    route: number;
+    side: number;
+    sl: string;
+    slippage: string;
+    state: number;
+    swap: string;
+    symbolCode: string;
+    time: number;
+    tp: string;
+    triggerPrice: string;
+    uid: number;
 }
