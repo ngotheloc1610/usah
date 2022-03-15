@@ -656,8 +656,10 @@ const MultipleOrders = () => {
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
         if (order.status?.toLocaleLowerCase().includes('success')) {
             return <span className="text-success">{STATUS_ORDER.success}</span>
+        } else if (order.status?.toUpperCase().includes('RISK_NSF')) {
+            return <span className="text-danger">{STATUS_ORDER.rejected}</span>
         }
-        return <span className="text-danger">{STATUS_ORDER.faild}</span>
+        return '';
     }
 
     const _renderOrderForm = () => (

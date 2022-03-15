@@ -135,7 +135,6 @@ export const DEFAULT_ITEM_PER_PAGE = 10;
 export const DEFAULT_TIME_ZONE = 'SG';
 
 export const STATUS_ORDER = {
-    none: 'none',
-    success: 'Place order success',
-    faild: 'Place order false'
+    success: 'SUCCESS',
+    rejected: 'REJECTED'
 }
