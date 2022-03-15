@@ -2,35 +2,45 @@ import { useEffect, useRef, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, LIST_TICKER_INFO, SOCKET_CONNECTED } from "../../constants/general.constant";
-import { IAskAndBidPrice, ILastQuote, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
-import { ISymbolList } from "../../interfaces/ticker.interface";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
+import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
+import * as tspb from "../../models/proto/trading_service_pb";
+import * as sspb from "../../models/proto/system_service_pb"
 import StockInfo from "../../components/Order/StockInfo";
-import { DEFAULT_DATA_TICKER, DEFAULT_SYMBOL } from "../../mocks";
 import moment from "moment";
 import 'moment-timezone';
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency } from "../../helper/utils";
+import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
     const isDashboard = true;
     const [symbolCode, setSymbolCode] = useState('');
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    
-    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
     const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
 
-
     const [side, setSide] = useState(0);
     const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
     const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
+
+    const [matchedOrder, setMatchedOrder] = useState(0);
+    const [pendingOrder, setPendingOrder] = useState(0);
+    const [trade, setTrade] = useState<IListTradeHistory[]>([])
+    const [tradeEvent, setTradeEvent] = useState<IListTradeHistory[]>([])
+    const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [pctPl, setPctPl] = useState(0)
+
     const usTime: any = useRef();
     const zoneTime: any = useRef();
 
@@ -38,6 +48,9 @@ const Dashboard = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 callSymbolListRequest();
+                sendTradeHistoryReq();
+                sendListOrder();
+                sendAccountPortfolio();
             }
         });
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
@@ -53,24 +66,118 @@ const Dashboard = () => {
                     });
                     setListTickerSearch(temps);
                 }
-               if (res.symbolList[0]) {
+                if (res.symbolList[0]) {
                     setSymbolCode(res.symbolList[0]?.symbolCode || '');
                 }
                 subscribeQuoteEvent(res.symbolList);
                 callLastQuoteRequest(res.symbolList)
+                subscribeTradeEvent(res.symbolList);
             }
         });
 
-        const lastQuotesRes = wsService.getDataLastQuotes().subscribe(res => {
-            setLastQuotes(res.quotesList);
+        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+            if (res && res.tradeList) {
+                setTrade(res.tradeList)
+                setMatchedOrder(res.tradeList.length)
+            }
+        });
+
+        const trade = wsService.getTradeEvent().subscribe(trades => {
+            if (trades && trades.tradeList) {
+                setTradeEvent(trades.tradeList);
+            }
+        })
+
+        const listOrder = wsService.getListOrder().subscribe(res => {
+            if (res && res.orderList) {
+                setPendingOrder(res.orderList.length)
+            }
+        });
+
+        const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
+            if (res && res.accountPortfolioList) {
+                setPortfolio(res.accountPortfolioList)
+            }
         });
 
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
-            lastQuotesRes.unsubscribe();
+            tradeHistoryRes.unsubscribe();
+            unsubscribeTradeEvent(symbolList);
+            listOrder.unsubscribe();
+            trade.unsubscribe();
+            portfolioRes.unsubscribe();
         }
     }, [])
+
+    useEffect(() => {
+        setMatchedOrder(matchedOrder + 1)
+    }, [tradeEvent])
+
+    useEffect(() => {
+
+        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
+            if (quote && quote.quotesList) {
+                setLastQuotes(quote.quotesList);
+            }
+        })
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
+
+        return () => {
+            quoteEvent.unsubscribe();
+            lastQuote.unsubscribe();
+        }
+
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuotes, portfolio);
+    }, [lastQuotes]);
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent, portfolio);
+    }, [quoteEvent]);
+
+    const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
+        if (portfolio) { }
+        const temp = [...portfolio];
+        temp.forEach(item => {
+            if (item) {
+                const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    temp[idx] = {
+                        ...item,
+                        marketPrice: lastQuotes[idx]?.currentPrice
+                    }
+                }
+            }
+        });
+        setPortfolio(temp);
+    }
+
+    const processQuoteEvent = (quoteEvent: IQuoteEvent[], portfolio: IPortfolio[]) => {
+        if (portfolio) {
+            const temp = [...portfolio];
+            temp.forEach(item => {
+                if (item) { }
+                const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
+
+                if (idx >= 0) {
+                    temp[idx] = {
+                        ...item,
+                        marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+                    }
+                }
+            });
+            setPortfolio(temp)
+        }
+    }
 
     useEffect(() => {
         const timer = setInterval(() => handleUsTime(), 1000);
@@ -83,6 +190,64 @@ const Dashboard = () => {
 
         return () => clearTimeout(timer);
     }, [timeZone]);
+
+    useEffect(() => totalUnrealizedPL(), [quoteEvent, portfolio])
+
+    const sendTradeHistoryReq = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
+            tradeHistoryRequest.setAccountId(Number(accountId));
+            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME))
+            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME))
+            const rpcPb: any = rspb;
+            let rpcMsg = new rpcPb.RpcMessage();
+            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
+            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendListOrder = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        const queryServicePb: any = qspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let orderRequest = new queryServicePb.GetOrderRequest();
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+
+            orderRequest.setAccountId(accountId);
+            rpcMsg.setPayloadData(orderRequest.serializeBinary());
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendAccountPortfolio = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        const systemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
+            accountPortfolioRequest.setAccountId(Number(accountId));
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
+            rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const subscribeQuoteEvent = (symbols: ILastQuote[]) => {
         const pricingServicePb: any = pspb;
@@ -136,6 +301,38 @@ const Dashboard = () => {
         }
     }
 
+    const subscribeTradeEvent = (symbolList: ISymbolInfo[]) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
+            symbolList.forEach(item => {
+                subscribeTradeEvent.addSymbolCode(item.symbolCode)
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unsubscribeTradeEvent = (symbolList: ISymbolInfo[]) => {
+        const tradingServicePb: any = tspb;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeTradeEventReq = new tradingServicePb.UnsubscribeTradeEventRequest();
+            symbolList.forEach(item => {
+                unsubscribeTradeEventReq.addSymbolCode(item.symbolCode)
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_TRADE_REQ);
+            rpcMsg.setPayloadData(unsubscribeTradeEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
     const handleUsTime = () => {
         if (usTime.current) {
             usTime.current.innerText = moment.tz(moment(), "America/New_York").format('LTS');
@@ -150,20 +347,62 @@ const Dashboard = () => {
         }
     }
 
+    const totalUnrealizedPL = () => {
+        let total = 0;
+        if (portfolio) {
+            portfolio.forEach(item => {
+                if (item) {
+                    total += calcUnrealizedPL(item);
+                }
+            });
+        }
+        setPctPl(total);
+    }
+
+    const calcTransactionVolume = (item: IPortfolio) => {
+        const buyVolume = item.totalBuyVolume;
+        const sellVolume = item.totalSellVolume;
+        return buyVolume - sellVolume;
+    }
+
+    const calcInvestedValue = (item: IPortfolio) => {
+        const transactionVolume = calcTransactionVolume(item);
+        return transactionVolume * convertNumber(item.avgBuyPrice);
+    }
+
+    const calcCurrentValue = (item: IPortfolio) => {
+        return calcTransactionVolume(item) * convertNumber(item.marketPrice);
+    }
+
+    const calcUnrealizedPL = (item: IPortfolio) => {
+        return calcCurrentValue(item) - calcInvestedValue(item);
+    }
+
+    const getNameClass = (item: number) => {
+        if (item > 0) {
+            return "text-success"
+        }
+        if (item < 0) {
+            return "text-danger"
+        } else {
+            return ""
+        }
+    }
+
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
             <div className="d-flex justify-content-center align-items-center col-md-4">
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Matched Orders</div>
-                    <div className="fw-600">36</div>
+                    <div className="fw-600">{matchedOrder}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Pending Order</div>
-                    <div className="fw-600">36</div>
+                    <div className="fw-600">{pendingOrder}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className="text-success fw-600">4.56%</div>
+                    <div className={`${getNameClass(pctPl)} fw-600`}>{formatCurrency(pctPl.toFixed(2))}%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>
@@ -226,6 +465,11 @@ const Dashboard = () => {
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
+        console.log(item);
+
+        if (item === MESSAGE_TOAST.SUCCESS_PLACE) {
+            sendListOrder();
+        }
     }
 
     const handleGetTicker = (value: ITickerInfo) => {
@@ -280,10 +524,10 @@ const Dashboard = () => {
                                 tickerDetailLastQuote={getPriceOrder}
                                 symbolCode={symbolCode}
                                 handleSide={getSide}
-                                 />
+                            />
                         </div>
                         <div>
-                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode}  />
+                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode} />
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
@@ -293,11 +537,11 @@ const Dashboard = () => {
                             </div>
                             <div className="card-body h-500" >
                                 <OrderForm isDashboard={isDashboard}
-                                        messageSuccess={messageSuccess}
-                                        symbolCode={symbolCode}
-                                        symbolQuote={symbolQuote}
-                                        quoteInfo={quoteInfo}
-                                        side={side} />
+                                    messageSuccess={messageSuccess}
+                                    symbolCode={symbolCode}
+                                    symbolQuote={symbolQuote}
+                                    quoteInfo={quoteInfo}
+                                    side={side} />
                             </div>
                         </div>
                     </div>
