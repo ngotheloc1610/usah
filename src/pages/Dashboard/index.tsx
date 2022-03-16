@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb"
 import StockInfo from "../../components/Order/StockInfo";
 import moment from "moment";
 import 'moment-timezone';
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -145,35 +145,37 @@ const Dashboard = () => {
     }, [quoteEvent]);
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
-        if (portfolio) { }
-        const temp = [...portfolio];
-        temp.forEach(item => {
-            if (item) {
-                const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx >= 0) {
-                    temp[idx] = {
-                        ...item,
-                        marketPrice: lastQuotes[idx]?.currentPrice
+        if (portfolio) { 
+            const temp = [...portfolio];
+            temp.forEach(item => {
+                if (item) {
+                    const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                    if (idx >= 0) {
+                        temp[idx] = {
+                            ...item,
+                            marketPrice: lastQuotes[idx]?.currentPrice
+                        }
                     }
                 }
-            }
-        });
-        setPortfolio(temp);
+            });
+            setPortfolio(temp);
+        }
     }
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[], portfolio: IPortfolio[]) => {
         if (portfolio) {
             const temp = [...portfolio];
             temp.forEach(item => {
-                if (item) { }
-                const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
-
-                if (idx >= 0) {
-                    temp[idx] = {
-                        ...item,
-                        marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+                if (item) {
+                    const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
+    
+                    if (idx >= 0) {
+                        temp[idx] = {
+                            ...item,
+                            marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+                        }
                     }
-                }
+                 }
             });
             setPortfolio(temp)
         }
@@ -308,7 +310,9 @@ const Dashboard = () => {
         if (wsConnected) {
             let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
             symbolList.forEach(item => {
-                subscribeTradeEvent.addSymbolCode(item.symbolCode)
+                if (item) {
+                    subscribeTradeEvent.addSymbolCode(item.symbolCode)
+                }
             });
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
@@ -394,15 +398,15 @@ const Dashboard = () => {
             <div className="d-flex justify-content-center align-items-center col-md-4">
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Matched Orders</div>
-                    <div className="fw-600">{matchedOrder}</div>
+                    <div className="fw-600">{formatNumber(matchedOrder.toString())}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3 border-end">
                     <div className="small fw-bold">Pending Order</div>
-                    <div className="fw-600">{pendingOrder}</div>
+                    <div className="fw-600">{formatNumber(pendingOrder.toString())}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className={`${getNameClass(pctPl)} fw-600`}>{formatCurrency(pctPl.toFixed(2))}%</div>
+                    <div className={`${getNameClass(pctPl)} fw-600`}>{pctPl ? formatCurrency(pctPl.toFixed(2)) : formatCurrency('0')}%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>
