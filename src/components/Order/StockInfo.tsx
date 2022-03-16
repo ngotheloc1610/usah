@@ -95,11 +95,11 @@ const StockInfo = (props: IStockInfo) => {
                     <table className="table table-sm mb-0" cellSpacing="0" cellPadding="0">
                         <tbody>
                             <tr>
-                                <th className="fs-14">Mininum bid size</th>
+                                <th className="fs-14">Tick Size</th>
                                 <td className="text-end fw-600">{formatCurrency(minBidSize.toString())}</td>
                             </tr>
                             <tr>
-                                <th className="fs-14">Lot size</th>
+                                <th className="fs-14">Lot Size</th>
                                 <td className="text-end fw-600">{lotSize}</td>
                             </tr>
                             <tr>
