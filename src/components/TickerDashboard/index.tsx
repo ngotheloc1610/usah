@@ -110,8 +110,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         lastPrice: '0',
                         open: '0',
                         volume: '0',
-                        ceiling: '0',
-                        floor: '0'
+                        ceiling: symbol.ceiling,
+                        floor: symbol.floor
                     };
                     const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
                     if (index < 0) {
