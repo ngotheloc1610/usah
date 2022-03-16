@@ -79,7 +79,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                             symbolCode: symbol.symbolCode,
                             symbolId: symbol.symbolId,
                             symbolName: symbol.symbolName,
-                            previousClose: symbol.previousClose,
+                            prevClosePrice: symbol.prevClosePrice,
                             high: element?.high || '0',
                             low: element?.low || '0',
                             lastPrice: element.currentPrice,
@@ -104,7 +104,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         symbolCode: symbol.symbolCode,
                         symbolId: symbol.symbolId,
                         symbolName: symbol.symbolName,
-                        previousClose: symbol.previousClose,
+                        prevClosePrice: symbol.prevClosePrice,
                         high: '0',
                         low: '0',
                         lastPrice: '0',
@@ -138,7 +138,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         high: checkValue(tempSymbolsList[idx].high, item.high),
                         low: checkValue(tempSymbolsList[idx].low, item.low),
                         open: checkValue(tempSymbolsList[idx].open, item.open),
-                        previousClose: checkValue(tempSymbolsList[idx].previousClose, item.close)
                     }
                 }
             });
@@ -157,7 +156,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         scale: checkValue(tempLastQuotes[index]?.scale, item?.scale),
                         tickPerDay: checkValue(tempLastQuotes[index]?.tickPerDay, item?.tickPerDay),
                         volumePerDay: checkValue(tempLastQuotes[index]?.volumePerDay, item?.volumePerDay),
-                        close: checkValue(tempLastQuotes[index]?.close, item?.close),
                         high: checkValue(tempLastQuotes[index]?.high, item?.high),
                         low: checkValue(tempLastQuotes[index]?.low, item?.low),
                         open: checkValue(tempLastQuotes[index]?.open, item?.open),
@@ -235,7 +233,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
         return listData.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className="pointer_dashboard">
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.previousClose || '')}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.ceiling || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.floor || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
