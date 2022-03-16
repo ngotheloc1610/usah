@@ -254,6 +254,6 @@ export const DEFAULT_SYMBOL: ISymbolInfo = {
     symbolName: "",
     symbolStatus: 0,
     tickSize: "0",
-    previousClose: '0'
+    prevClosePrice: '0'
 }
 

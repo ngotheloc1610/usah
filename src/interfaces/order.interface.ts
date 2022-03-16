@@ -456,7 +456,7 @@ export interface ISymbolInfo {
     symbolName: string;
     symbolStatus: number;
     tickSize: string;
-    previousClose: string;
+    prevClosePrice: string;
 }
 
 export interface ISymbolQuote {
@@ -468,7 +468,7 @@ export interface ISymbolQuote {
     symbolCode: string;
     symbolId: number;
     symbolName: string;
-    previousClose: string;
+    prevClosePrice: string;
     ceiling: string;
     floor: string;
 }
