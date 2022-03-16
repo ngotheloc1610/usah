@@ -100,23 +100,6 @@ const Dashboard = () => {
             }
         });
 
-        return () => {
-            ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
-            tradeHistoryRes.unsubscribe();
-            unsubscribeTradeEvent(symbolList);
-            listOrder.unsubscribe();
-            trade.unsubscribe();
-            portfolioRes.unsubscribe();
-        }
-    }, [])
-
-    useEffect(() => {
-        setMatchedOrder(matchedOrder + 1)
-    }, [tradeEvent])
-
-    useEffect(() => {
-
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
             if (quote && quote.quotesList) {
                 setLastQuotes(quote.quotesList);
@@ -130,11 +113,21 @@ const Dashboard = () => {
         });
 
         return () => {
+            ws.unsubscribe();
+            renderDataSymbolList.unsubscribe();
+            tradeHistoryRes.unsubscribe();
+            unsubscribeTradeEvent(symbolList);
+            listOrder.unsubscribe();
+            trade.unsubscribe();
+            portfolioRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
         }
-
     }, [])
+
+    useEffect(() => {
+        setMatchedOrder(matchedOrder + 1)
+    }, [tradeEvent])
 
     useEffect(() => {
         processLastQuote(lastQuotes, portfolio);
@@ -146,6 +139,7 @@ const Dashboard = () => {
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) { 
+
             const temp = [...portfolio];
             temp.forEach(item => {
                 if (item) {
