@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LIST_TICKER_INFO } from "../../constants/general.constant";
-import { checkValue } from "../../helper/utils";
+import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 import { wsService } from "../../services/websocket-service";
@@ -96,7 +96,7 @@ const StockInfo = (props: IStockInfo) => {
                         <tbody>
                             <tr>
                                 <th className="fs-14">Mininum bid size</th>
-                                <td className="text-end fw-600">{minBidSize}</td>
+                                <td className="text-end fw-600">{formatCurrency(minBidSize.toString())}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">Lot size</th>
@@ -104,7 +104,7 @@ const StockInfo = (props: IStockInfo) => {
                             </tr>
                             <tr>
                                 <th className="fs-14">Volume</th>
-                                <td className="text-end fw-600">{volume}</td>
+                                <td className="text-end fw-600">{formatNumber(volume.toString())}</td>
                             </tr>
                             <tr>
                                 <th className="fs-14">52w High</th>

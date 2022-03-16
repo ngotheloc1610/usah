@@ -6,7 +6,7 @@ import './OrderBoolListBidsAsk.css';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
-import { checkValue } from '../../../../helper/utils';
+import { checkValue, formatCurrency, formatNumber } from '../../../../helper/utils';
 
 const defaultAskBidList: IListAskBid[] = [
     {
@@ -394,9 +394,9 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className={`text-end text-success
                 ${((index + 1) === listAsksBids.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
                         : ((index + 1) === listAsksBids.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
-                    {item.askPrice}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{item.volumeAsk}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{item.totalAsks}</td>
+                    {formatCurrency(item.askPrice)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{formatNumber(item.volumeAsk)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{formatNumber(item.totalAsks)}</td>
             </tr>
         })
     )
@@ -404,9 +404,9 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleColumnsBids = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{item.totalBids === '0' ? "-" : item.totalBids}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{item.volumeBid}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end text-danger">{item.bidPrice}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{item.totalBids === '0' ? "-" : formatNumber(item.totalBids)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{formatNumber(item.volumeBid)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end text-danger">{formatCurrency(item.bidPrice)}</td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
         })
@@ -432,14 +432,14 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end" colSpan={4}>&nbsp;</td>
                     <td className="text-end">
-                        {listAsksBids[listAsksBids.length - 1].totalAsks}
+                        {formatNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}
                     </td>
                 </tr>
                 {_renderDataStyleColumnsAsk()}
                 {_renderDataStyleColumnsBids()}
                 <tr>
                     <td className="text-end">
-                        <strong>{listAsksBids[listAsksBids.length - 1].totalBids}</strong>
+                        <strong>{formatNumber(listAsksBids[listAsksBids.length - 1].totalBids)}</strong>
                     </td>
                     <td className="text-end" colSpan={4}>&nbsp; </td>
                 </tr>
