@@ -23,10 +23,13 @@ export function formatNumber(item: string): string {
 
 // To format price --after the dot is 2 decimals.
 export function formatCurrency(item: string): string {
-    if (isNaN(Number(item))) {
-        return '0'
+    if (item) {
+        if (isNaN(Number(item))) {
+            return '0';
+        }
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
     }
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(Number(item)));
+    return '-';
 }
 
 export function formatIdNumber(item: string) {

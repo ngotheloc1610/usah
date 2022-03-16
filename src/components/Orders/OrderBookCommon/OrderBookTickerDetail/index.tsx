@@ -208,7 +208,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
-                                <td className="text-end">{vwap}</td>
+                                <td className="text-end">{formatCurrency(vwap.toString())}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
