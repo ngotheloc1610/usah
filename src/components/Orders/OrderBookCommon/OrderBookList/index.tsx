@@ -340,7 +340,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="text-end"><strong>{formatNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</strong></td>
+                        <td className="text-end"></td>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">OVER</td>
                     </tr>
@@ -351,7 +351,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         <td className="text-end"><span className="text-success">&nbsp;</span></td>
                     </tr>
                     <tr>
-                        {/* <td className="text-end">{formatNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</td> */}
+                        <td className="text-end"><strong>{formatNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</strong></td>
                         <td className="text-end"></td>
                         <td className="text-end"><span className="text-success">&nbsp;</span></td>
                     </tr>
@@ -389,22 +389,22 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
 
-    const _renderDataStyleColumnsAsk = () => {
+    const _renderDataStyleColumnsAsk = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end" colSpan={2}>&nbsp;</td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className={`text-end text-success
-                ${((index + 1) === listAsksBids.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
+               ${((index + 1) === listAsksBids.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
                         : ((index + 1) === listAsksBids.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
                     {item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{formatNumber(item.volumeAsk)}</td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{formatNumber(item.totalAsks)}</td>
             </tr>
         })
-    }
 
-    const _renderDataStyleColumnsBids = () => {
+    )
 
+    const _renderDataStyleColumnsBids = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">
@@ -415,7 +415,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
         })
-    }
+    )
+
 
     const _renderTableColumns = () => (
         <table className="table table-sm table-borderless table-hover border mb-0">
