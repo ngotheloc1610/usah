@@ -18,6 +18,9 @@ export function calcPendingVolume(volume: string, filledAmount: string) {
 
 // To format volume.
 export function formatNumber(item: string): string {
+    if (isNaN(Number(item))) {
+        return '-'
+    }
     return new Intl.NumberFormat('en-US').format(Number(item));
 }
 
