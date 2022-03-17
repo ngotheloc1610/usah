@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react"
-import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE, SYMBOL_LIST } from "../../constants/general.constant"
-import { assignListPrice, calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
-import { IDetailTickerInfo, ILastQuote, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
+import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
+import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../models/proto/rpc_pb';
-import { IListDashboard } from "../../interfaces/ticker.interface";
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
-    handleQuoteEvent: (item: ITickerInfo) => void;
-    listDataTicker: ITickerInfo[];
+    symbolCode: string;
 }
 
 const defaultProps = {
@@ -20,13 +17,13 @@ const defaultProps = {
 }
 
 const TickerDashboard = (props: ITickerDashboard) => {
-    const { handleTickerInfo, handleQuoteEvent, listDataTicker } = props;
-    const [tickerCode, setTickerCode] = useState('');
+    const { handleTickerInfo, symbolCode } = props;
+    const [tickerCode, setTickerCode] = useState(symbolCode);
     const [listData, setListData] = useState<ISymbolQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([])
-
+    const [isActiveClass, setIsActiveClass] = useState(true)
 
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
@@ -200,6 +197,17 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
     }
 
+    const getNameClassLastPrice = (lastPrice: number, open: number) => {
+        if (lastPrice > open) {
+            return "text-success"
+        }
+        if (lastPrice < open) {
+            return "text-danger"
+        } else {
+            return ""
+        }
+    }
+
     const headerTable = () => (
         <tr>
             <th className="text-left sorting_disabled header-cell w-header fz-14">Ticker Code</th>
@@ -231,7 +239,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const renderDataListCompany = () => {
         return listData.map((item: ISymbolQuote, index) => (
-            <tr key={index} onClick={() => onClickTickerInfo(item)} className="pointer_dashboard">
+            <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.ceiling || '')}</td>
@@ -239,7 +247,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
-                <td className="text-end w-header fw-600"><span className={getNameClass(Number(item.lastPrice))}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-header fw-600"><span className={getNameClassLastPrice(Number(item.lastPrice), Number( item.open))}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600"><span className={getNameClass(calcChange(item.lastPrice, item.open || ''))}>
                     {formatNumber(calcChange(item.lastPrice, item.open || '').toString())}

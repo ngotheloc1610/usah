@@ -201,7 +201,7 @@ const Dashboard = () => {
         // setTicker(element);
     }
 
-    const getPriceOrder = (value: IAskAndBidPrice) => {
+    const getPriceOrder = (value: IAskAndBidPrice) => {        
         setQuoteInfo(value);
     }
 
@@ -269,7 +269,7 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo} listDataTicker={handleSymbolList} handleQuoteEvent={getQuoteEventValue} />
+                        <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode}/>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
