@@ -23,7 +23,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([])
-    const [isActiveClass, setIsActiveClass] = useState(true)
 
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
@@ -250,7 +249,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600"><span className={getNameClassLastPrice(Number(item.lastPrice), Number( item.open))}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600"><span className={getNameClass(calcChange(item.lastPrice, item.open || ''))}>
-                    {formatNumber(calcChange(item.lastPrice, item.open || '').toString())}
+                    {formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}
                 </span></td>
                 <td className="text-end w-change-pct fw-600 align-middle"><span className={getNameClass(calcPctChange(item.lastPrice, item.open || ''))}>
                     {formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
