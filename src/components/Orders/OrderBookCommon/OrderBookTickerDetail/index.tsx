@@ -215,11 +215,11 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                                 <td className="text-end">{lotSize}</td>
                             </tr>
                             <tr>
-                                <td><strong className="text-table">Floor</strong></td>
+                                <td><strong className="text-table">Stop Low</strong></td>
                                 <td className="text-end">{floorPrice}</td>
                             </tr>
                             <tr>
-                                <td><strong className="text-table">Ceiling</strong></td>
+                                <td><strong className="text-table">Stop High</strong></td>
                                 <td className="text-end">{ceilingPrice}</td>
                             </tr>
                         </tbody>

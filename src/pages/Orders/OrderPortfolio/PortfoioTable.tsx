@@ -233,7 +233,7 @@ function PortfolioTable() {
         if (calcCurrentValue(item) === 0) {
             return 0;
         } 
-        return calcCurrentValue(item) / calcCurrentValue(item) * 100;
+        return calcUnrealizedPL(item) / calcCurrentValue(item) * 100;
     }
 
     const _renderPortfolioTableHeader = () => (

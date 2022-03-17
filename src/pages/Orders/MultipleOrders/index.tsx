@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import PaginationComponent from "../../../Common/Pagination";
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
 import { IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
@@ -15,13 +14,13 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
+import ListTicker from "../../../components/Orders/ListTicker";
 
 
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
-    const [currentListTickers, setCurrentListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -61,12 +60,6 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
-        const currentList = calcCurrentList(currentPage, itemPerPage, listTickers);
-
-        setCurrentListTickers(currentList);
-    }, [listTickers, itemPerPage, currentPage])
-
-    useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
     }, [listTickers, isDelete])
 
@@ -74,31 +67,26 @@ const MultipleOrders = () => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
 
+    const getSide = (sideName: string) => {
+        if (sideName.toLocaleLowerCase() === SIDE_NAME.buy.toLocaleLowerCase()) {
+            return tradingModelPb.Side.BUY;
+        } return tradingModelPb.Side.SELL;
+    }
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
-            const temps = [...currentListTickers];
+            const temps = [...listTickers];
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
-                    const idx = temps.findIndex(o => o?.ticker === item?.symbolCode);
-                    if (idx >= 0) {
-                        temps[idx] = {
-                            ...temps[idx],
+                    listSelected.forEach(o => {
+                        temps[Number(o.no) - 1] = {
+                            ...temps[Number(o.no) - 1],
                             status: item.note
                         }
-                    }
+                    });
                 }
             });
-            setCurrentListTickers(temps);
+            setListTickers(temps);
         }
-    }
-
-    const getItemPerPage = (item: number) => {
-        setItemPerPage(item);
-        setCurrentPage(START_PAGE)
-    }
-
-    const getCurrentPage = (item: number) => {
-        setCurrentPage(item);
     }
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
@@ -279,7 +267,7 @@ const MultipleOrders = () => {
     }
 
     const _renderDataMultipleOrders = () => (
-        currentListTickers.map((item: ISymbolMultiOrder, index: number) => {
+        listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
@@ -646,7 +634,7 @@ const MultipleOrders = () => {
         }
 
         const tmp = [...listTickers];
-        tmp.push(obj);
+        tmp.unshift(obj);
         setListTickers(tmp);
         setIsAddOrder(false);
         setPrice(0);
@@ -756,13 +744,6 @@ const MultipleOrders = () => {
             </div>
         </div>
     )
-    const _renderPagination = () => (
-        <div className="m-3">
-            <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
-                getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
-            />
-        </div>
-    )
     return <div className="site-main mt-3">
         <div className="container">
             <div className="card shadow mb-3">
@@ -796,7 +777,6 @@ const MultipleOrders = () => {
                 {listTickers.length === 0 && _renderElementImport()}
                 {listTickers.length > 0 && _renderDataTableListOrder()}
 
-                {listTickers.length > 0 && _renderPagination()}
             </div>
         </div>
         {showModalConfirmMultiOrders && _renderPopupConfirm()}
