@@ -76,36 +76,12 @@ const OrderForm = (props: IOrderForm) => {
             setLotSize(Number(lotSize));
             setPrice(Number(floor));
             setVolume(Number(lotSize));
-
-            if (quoteInfo) {
-                if (!isNaN(Number(quoteInfo.price))) {
-                    setPrice(Number(quoteInfo.price));
-                    const temp = Math.round(Number(quoteInfo.price) * 100);
-                    const tempTickeSize = Math.round(tickSize * 100);
-                    setInvalidPrice(temp % tempTickeSize !== 0);
-                } else {
-                    setPrice(ticker?.floor);
-                    const temp = Math.round(Number(ticker?.floor) * 100);
-                    const tempTickeSize = Math.round(tickSize * 100);
-                    setInvalidPrice(temp % tempTickeSize !== 0);
-                }
-    
-                if (!isNaN(Number(quoteInfo.volume))) {
-                    setVolume(Number(quoteInfo.volume));
-                    setInvalidVolume(Number(quoteInfo.volume) % lotSize !== 0)
-                } else {
-                    if (!isNaN(lotSize)) {
-                        setVolume(lotSize);
-                        setInvalidVolume(false);
-                    }
-                }
-            }
         } else {
             setPrice(0);
             setVolume(0);
         }
         
-    }, [symbolCode, quoteInfo])
+    }, [symbolCode])
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
