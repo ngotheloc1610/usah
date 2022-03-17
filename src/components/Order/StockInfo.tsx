@@ -106,14 +106,6 @@ const StockInfo = (props: IStockInfo) => {
                                 <th className="fs-14">Volume</th>
                                 <td className="text-end fw-600">{volume && formatNumber(volume.toString())}</td>
                             </tr>
-                            <tr>
-                                <th className="fs-14">52w High</th>
-                                <td className="text-end fw-600">{high}</td>
-                            </tr>
-                            <tr>
-                                <th className="fs-14">52w Low</th>
-                                <td className="text-end fw-600">{low}</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
