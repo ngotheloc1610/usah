@@ -125,10 +125,6 @@ const Dashboard = () => {
     }, [])
 
     useEffect(() => {
-
-    },[])
-
-    useEffect(() => {
         setMatchedOrder(matchedOrder + 1)
     }, [tradeEvent])
 
@@ -353,10 +349,10 @@ const Dashboard = () => {
         return calcUnrealizedPL(item) / calcCurrentValue(item) * 100;
     }
 
-    const totalPctUnrealizedPL = (portfolio) => {
+    const totalPctUnrealizedPL = (portfolios: IPortfolio[]) => {
         let total = 0;
-        if (portfolio) {            
-            portfolio.forEach(item => {
+        if (portfolios) {            
+            portfolios.forEach(item => {
                 if (item) {
                     total += calcPctUnrealizedPL(item);
                 }
