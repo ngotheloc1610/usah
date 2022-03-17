@@ -14,8 +14,6 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
-import ListTicker from "../../../components/Orders/ListTicker";
-
 
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
@@ -36,6 +34,9 @@ const MultipleOrders = () => {
     const [isDelete, setIsDelete] = useState(false);
     const [statusPlace, setStatusPlace] = useState(false);
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
+    const [invalidPrice, setInvalidPrice] = useState(false);
+    const [invalidVolume, setInvalidVolume] = useState(false);
+    const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -485,94 +486,158 @@ const MultipleOrders = () => {
     )
 
     const handleChangeValue = (value: string, title: string) => {
-        if (title.toLocaleLowerCase() === 'price') {
-            setPrice(Number(value.replaceAll(',', '')));
-        } else {
-            setVolume(Number(value.replaceAll(',', '')));
+        if (ticker) {
+            const symbolCode = ticker.split('-')[0]?.trim();
+            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            if (item) {
+                const floorPrice = item.floor;
+                const ceilingPrice = item.ceiling;
+                const tickSize = convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
+                const lotSize = convertNumber(item.lotSize) !== 0 ? convertNumber(item.lotSize) : 1;
+                if (title.toLocaleLowerCase() === 'price') {
+                    setPrice(Number(value.replaceAll(',', '')));
+                    const temp = Math.round(Number(value.replaceAll(',', '')) * 100);
+                    const tempTickeSize = Math.round(tickSize * 100);
+                    setInvalidPrice(temp % tempTickeSize !== 0);
+                    if (convertNumber(value) > convertNumber(ceilingPrice)) {
+                        setIsShowNotiErrorPrice(true);
+                        return;
+                    }
+                    if (convertNumber(value) < convertNumber(floorPrice)) {
+                        setIsShowNotiErrorPrice(true);
+                        return;
+                    }
+                    setIsShowNotiErrorPrice(false);
+                } else {
+                    setVolume(Number(value.replaceAll(',', '')));
+                    setInvalidVolume(Number(value.replaceAll(',', '')) % lotSize !== 0);
+                    if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
+                        setInvalidVolume(true);
+                        return;
+                    }
+                    setInvalidVolume(false);
+                }
+            }
         }
     }
 
+    const _renderNotiErrorPrice = () => (
+        <div className='text-danger text-end'>Order price is out of day's price range</div>
+    )
+
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
-        <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-            <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                    value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
-                    thousandseparator="{true}" placeholder=""
-                    onChange={(e) => handleChangeValue(e.target.value, title)}
-                />
+        <>
+            <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
+                <div className="flex-grow-1 py-1 px-2">
+                    <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
+                    <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
+                        thousandseparator="{true}" placeholder=""
+                        onChange={(e) => handleChangeValue(e.target.value, title)}
+                    />
+                </div>
+                <div className="border-start d-flex flex-column">
+                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                </div>
             </div>
-            <div className="border-start d-flex flex-column">
-                <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
-            </div>
-        </div>
+            {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
+            {title.toLocaleLowerCase() === 'volume' && <>
+                {invalidVolume && <div className='text-danger text-end'>Invalid volume</div>}
+            </>}
+        </>
+        
     )
 
     const handelUpperVolume = () => {
-        let lotSize = 1;
-        if (ticker?.trim() !== '') {
-            const tickerCode = ticker.split('-')[0].trim();
+        if (ticker) {
+            const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.ticker === tickerCode);
+            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                lotSize = !isNaN(Number(item.lotSize)) ? Number(item.lotSize) : 1;
+                const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
+                const currentVol = Number(volume);
+                const nerwVol = currentVol + lotSize;
+                setVolume(nerwVol);
+                setInvalidVolume(nerwVol % lotSize !== 0);
             }
-            const currentVol = Number(volume);
-            const nerwVol = currentVol + lotSize;
-            setVolume(nerwVol);
         }
     }
 
     const handelLowerVolume = () => {
-        let lotSize = 1;
-        if (ticker?.trim() !== '') {
-            const tickerCode = ticker.split('-')[0].trim();
+        if (ticker) {
+            const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.ticker === tickerCode);
+            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                lotSize = !isNaN(Number(item.lotSize)) ? Number(item.lotSize) : 1;
+                const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
+                const currentVol = Number(volume);
+                if (currentVol <= lotSize) {
+                    setVolume(lotSize);
+                    return;
+                }
+                const nerwVol = currentVol - lotSize;
+                setVolume(nerwVol);
+                setInvalidVolume(nerwVol % lotSize !== 0);
             }
-            const currentVol = Number(volume);
-            if (currentVol <= lotSize) {
-                setVolume(lotSize);
-                return;
-            }
-            const nerwVol = currentVol - lotSize;
-            setVolume(nerwVol);
         }
     }
 
     const handleUpperPrice = () => {
-        let tickSize = 1;
-        if (ticker?.trim() !== '') {
-            const tickerCode = ticker.split('-')[0].trim();
+        if (ticker) {
+            const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.ticker === tickerCode);
+            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                tickSize = !isNaN(Number(item.tickSize)) ? Number(item.tickSize) : 1;
+                const floorPrice = item.floor;
+                const ceilingPrice = item.ceiling;
+                const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
+                const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+                const currentPrice = Number(price);
+                let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+                setPrice(newPrice);
+                const temp = Math.round(Number(newPrice) * 100);
+                const tempTickeSize = Math.round(tickSize * 100);
+                setInvalidPrice(temp % tempTickeSize !== 0);
+                if (newPrice > ceilingPrice) {
+                    setIsShowNotiErrorPrice(true);
+                    return;
+                }
+                if (newPrice < floorPrice) {
+                    setIsShowNotiErrorPrice(true);
+                    return;
+                }
+                setIsShowNotiErrorPrice(false);
             }
-            const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
-            const currentPrice = Number(price);
-            const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
-            setPrice(newPrice);
         }
-
     }
 
     const handleLowerPrice = () => {
-        let tickSize = 1;
-        if (ticker?.trim() !== '') {
-            const tickerCode = ticker.split('-')[0].trim();
+        if (ticker) {
+            const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.ticker === tickerCode);
+            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                tickSize = !isNaN(Number(item.tickSize)) ? Number(item.tickSize) : 1;
+                const floorPrice = item.floor;
+                const ceilingPrice = item.ceiling;
+                const currentPrice = Number(price);
+                const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
+                const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
+                let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+                setPrice(newPrice);
+                const temp = Math.round(Number(newPrice) * 100);
+                const tempTickeSize = Math.round(tickSize * 100);
+                setInvalidPrice(temp % tempTickeSize !== 0);
+                if (newPrice > ceilingPrice) {
+                    setIsShowNotiErrorPrice(true);
+                }
+                if (newPrice < floorPrice) {
+                    setIsShowNotiErrorPrice(true);
+                    return;
+                }
+                setIsShowNotiErrorPrice(false);
             }
-            const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
-            const currentPrice = Number(price);
-            const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
-            setPrice(newPrice);
         }
     }
 
@@ -584,6 +649,9 @@ const MultipleOrders = () => {
         if (item) {
             setPrice(convertNumber(item.floor));
             setVolume(convertNumber(item.lotSize));
+            setInvalidPrice(false);
+            setInvalidVolume(false);
+            setIsShowNotiErrorPrice(false);
         }
     }
 
@@ -610,18 +678,7 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0);
-    }
-
-    const getSideName = (side: number) => {
-        switch (side) {
-            case tradingModelPb.Side.BUY: {
-                return 'Buy';
-            }
-            default: {
-                return 'Sell'
-            }
-        }
+        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice);
     }
 
     const handlePlaceOrder = () => {
