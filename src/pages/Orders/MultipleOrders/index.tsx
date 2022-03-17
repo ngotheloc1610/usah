@@ -124,6 +124,8 @@ const MultipleOrders = () => {
 
     const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {        
         const tickSize = getTickSize(itemSymbol.ticker);
+        const celling = getCelling(itemSymbol.ticker);
+        const floorPrice = getFloor(itemSymbol.ticker);
         const temp = Math.round(+maskedVal * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         let newValue = '';
@@ -134,8 +136,15 @@ const MultipleOrders = () => {
                 newValue = tickSize.toString();
             }
         }
+        if (+maskedVal > celling) {
+            listTickers[index].isErrorPriceRange = true;
+        } else if (+maskedVal < floorPrice) {
+            listTickers[index].isErrorPriceRange = true;
+        } else {
+            listTickers[index].isErrorPriceRange = false;
+        }
         listTickers[index].price = newValue;
-        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
+        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -158,6 +167,24 @@ const MultipleOrders = () => {
         return 1;
     }
 
+    const getCelling = (ticker: string) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.ceiling;
+        if (tickSize) {
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        }
+        return 0
+    }
+
+    const getFloor = (ticker: string) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.floor;
+        if (tickSize) {
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        }
+        return 0
+    }
+
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ? (Number(itemSymbol.volume) - lotSize) : lotSize;
@@ -178,22 +205,40 @@ const MultipleOrders = () => {
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
+        const celling = getCelling(itemSymbol.ticker);
+        const floorPrice = getFloor(itemSymbol.ticker);
         const newValue = (Number(itemSymbol.price) - tickSize) > 0 ? (Number(itemSymbol.price) - tickSize) : tickSize;
         const temp = Math.round(newValue * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         listTickers[index].price = newValue.toString();
-        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
+        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
+        if (newValue > celling) {
+            listTickers[index].isErrorPriceRange = true;
+        } else if (newValue < floorPrice) {
+            listTickers[index].isErrorPriceRange = true;
+        } else {
+            listTickers[index].isErrorPriceRange = false;
+        }
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
+        const celling = getCelling(itemSymbol.ticker);
+        const floorPrice = getFloor(itemSymbol.ticker);
         const newValue = (Number(itemSymbol.price) + tickSize) > 0 ? (Number(itemSymbol.price) + tickSize) : tickSize;
         const temp = Math.round(newValue * 100);
         const tempTickeSize = Math.round(tickSize * 100);
-        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
+        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
         listTickers[index].price = newValue.toString();
+        if (newValue > celling) {
+            listTickers[index].isErrorPriceRange = true;
+        } else if (newValue < floorPrice) {
+            listTickers[index].isErrorPriceRange = true;
+        } else {
+            listTickers[index].isErrorPriceRange = false;
+        }
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -338,7 +383,9 @@ const MultipleOrders = () => {
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
-                    {item.isErrorPrice && _renderNotiErrorPrice()}
+                    {item.isInvalidPrice && <span className='text-danger'>Invalid Price</span> }
+                    {item.isErrorPriceRange && _renderNotiErrorPrice() }
+
                 </td>
                 {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>
