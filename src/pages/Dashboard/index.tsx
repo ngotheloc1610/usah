@@ -201,7 +201,7 @@ const Dashboard = () => {
         // setTicker(element);
     }
 
-    const getPriceOrder = (value: IAskAndBidPrice) => {        
+    const getPriceOrder = (value: IAskAndBidPrice) => {
         setQuoteInfo(value);
     }
 
