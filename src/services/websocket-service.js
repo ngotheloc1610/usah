@@ -55,16 +55,15 @@ const startWs = async () => {
     socket.onerror = () => {
         socket.close();
         wsConnected = false;
-    }
-    
-    socket.onclose = () => {
-        console.log("websocket closed -> reconnect websocket");
         // TODO: navigate to login screen when expired token
         localStorage.removeItem(ACCOUNT_ID);
         localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
         localStorage.removeItem(EXPIRE_TIME);
         window.location.href = '/login';
-
+    }
+    
+    socket.onclose = () => {
+        console.log("websocket closed -> reconnect websocket");
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         setTimeout(function(){startWs()}, 5000);
