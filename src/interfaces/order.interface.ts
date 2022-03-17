@@ -169,6 +169,8 @@ export interface ISymbolMultiOrder {
     ticker: string;
     volume: string;
     status?: string;
+    isErrorPrice?: boolean;
+    isErrorVolume?: boolean;
 }
 export interface IListOrderHistory {
     amount: string;

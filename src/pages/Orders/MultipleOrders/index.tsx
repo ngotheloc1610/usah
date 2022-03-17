@@ -117,29 +117,32 @@ const MultipleOrders = () => {
             }
         }
         listTickers[index].volume = newValue;
+        listTickers[index].isErrorVolume = Number(val) % lotSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
-    const changePrice = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
+    const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {        
         const tickSize = getTickSize(itemSymbol.ticker);
-        const val = value.replaceAll(',', '');
+        const temp = Math.round(+maskedVal * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
         let newValue = '';
-        if (!isNaN(Number(val))) {
-            if (Number(val) > 0) {
-                newValue = Number(val).toString();
+        if (!isNaN(Number(maskedVal))) {
+            if (Number(maskedVal) > 0) {
+                newValue = Number(maskedVal).toString();
             } else {
                 newValue = tickSize.toString();
             }
         }
         listTickers[index].price = newValue;
+        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
     const getLotSize = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const lotSize = lstSymbols.find(o => o?.ticker === ticker)?.lotSize;
+        const lotSize = lstSymbols.find(o => o?.symbolCode === ticker)?.lotSize;
         if (lotSize) {
             return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
@@ -148,7 +151,7 @@ const MultipleOrders = () => {
 
     const getTickSize = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.ticker === ticker)?.tickSize;
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.tickSize;
         if (tickSize) {
             return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
@@ -160,6 +163,7 @@ const MultipleOrders = () => {
         const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ? (Number(itemSymbol.volume) - lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
+        listTickers[index].isErrorVolume = Number(newValue) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
@@ -168,13 +172,17 @@ const MultipleOrders = () => {
         const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ? (Number(itemSymbol.volume) + lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
+        listTickers[index].isErrorVolume = Number(newValue) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const newValue = (Number(itemSymbol.price) - tickSize) > 0 ? (Number(itemSymbol.price) - tickSize) : tickSize;
+        const temp = Math.round(newValue * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
         listTickers[index].price = newValue.toString();
+        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -182,6 +190,9 @@ const MultipleOrders = () => {
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const newValue = (Number(itemSymbol.price) + tickSize) > 0 ? (Number(itemSymbol.price) + tickSize) : tickSize;
+        const temp = Math.round(newValue * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
+        listTickers[index].isErrorPrice = temp % tempTickeSize !== 0;
         listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -304,6 +315,7 @@ const MultipleOrders = () => {
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
+                    {item.isErrorVolume && <span className='text-danger'>Invalid volume</span>}
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
@@ -315,9 +327,9 @@ const MultipleOrders = () => {
                             <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
                         </svg>
                         <CurrencyInput
-                            onChange={(e) => changePrice(e.target.value, item, index)}
+                            onChange={(e, maskedVal) => changePrice(e.target.value, maskedVal, item, index)}
                             decimalscale={2} type="text" className="form-control text-end border-1 p-0"
-                            thousandseparator="{true}" value={formatNumber(item.price)} placeholder=""
+                            thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
                         <svg
                             onClick={(e) => increasePrice(item, index)}
@@ -326,6 +338,7 @@ const MultipleOrders = () => {
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
+                    {item.isErrorPrice && _renderNotiErrorPrice()}
                 </td>
                 {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>
@@ -352,7 +365,7 @@ const MultipleOrders = () => {
                     {item.orderSide}
                 </td>
                 <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
-                <td className="text-end text-nowrap"> {formatNumber(item.price)}</td>
+                <td className="text-end text-nowrap"> {formatCurrency(item.price)}</td>
             </tr>
         })
     )
