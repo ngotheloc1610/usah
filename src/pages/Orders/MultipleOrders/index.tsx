@@ -70,26 +70,18 @@ const MultipleOrders = () => {
     const getSide = (sideName: string) => {
         if (sideName.toLocaleLowerCase() === SIDE_NAME.buy.toLocaleLowerCase()) {
             return tradingModelPb.Side.BUY;
-        } return tradingModelPb.Side.SELL; 
+        } return tradingModelPb.Side.SELL;
     }
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
-
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
-                    const lst = temps.forEach((o, idx) => {
-                        if (o?.ticker === item?.symbolCode
-                            && Number(getSide(o?.orderSide)) === item?.side
-                            && o?.volume === item?.amount
-                            && o?.price === item?.price) {
-                                if (idx >= 0) {
-                                    temps[idx] = {
-                                        ...temps[idx],
-                                        status: item.note
-                                    }
-                                }
-                            }
+                    listSelected.forEach(o => {
+                        temps[Number(o.no) - 1] = {
+                            ...temps[Number(o.no) - 1],
+                            status: item.note
+                        }
                     });
                 }
             });
@@ -642,7 +634,7 @@ const MultipleOrders = () => {
         }
 
         const tmp = [...listTickers];
-        tmp.push(obj);
+        tmp.unshift(obj);
         setListTickers(tmp);
         setIsAddOrder(false);
         setPrice(0);
