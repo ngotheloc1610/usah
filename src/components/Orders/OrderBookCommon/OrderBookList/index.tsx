@@ -95,7 +95,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const mapDataTable = (asksList: IAskAndBidPrice[], bidsList: IAskAndBidPrice[]) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
-        const askList = styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
+        const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
         const bidList = bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
@@ -416,7 +416,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         TITLE_LIST_BID_ASK_COLUMN_GAB.map((item, index) => {
             console.log(index, item);
 
-            return <th key={index} className='text-end abc'>{item}</th>
+            return <th key={index} className='text-end'>{item}</th>
         })
     )
 
