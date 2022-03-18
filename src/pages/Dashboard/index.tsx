@@ -95,8 +95,7 @@ const Dashboard = () => {
 
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                const portfolioList = res.accountPortfolioList.filter(item => (item.totalBuyVolume - item.totalSellVolume) > 0);
-                setPortfolio(portfolioList);
+                setPortfolio(res.accountPortfolioList);
             }
         });
 
@@ -342,7 +341,7 @@ const Dashboard = () => {
     }
 
     const calcPctUnrealizedPL = (item: IPortfolio) => {
-        if (calcCurrentValue(item) === 0) {
+        if (calcInvestedValue(item) === 0) {
             return 0;
         }
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;

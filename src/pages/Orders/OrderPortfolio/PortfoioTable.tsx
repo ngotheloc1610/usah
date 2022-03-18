@@ -16,10 +16,9 @@ function PortfolioTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                const portfolioList = res.accountPortfolioList.filter(item => (item.totalBuyVolume - item.totalSellVolume) > 0);
-                setPortfolio(portfolioList);
-                callLastQuoteReq(portfolioList);
-                subscribeQuoteEvent(portfolioList);
+                setPortfolio(res.accountPortfolioList);
+                callLastQuoteReq(res.accountPortfolioList);
+                subscribeQuoteEvent(res.accountPortfolioList);
             }
         });
 
@@ -232,7 +231,7 @@ function PortfolioTable() {
     }
 
     const calcPctUnrealizedPL = (item: IPortfolio) => {
-        if (calcCurrentValue(item) === 0) {
+        if (calcInvestedValue(item) === 0) {
             return 0;
         }
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
@@ -265,7 +264,7 @@ function PortfolioTable() {
                 <td className="text-end w-s td fw-600" ><span className={getNameClass(calcUnrealizedPL(item))}>
                     {formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
-                <td className="text-end w-s td fw-600"><span className={getNameClass(calcUnrealizedPL(item))}>
+                <td className="text-end w-s td fw-600"><span className={getNameClass(calcPctUnrealizedPL(item))}>
                     {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
             </tr>
