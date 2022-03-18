@@ -7,12 +7,9 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as sspb from '../../models/proto/system_service_pb'
-import ReduxPersist from '../../config/ReduxPersist';
-import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
-import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 interface IConfirmOrder {
@@ -234,7 +231,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            {isModify && title === 'Side' ? <td className={`text-end ${value === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
+            {isModify && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
         </tr> 
     )
 
@@ -244,7 +241,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-end'>
                 {isModify ? <div className="border d-flex h-46">
                     <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
-                        {(title === 'Volume') ?
+                        {(title === TITLE_ORDER_CONFIRM.VOLUME) ?
                             <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
                                 onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                             :
@@ -292,11 +289,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <div>
             <table className='w-354'>
                 <tbody>
-                    {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
-                    { isModify && _renderConfirmOrder('Side', `${getSideName(params.side)}`)}
-                    {_renderInputControl('Volume', `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
-                    {_renderInputControl('Price', `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
-                    {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
+                    { isModify && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
+                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
                 </tbody>
             </table>
             <div className='mt-30'>

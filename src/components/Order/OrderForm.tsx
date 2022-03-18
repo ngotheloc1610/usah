@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
@@ -321,8 +321,8 @@ const OrderForm = (props: IOrderForm) => {
             </div>
 
 
-            {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Quantity', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             <div className="border-top">
                 {_renderPlaceButton()}

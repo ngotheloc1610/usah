@@ -44,8 +44,8 @@ export const RESPONSE_RESULT = {
 };
 
 export const SIDE_NAME = {
-    buy: 'Buy',
-    sell: 'Sell'
+    buy: 'buy',
+    sell: 'sell'
 };
 
 export const MARKET_DEPTH_LENGTH = 3;
@@ -137,4 +137,13 @@ export const DEFAULT_TIME_ZONE = 'SG';
 export const STATUS_ORDER = {
     success: 'SUCCESS',
     rejected: 'REJECTED'
-}
+};
+
+export enum TITLE_ORDER_CONFIRM {
+    TICKER = 'Ticker',
+    SIDE = 'Side',
+    VOLUME = 'Volume',
+    QUANLITY = 'Quantity',
+    PRICE = 'Price',
+    VALUE = 'Value'
+} 
