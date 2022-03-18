@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
-import { IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
+import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -121,13 +121,13 @@ const MultipleOrders = () => {
         setListTickers(listOrder);
     }
 
-    const changePrice = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
+
+    const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {        
         const tickSize = getTickSize(itemSymbol.ticker);
-        const val = value.replaceAll(',', '');
         let newValue = '';
-        if (!isNaN(Number(val))) {
-            if (Number(val) > 0) {
-                newValue = Number(val).toString();
+        if (!isNaN(Number(maskedVal))) {
+            if (Number(maskedVal) > 0) {
+                newValue = Number(maskedVal).toString();
             } else {
                 newValue = tickSize.toString();
             }
@@ -139,7 +139,7 @@ const MultipleOrders = () => {
 
     const getLotSize = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const lotSize = lstSymbols.find(o => o?.ticker === ticker)?.lotSize;
+        const lotSize = lstSymbols.find(o => o?.symbolCode === ticker)?.lotSize;
         if (lotSize) {
             return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
@@ -148,16 +148,34 @@ const MultipleOrders = () => {
 
     const getTickSize = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.ticker === ticker)?.tickSize;
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.tickSize;
         if (tickSize) {
             return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
         return 1;
     }
 
+    const getCelling = (ticker: string) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.ceiling;
+        if (tickSize) {
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        }
+        return 0
+    }
+
+    const getFloor = (ticker: string) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.floor;
+        if (tickSize) {
+            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        }
+        return 0
+    }
+
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ? (Number(itemSymbol.volume) - lotSize) : lotSize;
+        const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -165,7 +183,7 @@ const MultipleOrders = () => {
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ? (Number(itemSymbol.volume) + lotSize) : lotSize;
+        const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -173,7 +191,14 @@ const MultipleOrders = () => {
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) - tickSize) > 0 ? (Number(itemSymbol.price) - tickSize) : tickSize;
+        const celling = getCelling(itemSymbol.ticker);
+        const floorPrice = getFloor(itemSymbol.ticker);
+        let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
+        if (newValue > celling) {
+            newValue = celling;
+        } else if (newValue < floorPrice) {
+            newValue = floorPrice;
+        }
         listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -181,7 +206,14 @@ const MultipleOrders = () => {
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) + tickSize) > 0 ? (Number(itemSymbol.price) + tickSize) : tickSize;
+        const celling = getCelling(itemSymbol.ticker);
+        const floorPrice = getFloor(itemSymbol.ticker);
+        let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
+        if (newValue > celling) {
+            newValue = celling;
+        } else if (newValue < floorPrice) {
+            newValue = floorPrice;
+        }
         listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
@@ -315,9 +347,9 @@ const MultipleOrders = () => {
                             <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
                         </svg>
                         <CurrencyInput
-                            onChange={(e) => changePrice(e.target.value, item, index)}
+                            onChange={(e, maskedVal) => changePrice(e.target.value, maskedVal, item, index)}
                             decimalscale={2} type="text" className="form-control text-end border-1 p-0"
-                            thousandseparator="{true}" value={formatNumber(item.price)} placeholder=""
+                            thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
                         <svg
                             onClick={(e) => increasePrice(item, index)}
@@ -352,7 +384,7 @@ const MultipleOrders = () => {
                     {item.orderSide}
                 </td>
                 <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
-                <td className="text-end text-nowrap"> {formatNumber(item.price)}</td>
+                <td className="text-end text-nowrap"> {formatCurrency(item.price)}</td>
             </tr>
         })
     )

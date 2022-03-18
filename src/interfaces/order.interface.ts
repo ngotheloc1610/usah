@@ -170,6 +170,7 @@ export interface ISymbolMultiOrder {
     volume: string;
     status?: string;
 }
+
 export interface IListOrderHistory {
     amount: string;
     entry: string;
