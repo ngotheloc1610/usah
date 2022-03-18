@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, formatCurrency, formatNumber } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 
@@ -82,6 +82,13 @@ const OrderForm = (props: IOrderForm) => {
         }
         
     }, [symbolCode])
+
+    useEffect(() => {
+        if (quoteInfo) {
+            setPrice(convertNumber(quoteInfo.price));
+            setVolume(convertNumber(quoteInfo.volume));
+        }
+    }, [quoteInfo])
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
