@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
-import { IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
+import { IMultiOrder, IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -18,7 +18,7 @@ import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
-    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
+    const [listTickers, setListTickers] = useState<IMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -117,7 +117,7 @@ const MultipleOrders = () => {
             }
         }
         listTickers[index].volume = newValue;
-        listTickers[index].isErrorVolume = Number(val) % lotSize !== 0;
+        listTickers[index].isErrorVolume = convertNumber(val) % lotSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -187,19 +187,19 @@ const MultipleOrders = () => {
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) - lotSize) > 0 ? (Number(itemSymbol.volume) - lotSize) : lotSize;
+        const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
-        listTickers[index].isErrorVolume = Number(newValue) % lotSize !== 0;
+        listTickers[index].isErrorVolume = convertNumber(newValue.toString()) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.volume) + lotSize) > 0 ? (Number(itemSymbol.volume) + lotSize) : lotSize;
+        const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
-        listTickers[index].isErrorVolume = Number(newValue) % lotSize !== 0;
+        listTickers[index].isErrorVolume = convertNumber(newValue.toString()) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
@@ -207,7 +207,7 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const celling = getCelling(itemSymbol.ticker);
         const floorPrice = getFloor(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) - tickSize) > 0 ? (Number(itemSymbol.price) - tickSize) : tickSize;
+        const newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
         const temp = Math.round(newValue * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         listTickers[index].price = newValue.toString();
@@ -227,7 +227,7 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const celling = getCelling(itemSymbol.ticker);
         const floorPrice = getFloor(itemSymbol.ticker);
-        const newValue = (Number(itemSymbol.price) + tickSize) > 0 ? (Number(itemSymbol.price) + tickSize) : tickSize;
+        const newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
         const temp = Math.round(newValue * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
@@ -324,7 +324,7 @@ const MultipleOrders = () => {
     }
 
     const _renderDataMultipleOrders = () => (
-        listTickers.map((item: ISymbolMultiOrder, index: number) => {
+        listTickers.map((item: IMultiOrder, index: number) => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
