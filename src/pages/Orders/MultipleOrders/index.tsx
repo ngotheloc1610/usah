@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
-import { IMultiOrder, IOrderListResponse, ISymbolMultiOrder } from "../../../interfaces/order.interface";
+import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -18,7 +18,7 @@ import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
-    const [listTickers, setListTickers] = useState<IMultiOrder[]>([]);
+    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -117,17 +117,13 @@ const MultipleOrders = () => {
             }
         }
         listTickers[index].volume = newValue;
-        listTickers[index].isErrorVolume = convertNumber(val) % lotSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
 
+
     const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {        
         const tickSize = getTickSize(itemSymbol.ticker);
-        const celling = getCelling(itemSymbol.ticker);
-        const floorPrice = getFloor(itemSymbol.ticker);
-        const temp = Math.round(+maskedVal * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
         let newValue = '';
         if (!isNaN(Number(maskedVal))) {
             if (Number(maskedVal) > 0) {
@@ -136,15 +132,7 @@ const MultipleOrders = () => {
                 newValue = tickSize.toString();
             }
         }
-        if (+maskedVal > celling) {
-            listTickers[index].isErrorPriceRange = true;
-        } else if (+maskedVal < floorPrice) {
-            listTickers[index].isErrorPriceRange = true;
-        } else {
-            listTickers[index].isErrorPriceRange = false;
-        }
         listTickers[index].price = newValue;
-        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -190,7 +178,6 @@ const MultipleOrders = () => {
         const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
-        listTickers[index].isErrorVolume = convertNumber(newValue.toString()) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
@@ -199,7 +186,6 @@ const MultipleOrders = () => {
         const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
         listTickers[index].volume = newValue.toString();
         const listOrder = [...listTickers];
-        listTickers[index].isErrorVolume = convertNumber(newValue.toString()) % lotSize !== 0;
         setListTickers(listOrder);
     }
 
@@ -207,18 +193,13 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const celling = getCelling(itemSymbol.ticker);
         const floorPrice = getFloor(itemSymbol.ticker);
-        const newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
-        const temp = Math.round(newValue * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        listTickers[index].price = newValue.toString();
-        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
+        let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
         if (newValue > celling) {
-            listTickers[index].isErrorPriceRange = true;
+            newValue = celling;
         } else if (newValue < floorPrice) {
-            listTickers[index].isErrorPriceRange = true;
-        } else {
-            listTickers[index].isErrorPriceRange = false;
+            newValue = floorPrice;
         }
+        listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -227,18 +208,13 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(itemSymbol.ticker);
         const celling = getCelling(itemSymbol.ticker);
         const floorPrice = getFloor(itemSymbol.ticker);
-        const newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
-        const temp = Math.round(newValue * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        listTickers[index].isInvalidPrice = temp % tempTickeSize !== 0;
-        listTickers[index].price = newValue.toString();
+        let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
         if (newValue > celling) {
-            listTickers[index].isErrorPriceRange = true;
+            newValue = celling;
         } else if (newValue < floorPrice) {
-            listTickers[index].isErrorPriceRange = true;
-        } else {
-            listTickers[index].isErrorPriceRange = false;
+            newValue = floorPrice;
         }
+        listTickers[index].price = newValue.toString();
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -324,7 +300,7 @@ const MultipleOrders = () => {
     }
 
     const _renderDataMultipleOrders = () => (
-        listTickers.map((item: IMultiOrder, index: number) => {
+        listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
@@ -360,7 +336,6 @@ const MultipleOrders = () => {
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
-                    {item.isErrorVolume && <span className='text-danger'>Invalid volume</span>}
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
@@ -383,9 +358,6 @@ const MultipleOrders = () => {
                             <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
                         </svg>
                     </div>
-                    {item.isInvalidPrice && <span className='text-danger'>Invalid Price</span> }
-                    {item.isErrorPriceRange && _renderNotiErrorPrice() }
-
                 </td>
                 {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>

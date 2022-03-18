@@ -171,18 +171,6 @@ export interface ISymbolMultiOrder {
     status?: string;
 }
 
-export interface IMultiOrder {
-    no: string;
-    orderSide: string;
-    price: string;
-    ticker: string;
-    volume: string;
-    status?: string;
-    isInvalidPrice?: boolean;
-    isErrorPriceRange?: boolean;
-    isErrorVolume?: boolean;
-}
-
 export interface IListOrderHistory {
     amount: string;
     entry: string;
