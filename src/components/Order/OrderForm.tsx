@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IAskAndBidPrice, IParamOrder, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
@@ -33,6 +33,17 @@ const defaultData: IParamOrder = {
     tickerId: ''
 }
 
+const defaultDataModiFyCancel: IParamOrderModifyCancel = {
+    tickerCode: '',
+    tickerName: '',
+    orderType: '',
+    volume: '',
+    price: 0,
+    side: 0,
+    confirmationConfig: false,
+    tickerId: ''
+}
+
 const OrderForm = (props: IOrderForm) => {
     const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
     const [tickerName, setTickerName] = useState('');
@@ -40,7 +51,7 @@ const OrderForm = (props: IOrderForm) => {
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
-    const [paramOrder, setParamOrder] = useState(defaultData);
+    const [paramOrder, setParamOrder] = useState(defaultDataModiFyCancel);
     const [lotSize, setLotSize] = useState(100);
     const [tickSize, setTickSize] = useState(0.01)
     const [price, setPrice] = useState(0);
@@ -311,7 +322,7 @@ const OrderForm = (props: IOrderForm) => {
 
 
             {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+            {_renderInputControl('Quantity', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             <div className="border-top">
                 {_renderPlaceButton()}

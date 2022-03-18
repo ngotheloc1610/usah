@@ -44,8 +44,8 @@ export const RESPONSE_RESULT = {
 };
 
 export const SIDE_NAME = {
-    buy: 'buy',
-    sell: 'sell'
+    buy: 'Buy',
+    sell: 'Sell'
 };
 
 export const MARKET_DEPTH_LENGTH = 3;

@@ -45,6 +45,18 @@ export interface IParamOrder {
     tickerId: string;
 }
 
+export interface IParamOrderModifyCancel {
+    orderId?: string;
+    tickerCode: string;
+    tickerName: string;
+    orderType: string;
+    volume: string;
+    price: number;
+    side: number;
+    confirmationConfig: boolean;
+    tickerId: string;
+}
+
 export interface IOrderBook {
     askVol: string;
     price: string;

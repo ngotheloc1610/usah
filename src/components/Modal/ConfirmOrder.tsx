@@ -1,6 +1,6 @@
 import './Modal.scss';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
-import { IParamOrder } from '../../interfaces/order.interface';
+import { IParamOrder, IParamOrderModifyCancel } from '../../interfaces/order.interface';
 import { useEffect, useState } from 'react';
 import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
@@ -10,7 +10,7 @@ import * as sspb from '../../models/proto/system_service_pb'
 import ReduxPersist from '../../config/ReduxPersist';
 import queryString from 'query-string';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import { IAuthen } from '../../interfaces';
 import CurrencyInput from 'react-currency-masked-input';
@@ -19,7 +19,7 @@ interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
     handleStatusModifyCancel?: (value: boolean) => void;
-    params: IParamOrder;
+    params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
 }
@@ -234,8 +234,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-end'>{value}</td>
-        </tr>
+            <td className={`text-end ${value === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : value === SIDE_NAME.sell ? 'text-success pt-1 pb-2' : ''}`}>{value}</td>
+        </tr> 
     )
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
@@ -251,7 +251,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                             <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
                                 onChange={(e, maskedVal) => {
                                     setPriceModify(+maskedVal)
-                                 }} value={formatCurrency(priceModify.toString())} />
+                                }} value={formatCurrency(priceModify.toString())} />
                         }
                     </div>
                     <div className="border-start d-flex flex-column">
@@ -284,11 +284,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <button className='btn btn-primary' onClick={sendOrder}>Place</button>
     )
 
+    const getSideName = (sideId: number) => {
+        return SIDE.find(item => item.code === sideId)?.title;
+    }
+
     const _renderListConfirm = () => (
         <div>
             <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder('Ticker', `${params.tickerCode} - ${params.tickerName}`)}
+                    { isModify && _renderConfirmOrder('Side', `${getSideName(params.side)}`)}
                     {_renderInputControl('Volume', `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl('Price', `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder('Value ($)', `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
@@ -306,7 +311,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <span className='fs-18'>
                 {!isModify && !isCancel && <b>Would you like to place order&nbsp;</b>}
                 {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
-                {isModify && <b>Are you sure to <span className='text-success'>Modify</span> order</b>}
+                {isModify && <b>Are you sure to <span className='text-primary'>Modify</span> order</b>}
             </span>
             {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.Side.BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
                 {Number(currentSide) === Number(tradingModelPb.Side.BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}

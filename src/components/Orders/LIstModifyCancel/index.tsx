@@ -4,7 +4,7 @@ import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import { IListOrderModifyCancel, IParamOrder } from "../../../interfaces/order.interface";
+import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
@@ -39,7 +39,19 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         confirmationConfig: false,
         tickerId: ''
     }
-    const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrder>(defaultData);
+
+    const defaultDataModiFyCancel: IParamOrderModifyCancel = {
+        tickerCode: '',
+        tickerName: '',
+        orderType: '',
+        volume: '',
+        price: 0,
+        side: 0,
+        confirmationConfig: false,
+        tickerId: ''
+    }
+    
+    const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(defaultDataModiFyCancel);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
@@ -143,14 +155,14 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const handleModifyCancel = (item: IListOrderModifyCancel, value: string) => {
-        const param: IParamOrder = {
+        const param: IParamOrderModifyCancel = {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode),
             tickerName: getTickerName(item.symbolCode),
             orderType: ORDER_TYPE_NAME.limit,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
-            side: item.orderType.toString(),
+            side: item.side,
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
         }
@@ -298,7 +310,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                 <span className="text-ellipsis">Price</span>
                             </th>
                             <th className="text-end sorting_disabled">
-                                <span className="text-ellipsis">Volume</span>
+                                <span className="text-ellipsis">Quantity</span>
                             </th>
                             <th className="text-end sorting_disabled">
                                 <span className="text-ellipsis">Pending</span>
