@@ -27,7 +27,7 @@ export function formatCurrency(item: string): string {
         if (isNaN(Number(item))) {
             return '0';
         }
-        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(Number(item));
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(item));
     }
     return '-';
 }
