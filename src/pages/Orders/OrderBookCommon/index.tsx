@@ -457,12 +457,12 @@ const OrderBookCommon = () => {
                                 <div className="row align-items-stretch g-2">
                                     <div className="col-md-9">
                                         <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} handleSide={getSide} getTicerLastQuote={assgnDataFormNewOrder} />
-                                        <div className={`card card-ticker ${isColumnsGap ? 'w-pr-135' : 'w-pr-100'}`} >
+                                        <div className="card card-ticker w-pr-100">
                                             <OrderBookTickerDetail symbolCode={tickerSelect} />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
-                                        <div className={`card card-new-order d-flex flex-column mb-2 ${isColumnsGap ? 'h-new-order' : 'h-100'}`} >
+                                        <div className="card card-new-order d-flex flex-column mb-2 h-100">
                                             <div className="card-header">
                                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                                             </div>

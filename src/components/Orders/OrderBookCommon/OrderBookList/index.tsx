@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { MARKET_DEPTH_LENGTH } from '../../../../constants/general.constant';
-import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
+import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_COLUMN_GAB, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
 import { IAskAndBidPrice, ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
-import './OrderBoolListBidsAsk.css';
+import './OrderBoolListBidsAsk.scss';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
@@ -52,7 +52,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
 
     useEffect(() => {
         processQuoteEvent(quotesEvent)
-    }, [quotesEvent])
+    }, [quotesEvent, styleListBidsAsk])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes && quotes.length > 0) {
@@ -95,7 +95,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const mapDataTable = (asksList: IAskAndBidPrice[], bidsList: IAskAndBidPrice[]) => {
         let counter = MARKET_DEPTH_LENGTH - 1;
         let assgnListAsksBids: IListAskBid[] = [];
-        const askList = asksList.sort((a, b) => b?.price.localeCompare(a?.price));
+        const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
         const bidList = bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
@@ -197,12 +197,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleSpreadsheet = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.totalAsks) === 0 ? '-' :convertNumber(item.totalAsks)}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' :convertNumber(item.volumeAsk)}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.totalAsks) === 0 ? '-' : convertNumber(item.totalAsks)}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : convertNumber(item.volumeAsk)}</td>
                 <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
                 <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' :convertNumber(item.volumeBid)}</td>
-                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.totalBids) === 0 ? '-' :convertNumber(item.totalBids)}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid)}</td>
+                <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.totalBids) === 0 ? '-' : convertNumber(item.totalBids)}</td>
             </tr>
         })
     )
@@ -264,10 +264,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
-                    <strong>UNDER</strong>
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>UNDER</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>OVER</strong>}
                 </td>
                 <td className="text-end border-end border-bottom-0">
-                    <strong>OVER</strong>
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>OVER</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>UNDER</strong>}
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
@@ -311,7 +313,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderTitleStyleGirdBids = () => (
-        TITLE_LIST_BID_ASK.slice(3, 6).map((item, index) => {
+        TITLE_LIST_BID_ASK.slice(3, 6).reverse().map((item, index) => {
             return <th key={index} className="text-end">{item}</th>
         })
     )
@@ -319,9 +321,9 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleGirdAsk = () => (
         listAsksBids.map((item, index) => {
             return <tr key={index}>
-                <td className="text-end text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
-                <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : convertNumber(item.volumeAsk)}</td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}><span>{convertNumber(item.totalAsks) === 0 ? '-' : convertNumber(item.totalAsks)}</span></td>
+                <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : convertNumber(item.volumeAsk)}</td>
+                <td className="text-end text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
             </tr>
         })
     )
@@ -336,20 +338,16 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="text-end"></td>
+                        <td className="text-end"><strong>{convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</strong></td>
                         <td className="text-end">&nbsp;</td>
-                        <td className="text-end">OVER</td>
+                        <td className="text-end"><strong>OVER</strong></td>
                     </tr>
+
                     {_renderDataStyleGirdAsk()}
                     <tr>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end">&nbsp;</td>
-                        <td className="text-end"><span className="text-success">&nbsp;</span></td>
-                    </tr>
-                    <tr>
-                        <td className="text-end"><strong>{convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</strong></td>
-                        <td className="text-end"></td>
-                        <td className="text-end"><span className="text-success">&nbsp;</span></td>
+                        <td className="text-end">&nbsp;</td>
                     </tr>
                 </tbody>
             </table>
@@ -372,7 +370,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                             </strong>
                         </td>
                         <td className="text-end">&nbsp;</td>
-                        <td className="text-end">UNDER</td>
+                        <td className="text-end"><strong>UNDER</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -389,12 +387,10 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         listAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end" colSpan={2}>&nbsp;</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className={`text-end text-success
-               ${((index + 1) === listAsksBids.length && styleListBidsAsk.columnsGap) ? 'bg-success-light'
-                        : ((index + 1) === listAsksBids.length && styleListBidsAsk.columns) ? 'bg-danger-light' : ''}`}>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className={`text-end ${((index + 1) === listAsksBids.length) && 'bg-danger-light text-danger'}`}>
                     {item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.volumeAsk) === 0 ? '-' : convertNumber(item.volumeAsk)}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.totalAsks) === 0 ? '-' : convertNumber(item.totalAsks) === 0}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.totalAsks) === 0 ? '-' : convertNumber(item.totalAsks)}</td>
             </tr>
         })
 
@@ -406,9 +402,50 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">
                     {convertNumber(item.totalBids) === 0 ? '-' : convertNumber(item.totalBids)}
                 </td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid) === 0}</td>
-                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end text-danger">{item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className={`text-end ${index === 0 && 'text-success'}`}>
+                    {item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}
+                </td>
                 <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
+            </tr>
+        })
+    )
+
+    const _renderTitleStyleColumnsGap = () => (
+
+        TITLE_LIST_BID_ASK_COLUMN_GAB.map((item, index) => {
+            console.log(index, item);
+
+            return <th key={index} className='text-end'>{item}</th>
+        })
+    )
+
+    const _renderDataStyleColumnsGapAsk = () => (
+        listAsksBids.map((item, index) => {
+            return <tr key={index}>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.totalAsks) === 0 ? '-' : convertNumber(item.totalAsks)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.volumeAsk) === 0 ? '-' : convertNumber(item.volumeAsk)}</td>
+
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className={`text-end ${(index + 1) === listAsksBids.length && 'text-danger'}`}>
+                    {item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.BUY)} className="text-end" colSpan={2}>&nbsp;</td>
+
+            </tr>
+        })
+
+    )
+
+    const _renderDataStyleColumnsGapBid = () => (
+        listAsksBids.map((item, index) => {
+            return <tr key={index}>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className={`text-end ${index === 0 && 'text-success bg-success-light'}`}>
+                    {item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}
+                </td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid) === 0}</td>
+                <td onClick={() => handleTicker(item, tradingModel.Side.SELL)} className="text-end">
+                    {convertNumber(item.totalBids) === 0 ? '-' : convertNumber(item.totalBids)}
+                </td>
             </tr>
         })
     )
@@ -419,12 +456,61 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             <thead>
                 <tr>
                     {_renderTitleStyleColumns()}
-
                 </tr>
             </thead>
-            <tbody>
+            <tbody className='tbody-grid-order-book'>
                 <tr>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
+                    <td className="text-end"><strong>OVER</strong></td>
+                    <td className="text-end" colSpan={2}>
+                        <strong>
+                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}
+                        </strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
+                </tr>
+                {_renderDataStyleColumnsAsk()}
+                {_renderDataStyleColumnsBids()}
+                <tr>
+                    <td className="text-end" colSpan={5}>&nbsp; </td>
+                </tr>
+                <tr>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td className="text-end">
+                        <strong>
+                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalBids) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalBids)}
+                        </strong>
+                    </td>
+                    <td className="text-end">&nbsp;</td>
+                    <td className="text-end"><strong>UNDER</strong></td>
+                    <td className="text-end" colSpan={2}>&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+    )
+
+    const _renderTableColumnsGap = () => (
+        <table className="table table-sm table-borderless table-hover border mb-0">
+            <thead>
+                <tr>
+                    {_renderTitleStyleColumnsGap()}
+                </tr>
+            </thead>
+            <tbody className='tbody-grid-order-book'>
+                <tr>
+                    <td className="text-end" >
+                        <strong>
+                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}
+                        </strong>
+                    </td>
+                    <td className="text-end">&nbsp;</td>
                     <td className="text-end">OVER</td>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
                 </tr>
@@ -432,22 +518,15 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td className="text-end" colSpan={4}>&nbsp;</td>
-                    <td className="text-end">
-                        <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}
-                        </strong>
-                    </td>
+                    <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
-                {_renderDataStyleColumnsAsk()}
-                {_renderDataStyleColumnsBids()}
+                {_renderDataStyleColumnsGapAsk()}
+                {_renderDataStyleColumnsGapBid()}
                 <tr>
-                    <td className="text-end">
-                        <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalBids) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalBids)}
-                        </strong>
-                    </td>
                     <td className="text-end" colSpan={4}>&nbsp; </td>
+                    <td className="text-end">
+
+                    </td>
                 </tr>
                 <tr>
                     <td className="text-end" colSpan={5}>&nbsp;</td>
@@ -455,16 +534,22 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
                     <td className="text-end">UNDER</td>
-                    <td className="text-end" colSpan={2}>&nbsp;</td>
+                    <td className="text-end" colSpan={2}>
+                        <strong>
+                            {convertNumber(listAsksBids[listAsksBids.length - 1].totalBids) === 0 ? '-' : convertNumber(listAsksBids[listAsksBids.length - 1].totalBids)}
+                        </strong>
+                    </td>
                 </tr>
             </tbody>
         </table>
     )
 
+
     return <div className="order-block table-responsive mb-2 fz-14">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
         {styleListBidsAsk.grid && _renderTableGidBids()}
-        {(styleListBidsAsk.columns || styleListBidsAsk.columnsGap) && _renderTableColumns()}
+        {styleListBidsAsk.columns && _renderTableColumns()}
+        {styleListBidsAsk.columnsGap && _renderTableColumnsGap()}
     </div>
 };
 export default OrderBookList;
