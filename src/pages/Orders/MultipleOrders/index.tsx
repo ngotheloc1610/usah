@@ -671,7 +671,7 @@ const MultipleOrders = () => {
             onChange={(event: any) => handleChangeTicker(event.target.innerText)}
             onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
             disablePortal
-            sx={{ width: 300 }}
+            sx={{ width: 400}}
             value={ticker}
             options={lstStr}
             renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
