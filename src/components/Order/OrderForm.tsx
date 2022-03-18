@@ -156,7 +156,9 @@ const OrderForm = (props: IOrderForm) => {
         const currentPrice = Number(price);
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
-        setPrice(newPrice);
+        if (newPrice > 0) {
+            setPrice(newPrice);
+        }
         const temp = Math.round(Number(newPrice) * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
@@ -235,7 +237,7 @@ const OrderForm = (props: IOrderForm) => {
     }
     const handleChangeVolume = (value: string) => {
         const convertValueToNumber = Number(value.replaceAll(',', ''));
-        if (convertValueToNumber || convertValueToNumber === 0) {
+        if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
             setVolume(convertValueToNumber);
             setInvalidVolume(convertValueToNumber % lotSize !== 0)
         }

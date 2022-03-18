@@ -517,7 +517,7 @@ const MultipleOrders = () => {
         </button>
     )
 
-    const handleChangeValue = (value: string, title: string) => {
+    const handleChangeValue = (value: string, maskedVal: number, title: string) => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -528,7 +528,7 @@ const MultipleOrders = () => {
                 const tickSize = convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const lotSize = convertNumber(item.lotSize) !== 0 ? convertNumber(item.lotSize) : 1;
                 if (title.toLocaleLowerCase() === 'price') {
-                    setPrice(Number(value.replaceAll(',', '')));
+                    setPrice(+maskedVal);
                     const temp = Math.round(Number(value.replaceAll(',', '')) * 100);
                     const tempTickeSize = Math.round(tickSize * 100);
                     setInvalidPrice(temp % tempTickeSize !== 0);
@@ -542,7 +542,10 @@ const MultipleOrders = () => {
                     }
                     setIsShowNotiErrorPrice(false);
                 } else {
-                    setVolume(Number(value.replaceAll(',', '')));
+                    const convertValueToNumber = Number(value.replaceAll(',', ''));
+                    if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
+                        setVolume(Number(value.replaceAll(',', '')));
+                    }
                     setInvalidVolume(Number(value.replaceAll(',', '')) % lotSize !== 0);
                     if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
                         setInvalidVolume(true);
@@ -566,7 +569,7 @@ const MultipleOrders = () => {
                     <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
                         thousandseparator="{true}" placeholder=""
-                        onChange={(e) => handleChangeValue(e.target.value, title)}
+                        onChange={(e, maskedVal) => handleChangeValue(e.target.value, maskedVal, title)}
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
@@ -657,12 +660,15 @@ const MultipleOrders = () => {
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
-                setPrice(newPrice);
+                if (newPrice > 0) {
+                    setPrice(newPrice);
+                }
                 const temp = Math.round(Number(newPrice) * 100);
                 const tempTickeSize = Math.round(tickSize * 100);
                 setInvalidPrice(temp % tempTickeSize !== 0);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
+                    return;
                 }
                 if (newPrice < floorPrice) {
                     setIsShowNotiErrorPrice(true);
