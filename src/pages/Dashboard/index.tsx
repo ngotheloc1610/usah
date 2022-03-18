@@ -95,7 +95,8 @@ const Dashboard = () => {
 
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                setPortfolio(res.accountPortfolioList)
+                const portfolioList = res.accountPortfolioList.filter(item => (item.totalBuyVolume - item.totalSellVolume) > 0);
+                setPortfolio(portfolioList);
             }
         });
 
@@ -138,15 +139,14 @@ const Dashboard = () => {
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
-
             const temp = [...portfolio];
-            temp.forEach(item => {
+            lastQuotes.forEach(item => {
                 if (item) {
-                    const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                    const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
                     if (idx >= 0) {
                         temp[idx] = {
-                            ...item,
-                            marketPrice: lastQuotes[idx]?.currentPrice
+                            ...temp[idx],
+                            marketPrice: item?.currentPrice
                         }
                     }
                 }
@@ -157,19 +157,18 @@ const Dashboard = () => {
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
-            const temp = [...portfolio];
-            portfolio.forEach(item => {
-                const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
+            const temp = [...portfolio];            
+            quoteEvent.forEach(item => {
                 if (item) {
-
+                    const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
                     if (idx >= 0) {
                         temp[idx] = {
-                            ...item,
-                            marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+                            ...temp[idx],
+                            marketPrice: checkValue(temp[idx]?.marketPrice, item?.currentPrice)
                         }
                     }
                 }
-            });
+            })
             setPortfolio(temp);
         }
     }
@@ -309,7 +308,7 @@ const Dashboard = () => {
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
             rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
-        }        
+        }
     }
 
     const unsubscribeTradeEvent = (symbolList: ISymbolInfo[]) => {
@@ -345,13 +344,13 @@ const Dashboard = () => {
     const calcPctUnrealizedPL = (item: IPortfolio) => {
         if (calcCurrentValue(item) === 0) {
             return 0;
-        } 
-        return calcUnrealizedPL(item) / calcCurrentValue(item) * 100;
+        }
+        return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
     const totalPctUnrealizedPL = (portfolios: IPortfolio[]) => {
         let total = 0;
-        if (portfolios) {            
+        if (portfolios) {
             portfolios.forEach(item => {
                 if (item) {
                     total += calcPctUnrealizedPL(item);
@@ -362,21 +361,20 @@ const Dashboard = () => {
     }
 
     const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume;
-        const sellVolume = item.totalSellVolume;
+        const buyVolume = item?.totalBuyVolume;
+        const sellVolume = item?.totalSellVolume;
         return buyVolume - sellVolume;
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        const transactionVolume = calcTransactionVolume(item);
-        return transactionVolume * convertNumber(item.avgBuyPrice);
+        return calcTransactionVolume(item) * convertNumber(item?.avgBuyPrice);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item.marketPrice);
+        return calcTransactionVolume(item) * convertNumber(item?.marketPrice);
     }
 
-    const calcUnrealizedPL = (item: IPortfolio) => {        
+    const calcUnrealizedPL = (item: IPortfolio) => {
         return calcCurrentValue(item) - calcInvestedValue(item);
     }
 
@@ -515,7 +513,7 @@ const Dashboard = () => {
                 {setGeneralTemplate()}
                 <div className="row">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
-                        <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode}/>
+                        <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
                         <div>
