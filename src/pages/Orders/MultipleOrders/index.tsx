@@ -67,23 +67,24 @@ const MultipleOrders = () => {
     useEffect(() => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
-
-    const getSide = (sideName: string) => {
-        if (sideName.toLocaleLowerCase() === SIDE_NAME.buy.toLocaleLowerCase()) {
-            return tradingModelPb.Side.BUY;
-        } return tradingModelPb.Side.SELL;
-    }
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
-            orderList.forEach((item: IOrderListResponse) => {
+            orderList.forEach((item: IOrderListResponse, index: number) => {
                 if (item) {
-                    listSelected.forEach(o => {
-                        temps[Number(o.no) - 1] = {
-                            ...temps[Number(o.no) - 1],
+                    if (orderList.length === temps.length) {
+                        temps[index] = {
+                            ...temps[index],
                             status: item.note
                         }
-                    });
+                    } else {
+                        listSelected.forEach(o => {
+                            temps[Number(o.no)] = {
+                                ...temps[Number(o.no)],
+                                status: item.note
+                            }
+                        });
+                    }
                 }
             });
             setListTickers(temps);
@@ -465,7 +466,7 @@ const MultipleOrders = () => {
 
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
-                        no: obj.No,
+                        no: (Number(obj.No) - 1).toString(),
                         orderSide: obj.OrderSide,
                         price: obj.Price,
                         ticker: obj.Ticker,
@@ -708,7 +709,7 @@ const MultipleOrders = () => {
             onChange={(event: any) => handleChangeTicker(event.target.innerText)}
             onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
             disablePortal
-            sx={{ width: 300 }}
+            sx={{ width: 400}}
             value={ticker}
             options={lstStr}
             renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
@@ -721,7 +722,7 @@ const MultipleOrders = () => {
 
     const handlePlaceOrder = () => {
         const obj: ISymbolMultiOrder = {
-            no: listTickers.length.toString(),
+            no: (listTickers.length + 1).toString(),
             orderSide: sideAddNew,
             price: price.toString(),
             volume: volume.toString(),
