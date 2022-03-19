@@ -16,7 +16,7 @@ function PortfolioTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                setPortfolio(res.accountPortfolioList)
+                setPortfolio(res.accountPortfolioList);
                 callLastQuoteReq(res.accountPortfolioList);
                 subscribeQuoteEvent(res.accountPortfolioList);
             }
@@ -53,35 +53,37 @@ function PortfolioTable() {
     }, [quoteEvent]);
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
-        if (portfolio) {}
-        const temp = [...portfolio];
-        temp.forEach(item => {
-            if (item) {
-                const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx >= 0) {
-                    temp[idx] = {
-                        ...item,
-                        marketPrice: lastQuotes[idx]?.currentPrice
+        if (portfolio) {
+            const temp = [...portfolio];
+            lastQuotes.forEach(item => {
+                if (item) {
+                    const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
+                    if (idx >= 0) {
+                        temp[idx] = {
+                            ...temp[idx],
+                            marketPrice: item?.currentPrice
+                        }
                     }
                 }
-            }
-        });
-        setPortfolio(temp);
+            });
+            setPortfolio(temp);
+        }
     }
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
             const temp = [...portfolio];
-            temp.forEach(item => {
-                if (item) {}
-                const idx = quoteEvent?.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx >= 0) {
-                    temp[idx] = {
-                        ...item,
-                        marketPrice: checkValue(item?.marketPrice, quoteEvent[idx]?.currentPrice)
+            quoteEvent.forEach(item => {
+                if (item) {
+                    const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
+                    if (idx >= 0) {
+                        temp[idx] = {
+                            ...temp[idx],
+                            marketPrice: checkValue(temp[idx]?.marketPrice, item.currentPrice)
+                        }
                     }
                 }
-            });
+            })
             setPortfolio(temp);
         }
     }
@@ -194,7 +196,7 @@ function PortfolioTable() {
                 <div className="col-md-2 text-center">
                     <div>Total Invested Value:</div>
                     <div className="fs-5 fw-bold">{formatCurrency(totalInvestedValue(portfolio).toFixed(2))}</div>
-                </div> 
+                </div>
                 <div className="col-md-2 text-center">
                     <div>Total Current Value:</div>
                     <div className="fs-5 fw-bold">{formatCurrency(totalCurrentValue(portfolio).toFixed(2))}</div>
@@ -230,16 +232,16 @@ function PortfolioTable() {
     }
 
     const calcPctUnrealizedPL = (item: IPortfolio) => {
-        if (calcCurrentValue(item) === 0) {
+        if (calcInvestedValue(item) === 0) {
             return 0;
-        } 
-        return calcUnrealizedPL(item) / calcCurrentValue(item) * 100;
+        }
+        return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-start fz-14 w-s" >Ticker Code</th >
-            <th className="text-start fz-14 w-200" >Ticker Name</th>
+            <th className="text-start fz-14 w-200" >Ticker Name</th >
+            <th className="text-start fz-14 w-s" >Ticker Code</th>
             <th className="text-end fz-14 w-s" >Transactions Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
             <th className="text-end fz-14 w-s" >Invested Value</th>
@@ -252,9 +254,9 @@ function PortfolioTable() {
 
     const _renderPortfolioTableBody = () => (
         portfolio?.map((item: IPortfolio, index: number) => (
-            <tr className="odd " key={index}> 
-                <td className="text-start w-s td">{getSymbol(item.symbolCode)?.symbolName}</td>
-                <td className="text-start w-200 td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
+            <tr className="odd " key={index}>
+                <td className="text-start w-200 td">{getSymbol(item.symbolCode)?.symbolName}</td>
+                <td className="text-start w-s td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
                 <td className='text-end w-s td'>{formatNumber(calcTransactionVolume(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.avgBuyPrice)}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
@@ -263,7 +265,7 @@ function PortfolioTable() {
                 <td className="text-end w-s td fw-600" ><span className={getNameClass(calcUnrealizedPL(item))}>
                     {formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
-                <td className="text-end w-s td fw-600"><span className={getNameClass(calcUnrealizedPL(item))}>
+                <td className="text-end w-s td fw-600"><span className={getNameClass(calcPctUnrealizedPL(item))}>
                     {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
             </tr>
