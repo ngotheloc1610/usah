@@ -90,7 +90,7 @@ const Login = () => {
                                 <div className="card-body">
                                     <h4 className="text-primary-custom">Login</h4>
                                     <div className="mb-3">
-                                        <label className="d-block mb-1 text-secondary">Email</label>
+                                        <label className="d-block mb-1 text-secondary">AccountNo</label>
                                         <div className="input-group">
                                             <input type="text" className="form-control border-end-0" value={email} onChange={(event) => handleEmail(event.target.value)} />
                                             <span className="input-group-text bg-transparent"><i className="bi bi-person-fill opacity-50"></i></span>
