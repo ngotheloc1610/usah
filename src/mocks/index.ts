@@ -259,43 +259,48 @@ export const DEFAULT_SYMBOL: ISymbolInfo = {
 
 export const MOCK_TRADING_RESULTS_NOTICE = [
     {
-        side: 'Sell',
-        symbolCode: 'BABA',
-        volume: '100',
-        price: '151.19',
+        id: 1,
+        order_side: 2,
+        symbol_code: 'BABA',
+        exec_volume: '100',
+        exec_price: '151.19',
         read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
+        exec_time: '2022-03-04 13:10:30'
     },
     {
-        side: 'Buy',
-        symbolCode: 'DIS',
-        volume: '200',
-        price: '172.68',
+        id: 2,
+        order_side: 1,
+        symbol_code: 'DIS',
+        exec_volume: '200',
+        exec_price: '172.68',
         read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
+        exec_time: '2022-03-04 13:10:30'
     },
     {
-        side: 'Buy',
-        symbolCode: 'KO',
-        volume: '1000',
-        price: '52.96',
+        id: 3,
+        order_side: 1,
+        symbol_code: 'KO',
+        exec_volume: '1000',
+        exec_price: '52.96',
         read_flag: false,
-        time: 'Dec 16, 2021 14:55:10'
+        exec_time: '2022-03-04 13:10:30'
     },
     {
-        side: 'Sell',
-        symbolCode: 'PFE',
-        volume: '100',
-        price: '151.19',
+        id: 4,
+        order_side: 2,
+        symbol_code: 'PFE',
+        exec_volume: '100',
+        exec_price: '151.19',
         read_flag: false,
-        time: 'Dec 16, 2021 14:55:10'
+        exec_time: '2022-03-04 13:10:30'
     },
     {
-        side: 'Sell',
-        symbolCode: 'PFE',
-        volume: '100',
-        price: '151.19',
+        id: 5,
+        order_side: 2,
+        symbol_code: 'PFE',
+        exec_volume: '100',
+        exec_price: '151.19',
         read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
+        exec_time: '2022-03-04 13:10:30'
     }
 ]
