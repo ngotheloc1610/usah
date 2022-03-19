@@ -23,16 +23,17 @@ const News = () => {
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(1);
     const [totalNewsUnread, setTotalNewsUnread] = useState<number>(0);
+    const [totalUnReadTrading, setTotalUnReadTrading] = useState<number>(0);
+
     const [totalTradingUnread, setTotalTradingUnread] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
     const [isUnreadTradingNotice, setIsUnreadTradingNotice] = useState(false);
     const [listDataUnread, setListDataUnread] = useState<INews[]>();
-    const [listDataUnreadTradingReult, setListDataUnreadTradingReult] = useState<ITradingResult[]>();
+    const [listDataUnreadTrading, setListDataUnreadTrading] = useState<ITradingResult[]>();
 
     const [totalItem, setTotalItem] = useState<number>(0);
-    const [totalItemTradingResult, setTotalItemtradingResult] = useState(0);
+    const [totalTradingResult, setTotalTradingResult] = useState(0);
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
-    const [totalItemUnReadTradingResult, setTotalItemUnReadTradingResult] = useState<number>(0);
     const [isNewsTab, setIsNewsTab] = useState(true);
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
@@ -52,7 +53,9 @@ const News = () => {
     }, [pageSize, pageCurrent])
 
     const getDataNews = () => {
-        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {            
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {
+            console.log(56, resp);
+                      
             if (resp.status === success) {
                 setListDataNews(resp?.data?.data?.results);
                 setTotalItem(resp?.data?.data?.count);
@@ -72,11 +75,11 @@ const News = () => {
         axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramNews)).then((resp) => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
-                setTotalItemtradingResult(resp?.data?.data?.count);
+                setTotalTradingResult(resp?.data?.data?.count);
                 const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
                 if (listDataUnReadTrading) {
-                    setTotalItemUnReadTradingResult(listDataUnReadTrading.length);
-                    setListDataUnreadTradingReult(listDataUnReadTrading);
+                    setTotalUnReadTrading(listDataUnReadTrading.length);
+                    setListDataUnreadTrading(listDataUnReadTrading);
                 }
             }
         },
@@ -113,7 +116,7 @@ const News = () => {
             <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
                 <a className={`nav-link ${!isNewsTab ? 'active': ''}`} aria-current="page" href="#">
                     Trading Results
-                    <span className="badge bg-secondary rounded ml-4">{totalTradingUnread}</span>
+                    <span className="badge bg-secondary rounded ml-4">{totalUnReadTrading}</span>
                 </a>
             </li>
         </>
@@ -131,8 +134,6 @@ const News = () => {
     const handleNewsReaded = (idNews: number) => {
         const urlPostNew = `${urlPostNews}/${idNews}/read-flag`
         axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
-            console.log(108, resp);
-            
             if (resp?.data?.meta?.code === success) {
                 getDataNews();
             }
@@ -144,9 +145,7 @@ const News = () => {
 
     const handleClick = (itemNews: INews, index: number) => {
         setELActive(index);
-        if (itemNews) {
-            console.log(122, itemNews);
-            
+        if (itemNews) {            
             setDataDetailNews(itemNews);
             if (!itemNews.read_flag) {
                 handleNewsReaded(itemNews?.id);
@@ -190,10 +189,10 @@ const News = () => {
                 <div className="item-content">
                     <h5 className="item-title mb-0">Trading Results Information</h5>
                     <div className="item-summary opacity-75 fix-line-css">
-                        {getSideName(item.order_side)} {item.exec_volume} {item.symbol_code} price {item.exec_price}
+                        {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                     </div>
                     <div className="item-summary opacity-75 fix-line-css">
-                        {item.exec_time}
+                        {item.execTime}
                     </div>
                 </div>
             </div>

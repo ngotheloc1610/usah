@@ -70,11 +70,24 @@ export interface INews {
 }
 
 export interface ITradingResult {
-    id: number,
-    order_side: number,
-    symbol_code: string,
-    exec_volume: string,
-    exec_price: string,
-    read_flag: boolean,
-    exec_time: string
+    id: number;
+    accountId: string;
+    tradingId: string;
+    orderId: string;
+    matchedOrderId: string;
+    symbolId: string;
+    symbolCode: string;
+    orderType: string;
+    orderSide: string;
+    price: number;
+    volume: number;
+    execPrice: number;
+    execVolume: number;
+    execTime: string;
+    currencyCode: string;
+    createUid: number;
+    createDate: string;
+    writeUid: number;
+    writeDate: string;
+    read_flag?: boolean;
 }
