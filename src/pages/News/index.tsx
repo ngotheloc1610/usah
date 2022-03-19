@@ -1,10 +1,10 @@
-import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS } from '../../mocks'
+import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS, MOCK_TRADING_RESULTS_NOTICE } from '../../mocks'
 import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_POST_NEWS } from '../../constants/api.constant'
 import axios from 'axios';
-import { ItemsPage } from '../../constants/news.constant'
+import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import parse from "html-react-parser";
 import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
@@ -16,13 +16,18 @@ const News = () => {
     const [elActive, setELActive] = useState(2)
     const [pageSize, setPageSize] = useState<number>(5);
     const [listDataNews, setListDataNews] = useState<INews[]>();
+    // TODO: due to hardcode, don't haven interface yet
+    const [listTradingResults, setListTradingResults] = useState<any[]>(MOCK_TRADING_RESULTS_NOTICE);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(1);
-    const [totalNewUnread, setTotalNewUnread] = useState<number>(0);
+    const [totalNewsUnread, setTotalNewsUnread] = useState<number>(0);
+    const [totalTradingUnread, setTotalTradingUnread] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
+    const [isUnreadTradingNotice, setIsUnreadTradingNotice] = useState(false);
     const [listDataUnread, setListDataUnread] = useState<INews[]>();
     const [totalItem, setTotalItem] = useState<number>(0);
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
+    const [isNewsTab, setIsNewsTab] = useState(true);
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`; 
@@ -42,7 +47,7 @@ const News = () => {
                 setTotalItem(resp?.data?.data?.count);
                 const listDataUnRead: INews[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
                 if (listDataUnRead) {
-                    setTotalNewUnread(listDataUnRead.length);
+                    setTotalNewsUnread(listDataUnRead.length);
                     setListDataUnread(listDataUnRead);
                 }
             }
@@ -64,14 +69,26 @@ const News = () => {
         </div>
     )
 
+    const onChangeTab = (tab: string) => {
+        setIsNewsTab(tab === TAB_NEWS.news);
+    }
+
 
     const _renderNewsBodyNavItemLeft = () => (
-        <li className="nav-item">
-            <a className="nav-link active" aria-current="page" href="#">
-                Admin News
-                <span className="badge bg-secondary rounded ml-4">{totalNewUnread}</span>
-            </a>
-        </li>
+        <>
+            <li className="nav-item" onClick={() => onChangeTab(TAB_NEWS.news)}>
+                <a className={`nav-link ${isNewsTab ? 'active' : ''}`} aria-current="page" href="#">
+                    Admin News
+                    <span className="badge bg-secondary rounded ml-4">{totalNewsUnread}</span>
+                </a>
+            </li>
+            <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
+                <a className={`nav-link ${!isNewsTab ? 'active': ''}`} aria-current="page" href="#">
+                    Trading Results
+                    <span className="badge bg-secondary rounded ml-4">{totalTradingUnread}</span>
+                </a>
+            </li>
+        </>
     )
 
     const _renderNewsBodyNavItemRight = () => (
@@ -125,6 +142,28 @@ const News = () => {
         ))
     )
 
+    const _renderTradingResultsItem = (listTradingResults: any[]) => (
+        listTradingResults.map((item: any, idx: number) => (
+            <div className={!item.read_flag ? "notification-item unread" : "notification-item"
+                && elActive === idx ? "notification-item active" : "notification-item"}
+                key={idx}
+            >
+                <div className="item-icon">
+                    <i className="bi bi-cash-stack"></i>
+                </div>
+                <div className="item-content">
+                    <h5 className="item-title mb-0">Trading Results Information</h5>
+                    <div className="item-summary opacity-75 fix-line-css">
+                        {item.side} {item.volume} {item.symbolCode} price {item.price}
+                    </div>
+                    <div className="item-summary opacity-75 fix-line-css">
+                        {item.time}
+                    </div>
+                </div>
+            </div>
+        ))
+    )
+
     const handlePage = (value) => {
         setPageCurrent(value);
     }
@@ -174,6 +213,15 @@ const News = () => {
         </div>
     )
 
+    const _renderTradingResultsList = () => (
+        <div className='col-md-6'>
+            <div className='notification-list'>
+                {!isUnreadTradingNotice && _renderTradingResultsItem(listTradingResults)}
+            </div>
+            {_renderNewsPagination()}
+        </div>
+    )
+
     const closeDetailNews = () => {
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
     }
@@ -194,9 +242,15 @@ const News = () => {
         </div>
     )
 
-    const _renderNewsNotificationDetail = () => (
+    const _renderTradingNotificationDetailItem = () => (
+        <div className="notification-detail border p-3 shadow-sm" >
+        </div>
+    )
+
+    const _renderNotificationDetail = () => (
         <div className="col-md-6">
-            {_renderNewsNotificationDetailItem()}
+            {isNewsTab && _renderNewsNotificationDetailItem()}
+            {!isNewsTab && _renderTradingNotificationDetailItem()}
         </div>
     )
 
@@ -208,10 +262,14 @@ const News = () => {
             </ul>
             <div className="mb-3">
                 <div className="py-3">
-                    <div className="row">
+                    {isNewsTab && <div className="row">
                         {_renderNewsNotificationList()}
-                        {_renderNewsNotificationDetail()}
-                    </div>
+                        {_renderNotificationDetail()}
+                    </div>}
+                    {!isNewsTab && <div className="row">
+                        {_renderTradingResultsList()}
+                        {_renderNotificationDetail()}
+                    </div>}
                 </div>
 
             </div>
