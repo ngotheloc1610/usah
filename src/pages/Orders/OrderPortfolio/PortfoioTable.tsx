@@ -55,17 +55,18 @@ function PortfolioTable() {
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
             const temp = [...portfolio];
-            temp.forEach(item => {
+            lastQuotes.forEach(item => {
                 if (item) {
-                    const idx = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                    const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
                     if (idx >= 0) {
                         temp[idx] = {
-                            ...item,
-                            marketPrice: lastQuotes[idx]?.currentPrice
+                            ...temp[idx],
+                            marketPrice: item?.currentPrice
                         }
                     }
                 }
             });
+            setPortfolio(temp);
         }
     }
 

@@ -352,7 +352,7 @@ const Dashboard = () => {
         if (portfolios) {
             portfolios.forEach(item => {
                 if (item) {
-                    total += calcPctUnrealizedPL(item);
+                    total += Number(calcPctUnrealizedPL(item).toFixed(2));
                 }
             });
         }
