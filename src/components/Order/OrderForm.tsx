@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { IAskAndBidPrice, IParamOrder, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
@@ -33,6 +33,17 @@ const defaultData: IParamOrder = {
     tickerId: ''
 }
 
+const defaultDataModiFyCancel: IParamOrderModifyCancel = {
+    tickerCode: '',
+    tickerName: '',
+    orderType: '',
+    volume: '',
+    price: 0,
+    side: 0,
+    confirmationConfig: false,
+    tickerId: ''
+}
+
 const OrderForm = (props: IOrderForm) => {
     const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
     const [tickerName, setTickerName] = useState('');
@@ -40,7 +51,7 @@ const OrderForm = (props: IOrderForm) => {
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
-    const [paramOrder, setParamOrder] = useState(defaultData);
+    const [paramOrder, setParamOrder] = useState(defaultDataModiFyCancel);
     const [lotSize, setLotSize] = useState(100);
     const [tickSize, setTickSize] = useState(0.01)
     const [price, setPrice] = useState(0);
@@ -312,8 +323,8 @@ const OrderForm = (props: IOrderForm) => {
             </div>
 
 
-            {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
 
             <div className="border-top">
                 {_renderPlaceButton()}

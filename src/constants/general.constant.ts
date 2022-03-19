@@ -137,4 +137,13 @@ export const DEFAULT_TIME_ZONE = 'SG';
 export const STATUS_ORDER = {
     success: 'SUCCESS',
     rejected: 'REJECTED'
-}
+};
+
+export enum TITLE_ORDER_CONFIRM {
+    TICKER = 'Ticker',
+    SIDE = 'Side',
+    VOLUME = 'Volume',
+    QUANLITY = 'Quantity',
+    PRICE = 'Price',
+    VALUE = 'Value'
+} 
