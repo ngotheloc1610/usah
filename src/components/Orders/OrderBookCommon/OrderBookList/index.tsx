@@ -414,8 +414,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderTitleStyleColumnsGap = () => (
 
         TITLE_LIST_BID_ASK_COLUMN_GAB.map((item, index) => {
-            console.log(index, item);
-
             return <th key={index} className='text-end'>{item}</th>
         })
     )
