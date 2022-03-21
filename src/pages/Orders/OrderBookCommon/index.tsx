@@ -201,13 +201,11 @@ const OrderBookCommon = () => {
     }
 
     const getTradeHistory = (symbolCode: string) => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
-            tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setFromDatetime(timeFrom);
             tradeHistoryRequest.setToDatetime(timeTo);
