@@ -534,7 +534,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className={`text-end ${index === 0 && 'text-success bg-success-light'}`}>
                     {item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}
                 </td>
-                <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid) === 0}</td>
+                <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volumeBid) === 0 ? '-' : convertNumber(item.volumeBid)}</td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">
                     {convertNumber(item.totalBids) === 0 ? '-' : convertNumber(item.totalBids)}
                 </td>
