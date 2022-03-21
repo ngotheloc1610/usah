@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
-import { IAskAndBidPrice, IListAks, IListBid, ISymbolInfo } from '../interfaces/order.interface';
+import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -194,66 +194,45 @@ export const convertNumber = (value: string) => {
     return 0;
 }
 
-export const getAsksList = (asksList: IAskAndBidPrice[]) => {
-    let askItems: IAskAndBidPrice[] = asksList;
-    let arr: IListAks[] = [];
-    let counter = MARKET_DEPTH_LENGTH - 1;
-    while (counter >= 0) {
-        if (askItems[counter]) {
-            const numberAsks = askItems[counter].numOrders ? askItems[counter].volume.toString() : '-';
-            const askPrice = askItems[counter].price ? Number(askItems[counter].price).toFixed(2) : '-';
-            const tradableAsk = askItems[counter].tradable ? askItems[counter].tradable : false;
-            const volumeAsk = askItems[counter].volume ? askItems[counter].volume : '-';
-            const isAskNumOrder = askItems[counter] && askItems[counter].numOrders;
-            arr.push({
-                numberAsks: numberAsks,
-                askPrice: askPrice,
-                tradableAsk: tradableAsk,
-                volumeAsk: volumeAsk,
-                totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ? numberAsks : isAskNumOrder ? (convertNumber(numberAsks) + convertNumber(arr[arr.length - 1]?.totalAsks)).toString() : numberAsks,
-            });
-        } else {
-            arr.push({
-                numberAsks: '-',
-                askPrice: '-',
-                tradableAsk: false,
-                volumeAsk: '-',
-                totalAsks: '-',
-            });
-        }
-        counter--;
-    }
-    return arr
-}
+export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) => {
+    let askBidItem: IAskAndBidPrice[] = asksBidsList;
+    let arr: IAsksBidsList[] = [];
+    let counter = type === LIST_PRICE_TYPE.askList ? MARKET_DEPTH_LENGTH - 1 : 0;
+    while (type === LIST_PRICE_TYPE.askList ? counter >= 0 : counter < MARKET_DEPTH_LENGTH) {
+        if (askBidItem[counter]) {
+            const numOrders = askBidItem[counter].numOrders ? askBidItem[counter].volume.toString() : '-';
+            const price = askBidItem[counter].price ? Number(askBidItem[counter].price).toFixed(2) : '-';
+            const tradable = askBidItem[counter].tradable ? askBidItem[counter].tradable : false;
+            const volume = askBidItem[counter].volume ? askBidItem[counter].volume : '-';
+            const isNumOrder = askBidItem[counter] && askBidItem[counter].numOrders;
 
-export const getBidsList = (bidsList: IAskAndBidPrice[]) => {
-    let bidItems: IAskAndBidPrice[] = bidsList;
-    let arr: IListBid[] = [];
-    let counter = 0;
-    while (counter < MARKET_DEPTH_LENGTH) {
-        if (bidItems[counter]) {
-            const numberBids = bidItems[counter].numOrders ? bidItems[counter].volume.toString() : '-';
-            const bidPrice = bidItems[counter].price ? Number(bidItems[counter].price).toFixed(2) : '-';
-            const tradableBid = bidItems[counter].tradable ? bidItems[counter].tradable : false;
-            const volumeBid = bidItems[counter].volume ? bidItems[counter].volume : '-';
-            const isBidNumOrder = bidItems[counter] && bidItems[counter].numOrders;;
+            let total = '';
+            let totalNumOrder = '';
+            if (type === LIST_PRICE_TYPE.askList) {
+                totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
+                total = counter === (MARKET_DEPTH_LENGTH - 1) ? numOrders : totalNumOrder;
+            } else {
+                totalNumOrder =  isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[0]?.total)).toString() : numOrders;
+                total = counter === 0 ? numOrders : totalNumOrder;
+            }
             arr.push({
-                numberBids: numberBids,
-                bidPrice: bidPrice,
-                tradableBid: tradableBid,
-                volumeBid: volumeBid,
-                totalBids: counter === 0 ? numberBids : isBidNumOrder ? (convertNumber(numberBids) + convertNumber(arr[0]?.totalBids)).toString() : numberBids,
+                numOrders,
+                price,
+                tradable,
+                volume,
+                total,
             });
         } else {
             arr.push({
-                numberBids: '-',
-                bidPrice: '-',
-                tradableBid: false,
-                volumeBid: '-',
-                totalBids: '-',
+                numOrders: '-',
+                price: '-',
+                tradable: false,
+                volume: '-',
+                total: '-',
             });
         }
-        counter++;
+        type === LIST_PRICE_TYPE.askList ? counter-- : counter++;
     }
+
     return arr
 }
