@@ -406,6 +406,22 @@ export interface IListAskBid {
     volumeBid: string;
 }
 
+export interface IListAks {
+    numberAsks: string;
+    askPrice: string;
+    tradableAsk: boolean;
+    volumeAsk: string;
+    totalAsks: string;
+}
+
+export interface IListBid {
+    numberBids: string;
+    bidPrice: string;
+    tradableBid: boolean;
+    volumeBid: string;
+    totalBids: string;
+}
+
 export interface ITickerBindingOrder {
     symbolCode: string;
     symbolName: string;
