@@ -6,7 +6,7 @@ import './OrderBoolListBidsAsk.scss';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
-import { checkValue, convertNumber, formatCurrency } from '../../../../helper/utils';
+import { checkValue, convertNumber, formatCurrency, getAsksList, getBidsList } from '../../../../helper/utils';
 
 const defaultAskBidList: IListAskBid[] = [
     {
@@ -100,8 +100,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
         const bidList = styleListBidsAsk.columns || styleListBidsAsk.columnsGap ? bidsList.sort((a, b) => b?.price.localeCompare(a?.price)) : bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
 
-        getAskList(askList)
-        getBisList(bidList)
+        setAsksList(getAsksList(askList));
+        setBidsList(getBidsList(bidList));
 
         while (counter >= 0) {
             if (askList[counter] || bidList[counter]) {
@@ -150,70 +150,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             counter--;
         }
         setListAsksBids(assgnListAsksBids);
-    }
-
-    const getAskList = (asksList: IAskAndBidPrice[]) => {
-        let askItems: IAskAndBidPrice[] = asksList;
-        let arr: IListAks[] = [];
-        let counter = MARKET_DEPTH_LENGTH - 1;
-        while (counter >= 0) {
-            if (askItems[counter]) {
-                const numberAsks = askItems[counter].numOrders ? askItems[counter].volume.toString() : '-';
-                const askPrice = askItems[counter].price ? Number(askItems[counter].price).toFixed(2) : '-';
-                const tradableAsk = askItems[counter].tradable ? askItems[counter].tradable : false;
-                const volumeAsk = askItems[counter].volume ? askItems[counter].volume : '-';
-                const isAskNumOrder = askItems[counter] && askItems[counter].numOrders;
-                arr.push({
-                    numberAsks: numberAsks,
-                    askPrice: askPrice,
-                    tradableAsk: tradableAsk,
-                    volumeAsk: volumeAsk,
-                    totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ? numberAsks : isAskNumOrder ? (convertNumber(numberAsks) + convertNumber(arr[arr.length - 1].totalAsks)).toString() : numberAsks,
-                });
-            } else {
-                arr.push({
-                    numberAsks: '-',
-                    askPrice: '-',
-                    tradableAsk: false,
-                    volumeAsk: '-',
-                    totalAsks: '-',
-                });
-            }
-            counter--;
-        }
-        setAsksList(arr)
-    }
-
-    const getBisList = (bidsList: IAskAndBidPrice[]) => {
-        let bidItems: IAskAndBidPrice[] = bidsList;
-        let arr: IListBid[] = [];
-        let counter = 0;
-        while (counter < MARKET_DEPTH_LENGTH) {
-            if (bidItems[counter]) {
-                const numberBids = bidItems[counter].numOrders ? bidItems[counter].volume.toString() : '-';
-                const bidPrice = bidItems[counter].price ? Number(bidItems[counter].price).toFixed(2) : '-';
-                const tradableBid = bidItems[counter].tradable ? bidItems[counter].tradable : false;
-                const volumeBid = bidItems[counter].volume ? bidItems[counter].volume : '-';
-                const isBidNumOrder = bidItems[counter] && bidItems[counter].numOrders;;
-                arr.push({
-                    numberBids: numberBids,
-                    bidPrice: bidPrice,
-                    tradableBid: tradableBid,
-                    volumeBid: volumeBid,
-                    totalBids: counter === 0 ? numberBids : isBidNumOrder ? (convertNumber(numberBids) + convertNumber(arr[0].totalBids)).toString() : numberBids,
-                });
-            } else {
-                arr.push({
-                    numberBids: '-',
-                    bidPrice: '-',
-                    tradableBid: false,
-                    volumeBid: '-',
-                    totalBids: '-',
-                });
-            }
-            counter++;
-        }
-        setBidsList(arr)
     }
 
     const handleTicker = (itemTicker: IListAskBid, side: number) => {
