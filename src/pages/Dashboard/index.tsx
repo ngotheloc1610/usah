@@ -464,7 +464,6 @@ const Dashboard = () => {
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
-        console.log(item);
 
         if (item === MESSAGE_TOAST.SUCCESS_PLACE) {
             sendListOrder();

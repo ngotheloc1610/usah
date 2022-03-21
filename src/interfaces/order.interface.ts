@@ -314,6 +314,11 @@ export interface ILastQuote {
     ticker?: string;
 }
 
+export interface IWatchList {
+    symbolCode: string;
+    accountId: string;
+}
+
 export interface IOrderTradeHistory {
     oderId: string;
     tickerCode: string;
