@@ -156,7 +156,7 @@ const Dashboard = () => {
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
-            const temp = [...portfolio];            
+            const temp = [...portfolio];
             quoteEvent.forEach(item => {
                 if (item) {
                     const idx = temp?.findIndex(o => o?.symbolCode === item?.symbolCode);
@@ -340,23 +340,21 @@ const Dashboard = () => {
         }
     }
 
-    const calcPctUnrealizedPL = (item: IPortfolio) => {
-        if (calcInvestedValue(item) === 0) {
-            return 0;
-        }
-        return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
-    }
-
     const totalPctUnrealizedPL = (portfolios: IPortfolio[]) => {
-        let total = 0;
+        let totalUnrealizedPL = 0;
+        let totalInvestedValue = 0;
         if (portfolios) {
             portfolios.forEach(item => {
                 if (item) {
-                    total += Number(calcPctUnrealizedPL(item).toFixed(2));
+                    totalUnrealizedPL += calcUnrealizedPL(item);
+                    totalInvestedValue += calcInvestedValue(item);
                 }
             });
         }
-        return total
+        if (totalInvestedValue !== 0) {
+            return totalUnrealizedPL / totalInvestedValue * 100
+        }
+        return 0;
     }
 
     const calcTransactionVolume = (item: IPortfolio) => {
