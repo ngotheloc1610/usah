@@ -411,6 +411,14 @@ export interface IListAskBid {
     volumeBid: string;
 }
 
+export interface IAsksBidsList {
+    numOrders: string;
+    price: string;
+    tradable: boolean;
+    volume: string;
+    total: string;
+}
+
 export interface ITickerBindingOrder {
     symbolCode: string;
     symbolName: string;
