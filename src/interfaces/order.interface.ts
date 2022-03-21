@@ -317,6 +317,11 @@ export interface ILastQuote {
     ticker?: string;
 }
 
+export interface IWatchList {
+    symbolCode: string;
+    accountId: string;
+}
+
 export interface IOrderTradeHistory {
     oderId: string;
     tickerCode: string;
@@ -399,6 +404,14 @@ export interface IListAskBid {
     tradableBid: boolean;
     volumeAsk: string;
     volumeBid: string;
+}
+
+export interface IAsksBidsList {
+    numOrders: string;
+    price: string;
+    tradable: boolean;
+    volume: string;
+    total: string;
 }
 
 export interface ITickerBindingOrder {

@@ -4,6 +4,7 @@ import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWOR
 import { ISymbolInfo } from '../interfaces/order.interface';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -194,6 +195,49 @@ export const convertNumber = (value: string) => {
         return Number(value);
     }
     return 0;
+}
+
+export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) => {
+    let askBidItem: IAskAndBidPrice[] = asksBidsList;
+    let arr: IAsksBidsList[] = [];
+    let counter = type === LIST_PRICE_TYPE.askList ? MARKET_DEPTH_LENGTH - 1 : 0;
+    while (type === LIST_PRICE_TYPE.askList ? counter >= 0 : counter < MARKET_DEPTH_LENGTH) {
+        if (askBidItem[counter]) {
+            const numOrders = askBidItem[counter].numOrders ? askBidItem[counter].volume.toString() : '-';
+            const price = askBidItem[counter].price ? Number(askBidItem[counter].price).toFixed(2) : '-';
+            const tradable = askBidItem[counter].tradable ? askBidItem[counter].tradable : false;
+            const volume = askBidItem[counter].volume ? askBidItem[counter].volume : '-';
+            const isNumOrder = askBidItem[counter] && askBidItem[counter].numOrders;
+
+            let total = '';
+            let totalNumOrder = '';
+            if (type === LIST_PRICE_TYPE.askList) {
+                totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
+                total = counter === (MARKET_DEPTH_LENGTH - 1) ? numOrders : totalNumOrder;
+            } else {
+                totalNumOrder =  isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[0]?.total)).toString() : numOrders;
+                total = counter === 0 ? numOrders : totalNumOrder;
+            }
+            arr.push({
+                numOrders,
+                price,
+                tradable,
+                volume,
+                total,
+            });
+        } else {
+            arr.push({
+                numOrders: '-',
+                price: '-',
+                tradable: false,
+                volume: '-',
+                total: '-',
+            });
+        }
+        type === LIST_PRICE_TYPE.askList ? counter-- : counter++;
+    }
+
+    return arr
 }
 
 export const exportCSV = (csvData, fileName) => {
