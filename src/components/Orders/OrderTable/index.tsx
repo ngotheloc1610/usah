@@ -37,12 +37,13 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.orderState > 0) {
             lstHistorySortDate = lstHistorySortDate.filter(item => item.state === paramHistorySearch.orderState);
         }
-        if (paramHistorySearch.orderSide?.buy !== paramHistorySearch.orderSide?.sell) {
-            if (paramHistorySearch.orderSide?.buy) {
-                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === tradingModelPb.Side.BUY);
+        if ((paramHistorySearch.orderSideBuy && !paramHistorySearch.orderSideSell) ||
+            !paramHistorySearch.orderSideBuy && paramHistorySearch.orderSideSell) {
+            if (paramHistorySearch.orderSideBuy) {
+                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideBuy));
             }
-            if (paramHistorySearch.orderSide?.sell) {
-                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === tradingModelPb.Side.SELL);
+            if (paramHistorySearch.orderSideSell) {
+                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideSell));
             }
         }
         if (paramHistorySearch.fromDate > 0) {

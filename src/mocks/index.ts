@@ -304,10 +304,8 @@ export const MOCK_TRADING_RESULTS_NOTICE = [
 export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
     symbolCode: '',
     orderState: 0,
-    orderSide: {
-        buy: false,
-        sell: false,
-    },
+    orderSideBuy: '',
+    orderSideSell: '',
     fromDate: 0,
     toDate: 0,
 }

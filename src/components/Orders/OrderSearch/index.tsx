@@ -23,14 +23,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const { getOrderSide, paramSearch } = props;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
-    const [orderBuy, setOrderBuy] = useState(false);
-    const [orderSell, setOrderSell] = useState(false);
+    const [orderBuy, setOrderBuy] = useState('');
+    const [orderSell, setOrderSell] = useState('');
     const [side, setSide] = useState(0);
     const [fromDatetime, setFromDatetime] = useState(0);
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+
+    const tradingModelPb: any = tmpb;
 
     useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
 
@@ -60,10 +62,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSide: {
-                buy: orderBuy,
-                sell: orderSell,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orderSell,
             fromDate: convertDatetoTimeStamp(value, FROM_DATE_TIME),
             toDate: toDatetime,
         }
@@ -75,10 +75,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSide: {
-                buy: orderBuy,
-                sell: orderSell,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orderSell,
             fromDate: fromDatetime,
             toDate: convertDatetoTimeStamp(value, TO_DATE_TIME),
         }
@@ -127,10 +125,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSide: {
-                buy: orderBuy,
-                sell: orderSell,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orderSell,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
@@ -153,10 +149,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         const searchTicker: IParamHistorySearch = {
             symbolCode: value ? getSymbolCode(value) : '',
             orderState: orderState,
-            orderSide: {
-                buy: orderBuy,
-                sell: orderSell,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orderSell,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
@@ -168,10 +162,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         const searchTicker: IParamHistorySearch = {
             symbolCode: value ? getSymbolCode(value) : '',
             orderState: orderState,
-            orderSide: {
-                buy: orderBuy,
-                sell: orderSell,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orderSell,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
@@ -185,10 +177,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             const searchTicker: IParamHistorySearch = {
                 symbolCode: symbolCode,
                 orderState: parseInt(value),
-                orderSide: {
-                    buy: orderBuy,
-                    sell: orderSell,
-                },
+                orderSideBuy: orderBuy,
+                orderSideSell: orderSell,
                 fromDate: fromDatetime,
                 toDate: toDatetime,
             }
@@ -221,27 +211,30 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const getParamOrderSide = () => {
-        const tradingModelPb: any = tmpb
-        if (orderSell === true && orderBuy === false) {
-            setSide(tradingModelPb.Side.SELL)
+        if (orderBuy && orderSell) {
+            setSide(tradingModelPb.Side.NONE);
+            return;
         }
-        else if (orderSell === false && orderBuy === true) {
-            setSide(tradingModelPb.Side.BUY)
+        if (orderBuy) {
+            setSide(tradingModelPb.Side.BUY);
+            return;
         }
-        else {
-            setSide(tradingModelPb.Side.NONE)
+        if (orderSell) {
+            setSide(tradingModelPb.Side.SELL);
         }
     }
 
     const handleOrderSell = (e) => {
-        setOrderSell(e.target.checked);
+        let orSell = '';
+        if (e.target.checked) {
+            orSell = tradingModelPb.Side.SELL;
+        }
+        setOrderSell(orSell);
         const searchSide: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSide: {
-                sell: e.target.checked,
-                buy: orderBuy,
-            },
+            orderSideBuy: orderBuy,
+            orderSideSell: orSell,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
@@ -249,14 +242,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleOrderBuy = (e) => {
-        setOrderBuy(e.target.checked);
+        let orBuy = '';
+        if (e.target.checked) {
+            orBuy = tradingModelPb.Side.BUY;
+        }
+        setOrderBuy(orBuy);
         const searchSide: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSide: {
-                sell: orderSell,
-                buy: e.target.checked,
-            },
+            orderSideBuy: orBuy,
+            orderSideSell: orderSell,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
