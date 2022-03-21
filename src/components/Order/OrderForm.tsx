@@ -65,7 +65,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0); 
-
+    
     useEffect(() => {
         if (side) {
             setCurrentSide(side);
@@ -96,8 +96,14 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (quoteInfo) {
-            setPrice(convertNumber(quoteInfo.price));
-            setVolume(convertNumber(quoteInfo.volume));
+            const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const lotSize = ticker?.lotSize;
+            const floor = ticker?.floor;
+            const price = convertNumber(quoteInfo.price) === 0 ? floor : convertNumber(quoteInfo.price)
+            const volume = convertNumber(quoteInfo.volume) === 0 ? lotSize : convertNumber(quoteInfo.volume)
+            setPrice(price);
+            setVolume(volume);
         }
     }, [quoteInfo])
 
