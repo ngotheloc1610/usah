@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
-import { ISymbolInfo } from '../interfaces/order.interface';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
