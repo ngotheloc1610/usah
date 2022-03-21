@@ -2,6 +2,8 @@ import moment from 'moment';
 import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
 import { ISymbolInfo } from '../interfaces/order.interface';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -192,4 +194,14 @@ export const convertNumber = (value: string) => {
         return Number(value);
     }
     return 0;
+}
+
+export const exportCSV = (csvData, fileName) => {
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const fileExtension = '.xlsx';
+    const ws = XLSX.utils.json_to_sheet(csvData);
+    const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
 }

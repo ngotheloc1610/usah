@@ -28,3 +28,13 @@ export interface IReqLogin {
     statusText: string;
 }
 
+export interface IParamHistorySearch {
+    symbolCode: string;
+    orderState: number;
+    orderSide: {
+        buy: boolean;
+        sell: boolean;
+    }
+    fromDate: number;
+    toDate: number;
+}

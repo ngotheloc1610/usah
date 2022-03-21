@@ -12,13 +12,15 @@ import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { IParamHistorySearch } from '../../../interfaces';
 
 interface IPropsOrderSearchHistory {
     getOrderSide: (item: number) => void;
+    paramSearch: (param: IParamHistorySearch) => void;
 }
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
-    const { getOrderSide } = props;
+    const { getOrderSide, paramSearch } = props;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
     const [orderBuy, setOrderBuy] = useState(false);
@@ -46,32 +48,41 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }, [])
 
     useEffect(() => {
-        const today: number = new Date().getDate();
-        let currentDate = '';
-        if (today > 0 && today < 10) {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
-        } else {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
-        }
-        setCurrentDate(currentDate);
-        setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
-        setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
-    }, [])
-
-    useEffect(() => {
-            const listSymbolName: string[] = []
-            symbolsList.forEach((item: ISymbolList) => {
-                listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
-            });
-            setListSymbolName(listSymbolName)
+        const listSymbolName: string[] = []
+        symbolsList.forEach((item: ISymbolList) => {
+            listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
+        });
+        setListSymbolName(listSymbolName)
     }, [])
 
     const handleChangeFromDate = (value: string) => {
-        setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME))
+        setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME));
+        const paramSearchHistory: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: {
+                buy: orderBuy,
+                sell: orderSell,
+            },
+            fromDate: convertDatetoTimeStamp(value, FROM_DATE_TIME),
+            toDate: toDatetime,
+        }
+        paramSearch(paramSearchHistory);
     }
 
     const handleChangeToDate = (value: string) => {
-        setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME))
+        setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME));
+        const paramSearchHistory: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: {
+                buy: orderBuy,
+                sell: orderSell,
+            },
+            fromDate: fromDatetime,
+            toDate: convertDatetoTimeStamp(value, TO_DATE_TIME),
+        }
+        paramSearch(paramSearchHistory);
     }
 
     const sendMessageOrderHistory = () => {
@@ -109,14 +120,28 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const handleSearch = () => {
-        sendMessageOrderHistory();
+        // before the core handles the filter but now the font end handle filter
+        // sendMessageOrderHistory();
         getOrderSide(side);
+
+        const paramSearchHistory: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: {
+                buy: orderBuy,
+                sell: orderSell,
+            },
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+        }
+        paramSearch(paramSearchHistory);
     }
 
     const handlKeyDown = (event: any) => {
         if (symbolCode !== '' || orderState !== 0 || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
-                sendMessageOrderHistory();
+                // before the core handles the filter but now the font end handle filter
+                // sendMessageOrderHistory();
                 getOrderSide(side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
@@ -125,11 +150,50 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleChangeTicker = (value: string) => {
+        const searchTicker: IParamHistorySearch = {
+            symbolCode: value ? getSymbolCode(value) : '',
+            orderState: orderState,
+            orderSide: {
+                buy: orderBuy,
+                sell: orderSell,
+            },
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+        }
+        paramSearch(searchTicker);
         value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
+        const searchTicker: IParamHistorySearch = {
+            symbolCode: value ? getSymbolCode(value) : '',
+            orderState: orderState,
+            orderSide: {
+                buy: orderBuy,
+                sell: orderSell,
+            },
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+        }
+        paramSearch(searchTicker);
         value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
+    }
+
+    const handleOrderStatus = (value) => {
+        setOrderState(parseInt(value));
+        if (value) {
+            const searchTicker: IParamHistorySearch = {
+                symbolCode: symbolCode,
+                orderState: parseInt(value),
+                orderSide: {
+                    buy: orderBuy,
+                    sell: orderSell,
+                },
+                fromDate: fromDatetime,
+                toDate: toDatetime,
+            }
+            paramSearch(searchTicker);
+        }
     }
 
     const _renderTicker = () => (
@@ -137,6 +201,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
+                onClick={(event: any) => handleChangeTicker(event.target.innnerText)}
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
@@ -149,7 +214,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const _renderOrderStatus = () => (
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
-            <select className="form-select form-select-sm input-select" onChange={(e) => setOrderState(parseInt(e.target.value))}>
+            <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderStatus(e.target.value)}>
                 {ORDER_HISTORY_SEARCH_STATUS.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
             </select>
         </div>
@@ -168,17 +233,55 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         }
     }
 
+    const handleOrderSell = (e) => {
+        setOrderSell(e.target.checked);
+        const searchSide: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: {
+                sell: e.target.checked,
+                buy: orderBuy,
+            },
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+        }
+        paramSearch(searchSide);
+    }
+
+    const handleOrderBuy = (e) => {
+        setOrderBuy(e.target.checked);
+        const searchSide: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: {
+                sell: orderSell,
+                buy: e.target.checked,
+            },
+            fromDate: fromDatetime,
+            toDate: toDatetime,
+        }
+        paramSearch(searchSide);
+    }
+
+    const btnClickFromDate = (e) => {
+        handleChangeFromDate(e.target.value);
+    }
+
+    const btnClickToDate = (e) => {
+        handleChangeToDate(e.target.value);
+    }
+
     const _renderOrderSide = () => (
         <div className="col-xl-2 pl-30">
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(e) => setOrderSell(e.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(e) => handleOrderSell(e)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(e) => setOrderBuy(e.target.checked)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(e) => handleOrderBuy(e)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>
@@ -194,6 +297,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             defaultValue={currentDate}
                             max="9999-12-31"
+                            onClick={(event) => btnClickFromDate(event)}
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
                     </div>
@@ -204,6 +308,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             defaultValue={currentDate}
                             max="9999-12-31"
+                            onClick={(event) => btnClickToDate(event)}
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
                     </div>

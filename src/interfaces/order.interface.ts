@@ -1,3 +1,5 @@
+import { IParamHistorySearch } from ".";
+
 export interface ITickerInfo {
     symbolId: number;
     tickerName: string;
@@ -65,6 +67,7 @@ export interface IOrderBook {
 
 export interface IPropListOrderHistory {
     listOrderHistory: IOrderHistory[];
+    paramHistorySearch: IParamHistorySearch;
 }
 
 export interface IPropListTradeHistory {
@@ -362,14 +365,6 @@ export interface ITickerPortfolio {
     plPercent: number;
 }
 
-export interface IParamHistorySearch {
-    ticker: string;
-    orderState: number;
-    orderType: number;
-    fromDatetime: string;
-    toDatetime: string;
-}
-
 export interface IHistorySearchStatus {
     code: number;
     name: string;
@@ -518,4 +513,20 @@ export interface IOrderListResponse {
     tp: string;
     triggerPrice: string;
     uid: number;
+}
+
+export interface IDataHistory {
+    orderId: number;
+    tickerCode: string;
+    tickerName: string;
+    orderSide: string;
+    orderStatus: string;
+    orderType: string;
+    orderVolume: string;
+    remainingVolume: string;
+    executedVolume: string;
+    orderPrice: string;
+    lastPrice: string;
+    orderDateTime: string;
+    executedDateTime: string;
 }
