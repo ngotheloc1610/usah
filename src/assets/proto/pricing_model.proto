@@ -23,7 +23,8 @@ message Quote {
   int64 quote_time = 13; // Timestamp in millisecond
   int32 tick_per_day = 14;
   string volume_per_day = 15;
-  string current_price = 16;   
+  string current_price = 16;   // LP market price
+  string retail_price = 17; // Retail market price
 }
 
 
