@@ -1,7 +1,7 @@
 import { DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
 import './New.css'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
 import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
@@ -14,9 +14,11 @@ import Pagination from "react-js-pagination";
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
-    const [elActive, setELActive] = useState(2);
-    const [elTradingActive, setElTradingActive] = useState(2);
+    const [elActive, setELActive] = useState(0);
+    const [elTradingActive, setElTradingActive] = useState(0);
     const [pageSize, setPageSize] = useState<number>(5);
+    const [pageSizeTrading, setPageSizeTrading] =useState(5);
+    const [pageCurrentTrading, setPageCurrentTrading] = useState(START_PAGE);
     
     const [listDataNews, setListDataNews] = useState<INews[]>();
     // TODO: due to hardcode, don't haven interface yet
@@ -44,17 +46,25 @@ const News = () => {
         page: pageCurrent,
     }
 
+    const paramTrading = {
+        page_size: pageSizeTrading,
+        page: pageCurrentTrading,
+    }
+
     useEffect(() => {
         getDataNews();
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
         getDataTradingResult();
-    }, [pageSize, pageCurrent])
+    }, [pageSizeTrading, pageCurrentTrading])
+    
 
     useEffect(() => {
         setPageSize(5);
+        setPageSizeTrading(5);
         setPageCurrent(START_PAGE);
+        setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
 
     const getDataNews = () => {
@@ -75,7 +85,7 @@ const News = () => {
     }
 
     const getDataTradingResult = () => {
-        axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramNews)).then((resp) => {
+        axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
                 setTotalTradingResult(resp?.data?.data?.count);
@@ -176,12 +186,12 @@ const News = () => {
                 handleTradingReaded(itemTrading?.id);
             }
         }
-    }
+    }    
 
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
         listDataCurr?.map((item: INews, index: number) => (
             <div className={!item.read_flag ? "notification-item unread" : "notification-item"
-                && elTradingActive === index ? "notification-item active" : "notification-item"}
+                && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
                 onClick={() => handleClick(item, index)}
             >
@@ -204,7 +214,7 @@ const News = () => {
     const _renderTradingResultsItem = (listTradingResults: ITradingResult[]) => (
         listTradingResults.map((item: ITradingResult, idx: number) => (
             <div className={!item.readFlg ? "notification-item unread" : "notification-item"
-                && elActive === idx ? "notification-item active" : "notification-item"}
+                && elTradingActive === idx ? "notification-item active" : "notification-item"}
                 key={idx}
                 onClick={() => handleClickTradingResult(item, idx)}
             >
@@ -228,6 +238,11 @@ const News = () => {
         setPageCurrent(value);
     }
 
+    const handlePageTrading = (value) => {
+        setPageCurrentTrading(value);
+    }
+
+
     const _renderItemsPage = () => (
         ItemsPage.map((item, index) => {
             return <option value={item} key={index}>{item}</option>
@@ -238,10 +253,16 @@ const News = () => {
         setPageCurrent(1);
         setPageSize(convertNumber(event.target.value));
     }
+
+    const handleItemsPageTrading = (event) => {
+        setPageCurrentTrading(1);
+        setPageSizeTrading(convertNumber(event.target.value));
+    }
+
     const _renderNewsPagination = () => (
         <nav className="d-flex justify-content-between align-items-center border-top pt-3">
             <div className="d-flex align-items-center">
-                <select className="form-select form-select-sm mb-0 w-4" onChange={handleItemsPage}>
+                <select className="form-select form-select-sm mb-0 w-4" onChange={isNewsTab ? handleItemsPage : handleItemsPageTrading}>
                     {_renderItemsPage()}
                 </select>
                 <div className="ms-3">items/page</div>
@@ -259,13 +280,13 @@ const News = () => {
                     linkClass={'page-link'}
                 />
                 : <Pagination
-                activePage={pageCurrent}
+                activePage={pageCurrentTrading}
                 totalItemsCount={isUnreadTradingNotice ? totalTradingUnread : totalTradingResult}
-                itemsCountPerPage={pageSize}
+                itemsCountPerPage={pageSizeTrading}
                 pageRangeDisplayed={5}
                 prevPageText={'Previous'}
                 nextPageText={'Next'}
-                onChange={handlePage}
+                onChange={handlePageTrading}
                 innerClass={'pagination pagination-sm'}
                 itemClass={'paginate_button page-item'}
                 linkClass={'page-link'}
