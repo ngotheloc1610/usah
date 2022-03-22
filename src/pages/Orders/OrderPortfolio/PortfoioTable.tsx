@@ -16,9 +16,10 @@ function PortfolioTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                setPortfolio(res.accountPortfolioList);
-                callLastQuoteReq(res.accountPortfolioList);
-                subscribeQuoteEvent(res.accountPortfolioList);
+                const portfolioList = res.accountPortfolioList.filter(item => item.totalBuyVolume - item.totalSellVolume !== 0)
+                setPortfolio(portfolioList);
+                callLastQuoteReq(portfolioList);
+                subscribeQuoteEvent(portfolioList);
             }
         });
 
