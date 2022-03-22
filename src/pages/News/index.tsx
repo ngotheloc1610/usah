@@ -8,7 +8,7 @@ import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import { SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
-import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
+import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 
 const News = () => {
@@ -236,7 +236,7 @@ const News = () => {
 
     const handleItemsPage = (event) => {
         setPageCurrent(1);
-        setPageSize(Number(event.target.value));
+        setPageSize(convertNumber(event.target.value));
     }
     const _renderNewsPagination = () => (
         <nav className="d-flex justify-content-between align-items-center border-top pt-3">
