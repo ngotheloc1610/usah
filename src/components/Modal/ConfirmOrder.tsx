@@ -8,7 +8,7 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -113,6 +113,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+            order.setCurrencyCode(CURRENCY.usd);
             singleOrder.setOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);

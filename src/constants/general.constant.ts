@@ -146,4 +146,9 @@ export enum TITLE_ORDER_CONFIRM {
     QUANLITY = 'Quantity',
     PRICE = 'Price',
     VALUE = 'Value'
-} 
+};
+
+export const CURRENCY = {
+    usd: 'USD',
+    sgd: 'SGD'
+};
