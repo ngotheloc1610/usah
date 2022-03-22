@@ -31,9 +31,7 @@ const MultiTraderTable = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                lstId.forEach(item => {
-                    sendMessageMultiTrader(item)
-                })
+                sendMessageMultiTrader(lstId)
                 sendTradeHistoryReq();
             }
         });
@@ -43,6 +41,7 @@ const MultiTraderTable = () => {
         const totalAccountPortfolio: IListPortfolio[][] = []
 
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
+            console.log(44, res)
             if (!isExist(totalAccountPortfolio, JSON.stringify(res.accountPortfolioList))) {
                 totalAccountPortfolio.push(res.accountPortfolioList)
             };
@@ -92,14 +91,18 @@ const MultiTraderTable = () => {
     }
 
 
-    const sendMessageMultiTrader = (accountId: string) => {
+    const sendMessageMultiTrader = (lstAccountIds: string[]) => {
         setAccountId(accountId)
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
-            accountPortfolioRequest.setAccountId(Number(accountId));
+            lstAccountIds.forEach(item => {
+                if (item) {
+                    accountPortfolioRequest.setAccountId(Number(item));
+                }
+            })
             const rpcModel: any = rpcpb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
