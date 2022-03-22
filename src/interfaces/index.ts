@@ -13,6 +13,7 @@ export interface IDataLogin {
     account_type: string;
     expire_time: string;
     access_token: string;
+    sub_accounts?: string[]; 
 }
 export interface IDataLogin {
     meta: IMeta;
