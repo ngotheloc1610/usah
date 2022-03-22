@@ -363,7 +363,8 @@ proto.Quote.toObject = function(includeInstance, msg) {
     quoteTime: jspb.Message.getFieldWithDefault(msg, 13, 0),
     tickPerDay: jspb.Message.getFieldWithDefault(msg, 14, 0),
     volumePerDay: jspb.Message.getFieldWithDefault(msg, 15, ""),
-    currentPrice: jspb.Message.getFieldWithDefault(msg, 16, "")
+    currentPrice: jspb.Message.getFieldWithDefault(msg, 16, ""),
+    retailPrice: jspb.Message.getFieldWithDefault(msg, 17, "")
   };
 
   if (includeInstance) {
@@ -465,6 +466,10 @@ proto.Quote.deserializeBinaryFromReader = function(msg, reader) {
     case 16:
       var value = /** @type {string} */ (reader.readString());
       msg.setCurrentPrice(value);
+      break;
+    case 17:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRetailPrice(value);
       break;
     default:
       reader.skipField();
@@ -606,6 +611,13 @@ proto.Quote.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       16,
+      f
+    );
+  }
+  f = message.getRetailPrice();
+  if (f.length > 0) {
+    writer.writeString(
+      17,
       f
     );
   }
@@ -937,6 +949,24 @@ proto.Quote.prototype.getCurrentPrice = function() {
  */
 proto.Quote.prototype.setCurrentPrice = function(value) {
   return jspb.Message.setProto3StringField(this, 16, value);
+};
+
+
+/**
+ * optional string retail_price = 17;
+ * @return {string}
+ */
+proto.Quote.prototype.getRetailPrice = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 17, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setRetailPrice = function(value) {
+  return jspb.Message.setProto3StringField(this, 17, value);
 };
 
 
