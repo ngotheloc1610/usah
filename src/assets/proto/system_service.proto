@@ -125,13 +125,13 @@ message AccountBalanceResponse {
 
 //Get account portfolio info
 message AccountPortfolioRequest {
-	int64 account_id 					= 1;
+	repeated int64 account_id 					= 1;
 }
 
 message AccountPortfolioResponse {
 	MsgCode msg_code 					= 1;
 	string  msg_text					= 2;
-	int64 account_id 					= 3;
+	repeated int64 account_id 					= 3;
 	string currency_code 				= 4;
 	repeated AccountPortfolio account_portfolio	= 5;
 }
@@ -158,13 +158,10 @@ message GroupCreateResponse {
 
 // Update group info
 message GroupUpdateRequest {
-	int64 group_id				= 1;
-	string group_name			= 2;
-	int64 max_order_volume 		= 3;
+	repeated GroupAccount group_account 				= 1;
 }
 
 message GroupUpdateResponse {
 	MsgCode msg_code					= 1;
 	string msg_text			= 2;
-	GroupAccount group_account 					= 3;
 }

@@ -400,7 +400,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.AccountPortfolioRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.AccountPortfolioRequest.repeatedFields_, null);
 };
 goog.inherits(proto.AccountPortfolioRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -526,7 +526,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.GroupUpdateRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.GroupUpdateRequest.repeatedFields_, null);
 };
 goog.inherits(proto.GroupUpdateRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -3872,6 +3872,13 @@ proto.AccountBalanceResponse.prototype.hasAccountBalance = function() {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.AccountPortfolioRequest.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -3903,7 +3910,7 @@ proto.AccountPortfolioRequest.prototype.toObject = function(opt_includeInstance)
  */
 proto.AccountPortfolioRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    accountId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+    accountIdList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -3941,8 +3948,10 @@ proto.AccountPortfolioRequest.deserializeBinaryFromReader = function(msg, reader
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccountId(value);
+      var values = /** @type {!Array<number>} */ (reader.isDelimited() ? reader.readPackedInt64() : [reader.readInt64()]);
+      for (var i = 0; i < values.length; i++) {
+        msg.addAccountId(values[i]);
+      }
       break;
     default:
       reader.skipField();
@@ -3973,9 +3982,9 @@ proto.AccountPortfolioRequest.prototype.serializeBinary = function() {
  */
 proto.AccountPortfolioRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getAccountId();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getAccountIdList();
+  if (f.length > 0) {
+    writer.writePackedInt64(
       1,
       f
     );
@@ -3984,20 +3993,39 @@ proto.AccountPortfolioRequest.serializeBinaryToWriter = function(message, writer
 
 
 /**
- * optional int64 account_id = 1;
- * @return {number}
+ * repeated int64 account_id = 1;
+ * @return {!Array<number>}
  */
-proto.AccountPortfolioRequest.prototype.getAccountId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+proto.AccountPortfolioRequest.prototype.getAccountIdList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 1));
+};
+
+
+/**
+ * @param {!Array<number>} value
+ * @return {!proto.AccountPortfolioRequest} returns this
+ */
+proto.AccountPortfolioRequest.prototype.setAccountIdList = function(value) {
+  return jspb.Message.setField(this, 1, value || []);
 };
 
 
 /**
  * @param {number} value
+ * @param {number=} opt_index
  * @return {!proto.AccountPortfolioRequest} returns this
  */
-proto.AccountPortfolioRequest.prototype.setAccountId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
+proto.AccountPortfolioRequest.prototype.addAccountId = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.AccountPortfolioRequest} returns this
+ */
+proto.AccountPortfolioRequest.prototype.clearAccountIdList = function() {
+  return this.setAccountIdList([]);
 };
 
 
@@ -4007,7 +4035,7 @@ proto.AccountPortfolioRequest.prototype.setAccountId = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.AccountPortfolioResponse.repeatedFields_ = [5];
+proto.AccountPortfolioResponse.repeatedFields_ = [3,5];
 
 
 
@@ -4042,7 +4070,7 @@ proto.AccountPortfolioResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     msgCode: jspb.Message.getFieldWithDefault(msg, 1, 0),
     msgText: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accountId: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    accountIdList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
     currencyCode: jspb.Message.getFieldWithDefault(msg, 4, ""),
     accountPortfolioList: jspb.Message.toObjectList(msg.getAccountPortfolioList(),
     system_model_pb.AccountPortfolio.toObject, includeInstance)
@@ -4091,8 +4119,10 @@ proto.AccountPortfolioResponse.deserializeBinaryFromReader = function(msg, reade
       msg.setMsgText(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setAccountId(value);
+      var values = /** @type {!Array<number>} */ (reader.isDelimited() ? reader.readPackedInt64() : [reader.readInt64()]);
+      for (var i = 0; i < values.length; i++) {
+        msg.addAccountId(values[i]);
+      }
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
@@ -4146,9 +4176,9 @@ proto.AccountPortfolioResponse.serializeBinaryToWriter = function(message, write
       f
     );
   }
-  f = message.getAccountId();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getAccountIdList();
+  if (f.length > 0) {
+    writer.writePackedInt64(
       3,
       f
     );
@@ -4208,20 +4238,39 @@ proto.AccountPortfolioResponse.prototype.setMsgText = function(value) {
 
 
 /**
- * optional int64 account_id = 3;
- * @return {number}
+ * repeated int64 account_id = 3;
+ * @return {!Array<number>}
  */
-proto.AccountPortfolioResponse.prototype.getAccountId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+proto.AccountPortfolioResponse.prototype.getAccountIdList = function() {
+  return /** @type {!Array<number>} */ (jspb.Message.getRepeatedField(this, 3));
+};
+
+
+/**
+ * @param {!Array<number>} value
+ * @return {!proto.AccountPortfolioResponse} returns this
+ */
+proto.AccountPortfolioResponse.prototype.setAccountIdList = function(value) {
+  return jspb.Message.setField(this, 3, value || []);
 };
 
 
 /**
  * @param {number} value
+ * @param {number=} opt_index
  * @return {!proto.AccountPortfolioResponse} returns this
  */
-proto.AccountPortfolioResponse.prototype.setAccountId = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
+proto.AccountPortfolioResponse.prototype.addAccountId = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 3, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.AccountPortfolioResponse} returns this
+ */
+proto.AccountPortfolioResponse.prototype.clearAccountIdList = function() {
+  return this.setAccountIdList([]);
 };
 
 
@@ -4973,6 +5022,13 @@ proto.GroupCreateResponse.prototype.clearGroupAccountList = function() {
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.GroupUpdateRequest.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -5004,9 +5060,8 @@ proto.GroupUpdateRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.GroupUpdateRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    groupId: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    groupName: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    maxOrderVolume: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    groupAccountList: jspb.Message.toObjectList(msg.getGroupAccountList(),
+    system_model_pb.GroupAccount.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -5044,16 +5099,9 @@ proto.GroupUpdateRequest.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setGroupId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setGroupName(value);
-      break;
-    case 3:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setMaxOrderVolume(value);
+      var value = new system_model_pb.GroupAccount;
+      reader.readMessage(value,system_model_pb.GroupAccount.deserializeBinaryFromReader);
+      msg.addGroupAccount(value);
       break;
     default:
       reader.skipField();
@@ -5084,81 +5132,52 @@ proto.GroupUpdateRequest.prototype.serializeBinary = function() {
  */
 proto.GroupUpdateRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getGroupId();
-  if (f !== 0) {
-    writer.writeInt64(
-      1,
-      f
-    );
-  }
-  f = message.getGroupName();
+  f = message.getGroupAccountList();
   if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-  f = message.getMaxOrderVolume();
-  if (f !== 0) {
-    writer.writeInt64(
-      3,
-      f
+    writer.writeRepeatedMessage(
+      1,
+      f,
+      system_model_pb.GroupAccount.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * optional int64 group_id = 1;
- * @return {number}
+ * repeated GroupAccount group_account = 1;
+ * @return {!Array<!proto.GroupAccount>}
  */
-proto.GroupUpdateRequest.prototype.getGroupId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+proto.GroupUpdateRequest.prototype.getGroupAccountList = function() {
+  return /** @type{!Array<!proto.GroupAccount>} */ (
+    jspb.Message.getRepeatedWrapperField(this, system_model_pb.GroupAccount, 1));
 };
 
 
 /**
- * @param {number} value
+ * @param {!Array<!proto.GroupAccount>} value
+ * @return {!proto.GroupUpdateRequest} returns this
+*/
+proto.GroupUpdateRequest.prototype.setGroupAccountList = function(value) {
+  return jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.GroupAccount=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.GroupAccount}
+ */
+proto.GroupUpdateRequest.prototype.addGroupAccount = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.GroupAccount, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
  * @return {!proto.GroupUpdateRequest} returns this
  */
-proto.GroupUpdateRequest.prototype.setGroupId = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-/**
- * optional string group_name = 2;
- * @return {string}
- */
-proto.GroupUpdateRequest.prototype.getGroupName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.GroupUpdateRequest} returns this
- */
-proto.GroupUpdateRequest.prototype.setGroupName = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional int64 max_order_volume = 3;
- * @return {number}
- */
-proto.GroupUpdateRequest.prototype.getMaxOrderVolume = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.GroupUpdateRequest} returns this
- */
-proto.GroupUpdateRequest.prototype.setMaxOrderVolume = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
+proto.GroupUpdateRequest.prototype.clearGroupAccountList = function() {
+  return this.setGroupAccountList([]);
 };
 
 
@@ -5195,8 +5214,7 @@ proto.GroupUpdateResponse.prototype.toObject = function(opt_includeInstance) {
 proto.GroupUpdateResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     msgCode: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    msgText: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    groupAccount: (f = msg.getGroupAccount()) && system_model_pb.GroupAccount.toObject(includeInstance, f)
+    msgText: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -5241,11 +5259,6 @@ proto.GroupUpdateResponse.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setMsgText(value);
       break;
-    case 3:
-      var value = new system_model_pb.GroupAccount;
-      reader.readMessage(value,system_model_pb.GroupAccount.deserializeBinaryFromReader);
-      msg.setGroupAccount(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -5289,14 +5302,6 @@ proto.GroupUpdateResponse.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getGroupAccount();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      system_model_pb.GroupAccount.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -5333,43 +5338,6 @@ proto.GroupUpdateResponse.prototype.getMsgText = function() {
  */
 proto.GroupUpdateResponse.prototype.setMsgText = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional GroupAccount group_account = 3;
- * @return {?proto.GroupAccount}
- */
-proto.GroupUpdateResponse.prototype.getGroupAccount = function() {
-  return /** @type{?proto.GroupAccount} */ (
-    jspb.Message.getWrapperField(this, system_model_pb.GroupAccount, 3));
-};
-
-
-/**
- * @param {?proto.GroupAccount|undefined} value
- * @return {!proto.GroupUpdateResponse} returns this
-*/
-proto.GroupUpdateResponse.prototype.setGroupAccount = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.GroupUpdateResponse} returns this
- */
-proto.GroupUpdateResponse.prototype.clearGroupAccount = function() {
-  return this.setGroupAccount(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.GroupUpdateResponse.prototype.hasGroupAccount = function() {
-  return jspb.Message.getField(this, 3) != null;
 };
 
 
