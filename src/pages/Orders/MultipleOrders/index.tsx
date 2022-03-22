@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -413,6 +413,7 @@ const MultipleOrders = () => {
                     order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+                    order.setCurrencyCode(CURRENCY.usd);
                     multiOrder.addOrder(order);
                 }
             })

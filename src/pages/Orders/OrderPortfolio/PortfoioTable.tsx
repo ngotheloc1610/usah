@@ -204,7 +204,7 @@ function PortfolioTable() {
                 </div>
                 <div className="col-md-2 text-center">
                     <div>Total Unrealized PL:</div>
-                    <div className={`fs-5 fw-bol `}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
+                    <div className={`fs-5 fw-bold ${getNameClass(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
                 </div>
                 <div className="col-md-4 order-0 order-md-4">
                     <p className="text-end small opacity-50 mb-2">Currency: USD</p>
