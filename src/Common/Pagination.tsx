@@ -24,6 +24,7 @@ function PaginationComponent(props: IPropsPagination) {
                     Show
                     <select name="table_length" aria-controls="table" className="form-select form-select-sm form-select-inline"
                         defaultValue="10"
+                        value={itemPerPage}
                         onChange={(event) => getItemPerPage(Number(event.target.value))}
                     >
                         <option value="10">10</option>

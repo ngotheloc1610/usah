@@ -6,10 +6,13 @@ import * as rspb from "../../../models/proto/rpc_pb";
 import { useEffect, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { IParamHistorySearch } from '../../../interfaces';
+import { DEFAULT_SEARCH_HISTORY } from '../../../mocks';
 
 const OrderHistory = () => {
     const [listOrderHistory, setListOrderHistory] = useState([]);
     const [orderSide, setOrderSide] = useState(0);
+    const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>(DEFAULT_SEARCH_HISTORY);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -62,13 +65,21 @@ const OrderHistory = () => {
         setOrderSide(item)
     }
 
+    const handleSearch = (item: IParamHistorySearch) => {
+        setParamHistorySearch(item);
+    }
+
     const _renderOrderHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch getOrderSide={getOrderSide} />
-                        <OrderTable listOrderHistory={listOrderHistory} />
+                        <OrderHistorySearch 
+                            getOrderSide={getOrderSide}
+                            paramSearch={handleSearch}/>
+                        <OrderTable
+                            listOrderHistory={listOrderHistory}
+                            paramHistorySearch={paramHistorySearch}/>
                     </div>
                 </div>
             </div>

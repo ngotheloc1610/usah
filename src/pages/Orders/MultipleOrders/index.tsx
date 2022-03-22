@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -413,6 +413,7 @@ const MultipleOrders = () => {
                     order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+                    order.setCurrencyCode(CURRENCY.usd);
                     multiOrder.addOrder(order);
                 }
             })
@@ -801,8 +802,7 @@ const MultipleOrders = () => {
 
                 <div className="text-end mb-3 mt-10">
                     <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
-                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>
-                        Settlement</a>
+                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Execute</a>
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@ import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
 import { ITickerDetail } from "../interfaces/ticker.interface";
+import { IParamHistorySearch } from "../interfaces";
 
 export const TradingModel: any = tdpb;
 
@@ -255,4 +256,13 @@ export const DEFAULT_SYMBOL: ISymbolInfo = {
     symbolStatus: 0,
     tickSize: "0",
     prevClosePrice: '0'
+}
+
+export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
+    symbolCode: '',
+    orderState: 0,
+    orderSideBuy: '',
+    orderSideSell: '',
+    fromDate: 0,
+    toDate: 0,
 }

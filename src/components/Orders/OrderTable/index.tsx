@@ -1,13 +1,13 @@
 import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 
 function OrderTable(props: IPropListOrderHistory) {
-    const { listOrderHistory } = props;
+    const { listOrderHistory, paramHistorySearch } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL;
@@ -15,26 +15,73 @@ function OrderTable(props: IPropListOrderHistory) {
     const [showModalDetail, setShowModalDetail] = useState(false)
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
-    const totalItem = listOrderHistory.length;
+    const [totalItem, setTotalItem] = useState<number>(0);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
+    const [lstDataFillter, setLstDataFillter] = useState<IOrderHistory[]>([]);
 
     useEffect(() => {
         const historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
+        setListHistorySortDate(historySortDate);
+        setLstDataFillter(historySortDate);
+        setTotalItem(historySortDate.length);
         const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
-        setListHistorySortDate(currentList);
-    }, [listOrderHistory, itemPerPage, currentPage])
+        setDataCurrent(currentList);
+    }, [listOrderHistory]);
 
     useEffect(() => {
-        setCurrentPage(START_PAGE)
+        let lstHistorySortDate = [...listHistorySortDate];
+        if (paramHistorySearch.symbolCode) {
+            lstHistorySortDate = lstHistorySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
+        }
+        if (paramHistorySearch.orderState > 0) {
+            lstHistorySortDate = lstHistorySortDate.filter(item => item.state === paramHistorySearch.orderState);
+        }
+        if ((paramHistorySearch.orderSideBuy && !paramHistorySearch.orderSideSell) ||
+            !paramHistorySearch.orderSideBuy && paramHistorySearch.orderSideSell) {
+            if (paramHistorySearch.orderSideBuy) {
+                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideBuy));
+            }
+            if (paramHistorySearch.orderSideSell) {
+                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideSell));
+            }
+        }
+        if (paramHistorySearch.fromDate > 0) {
+            lstHistorySortDate = lstHistorySortDate.filter(item =>
+                item.time > Number(paramHistorySearch.fromDate) ||
+                item.time === Number(paramHistorySearch.fromDate));
+        }
+        if (paramHistorySearch.toDate > 0 ) {
+            lstHistorySortDate = lstHistorySortDate.filter(item =>
+                item.time < Number(paramHistorySearch.toDate) ||
+                item.time === Number(paramHistorySearch.toDate));
+        }
+        setTotalItem(lstHistorySortDate.length);
+        setCurrentPage(START_PAGE);
+        setItemPerPage(DEFAULT_ITEM_PER_PAGE);
+        setLstDataFillter(lstHistorySortDate);
+        const currentList = calcCurrentList(START_PAGE, DEFAULT_ITEM_PER_PAGE, lstHistorySortDate);
+        setDataCurrent(currentList);
+    }, [paramHistorySearch]);
+
+
+    useEffect(() => {
+        setCurrentPage(START_PAGE);
     }, [listOrderHistory])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
-        setCurrentPage(START_PAGE)
+        setCurrentPage(START_PAGE);
+        const listDataCurr = [...lstDataFillter];
+        const currentList = calcCurrentList(START_PAGE, item, listDataCurr);
+        setDataCurrent(currentList);
     }
 
     const getCurrentPage = (item: number) => {
         setCurrentPage(item);
+        const listDataCurr = [...lstDataFillter];
+        const currentList = calcCurrentList(item, itemPerPage, listDataCurr);
+        setDataCurrent(currentList);
     }
 
     const getTickerName = (symbolCode: string) => {
@@ -50,7 +97,7 @@ function OrderTable(props: IPropListOrderHistory) {
     }
 
     const getStatusFromModal = (isShowDetail: boolean) => {
-        setShowModalDetail(isShowDetail)
+        setShowModalDetail(isShowDetail);
     }
 
     const _renderOrderHistoryTableHeader = () =>
@@ -65,10 +112,10 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-center fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
             <th className="text-ellipsis text-end fz-14 w-120">
-                <div>Order Volume</div>
-                <div>Remaining Volume</div>
+                <div>Order Quantity</div>
+                <div>Remaining Quantity</div>
             </th>
-            <th className="text-end fz-14 w-120"> Executed Volume </th>
+            <th className="text-end fz-14 w-120"> Executed Quantity </th>
             <th className="text-ellipsis text-end fz-14 w-120">
                 <div>Order Price</div>
                 <div>Last Price</div>
@@ -81,8 +128,8 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 
     const _renderOrderHistoryTableBody = () => (
-        listHistorySortDate?.map((item, index) => (
-            <tr className="align-middle" key={index} onClick={() => setShowModalDetail(true)}>
+        dataCurrent?.map((item, index) => (
+            <tr className="align-middle" key={index}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
                 <td className="text-ellipsis text-start w-220">
                     <div>{item?.symbolCode}</div>
@@ -121,6 +168,30 @@ function OrderTable(props: IPropListOrderHistory) {
         ))
     )
 
+    const handleDownload = () => {
+        const data: IDataHistory[] = [];
+        dataCurrent.forEach(item => {
+            if (item) {
+                data.push({
+                    orderId: Number(item?.orderId),
+                    tickerCode: item?.symbolCode,
+                    tickerName: getTickerName(item?.symbolCode),
+                    orderSide: getSideName(item.side) || '',
+                    orderStatus: getStateName(item.state) || '',
+                    orderType: ORDER_TYPE_NAME.limit,
+                    orderVolume: formatNumber(item.amount) || '',
+                    remainingVolume: formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString()) || '',
+                    executedVolume: formatNumber(item.filledAmount),
+                    orderPrice: formatCurrency(item.price),
+                    lastPrice: formatCurrency(item.lastPrice),
+                    orderDateTime: formatOrderTime(item.time),
+                    executedDateTime: formatOrderTime(item.time)
+                });
+            }
+        });
+        exportCSV(data, 'orderHistory');
+    }
+
     const _renderOrderHistoryTable = () => {
         return (
             <div className="card-body">
@@ -137,7 +208,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                     getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
                 />
-                <p className="text-end border-top pt-3">
+                <p className="text-end border-top pt-3" onClick={handleDownload}>
                     <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
                 </p>
                 {showModalDetail && <ModalMatching getStatusFromModal={getStatusFromModal} />}

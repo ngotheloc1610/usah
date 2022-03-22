@@ -2,7 +2,7 @@ import { DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { API_GET_NEWS, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
+import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
 import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
@@ -14,7 +14,8 @@ import Pagination from "react-js-pagination";
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
-    const [elActive, setELActive] = useState(2)
+    const [elActive, setELActive] = useState(2);
+    const [elTradingActive, setElTradingActive] = useState(2);
     const [pageSize, setPageSize] = useState<number>(5);
     
     const [listDataNews, setListDataNews] = useState<INews[]>();
@@ -35,8 +36,9 @@ const News = () => {
     const [isNewsTab, setIsNewsTab] = useState(true);
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
-    const urlGetTradingResult = `${api_url}${API_POST_TRADING_RESULT}`;
+    const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`; 
+    const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`; 
     const paramNews = {
         page_size: pageSize,
         page: pageCurrent,
@@ -155,10 +157,31 @@ const News = () => {
 
     }
 
+    const handleTradingReaded = (idTrading: number) => {        
+        const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
+        axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {            
+            if (resp?.data?.meta?.code === success) {
+                getDataTradingResult();
+            }
+        },
+            (error) => {
+                console.log("errors");
+            });
+    }
+
+    const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
+        setElTradingActive(index);
+        if (itemTrading) {      
+            if (!itemTrading.readFlg) {
+                handleTradingReaded(itemTrading?.id);
+            }
+        }
+    }
+
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
         listDataCurr?.map((item: INews, index: number) => (
             <div className={!item.read_flag ? "notification-item unread" : "notification-item"
-                && elActive === index ? "notification-item active" : "notification-item"}
+                && elTradingActive === index ? "notification-item active" : "notification-item"}
                 key={index}
                 onClick={() => handleClick(item, index)}
             >
@@ -178,11 +201,12 @@ const News = () => {
         return SIDE.find(item => item.code === side)?.title;
     }
 
-    const _renderTradingResultsItem = (listTradingResults: any[]) => (
-        listTradingResults.map((item: any, idx: number) => (
-            <div className={!item.read_flag ? "notification-item unread" : "notification-item"
+    const _renderTradingResultsItem = (listTradingResults: ITradingResult[]) => (
+        listTradingResults.map((item: ITradingResult, idx: number) => (
+            <div className={!item.readFlg ? "notification-item unread" : "notification-item"
                 && elActive === idx ? "notification-item active" : "notification-item"}
                 key={idx}
+                onClick={() => handleClickTradingResult(item, idx)}
             >
                 <div className="item-icon">
                     <i className="bi bi-cash-stack"></i>
