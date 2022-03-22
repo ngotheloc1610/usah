@@ -302,7 +302,7 @@ const OrderBookCommon = () => {
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
-    const searchTicker = () => {        
+    const searchTicker = () => {
         if (symbolId !== 0) {
             getOrderBooks();
             handleDataFromWs();
@@ -313,7 +313,7 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const symbolCode = event.target.value !== undefined ? getSymbolCode(event.target.value) : ''
+            const symbolCode = event.target.value ? getSymbolCode(event.target.value) : '';
             const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode);
             setSymbolSearch(symbolCode);
             setTickerSelect(symbolCode);
