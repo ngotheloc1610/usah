@@ -65,11 +65,6 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
             }
-            const listSymbolCode: string[] = []
-            listTicker.forEach((item: ISymbolInfo) => {
-                listSymbolCode.push(item.symbolCode);
-            });
-            getTickerSearch(listSymbolCode[0]);
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
@@ -318,9 +313,10 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listTicker.find(item => item.symbolCode === getSymbolCode(event.target.value));
-            setSymbolSearch(getSymbolCode(event.target.value));
-            setTickerSelect(getSymbolCode(event.target.value));
+            const symbolCode = event.target.value !== undefined ? getSymbolCode(event.target.value) : ''
+            const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode);
+            setSymbolSearch(symbolCode);
+            setTickerSelect(symbolCode);
             setItemTickerInfor(itemTickerInfor);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
@@ -418,7 +414,7 @@ const OrderBookCommon = () => {
                         onKeyUp={handleKeyUp}
                         disablePortal
                         options={listSymbolCode}
-                        value={tickerSelect}
+                        defaultValue={listTicker[0].symbolCode}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />
