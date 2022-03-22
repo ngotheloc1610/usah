@@ -43,9 +43,9 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         <th className="text-start fz-14 w-180" >Ticker Name</th>
         <th className="text-center fz-14 w-80" > Order Side </th>
         <th className="text-center fz-14 w-80" >Order Type </th>
-        <th className="text-end fz-14 w-120 "> Order Volume </th>
+        <th className="text-end fz-14 w-120 "> Order Quantity </th>
         <th className="text-end fz-14 w-80 " >Order Price  </th>
-        <th className="text-end fz-14 w-120" > Executed Volume</th>
+        <th className="text-end fz-14 w-120" > Executed Quantity</th>
         <th className="text-end fz-14 w-120">Executed Price</th>
         <th className="text-end fz-14 w-120"> Matched Value</th>
         <th className="text-end fz-14 w-180"> Executed Datetime</th>
