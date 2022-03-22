@@ -19,7 +19,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
-import { assignListPrice, calcChange, calcPctChange, checkValue, toTimestamp } from '../../../helper/utils';
+import { assignListPrice, calcChange, calcPctChange, checkValue, getSymbolCode, toTimestamp } from '../../../helper/utils';
 
 const OrderBookCommon = () => {
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
@@ -78,7 +78,7 @@ const OrderBookCommon = () => {
 
         const listSymbolCode: string[] = [];
         listTicker.forEach((item: ISymbolInfo) => {
-            listSymbolCode.push(item.symbolCode);
+            listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         getTickerSearch(listSymbolCode[0]);
 
@@ -289,7 +289,7 @@ const OrderBookCommon = () => {
     }
 
     const getTickerSearch = (value: string) => {
-        const symbolCode = value !== undefined ? value : '';
+        const symbolCode = value !== undefined ? getSymbolCode(value) : '';
         setSymbolSearch(symbolCode);
         setTickerSelect(symbolCode);
         assignTickerToOrderForm(symbolCode);
@@ -307,7 +307,7 @@ const OrderBookCommon = () => {
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
 
-    const searchTicker = () => {
+    const searchTicker = () => {        
         if (symbolId !== 0) {
             getOrderBooks();
             handleDataFromWs();
@@ -318,8 +318,9 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const itemTickerInfor = listTicker.find(item => item.symbolCode === (event.target.value).toUpperCase());
-            setSymbolSearch(event.target.value);
+            const itemTickerInfor = listTicker.find(item => item.symbolCode === getSymbolCode(event.target.value));
+            setSymbolSearch(getSymbolCode(event.target.value));
+            setTickerSelect(getSymbolCode(event.target.value));
             setItemTickerInfor(itemTickerInfor);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
             searchTicker()
@@ -415,7 +416,6 @@ const OrderBookCommon = () => {
                     <Autocomplete
                         onChange={(event: any) => getTickerSearch(event.target.innerText)}
                         onKeyUp={handleKeyUp}
-                        onClick={searchTicker}
                         disablePortal
                         options={listSymbolCode}
                         value={tickerSelect}
