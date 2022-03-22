@@ -41,6 +41,7 @@ const Login = () => {
                     localStorage.setItem(ACCOUNT_ID, JSON.stringify(resp.data.data.account_id));
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
                     localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
+                    debugger
                     if (resp.data.data.sub_accounts) {
                         localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(resp.data.data.sub_accounts));
                     } else {

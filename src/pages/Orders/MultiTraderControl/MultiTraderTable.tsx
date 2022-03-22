@@ -28,38 +28,38 @@ const MultiTraderTable = () => {
     const [allTotalGross, setAllTotalGross] = useState('');
     const [allTotalPL, setAllTotalPL] = useState('');
 
-    // useEffect(() => {
-    //     const ws = wsService.getSocketSubject().subscribe(resp => {
-    //         if (resp === SOCKET_CONNECTED) {
-    //             lstId.forEach(item => {
-    //                 sendMessageMultiTrader(item)
-    //             })
-    //             sendTradeHistoryReq();
-    //         }
-    //     });
+    useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                lstId.forEach(item => {
+                    sendMessageMultiTrader(item)
+                })
+                sendTradeHistoryReq();
+            }
+        });
 
-    //     const isExist = (arr, itemNeedCheck) => arr.indexOf(itemNeedCheck) > -1;
+        const isExist = (arr, itemNeedCheck) => arr.indexOf(itemNeedCheck) > -1;
 
-    //     const totalAccountPortfolio: IListPortfolio[][] = []
+        const totalAccountPortfolio: IListPortfolio[][] = []
 
-    //     const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-    //         if (!isExist(totalAccountPortfolio, JSON.stringify(res.accountPortfolioList))) {
-    //             totalAccountPortfolio.push(res.accountPortfolioList)
-    //         };
-    //         setTotalAccountPortfolio(totalAccountPortfolio)
-    //     });
+        const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
+            if (!isExist(totalAccountPortfolio, JSON.stringify(res.accountPortfolioList))) {
+                totalAccountPortfolio.push(res.accountPortfolioList)
+            };
+            setTotalAccountPortfolio(totalAccountPortfolio)
+        });
 
 
-    //     const getTradeHistory = wsService.getTradeHistory().subscribe(res => {
-    //         setDataTradeHistory(res.tradeList)
-    //     });
+        const getTradeHistory = wsService.getTradeHistory().subscribe(res => {
+            setDataTradeHistory(res.tradeList)
+        });
 
-    //     return () => {
-    //         ws.unsubscribe();
-    //         renderDataToScreen.unsubscribe();
-    //         getTradeHistory.unsubscribe();
-    //     }
-    // }, [])
+        return () => {
+            ws.unsubscribe();
+            renderDataToScreen.unsubscribe();
+            getTradeHistory.unsubscribe();
+        }
+    }, [])
 
     useEffect(() => {
         _renderRowTradingAccount();
