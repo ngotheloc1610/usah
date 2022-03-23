@@ -157,6 +157,10 @@ const OrderForm = (props: IOrderForm) => {
         const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
+        if (ceilingPrice === 0 && floorPrice === 0) {
+            setIsShowNotiErrorPrice(false);
+            return
+        }
         if (newPrice > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
             return;
@@ -180,6 +184,14 @@ const OrderForm = (props: IOrderForm) => {
         const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
+        if (ceilingPrice === 0 && floorPrice === 0) {
+            setIsShowNotiErrorPrice(false);
+            return
+        }
+        if (newPrice > ceilingPrice) {
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
         if (newPrice < floorPrice) {
             setIsShowNotiErrorPrice(true);
             return;
@@ -262,6 +274,10 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleChangePrice = (value: string, maskedVal: number) => {
         setPrice(+maskedVal);
+        if (ceilingPrice === 0 && floorPrice === 0) {
+            setIsShowNotiErrorPrice(false);
+            return;
+        }
         if (+maskedVal > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
         } else if (+maskedVal < floorPrice) {
