@@ -1,44 +1,71 @@
-import { LIST_NEWS_NAV, DEFAULT_DETAIL_NEWS, MOCK_TRADING_RESULTS_NOTICE } from '../../mocks'
-import { INewsNav, IReqNews, INews } from '../../interfaces/news.interface'
+import { DEFAULT_DETAIL_NEWS } from '../../mocks'
+import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
 import './New.css'
-import { useEffect, useState } from 'react'
-import { API_GET_NEWS, API_POST_NEWS } from '../../constants/api.constant'
+import { useCallback, useEffect, useState } from 'react'
+import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
 import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
+import { SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
-import { defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
+import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
-    const [elActive, setELActive] = useState(2)
+    const [elActive, setELActive] = useState(0);
+    const [elTradingActive, setElTradingActive] = useState(0);
     const [pageSize, setPageSize] = useState<number>(5);
+    const [pageSizeTrading, setPageSizeTrading] =useState(5);
+    const [pageCurrentTrading, setPageCurrentTrading] = useState(START_PAGE);
+    
     const [listDataNews, setListDataNews] = useState<INews[]>();
     // TODO: due to hardcode, don't haven interface yet
-    const [listTradingResults, setListTradingResults] = useState<any[]>(MOCK_TRADING_RESULTS_NOTICE);
+    const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
-    const [pageCurrent, setPageCurrent] = useState<number>(1);
+    const [pageCurrent, setPageCurrent] = useState<number>(START_PAGE);
     const [totalNewsUnread, setTotalNewsUnread] = useState<number>(0);
-    const [totalTradingUnread, setTotalTradingUnread] = useState<number>(0);
+    const [totalUnReadTrading, setTotalUnReadTrading] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
     const [isUnreadTradingNotice, setIsUnreadTradingNotice] = useState(false);
     const [listDataUnread, setListDataUnread] = useState<INews[]>();
+    const [listDataUnreadTrading, setListDataUnreadTrading] = useState<ITradingResult[]>();
     const [totalItem, setTotalItem] = useState<number>(0);
+    const [totalTradingResult, setTotalTradingResult] = useState(0);
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
+    const [totalTradingUnread, setTotalTradingUnread] = useState(0);
     const [isNewsTab, setIsNewsTab] = useState(true);
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
+    const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`; 
+    const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`; 
     const paramNews = {
         page_size: pageSize,
         page: pageCurrent,
     }
 
+    const paramTrading = {
+        page_size: pageSizeTrading,
+        page: pageCurrentTrading,
+    }
+
     useEffect(() => {
         getDataNews();
     }, [pageSize, pageCurrent])
+
+    useEffect(() => {
+        getDataTradingResult();
+    }, [pageSizeTrading, pageCurrentTrading])
+    
+
+    useEffect(() => {
+        setPageSize(5);
+        setPageSizeTrading(5);
+        setPageCurrent(START_PAGE);
+        setPageCurrentTrading(START_PAGE)
+    }, [isNewsTab])
 
     const getDataNews = () => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {
@@ -57,10 +84,27 @@ const News = () => {
             });
     }
 
+    const getDataTradingResult = () => {
+        axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
+            if (resp.status === success) {
+                setListTradingResults(resp?.data?.data?.results);
+                setTotalTradingResult(resp?.data?.data?.count);
+                const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.readFlg === false);
+                if (listDataUnReadTrading) {
+                    setTotalUnReadTrading(listDataUnReadTrading.length);
+                    setListDataUnreadTrading(listDataUnReadTrading);
+                }
+            }
+        },
+            (error) => {
+                console.log("errors");
+            });
+    }
+
     const handleShowUnread = (isCheck: boolean) => {
         setIsUnread(isCheck);
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
-        setTotalItemUnRead(listDataUnread?.length || 0);
+        isNewsTab ? setTotalItemUnRead(listDataUnread?.length || 0) : setTotalTradingUnread(listDataUnreadTrading?.length || 0);
     }
 
     const _renderNewsHeader = () => (
@@ -85,7 +129,7 @@ const News = () => {
             <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
                 <a className={`nav-link ${!isNewsTab ? 'active': ''}`} aria-current="page" href="#">
                     Trading Results
-                    <span className="badge bg-secondary rounded ml-4">{totalTradingUnread}</span>
+                    <span className="badge bg-secondary rounded ml-4">{totalUnReadTrading}</span>
                 </a>
             </li>
         </>
@@ -112,9 +156,9 @@ const News = () => {
             });
     }
 
-    const handleClick = (index: number, itemNews: INews) => {
+    const handleClick = (itemNews: INews, index: number) => {
         setELActive(index);
-        if (itemNews) {
+        if (itemNews) {            
             setDataDetailNews(itemNews);
             if (!itemNews.read_flag) {
                 handleNewsReaded(itemNews?.id);
@@ -123,12 +167,33 @@ const News = () => {
 
     }
 
+    const handleTradingReaded = (idTrading: number) => {        
+        const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
+        axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {            
+            if (resp?.data?.meta?.code === success) {
+                getDataTradingResult();
+            }
+        },
+            (error) => {
+                console.log("errors");
+            });
+    }
+
+    const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
+        setElTradingActive(index);
+        if (itemTrading) {      
+            if (!itemTrading.readFlg) {
+                handleTradingReaded(itemTrading?.id);
+            }
+        }
+    }    
+
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
         listDataCurr?.map((item: INews, index: number) => (
             <div className={!item.read_flag ? "notification-item unread" : "notification-item"
                 && elActive === index ? "notification-item active" : "notification-item"}
                 key={index}
-                onClick={() => handleClick(index, item)}
+                onClick={() => handleClick(item, index)}
             >
                 <div className="item-icon">
                     <i className="bi bi-bell-fill"></i>
@@ -142,11 +207,16 @@ const News = () => {
         ))
     )
 
-    const _renderTradingResultsItem = (listTradingResults: any[]) => (
-        listTradingResults.map((item: any, idx: number) => (
-            <div className={!item.read_flag ? "notification-item unread" : "notification-item"
-                && elActive === idx ? "notification-item active" : "notification-item"}
+    const getSideName = (side: number) => {
+        return SIDE.find(item => item.code === side)?.title;
+    }
+
+    const _renderTradingResultsItem = (listTradingResults: ITradingResult[]) => (
+        listTradingResults.map((item: ITradingResult, idx: number) => (
+            <div className={!item.readFlg ? "notification-item unread" : "notification-item"
+                && elTradingActive === idx ? "notification-item active" : "notification-item"}
                 key={idx}
+                onClick={() => handleClickTradingResult(item, idx)}
             >
                 <div className="item-icon">
                     <i className="bi bi-cash-stack"></i>
@@ -154,10 +224,10 @@ const News = () => {
                 <div className="item-content">
                     <h5 className="item-title mb-0">Trading Results Information</h5>
                     <div className="item-summary opacity-75 fix-line-css">
-                        {item.side} {item.volume} {item.symbolCode} price {item.price}
+                        {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                     </div>
                     <div className="item-summary opacity-75 fix-line-css">
-                        {item.time}
+                        {item.execTime}
                     </div>
                 </div>
             </div>
@@ -168,6 +238,11 @@ const News = () => {
         setPageCurrent(value);
     }
 
+    const handlePageTrading = (value) => {
+        setPageCurrentTrading(value);
+    }
+
+
     const _renderItemsPage = () => (
         ItemsPage.map((item, index) => {
             return <option value={item} key={index}>{item}</option>
@@ -176,17 +251,23 @@ const News = () => {
 
     const handleItemsPage = (event) => {
         setPageCurrent(1);
-        setPageSize(event.target.value);
+        setPageSize(convertNumber(event.target.value));
     }
+
+    const handleItemsPageTrading = (event) => {
+        setPageCurrentTrading(1);
+        setPageSizeTrading(convertNumber(event.target.value));
+    }
+
     const _renderNewsPagination = () => (
         <nav className="d-flex justify-content-between align-items-center border-top pt-3">
             <div className="d-flex align-items-center">
-                <select className="form-select form-select-sm mb-0 w-4" onChange={handleItemsPage}>
+                <select className="form-select form-select-sm mb-0 w-4" onChange={isNewsTab ? handleItemsPage : handleItemsPageTrading}>
                     {_renderItemsPage()}
                 </select>
                 <div className="ms-3">items/page</div>
             </div>
-            <Pagination
+            {isNewsTab ? <Pagination
                     activePage={pageCurrent}
                     totalItemsCount={isUnread ? totalItemUnRead : totalItem}
                     itemsCountPerPage={pageSize}
@@ -198,6 +279,19 @@ const News = () => {
                     itemClass={'paginate_button page-item'}
                     linkClass={'page-link'}
                 />
+                : <Pagination
+                activePage={pageCurrentTrading}
+                totalItemsCount={isUnreadTradingNotice ? totalTradingUnread : totalTradingResult}
+                itemsCountPerPage={pageSizeTrading}
+                pageRangeDisplayed={5}
+                prevPageText={'Previous'}
+                nextPageText={'Next'}
+                onChange={handlePageTrading}
+                innerClass={'pagination pagination-sm'}
+                itemClass={'paginate_button page-item'}
+                linkClass={'page-link'}
+            />
+            }
             {/* <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton /> */}
         </nav>
     )
@@ -228,6 +322,7 @@ const News = () => {
 
     // detail
     const _renderNewsNotificationDetailItem = () => (
+        
         <div className="notification-detail border p-3 shadow-sm" >
             <div className="d-flex mb-2 border-bottom pb-1">
                 <div>
@@ -237,7 +332,7 @@ const News = () => {
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
             <div>
-                <p> {parse(dataDetailNews?.newsContent)} </p>
+                {parse(dataDetailNews?.newsContent)}
             </div>
         </div>
     )

@@ -256,49 +256,6 @@ export const DEFAULT_SYMBOL: ISymbolInfo = {
     prevClosePrice: '0'
 }
 
-export const MOCK_TRADING_RESULTS_NOTICE = [
-    {
-        side: 'Sell',
-        symbolCode: 'BABA',
-        volume: '100',
-        price: '151.19',
-        read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
-    },
-    {
-        side: 'Buy',
-        symbolCode: 'DIS',
-        volume: '200',
-        price: '172.68',
-        read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
-    },
-    {
-        side: 'Buy',
-        symbolCode: 'KO',
-        volume: '1000',
-        price: '52.96',
-        read_flag: false,
-        time: 'Dec 16, 2021 14:55:10'
-    },
-    {
-        side: 'Sell',
-        symbolCode: 'PFE',
-        volume: '100',
-        price: '151.19',
-        read_flag: false,
-        time: 'Dec 16, 2021 14:55:10'
-    },
-    {
-        side: 'Sell',
-        symbolCode: 'PFE',
-        volume: '100',
-        price: '151.19',
-        read_flag: true,
-        time: 'Dec 16, 2021 14:55:10'
-    }
-]
-
 export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
     symbolCode: '',
     orderState: 0,
