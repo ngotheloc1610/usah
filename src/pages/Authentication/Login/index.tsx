@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
@@ -41,7 +41,11 @@ const Login = () => {
                     localStorage.setItem(ACCOUNT_ID, JSON.stringify(resp.data.data.account_id));
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
                     localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
-
+                    if (resp.data.data.sub_accounts) {
+                        localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(resp.data.data.sub_accounts));
+                    } else {
+                        localStorage.removeItem(SUB_ACCOUNTS);
+                    }
                     window.location.href = '/';
                 }
             }

@@ -109,13 +109,11 @@
 }
 .div_maintb tr:nth-last-child(2){
     position: sticky;
-    bottom: 58px;
     background-color: #d8d8d8;
     z-index: 300;
 }
 .div_maintb tr:nth-last-child(3){
     position: sticky;
-    bottom: 116px;
     background-color: #d8d8d8;
     z-index: 300;
 }
@@ -146,12 +144,13 @@
 
 .div_maintb .ticker{
     position: absolute;
-    padding: 24px 42px;
-    top: 1px;
-    z-index: 400;
+    z-index: 500;
     font-weight: bold;
     background-color: #16365C;
     color: #fff;
+    height: 57px;
+    width: 14.2%;
+    text-align: center;
 }
 .div_maintb .trading-account{
     position: absolute;

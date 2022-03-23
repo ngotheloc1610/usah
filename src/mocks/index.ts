@@ -222,8 +222,6 @@ export const DEFAULT_TICKER_INFO: ITickerDetail = {
     minimumBizSize: '',
 }
 
-export const MOCDATA_LIST_ID = ['200001', '200002', '200003', '200004', '200005', '200006', '200007', '200008']
-
 export const DEFAULT_DETAIL_NEWS: INews = {
     id: 0,
     poemId: '',

@@ -230,7 +230,7 @@ const Dashboard = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
-            accountPortfolioRequest.setAccountId(Number(accountId));
+            accountPortfolioRequest.addAccountId(Number(accountId));
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
