@@ -4,9 +4,9 @@ import * as sspb from "../../../models/proto/system_service_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useState } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, OBJ_AUTHEN, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
-import { IListPortfolio, ISymbolInfo, ITotalGrossFollowAccountId, ITotalNetFollowAccountId, ITotalPLFollowAccountId, ITradingAccountVertical } from "../../../interfaces/order.interface";
+import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
@@ -111,19 +111,6 @@ const MultiTraderTable = () => {
                 let total = 0;
                 let totalGross = 0;
                 let totalPL = 0;
-                // listTicker.forEach(element => {
-                //     if (element) {
-                        
-                //         // if (obj) {
-                //         //     const objVol = obj.holdingVolume.find((o: any) => o?.accountId === item);
-                //         //     if (objVol) {
-                //         //         total += convertNumber(objVol.ownedVolume);
-                //         //         totalGross += convertNumber(objVol.totalGrossTransactions);
-                //         //         totalPL += 
-                //         //     }
-                //         // }
-                //     }
-                // });
                 const objs = totalAccountPortfolio.filter(o => o?.accountId.toString() === item.toString());
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
@@ -222,25 +209,7 @@ const MultiTraderTable = () => {
         )
     }
 
-    const getTotalNetFollowAccountId = (accountId: number) => {
-        for (var i = 0; i < totalAccountPortfolio.length; i++) {
-            const account = totalAccountPortfolio.find((item, index) => (index + 1) === accountId)
-            // return account && account.reduce((acc, crr) => (acc + Number(crr.avgPrice) * Number(crr.ownedVolume)), 0)?.toString()
-            return ''
-        }
-    }
-
-    const getAllTotalNet = () => {
-        return Number(getTotalNetFollowAccountId(1)) + Number(getTotalNetFollowAccountId(2)) + Number(getTotalNetFollowAccountId(3)) + Number(getTotalNetFollowAccountId(4))
-            + Number(getTotalNetFollowAccountId(5)) + Number(getTotalNetFollowAccountId(6)) + Number(getTotalNetFollowAccountId(7)) + Number(getTotalNetFollowAccountId(8))
-    }
-
-    const getTotalGross = (accountId: number): number => {
-        return dataTradeHistory.reduce((acc, crr) => acc + Number(crr.matchedValue), 0)
-    }
-
     const _renderTradingAccountId = () => {
-
         return (<div className="div_maintb">
             <div>
                 <div className="ticker"> Ticker </div>
