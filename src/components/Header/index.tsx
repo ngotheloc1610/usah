@@ -1,6 +1,3 @@
-
-import { LOGO_ICON } from '../../assets';
-import { ROUTER } from '../../constants/route.constant';
 import { Colors } from '../../themes';
 import './Header.scss'
 import { IOrderDropdownModel } from '../../constants/route.interface';
@@ -9,12 +6,15 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, OBJ_AUTHEN } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, OBJ_AUTHEN, SUB_ACCOUNTS } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
+import { ROUTER_MONITORING, ROUTER_NORMAL } from '../../constants/route.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
+  const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]');
+  const menus = subAccount.length > 0 ? ROUTER_MONITORING : ROUTER_NORMAL;
   useEffect(() => {
     _renderAccountId()
   }, [])
@@ -76,7 +76,7 @@ const Header = () => {
   )
 
   const _renderMenuItems = () => (
-    ROUTER.map((item: IOrderDropdownModel, index) => {
+    menus.map((item: IOrderDropdownModel, index) => {
       const propData: ITabBarItem = {};
       const indexKey: number = index;
       if (item.subTab.length > 0) {
