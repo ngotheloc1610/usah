@@ -146,12 +146,13 @@
 
 .div_maintb .ticker{
     position: absolute;
-    padding: 24px 42px;
-    top: 1px;
     z-index: 400;
     font-weight: bold;
     background-color: #16365C;
     color: #fff;
+    height: 57px;
+    width: 179px;
+    text-align: center;
 }
 .div_maintb .trading-account{
     position: absolute;

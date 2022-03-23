@@ -345,15 +345,16 @@ export interface IParamTradeSearch {
 
 export interface IListPortfolio {
     accountId: number;
-    avgPrice: string;
+    avgBuyPrice: string;
+    avgSellPrice: string;
     currencyCode: string;
     currentValue: string;
     investedValue: string;
     marketPrice: string;
-    ownedVolume: string;
-    pendingVolume: string;
     realizedPl: string;
     symbolCode: string;
+    totalBuyVolume: number;
+    totalSellVolume: number;
     unrealizedPl: string;
 }
 
@@ -421,7 +422,7 @@ export interface ITickerBindingOrder {
 
 export interface ITradingAccountVertical {
     ticker: string;
-    ownVolumeAccountId: (string | undefined)[];
+    holdingVolume: any[];
     totalNetPosition: string;
     totalGrossTransactions: string;
     totalPl: number;
