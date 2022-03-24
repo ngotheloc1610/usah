@@ -54,6 +54,7 @@ function PortfolioTable() {
     }, [quoteEvent]);
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
+        console.log(portfolio)
         if (portfolio) {
             const temp = [...portfolio];
             lastQuotes.forEach(item => {
@@ -219,13 +220,19 @@ function PortfolioTable() {
         return buyVolume + sellVolume;
     }
 
+    const calcSubtractTransactionVolume = (item: IPortfolio) => {
+        const buyVolume = item.totalBuyVolume;
+        const sellVolume = item.totalSellVolume;
+        return Math.abs(buyVolume - sellVolume)
+    }
+
     const calcInvestedValue = (item: IPortfolio) => {
-        const transactionVolume = calcTransactionVolume(item);
+        const transactionVolume = calcSubtractTransactionVolume(item);
         return transactionVolume * convertNumber(item.avgBuyPrice);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item.marketPrice);
+        return calcSubtractTransactionVolume(item) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
