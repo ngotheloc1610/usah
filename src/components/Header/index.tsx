@@ -6,15 +6,15 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, OBJ_AUTHEN, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, ROLE_ACCOUNT_DETAIL } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
-import { ROUTER_MONITORING, ROUTER_NORMAL } from '../../constants/route.constant';
+import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
-  const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]');
-  const menus = subAccount.length > 0 ? ROUTER_MONITORING : ROUTER_NORMAL;
+  const roleAccount = localStorage.getItem(ROLE);
+  const menus = roleAccount === ROLE_ACCOUNT_DETAIL.monitor ? ROUTER_MONITORING : ROUTER_TRADER;
   useEffect(() => {
     _renderAccountId()
   }, [])
@@ -28,6 +28,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem(ACCOUNT_ID);
+    localStorage.removeItem(ROLE);
     localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
     localStorage.removeItem(EXPIRE_TIME);
     const baseUrl = window.location.origin;

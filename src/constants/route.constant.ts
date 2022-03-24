@@ -95,7 +95,7 @@ export const ROUTER_MONITORING = [
     // }
 ];
 
-export const ROUTER_NORMAL = [
+export const ROUTER_TRADER = [
     {
         navigation: '/',
         icon: 'icon bi bi-app-indicator me-1',

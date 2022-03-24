@@ -130,6 +130,8 @@ export const EXPIRE_TIME = 'expire_time';
 
 export const SUB_ACCOUNTS = 'sub_accounts';
 
+export const ROLE = 'role';
+
 export const START_PAGE = 1;
 
 export const DEFAULT_ITEM_PER_PAGE = 10;
@@ -139,6 +141,11 @@ export const DEFAULT_TIME_ZONE = 'SG';
 export const STATUS_ORDER = {
     success: 'SUCCESS',
     rejected: 'REJECTED'
+};
+
+export const ROLE_ACCOUNT_DETAIL = {
+    monitor: 'monitor',
+    trader: 'trader'
 };
 
 export enum TITLE_ORDER_CONFIRM {

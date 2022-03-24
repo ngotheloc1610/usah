@@ -8,7 +8,7 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 
@@ -25,6 +25,7 @@ const App = () => {
       localStorage.removeItem(ACCOUNT_ID);
       localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
       localStorage.removeItem(EXPIRE_TIME);
+      localStorage.removeItem(ROLE);
       return;
     }
     ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
