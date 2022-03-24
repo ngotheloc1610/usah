@@ -54,7 +54,6 @@ function PortfolioTable() {
     }, [quoteEvent]);
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
-        console.log(portfolio)
         if (portfolio) {
             const temp = [...portfolio];
             lastQuotes.forEach(item => {
