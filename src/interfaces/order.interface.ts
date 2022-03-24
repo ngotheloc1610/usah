@@ -283,7 +283,7 @@ export interface IFixListTradeHistory {
     orderId: string;
     orderType: string;
     orderPrice: string;
-    orderSide: string | undefined;
+    orderSide?: string;
     tickerCode: string;
     tickerName: string;
 }
