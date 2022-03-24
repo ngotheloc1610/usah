@@ -274,6 +274,20 @@ export interface IListTradeHistory {
     tickerName: string;
 }
 
+export interface IFixListTradeHistory {
+    orderQuatity: string;
+    executedDatetime: string;
+    executedPrice: string;
+    executedQuatity: string;
+    matchedValue: string;
+    orderId: string;
+    orderType: string;
+    orderPrice: string;
+    orderSide?: string;
+    tickerCode: string;
+    tickerName: string;
+}
+
 export interface TickerInfo {
     symbolId: number;
     tickerName: string;

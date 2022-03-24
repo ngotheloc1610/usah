@@ -1,6 +1,6 @@
 import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList } from "../../../helper/utils";
-import { IPropListTradeHistory, IListTradeHistory } from '../../../interfaces/order.interface'
+import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV } from "../../../helper/utils";
+import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
@@ -82,6 +82,30 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         setCurrentPage(item);
     }
 
+    const handleDownloadTradeHistory = () => {
+        const data: IFixListTradeHistory[] = []
+        listTradeSortDate.forEach((item) => {
+            if (item) {
+                data.push({
+                    orderId: item.orderId,
+                    tickerCode: getTickerCode(item?.tickerCode),
+                    tickerName: getTickerName(item?.tickerCode),
+                    orderSide: getSideName(item.side),
+                    orderType: ORDER_TYPE_NAME.limit,
+                    orderQuatity: formatNumber(item.amount) || '',
+                    orderPrice: formatCurrency(item.price),
+                    executedQuatity: formatNumber(item.executedVolume),
+                    executedPrice: formatCurrency(item.executedPrice),
+                    matchedValue: formatCurrency(item.matchedValue),
+                    executedDatetime: formatOrderTime(
+                        Number(item.executedDatetime)
+                    ),
+                })
+            }
+        })
+        exportCSV(data, 'tradeHistory')
+    }
+
     const _renderTradeHistoryTable = () => (
         <div className="card-body">
             <div className="table-responsive mb-3">
@@ -98,7 +122,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
             <p className="text-end border-top pt-3">
-                <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+                <a onClick={handleDownloadTradeHistory} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
             </p>
         </div>
     )
