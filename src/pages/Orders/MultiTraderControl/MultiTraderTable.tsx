@@ -3,7 +3,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as sspb from "../../../models/proto/system_service_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
 import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
@@ -22,6 +22,21 @@ const MultiTraderTable = () => {
     const [allTotalNet, setAllTotalNet] = useState(0);
     const [allTotalGross, setAllTotalGross] = useState(0);
     const [allTotalPL, setAllTotalPL] = useState(0);
+    const [elWidth, setElWidth] = useState(0);
+    const [elHeight, setElHeight] = useState(0);
+    const cilentWidth: any = useRef();
+    const cilentHeight: any = useRef();
+
+    useEffect(() => {
+        if (cilentWidth.current) {
+            const width = cilentWidth.current.clientWidth
+            setElWidth(width)
+        }
+        if (cilentHeight.current) {
+            const height = cilentHeight.current.clientHeight;
+            setElHeight(height)
+        }
+    },[lstId])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -212,21 +227,21 @@ const MultiTraderTable = () => {
     const _renderTradingAccountId = () => {
         return (<div className="div_maintb">
             <div>
-                <div className="ticker"> Ticker </div>
+                <div className="ticker d-flex align-items-center justify-content-center" style={{width: elWidth , height: elHeight}}><span>Ticker</span></div>
                 <div className="trading-account"> Trading Account ID </div>
             </div>
             <table className="table">
                 <tbody>
                     <tr className="tr-id text-center">
-                        <td>&nbsp;</td>
-                        {listHeaderName.map((item: string, index: number) => (
+                        <td ref={cilentHeight}>&nbsp;</td>
+                        {listHeaderName.map((item: any, index: number) => (
                             <th key={index} className='text-end id-posstion align-middle'>{item}</th>
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
                     {fakeData.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
-                            <td>{item.ticker}</td>
+                            <td ref={cilentWidth}>{item.ticker}</td>
 
                             {item.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
 
