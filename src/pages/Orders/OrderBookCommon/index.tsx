@@ -198,9 +198,9 @@ const OrderBookCommon = () => {
     const getTradeHistory = (symbolCode: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
-        let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
         if (wsConnected) {
             let currentDate = new Date();
+            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setFromDatetime(timeFrom);
             tradeHistoryRequest.setToDatetime(timeTo);
