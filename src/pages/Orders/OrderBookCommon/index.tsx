@@ -65,21 +65,21 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
             }
+            const listSymbolCode: string[] = [];
+            listTicker.forEach((item: ISymbolInfo) => {
+                listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
+            });
+
+            getTickerSearch(listSymbolCode[0]);
+            setListSymbolCode(listSymbolCode);
+            assignTickerToOrderForm(listSymbolCode[0]);
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
             setTradeHistory(res.tradeList)
         });
 
-        const listSymbolCode: string[] = [];
-        listTicker.forEach((item: ISymbolInfo) => {
-            listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
-        });
-        getTickerSearch(listSymbolCode[0]);
 
-        setListSymbolCode(listSymbolCode);
-
-        assignTickerToOrderForm(listSymbolCode[0]);
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
             if (resp.msgText === "SUCCESS") {
@@ -198,9 +198,9 @@ const OrderBookCommon = () => {
     const getTradeHistory = (symbolCode: string) => {
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
+        let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
         if (wsConnected) {
             let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setFromDatetime(timeFrom);
             tradeHistoryRequest.setToDatetime(timeTo);
@@ -289,7 +289,7 @@ const OrderBookCommon = () => {
         setTickerSelect(symbolCode);
         assignTickerToOrderForm(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
-        
+
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
             unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
