@@ -133,9 +133,9 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
         setVwap(resultVWAP);
     }
 
-    const getTickerName = (symbolId: string) => {
+    const getTickerName = (symbolCode: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        return tickerList.find(item => item.symbolId.toString() === symbolId)?.tickerName;
+        return tickerList.find(item => item.symbolCode === symbolCode)?.symbolCode;
     }
 
     const getTickerInfor = (symbolCode: string) => {
