@@ -471,7 +471,7 @@ const MultipleOrders = () => {
                         orderSide: obj.OrderSide,
                         price: obj.Price,
                         ticker: obj.Ticker,
-                        volume: obj.Volume
+                        volume: obj.Quantity
                     }
                     list.push(tmp);
                 }
