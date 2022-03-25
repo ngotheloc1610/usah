@@ -38,7 +38,7 @@ const Login = () => {
         return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
             if (resp.status === success) {
                 if (resp.data.data) {
-                    localStorage.setItem(ACCOUNT_ID, JSON.stringify(resp.data.data.account_id));
+                    localStorage.setItem(ACCOUNT_ID, resp.data.data.account_id.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
                     localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
                     localStorage.setItem(ROLE, resp.data.data.role);
