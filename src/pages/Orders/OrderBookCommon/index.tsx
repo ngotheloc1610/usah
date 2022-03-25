@@ -65,21 +65,21 @@ const OrderBookCommon = () => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
             }
+            const listSymbolCode: string[] = [];
+            listTicker.forEach((item: ISymbolInfo) => {
+                listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
+            });
+
+            getTickerSearch(listSymbolCode[0]);
+            setListSymbolCode(listSymbolCode);
+            assignTickerToOrderForm(listSymbolCode[0]);
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
             setTradeHistory(res.tradeList)
         });
 
-        const listSymbolCode: string[] = [];
-        listTicker.forEach((item: ISymbolInfo) => {
-            listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
-        });
-        getTickerSearch(listSymbolCode[0]);
 
-        setListSymbolCode(listSymbolCode);
-
-        assignTickerToOrderForm(listSymbolCode[0]);
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
             if (resp.msgText === "SUCCESS") {
@@ -289,7 +289,7 @@ const OrderBookCommon = () => {
         setTickerSelect(symbolCode);
         assignTickerToOrderForm(symbolCode);
         const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
-        
+
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
             unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
