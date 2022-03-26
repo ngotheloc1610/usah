@@ -41,7 +41,7 @@ const News = () => {
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
     const [totalTradingUnread, setTotalTradingUnread] = useState(0);
     const [isNewsTab, setIsNewsTab] = useState(true);
-    const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0})
+    const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0});
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
@@ -103,7 +103,7 @@ const News = () => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
                 setTotalTradingResult(resp?.data?.data?.count);
-                const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.readFlg === false || item.readFlg === null);
+                const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.readFlg === false);
                 if (listDataUnReadTrading) {
                     setTotalUnReadTrading(listDataUnReadTrading.length);
                     setListDataUnreadTrading(listDataUnReadTrading);
