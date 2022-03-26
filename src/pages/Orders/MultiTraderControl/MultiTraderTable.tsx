@@ -12,7 +12,7 @@ const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
     const [accountId, setAccountId] = useState('');
     const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[]"));
-    const [fakeData, setFakeData] = useState<ITradingAccountVertical[]>([]);
+    const [dataTotalTrading, setDataTotalTrading] = useState<ITradingAccountVertical[]>([]);
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<string[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
@@ -89,7 +89,7 @@ const MultiTraderTable = () => {
                         const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
                         const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
                         const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
-                        const ownedVolume = buyVolume + sellVolume
+                        const ownedVolume = buyVolume + sellVolume;
                         tempData.push(
                             {
                                 accountId: ele,
@@ -120,7 +120,7 @@ const MultiTraderTable = () => {
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
         const listDataHasOwnedVolume = tmp.filter(el => el.holdingVolume.some(item => Number(item) !== 0));
-        setFakeData(listDataHasOwnedVolume);
+        setDataTotalTrading(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
             if (item) {
@@ -243,13 +243,13 @@ const MultiTraderTable = () => {
 
                    {JSON.stringify(totalAccountPortfolio) === '[]' && <tr className="tr-maintb">
                         <td></td>
-                        {fakeData[0]?.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        {dataTotalTrading[0]?.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                     </tr>}
                     
-                    {JSON.stringify(totalAccountPortfolio) !== '[]' && fakeData.map((item, index) => (
+                    {JSON.stringify(totalAccountPortfolio) !== '[]' && dataTotalTrading.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
 
