@@ -17,8 +17,9 @@ message Symbol {
   string floor        = 14;
   string limit_rate   = 15;
   string spread = 16;
-  string prev_close_price = 17;
-  SymbolStatus symbol_status = 18;
+  string prev_close_price = 17; // LP Previous closing price
+  string retail_prev_close_price = 18; // Reatail Previous closing price
+  SymbolStatus symbol_status = 19;
 }
 
 enum CalculationMode {
