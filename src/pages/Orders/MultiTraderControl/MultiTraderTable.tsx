@@ -239,9 +239,18 @@ const MultiTraderTable = () => {
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-                    {fakeData.map((item, index) => (
+
+                   {JSON.stringify(totalAccountPortfolio) === '[]' && <tr className="tr-maintb">
+                        <td></td>
+                        {fakeData[0]?.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        <td>{formatCurrency('0')}</td>
+                        <td>{formatCurrency('0')}</td>
+                        <td>{formatCurrency('0')}</td>
+                    </tr>}
+                    
+                    {JSON.stringify(totalAccountPortfolio) !== '[]' && fakeData.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
-                            <td ref={cilentWidth}>{item.ticker}</td>
+                            <td>{item.ticker}</td>
 
                             {item.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
 
@@ -251,8 +260,8 @@ const MultiTraderTable = () => {
                         </tr>
                     ))}
 
-<                   tr className='tr-special'>
-                        <td className='td-special'>Total Net Position</td>
+                    <tr className='tr-special'>
+                        <td className='td-special' ref={cilentWidth}>Total Net Position</td>
 
                         {totalNetFollowAccountId.map((totalNetItem, index) =>
                             <td className="center" key={index}>{formatCurrency(totalNetItem)}</td>)
@@ -264,16 +273,16 @@ const MultiTraderTable = () => {
                     </tr>
 
                     <tr className='tr-special'>
-                            <td className='td-special'>Total Gross Transactions</td>
+                        <td className='td-special'>Total Gross Transactions</td>
 
-                            {totalGrossFollowAccountId.map((totalGrossItem, index) =>
-                                <td className="center" key={index}>{formatCurrency(totalGrossItem)}</td>)
-                            }
+                        {totalGrossFollowAccountId.map((totalGrossItem, index) =>
+                            <td className="center" key={index}>{formatCurrency(totalGrossItem)}</td>)
+                        }
 
-                            <td className="center"></td>
-                            <td className="center">{formatCurrency(allTotalGross.toString())}</td>
-                            <td className="center"></td>
-                        </tr>
+                        <td className="center"></td>
+                        <td className="center">{formatCurrency(allTotalGross.toString())}</td>
+                        <td className="center"></td>
+                    </tr>
 
                     <tr className='tr-special'>
                         <td className='td-special'>Total Realized PL</td>
