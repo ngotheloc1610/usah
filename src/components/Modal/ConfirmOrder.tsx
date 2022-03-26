@@ -9,7 +9,7 @@ import * as rpc from '../../models/proto/rpc_pb';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as smpb from '../../models/proto/system_model_pb';
 import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease } from '../../helper/utils';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber } from '../../helper/utils';
 import CurrencyInput from 'react-currency-masked-input';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 interface IConfirmOrder {
@@ -32,6 +32,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0.01);
     const [lotSize, setLotSize] = useState(100);
+    const [invalidPrice, setInvalidPrice] = useState(false);
+    const [invalidVolume, setInvalidVolume] = useState(false);
+
+    const [outOfPrice, setOutOfPrice] = useState(false);
+
+    const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
@@ -42,7 +48,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }, [])
 
     const handleVolumeModify = (valueVolume: string) => {
+        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
+        const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
+        if (lotSize && convertNumber(lotSize) !== 0) {
+            setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
+        }
         setVolumeModify(onlyNumberVolumeChange);
     }
 
@@ -212,20 +223,53 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const handleUpperPrice = () => {
+        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode);
+        const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
+        const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(priceModify);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        setInvalidPrice(false);
+        setOutOfPrice(false);
+        if (ceilingPrice) {
+            if (convertNumber(ceilingPrice) < newPrice) {
+                setPriceModify(convertNumber(ceilingPrice));
+                return;
+            }
+        }
+
+        if (floorPrice) {
+            if (convertNumber(floorPrice) > newPrice) {
+                setPriceModify(convertNumber(floorPrice));
+                return;
+            }
+        }
         setPriceModify(newPrice);
     }
 
     const handleLowerPrice = () => {
+        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
+        const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
+        const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
         const currentPrice = Number(priceModify);
-        if (currentPrice <= tickSize) {
-            setPriceModify(tickSize);
-            return;
-        }
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        setInvalidPrice(false);
+        setOutOfPrice(false);
+        if (floorPrice) {
+            if (convertNumber(floorPrice) > newPrice) {
+                setPriceModify(convertNumber(floorPrice));
+                return;
+            }
+        }
+
+        if (ceilingPrice) {
+            if (convertNumber(ceilingPrice) < newPrice) {
+                setPriceModify(convertNumber(ceilingPrice));
+                return;
+            }
+        }
+
         setPriceModify(newPrice);
     }
 
@@ -233,30 +277,45 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
             {isModify && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
-        </tr> 
+        </tr>
     )
+
+    const onChangePrice = (maskedVal: string) => {
+        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
+        const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
+        const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
+        const tickSize = symbolInfo?.tickSize ? symbolInfo?.tickSize : 1;
+        setOutOfPrice(+maskedVal < +floorPrice || +maskedVal > +ceilingPrice);
+        const newTickSize = Math.round(convertNumber(tickSize) * Math.pow(10, 2));
+        const newPrice = Math.round(+maskedVal * Math.pow(10, 2));
+        setInvalidPrice(newPrice % newTickSize !== 0);
+        setPriceModify(+maskedVal);
+    }
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-end'>
-                {isModify ? <div className="border d-flex h-46">
-                    <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
-                        {(title === TITLE_ORDER_CONFIRM.VOLUME) ?
-                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
-                                onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
-                            :
-                            <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
-                                onChange={(e, maskedVal) => {
-                                    setPriceModify(+maskedVal)
-                                }} value={formatCurrency(priceModify.toString())} />
-                        }
+                {isModify ? <>
+                    <div className="border d-flex h-46">
+                        <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
+                            {(title === TITLE_ORDER_CONFIRM.VOLUME) ?
+                                <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
+                                    onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                                :
+                                <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
+                                    onChange={(e, maskedVal) => onChangePrice(maskedVal)} value={formatCurrency(priceModify.toString())} />
+                            }
+                        </div>
+                        <div className="border-start d-flex flex-column">
+                            <button type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
+                            <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
+                        </div>
                     </div>
-                    <div className="border-start d-flex flex-column">
-                        <button type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
-                        <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
-                    </div>
-                </div> : value}
+                    {outOfPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger'>Out of price day</div>}
+                    {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger'>Invalid price</div>}
+                    {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger'>Invalid volume</div>}
+                </> : value}
             </td>
         </tr>
     )
@@ -273,7 +332,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm()}>CONFIRM</button>
+            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
@@ -291,7 +350,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
-                    { isModify && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
+                    {isModify && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
