@@ -357,14 +357,18 @@ proto.Quote.toObject = function(includeInstance, msg) {
     high: jspb.Message.getFieldWithDefault(msg, 7, ""),
     open: jspb.Message.getFieldWithDefault(msg, 8, ""),
     close: jspb.Message.getFieldWithDefault(msg, 9, ""),
-    netChange: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    pctChange: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    scale: jspb.Message.getFieldWithDefault(msg, 12, 0),
-    quoteTime: jspb.Message.getFieldWithDefault(msg, 13, 0),
-    tickPerDay: jspb.Message.getFieldWithDefault(msg, 14, 0),
-    volumePerDay: jspb.Message.getFieldWithDefault(msg, 15, ""),
-    currentPrice: jspb.Message.getFieldWithDefault(msg, 16, ""),
-    retailPrice: jspb.Message.getFieldWithDefault(msg, 17, "")
+    retailLow: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    retailHigh: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    retailOpen: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    retailClose: jspb.Message.getFieldWithDefault(msg, 13, ""),
+    netChange: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    pctChange: jspb.Message.getFieldWithDefault(msg, 15, ""),
+    scale: jspb.Message.getFieldWithDefault(msg, 16, 0),
+    quoteTime: jspb.Message.getFieldWithDefault(msg, 17, 0),
+    tickPerDay: jspb.Message.getFieldWithDefault(msg, 18, 0),
+    volumePerDay: jspb.Message.getFieldWithDefault(msg, 19, ""),
+    currentPrice: jspb.Message.getFieldWithDefault(msg, 20, ""),
+    retailPrice: jspb.Message.getFieldWithDefault(msg, 21, "")
   };
 
   if (includeInstance) {
@@ -441,33 +445,49 @@ proto.Quote.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 10:
       var value = /** @type {string} */ (reader.readString());
-      msg.setNetChange(value);
+      msg.setRetailLow(value);
       break;
     case 11:
       var value = /** @type {string} */ (reader.readString());
-      msg.setPctChange(value);
+      msg.setRetailHigh(value);
       break;
     case 12:
-      var value = /** @type {number} */ (reader.readInt32());
-      msg.setScale(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRetailOpen(value);
       break;
     case 13:
-      var value = /** @type {number} */ (reader.readInt64());
-      msg.setQuoteTime(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRetailClose(value);
       break;
     case 14:
-      var value = /** @type {number} */ (reader.readInt32());
-      msg.setTickPerDay(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNetChange(value);
       break;
     case 15:
       var value = /** @type {string} */ (reader.readString());
-      msg.setVolumePerDay(value);
+      msg.setPctChange(value);
       break;
     case 16:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setScale(value);
+      break;
+    case 17:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setQuoteTime(value);
+      break;
+    case 18:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setTickPerDay(value);
+      break;
+    case 19:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setVolumePerDay(value);
+      break;
+    case 20:
       var value = /** @type {string} */ (reader.readString());
       msg.setCurrentPrice(value);
       break;
-    case 17:
+    case 21:
       var value = /** @type {string} */ (reader.readString());
       msg.setRetailPrice(value);
       break;
@@ -565,59 +585,87 @@ proto.Quote.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getNetChange();
+  f = message.getRetailLow();
   if (f.length > 0) {
     writer.writeString(
       10,
       f
     );
   }
-  f = message.getPctChange();
+  f = message.getRetailHigh();
   if (f.length > 0) {
     writer.writeString(
       11,
       f
     );
   }
-  f = message.getScale();
-  if (f !== 0) {
-    writer.writeInt32(
+  f = message.getRetailOpen();
+  if (f.length > 0) {
+    writer.writeString(
       12,
       f
     );
   }
-  f = message.getQuoteTime();
-  if (f !== 0) {
-    writer.writeInt64(
+  f = message.getRetailClose();
+  if (f.length > 0) {
+    writer.writeString(
       13,
       f
     );
   }
-  f = message.getTickPerDay();
-  if (f !== 0) {
-    writer.writeInt32(
+  f = message.getNetChange();
+  if (f.length > 0) {
+    writer.writeString(
       14,
       f
     );
   }
-  f = message.getVolumePerDay();
+  f = message.getPctChange();
   if (f.length > 0) {
     writer.writeString(
       15,
       f
     );
   }
+  f = message.getScale();
+  if (f !== 0) {
+    writer.writeInt32(
+      16,
+      f
+    );
+  }
+  f = message.getQuoteTime();
+  if (f !== 0) {
+    writer.writeInt64(
+      17,
+      f
+    );
+  }
+  f = message.getTickPerDay();
+  if (f !== 0) {
+    writer.writeInt32(
+      18,
+      f
+    );
+  }
+  f = message.getVolumePerDay();
+  if (f.length > 0) {
+    writer.writeString(
+      19,
+      f
+    );
+  }
   f = message.getCurrentPrice();
   if (f.length > 0) {
     writer.writeString(
-      16,
+      20,
       f
     );
   }
   f = message.getRetailPrice();
   if (f.length > 0) {
     writer.writeString(
-      17,
+      21,
       f
     );
   }
@@ -827,10 +875,10 @@ proto.Quote.prototype.setClose = function(value) {
 
 
 /**
- * optional string net_change = 10;
+ * optional string retail_low = 10;
  * @return {string}
  */
-proto.Quote.prototype.getNetChange = function() {
+proto.Quote.prototype.getRetailLow = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
 };
 
@@ -839,16 +887,16 @@ proto.Quote.prototype.getNetChange = function() {
  * @param {string} value
  * @return {!proto.Quote} returns this
  */
-proto.Quote.prototype.setNetChange = function(value) {
+proto.Quote.prototype.setRetailLow = function(value) {
   return jspb.Message.setProto3StringField(this, 10, value);
 };
 
 
 /**
- * optional string pct_change = 11;
+ * optional string retail_high = 11;
  * @return {string}
  */
-proto.Quote.prototype.getPctChange = function() {
+proto.Quote.prototype.getRetailHigh = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
@@ -857,70 +905,70 @@ proto.Quote.prototype.getPctChange = function() {
  * @param {string} value
  * @return {!proto.Quote} returns this
  */
-proto.Quote.prototype.setPctChange = function(value) {
+proto.Quote.prototype.setRetailHigh = function(value) {
   return jspb.Message.setProto3StringField(this, 11, value);
 };
 
 
 /**
- * optional int32 scale = 12;
- * @return {number}
- */
-proto.Quote.prototype.getScale = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.Quote} returns this
- */
-proto.Quote.prototype.setScale = function(value) {
-  return jspb.Message.setProto3IntField(this, 12, value);
-};
-
-
-/**
- * optional int64 quote_time = 13;
- * @return {number}
- */
-proto.Quote.prototype.getQuoteTime = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.Quote} returns this
- */
-proto.Quote.prototype.setQuoteTime = function(value) {
-  return jspb.Message.setProto3IntField(this, 13, value);
-};
-
-
-/**
- * optional int32 tick_per_day = 14;
- * @return {number}
- */
-proto.Quote.prototype.getTickPerDay = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 14, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.Quote} returns this
- */
-proto.Quote.prototype.setTickPerDay = function(value) {
-  return jspb.Message.setProto3IntField(this, 14, value);
-};
-
-
-/**
- * optional string volume_per_day = 15;
+ * optional string retail_open = 12;
  * @return {string}
  */
-proto.Quote.prototype.getVolumePerDay = function() {
+proto.Quote.prototype.getRetailOpen = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setRetailOpen = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional string retail_close = 13;
+ * @return {string}
+ */
+proto.Quote.prototype.getRetailClose = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setRetailClose = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
+};
+
+
+/**
+ * optional string net_change = 14;
+ * @return {string}
+ */
+proto.Quote.prototype.getNetChange = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setNetChange = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
+/**
+ * optional string pct_change = 15;
+ * @return {string}
+ */
+proto.Quote.prototype.getPctChange = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
 };
 
@@ -929,17 +977,89 @@ proto.Quote.prototype.getVolumePerDay = function() {
  * @param {string} value
  * @return {!proto.Quote} returns this
  */
-proto.Quote.prototype.setVolumePerDay = function(value) {
+proto.Quote.prototype.setPctChange = function(value) {
   return jspb.Message.setProto3StringField(this, 15, value);
 };
 
 
 /**
- * optional string current_price = 16;
+ * optional int32 scale = 16;
+ * @return {number}
+ */
+proto.Quote.prototype.getScale = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 16, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setScale = function(value) {
+  return jspb.Message.setProto3IntField(this, 16, value);
+};
+
+
+/**
+ * optional int64 quote_time = 17;
+ * @return {number}
+ */
+proto.Quote.prototype.getQuoteTime = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 17, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setQuoteTime = function(value) {
+  return jspb.Message.setProto3IntField(this, 17, value);
+};
+
+
+/**
+ * optional int32 tick_per_day = 18;
+ * @return {number}
+ */
+proto.Quote.prototype.getTickPerDay = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 18, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setTickPerDay = function(value) {
+  return jspb.Message.setProto3IntField(this, 18, value);
+};
+
+
+/**
+ * optional string volume_per_day = 19;
+ * @return {string}
+ */
+proto.Quote.prototype.getVolumePerDay = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 19, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Quote} returns this
+ */
+proto.Quote.prototype.setVolumePerDay = function(value) {
+  return jspb.Message.setProto3StringField(this, 19, value);
+};
+
+
+/**
+ * optional string current_price = 20;
  * @return {string}
  */
 proto.Quote.prototype.getCurrentPrice = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 16, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 20, ""));
 };
 
 
@@ -948,16 +1068,16 @@ proto.Quote.prototype.getCurrentPrice = function() {
  * @return {!proto.Quote} returns this
  */
 proto.Quote.prototype.setCurrentPrice = function(value) {
-  return jspb.Message.setProto3StringField(this, 16, value);
+  return jspb.Message.setProto3StringField(this, 20, value);
 };
 
 
 /**
- * optional string retail_price = 17;
+ * optional string retail_price = 21;
  * @return {string}
  */
 proto.Quote.prototype.getRetailPrice = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 17, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 21, ""));
 };
 
 
@@ -966,7 +1086,7 @@ proto.Quote.prototype.getRetailPrice = function() {
  * @return {!proto.Quote} returns this
  */
 proto.Quote.prototype.setRetailPrice = function(value) {
-  return jspb.Message.setProto3StringField(this, 17, value);
+  return jspb.Message.setProto3StringField(this, 21, value);
 };
 
 
