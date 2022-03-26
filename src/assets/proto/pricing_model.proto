@@ -13,18 +13,22 @@ message Quote {
   string symbol_code = 3;
   repeated Band asks = 4;
   repeated Band bids = 5;
-  string low = 6;
-  string high = 7;
-  string open = 8;
-  string close = 9; // Last price
-  string net_change = 10;
-  string pct_change = 11;
-  int32 scale = 12;
-  int64 quote_time = 13; // Timestamp in millisecond
-  int32 tick_per_day = 14;
-  string volume_per_day = 15;
-  string current_price = 16;   // LP market price
-  string retail_price = 17; // Retail market price
+  string low = 6; // lp lowest price 
+  string high = 7; // lp highest price 
+  string open = 8; // lp open price 
+  string close = 9; // lp Last price
+  string retail_low = 10; // retail lowest price 
+  string retail_high = 11; // retail highest price 
+  string retail_open = 12; // retail open price 
+  string retail_close = 13; // retail Last price
+  string net_change = 14;
+  string pct_change = 15;
+  int32 scale = 16;
+  int64 quote_time = 17; // Timestamp in millisecond
+  int32 tick_per_day = 18;
+  string volume_per_day = 19;
+  string current_price = 20;   // LP market price
+  string retail_price = 21; // Retail market price
 }
 
 
