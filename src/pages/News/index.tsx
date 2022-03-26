@@ -1,27 +1,31 @@
 import { DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
 import './New.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
-import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
+import { DEFAULT_PAGE_SIZE_FOR_NEWS, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import { SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
 import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 
+interface IParamPagination {
+    page_size: number;
+    page: number;
+}
+
 const News = () => {
 
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(0);
     const [elTradingActive, setElTradingActive] = useState(0);
-    const [pageSize, setPageSize] = useState<number>(5);
-    const [pageSizeTrading, setPageSizeTrading] =useState(5);
+    const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE_FOR_NEWS);
+    const [pageSizeTrading, setPageSizeTrading] = useState(DEFAULT_PAGE_SIZE_FOR_NEWS);
     const [pageCurrentTrading, setPageCurrentTrading] = useState(START_PAGE);
-    
+
     const [listDataNews, setListDataNews] = useState<INews[]>();
-    // TODO: due to hardcode, don't haven interface yet
     const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(START_PAGE);
@@ -36,33 +40,37 @@ const News = () => {
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
     const [totalTradingUnread, setTotalTradingUnread] = useState(0);
     const [isNewsTab, setIsNewsTab] = useState(true);
+    const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0});
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
-    const urlPostNews = `${api_url}${API_POST_NEWS}`; 
-    const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`; 
+    const urlPostNews = `${api_url}${API_POST_NEWS}`;
+    const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
     const paramNews = {
         page_size: pageSize,
         page: pageCurrent,
     }
 
-    const paramTrading = {
-        page_size: pageSizeTrading,
-        page: pageCurrentTrading,
-    }
+    useEffect(() => {
+        const paramTrading = {
+            page_size: pageSizeTrading,
+            page: pageCurrentTrading,
+        }
+        setParamTrading(paramTrading)
+    }, [pageSizeTrading, pageCurrentTrading])
 
     useEffect(() => {
         getDataNews();
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
-        getDataTradingResult();
+        setElTradingActive(0);
     }, [pageSizeTrading, pageCurrentTrading])
-    
+
 
     useEffect(() => {
-        setPageSize(5);
-        setPageSizeTrading(5);
+        setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
+        setPageSizeTrading(DEFAULT_PAGE_SIZE_FOR_NEWS);
         setPageCurrent(START_PAGE);
         setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
@@ -84,7 +92,7 @@ const News = () => {
             });
     }
 
-    const getDataTradingResult = () => {
+    const getDataTradingResult = (paramTrading: IParamPagination) => {
         axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
@@ -102,7 +110,7 @@ const News = () => {
     }
 
     const handleShowUnread = (isCheck: boolean) => {
-        setIsUnread(isCheck);
+        isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
         isNewsTab ? setTotalItemUnRead(listDataUnread?.length || 0) : setTotalTradingUnread(listDataUnreadTrading?.length || 0);
     }
@@ -114,6 +122,7 @@ const News = () => {
     )
 
     const onChangeTab = (tab: string) => {
+        tab === TAB_NEWS.trading && getDataTradingResult(paramTrading)
         setIsNewsTab(tab === TAB_NEWS.news);
     }
 
@@ -127,7 +136,7 @@ const News = () => {
                 </a>
             </li>
             <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
-                <a className={`nav-link ${!isNewsTab ? 'active': ''}`} aria-current="page" href="#">
+                <a className={`nav-link ${!isNewsTab ? 'active' : ''}`} aria-current="page" href="#">
                     Trading Results
                     <span className="badge bg-secondary rounded ml-4">{totalUnReadTrading}</span>
                 </a>
@@ -138,7 +147,7 @@ const News = () => {
     const _renderNewsBodyNavItemRight = () => (
         <li className="nav-item ms-auto d-flex align-items-center">
             <div className="form-check form-switch">
-                <input className="form-check-input" checked={isUnread} onChange={(e) => handleShowUnread(e.target.checked)} type="checkbox" role="switch" id="onlyunread" />
+                <input className="form-check-input" checked={isNewsTab ? isUnread : isUnreadTradingNotice} onChange={(e) => handleShowUnread(e.target.checked)} type="checkbox" role="switch" id="onlyunread" />
                 <label className="form-check-label" htmlFor="onlyunread">Only show unread notifications</label>
             </div>
         </li>
@@ -158,7 +167,7 @@ const News = () => {
 
     const handleClick = (itemNews: INews, index: number) => {
         setELActive(index);
-        if (itemNews) {            
+        if (itemNews) {
             setDataDetailNews(itemNews);
             if (!itemNews.read_flag) {
                 handleNewsReaded(itemNews?.id);
@@ -167,11 +176,11 @@ const News = () => {
 
     }
 
-    const handleTradingReaded = (idTrading: number) => {        
+    const handleTradingReaded = (idTrading: number) => {
         const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
-        axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {            
+        axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
-                getDataTradingResult();
+                getDataTradingResult(paramTrading)
             }
         },
             (error) => {
@@ -181,12 +190,12 @@ const News = () => {
 
     const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
         setElTradingActive(index);
-        if (itemTrading) {      
+        if (itemTrading) {
             if (!itemTrading.readFlg) {
                 handleTradingReaded(itemTrading?.id);
             }
         }
-    }    
+    }
 
     const _renderNewsNotificationItem = (listDataCurr?: INews[]) => (
         listDataCurr?.map((item: INews, index: number) => (
@@ -211,8 +220,8 @@ const News = () => {
         return SIDE.find(item => item.code === side)?.title;
     }
 
-    const _renderTradingResultsItem = (listTradingResults: ITradingResult[]) => (
-        listTradingResults.map((item: ITradingResult, idx: number) => (
+    const _renderTradingResultsItem = (listTradingResults?: ITradingResult[]) => (
+        listTradingResults?.map((item: ITradingResult, idx: number) => (
             <div className={!item.readFlg ? "notification-item unread" : "notification-item"
                 && elTradingActive === idx ? "notification-item active" : "notification-item"}
                 key={idx}
@@ -240,6 +249,9 @@ const News = () => {
 
     const handlePageTrading = (value) => {
         setPageCurrentTrading(value);
+
+        const paramTrading = { page_size: pageSizeTrading, page: value };
+        getDataTradingResult(paramTrading);
     }
 
 
@@ -257,6 +269,9 @@ const News = () => {
     const handleItemsPageTrading = (event) => {
         setPageCurrentTrading(1);
         setPageSizeTrading(convertNumber(event.target.value));
+
+        const paramTrading = { page_size: event.target.value, page: 1 };
+        getDataTradingResult(paramTrading);
     }
 
     const _renderNewsPagination = () => (
@@ -268,31 +283,30 @@ const News = () => {
                 <div className="ms-3">items/page</div>
             </div>
             {isNewsTab ? <Pagination
-                    activePage={pageCurrent}
-                    totalItemsCount={isUnread ? totalItemUnRead : totalItem}
-                    itemsCountPerPage={pageSize}
-                    pageRangeDisplayed={5}
-                    prevPageText={'Previous'}
-                    nextPageText={'Next'}
-                    onChange={handlePage}
-                    innerClass={'pagination pagination-sm'}
-                    itemClass={'paginate_button page-item'}
-                    linkClass={'page-link'}
-                />
-                : <Pagination
-                activePage={pageCurrentTrading}
-                totalItemsCount={isUnreadTradingNotice ? totalTradingUnread : totalTradingResult}
-                itemsCountPerPage={pageSizeTrading}
-                pageRangeDisplayed={5}
+                activePage={pageCurrent}
+                totalItemsCount={isUnread ? totalItemUnRead : totalItem}
+                itemsCountPerPage={pageSize}
+                pageRangeDisplayed={DEFAULT_PAGE_SIZE_FOR_NEWS}
                 prevPageText={'Previous'}
                 nextPageText={'Next'}
-                onChange={handlePageTrading}
+                onChange={handlePage}
                 innerClass={'pagination pagination-sm'}
                 itemClass={'paginate_button page-item'}
                 linkClass={'page-link'}
             />
+                : <Pagination
+                    activePage={pageCurrentTrading}
+                    totalItemsCount={isUnreadTradingNotice ? totalTradingUnread : totalTradingResult}
+                    itemsCountPerPage={pageSizeTrading}
+                    pageRangeDisplayed={DEFAULT_PAGE_SIZE_FOR_NEWS}
+                    prevPageText={'Previous'}
+                    nextPageText={'Next'}
+                    onChange={handlePageTrading}
+                    innerClass={'pagination pagination-sm'}
+                    itemClass={'paginate_button page-item'}
+                    linkClass={'page-link'}
+                />
             }
-            {/* <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton /> */}
         </nav>
     )
 
@@ -311,6 +325,7 @@ const News = () => {
         <div className='col-md-6'>
             <div className='notification-list'>
                 {!isUnreadTradingNotice && _renderTradingResultsItem(listTradingResults)}
+                {isUnreadTradingNotice && _renderTradingResultsItem(listDataUnreadTrading)}
             </div>
             {_renderNewsPagination()}
         </div>
@@ -322,7 +337,7 @@ const News = () => {
 
     // detail
     const _renderNewsNotificationDetailItem = () => (
-        
+
         <div className="notification-detail border p-3 shadow-sm" >
             <div className="d-flex mb-2 border-bottom pb-1">
                 <div>
