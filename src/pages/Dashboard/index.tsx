@@ -360,7 +360,7 @@ const Dashboard = () => {
     const calcTransactionVolume = (item: IPortfolio) => {
         const buyVolume = item?.totalBuyVolume;
         const sellVolume = item?.totalSellVolume;
-        return buyVolume - sellVolume;
+        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
     }
 
     const calcInvestedValue = (item: IPortfolio) => {

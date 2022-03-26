@@ -219,13 +219,18 @@ function PortfolioTable() {
         return buyVolume + sellVolume;
     }
 
+    const calcSubtractTransactionVolume = (item: IPortfolio) => {
+        const buyVolume = item.totalBuyVolume;
+        const sellVolume = item.totalSellVolume;
+        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
+    }
+
     const calcInvestedValue = (item: IPortfolio) => {
-        const transactionVolume = calcTransactionVolume(item);
-        return transactionVolume * convertNumber(item.avgBuyPrice);
+        return calcSubtractTransactionVolume(item) * convertNumber(item.avgBuyPrice);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item.marketPrice);
+        return calcSubtractTransactionVolume(item) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -259,7 +264,7 @@ function PortfolioTable() {
                 <td className="text-start w-200 td">{getSymbol(item.symbolCode)?.symbolName}</td>
                 <td className="text-start w-s td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
                 <td className='text-end w-s td'>{formatNumber(calcTransactionVolume(item).toString())}</td>
-                <td className="text-end w-s td" >{formatCurrency(item.avgBuyPrice)}</td>
+                <td className="text-end w-s td" >{(item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : 0}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>

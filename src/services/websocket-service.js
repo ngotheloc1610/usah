@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
 import { TOKEN } from '../constants/general.constant';
-import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME } from '../constants/general.constant';
+import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE } from '../constants/general.constant';
 
 const url = process.env.REACT_APP_BASE_URL;
 let token = process.env.REACT_APP_TOKEN;
@@ -59,6 +59,7 @@ const startWs = async () => {
         localStorage.removeItem(ACCOUNT_ID);
         localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
         localStorage.removeItem(EXPIRE_TIME);
+        localStorage.removeItem(ROLE);
         window.location.href = '/login';
     }
     
