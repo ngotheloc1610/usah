@@ -243,7 +243,7 @@ const MultiTraderTable = () => {
 
                    {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
                         <td></td>
-                        {dataTotalTrading[0]?.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        {dataTotalTrading[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
