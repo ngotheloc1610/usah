@@ -119,7 +119,7 @@ const MultiTraderTable = () => {
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
-        const listDataHasOwnedVolume = tmp.filter(el => el.holdingVolume.some(item => Number(item) !== 0));
+        const listDataHasOwnedVolume = tmp.filter(el => el?.holdingVolume?.some(item => Number(item) !== 0));
         setDataTotalTrading(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
@@ -241,7 +241,7 @@ const MultiTraderTable = () => {
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
 
-                   {JSON.stringify(totalAccountPortfolio) === '[]' && <tr className="tr-maintb">
+                   {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
                         <td></td>
                         {dataTotalTrading[0]?.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
@@ -249,7 +249,7 @@ const MultiTraderTable = () => {
                         <td>{formatCurrency('0')}</td>
                     </tr>}
                     
-                    {JSON.stringify(totalAccountPortfolio) !== '[]' && dataTotalTrading.map((item, index) => (
+                    {totalAccountPortfolio.length > 0 && dataTotalTrading.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
 

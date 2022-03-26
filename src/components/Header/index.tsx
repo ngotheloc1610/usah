@@ -15,7 +15,7 @@ const Header = () => {
   const [accountId, setAccountId] = useState('');
   const roleAccount = localStorage.getItem(ROLE);
   const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
-  const menus = (roleAccount === ROLE_ACCOUNT_DETAIL.monitor && JSON.stringify(subAccount) !== '[]') ? ROUTER_MONITORING : ROUTER_TRADER;
+  const menus = (roleAccount === ROLE_ACCOUNT_DETAIL.monitor && subAccount.length > 0) ? ROUTER_MONITORING : ROUTER_TRADER;
   useEffect(() => {
     _renderAccountId()
   }, [])
