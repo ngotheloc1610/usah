@@ -124,6 +124,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <div> Order Datetime </div>
                 <div> Executed Datetime </div>
             </th>
+            <th className="text-center fz-14 w-120"> Comment</th>
         </tr>
     )
 
@@ -163,6 +164,8 @@ function OrderTable(props: IPropListOrderHistory) {
                     {item.executedDatetime && <div >{formatOrderTime(item.time)}</div>}
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
+
+                <td className="text-ellipsis fz-14 w-120"></td>
 
             </tr>
         ))
