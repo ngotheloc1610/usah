@@ -218,6 +218,8 @@ export interface IListOrderHistory {
 
 export interface IOrderHistory {
     amount: string;
+    comment: string;
+    currencyCode: string;
     entry: string;
     executeMode: string;
     executedDatetime: string;
