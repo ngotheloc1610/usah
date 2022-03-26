@@ -4,7 +4,7 @@ import './New.css'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
-import { ItemsPage, TAB_NEWS } from '../../constants/news.constant'
+import { DEFAULT_PAGE_SIZE_FOR_NEWS, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import { SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
@@ -21,12 +21,11 @@ const News = () => {
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(0);
     const [elTradingActive, setElTradingActive] = useState(0);
-    const [pageSize, setPageSize] = useState<number>(5);
-    const [pageSizeTrading, setPageSizeTrading] = useState(5);
+    const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE_FOR_NEWS);
+    const [pageSizeTrading, setPageSizeTrading] = useState(DEFAULT_PAGE_SIZE_FOR_NEWS);
     const [pageCurrentTrading, setPageCurrentTrading] = useState(START_PAGE);
 
     const [listDataNews, setListDataNews] = useState<INews[]>();
-    // TODO: due to hardcode, don't haven interface yet
     const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
     const [dataDetailNews, setDataDetailNews] = useState<INews>(DEFAULT_DETAIL_NEWS);
     const [pageCurrent, setPageCurrent] = useState<number>(START_PAGE);
@@ -52,11 +51,6 @@ const News = () => {
         page: pageCurrent,
     }
 
-    // const paramTrading = {
-    //     page_size: pageSizeTrading,
-    //     page: pageCurrentTrading,
-    // }
-
     useEffect(() => {
         const paramTrading = {
             page_size: pageSizeTrading,
@@ -75,8 +69,8 @@ const News = () => {
 
 
     useEffect(() => {
-        setPageSize(5);
-        setPageSizeTrading(5);
+        setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
+        setPageSizeTrading(DEFAULT_PAGE_SIZE_FOR_NEWS);
         setPageCurrent(START_PAGE);
         setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
@@ -292,7 +286,7 @@ const News = () => {
                 activePage={pageCurrent}
                 totalItemsCount={isUnread ? totalItemUnRead : totalItem}
                 itemsCountPerPage={pageSize}
-                pageRangeDisplayed={5}
+                pageRangeDisplayed={DEFAULT_PAGE_SIZE_FOR_NEWS}
                 prevPageText={'Previous'}
                 nextPageText={'Next'}
                 onChange={handlePage}
@@ -304,7 +298,7 @@ const News = () => {
                     activePage={pageCurrentTrading}
                     totalItemsCount={isUnreadTradingNotice ? totalTradingUnread : totalTradingResult}
                     itemsCountPerPage={pageSizeTrading}
-                    pageRangeDisplayed={5}
+                    pageRangeDisplayed={DEFAULT_PAGE_SIZE_FOR_NEWS}
                     prevPageText={'Previous'}
                     nextPageText={'Next'}
                     onChange={handlePageTrading}
@@ -313,7 +307,6 @@ const News = () => {
                     linkClass={'page-link'}
                 />
             }
-            {/* <Pagination page={pageCurrent} variant="outlined" onChange={handlePage} shape="rounded" count={totalPage} showFirstButton showLastButton /> */}
         </nav>
     )
 
