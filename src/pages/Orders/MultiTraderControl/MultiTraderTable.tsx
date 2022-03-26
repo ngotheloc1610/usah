@@ -89,7 +89,7 @@ const MultiTraderTable = () => {
                         const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
                         const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
                         const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
-                        const ownedVolume = buyVolume + sellVolume;
+                        const ownedVolume = buyVolume + sellVolume
                         tempData.push(
                             {
                                 accountId: ele,
@@ -119,7 +119,8 @@ const MultiTraderTable = () => {
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
-        setFakeData(tmp);
+        const listDataHasOwnedVolume = tmp.filter(el => el.holdingVolume.some(item => Number(item) !== 0));
+        setFakeData(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
             if (item) {
