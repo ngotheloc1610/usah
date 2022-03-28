@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
+import { checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { LIST_TICKER_INFO, SYMBOL_LIST } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -86,17 +86,6 @@ function PortfolioTable() {
                 }
             })
             setPortfolio(temp);
-        }
-    }
-
-    const getNameClass = (item: number) => {
-        if (item > 0) {
-            return "text-success"
-        }
-        if (item < 0) {
-            return "text-danger"
-        } else {
-            return ""
         }
     }
 
@@ -204,7 +193,7 @@ function PortfolioTable() {
                 </div>
                 <div className="col-md-2 text-center">
                     <div>Total Unrealized PL:</div>
-                    <div className={`fs-5 fw-bold ${getNameClass(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
+                    <div className={`fs-5 fw-bold ${getClassName(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
                 </div>
                 <div className="col-md-4 order-0 order-md-4">
                     <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -268,10 +257,10 @@ function PortfolioTable() {
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>
-                <td className="text-end w-s td fw-600" ><span className={getNameClass(calcUnrealizedPL(item))}>
+                <td className="text-end w-s td fw-600" ><span className={getClassName(calcUnrealizedPL(item))}>
                     {formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
-                <td className="text-end w-s td fw-600"><span className={getNameClass(calcPctUnrealizedPL(item))}>
+                <td className="text-end w-s td fw-600"><span className={getClassName(calcPctUnrealizedPL(item))}>
                     {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
             </tr>

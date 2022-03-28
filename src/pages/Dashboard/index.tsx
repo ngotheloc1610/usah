@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb"
 import StockInfo from "../../components/Order/StockInfo";
 import moment from "moment";
 import 'moment-timezone';
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -375,17 +375,6 @@ const Dashboard = () => {
         return calcCurrentValue(item) - calcInvestedValue(item);
     }
 
-    const getNameClass = (item: number) => {
-        if (item > 0) {
-            return "text-success"
-        }
-        if (item < 0) {
-            return "text-danger"
-        } else {
-            return ""
-        }
-    }
-
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
             <div className="d-flex justify-content-center align-items-center col-md-4">
@@ -399,7 +388,7 @@ const Dashboard = () => {
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className={`${getNameClass(totalPctUnrealizedPL(portfolio))} fw-600`}>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>
+                    <div className={`${getClassName(totalPctUnrealizedPL(portfolio))} fw-600`}>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>

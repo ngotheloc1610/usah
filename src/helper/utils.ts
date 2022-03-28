@@ -248,3 +248,14 @@ export const exportCSV = (csvData, fileName) => {
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
 }
+
+export const getClassName = (item: number) => {
+    if (item > 0) {
+        return "text-success"
+    }
+    if (item < 0) {
+        return "text-danger"
+    } else {
+        return ""
+    }
+}

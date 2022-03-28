@@ -5,14 +5,15 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
+import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
 import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
     const [accountId, setAccountId] = useState('');
     const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[]"));
-    const [dataTotalTrading, setDataTotalTrading] = useState<ITradingAccountVertical[]>([]);
+    const [dataTotalAccount, setDataTotalAccount] = useState<ITradingAccountVertical[]>([]);
+    const [dataHasOwnedVolume, setDataHasOwnedVolume] = useState<ITradingAccountVertical[]>([]);
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<string[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
@@ -29,14 +30,14 @@ const MultiTraderTable = () => {
 
     useEffect(() => {
         if (clientWidth.current) {
-            const width = clientWidth.current.clientWidth
-            setElWidth(width)
+            const width = clientWidth.current.clientWidth;
+            setElWidth(width);
         }
         if (clientHeight.current) {
             const height = clientHeight.current.clientHeight;
-            setElHeight(height)
+            setElHeight(height);
         }
-    },[lstId])
+    }, [lstId])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -67,6 +68,15 @@ const MultiTraderTable = () => {
     useEffect(() => {
         processPortfolio(totalAccountPortfolio)
     }, [totalAccountPortfolio])
+
+    const reportWindowSize = () => {
+        if (clientWidth.current) {
+            const width = clientWidth.current.clientWidth;
+            setElWidth(width);
+        }
+    }
+
+    window.onresize = reportWindowSize;
 
     const processPortfolio = (totalAccountPortfolio: IListPortfolio[]) => {
         const tmp: ITradingAccountVertical[] = [];
@@ -116,11 +126,12 @@ const MultiTraderTable = () => {
             };
             tmp.push(obj)
         });
+        setDataTotalAccount(tmp);
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
         const listDataHasOwnedVolume = tmp.filter(el => el?.holdingVolume?.some(item => Number(item) !== 0));
-        setDataTotalTrading(listDataHasOwnedVolume);
+        setDataHasOwnedVolume(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
             if (item) {
@@ -215,7 +226,7 @@ const MultiTraderTable = () => {
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Realized PL</div>
-                        <div className="fs-5 fw-bold text-success">{formatCurrency(allTotalPL.toString())}</div>
+                        <div className={`fs-5 fw-bold ${getClassName(allTotalPL)}`}>{formatCurrency(allTotalPL.toString())}</div>
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -228,7 +239,7 @@ const MultiTraderTable = () => {
     const _renderTradingAccountId = () => {
         return (<div className="div_maintb">
             <div>
-                <div className="ticker d-flex align-items-center justify-content-center" style={{width: elWidth , height: elHeight}}><span>Ticker</span></div>
+                <div className="ticker d-flex align-items-center justify-content-center" style={{ width: elWidth, height: elHeight }}><span>Ticker</span></div>
                 <div className="trading-account"> Trading Account ID </div>
             </div>
             <table className="table">
@@ -240,16 +251,15 @@ const MultiTraderTable = () => {
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-
-                   {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
+                    {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
                         <td></td>
-                        {dataTotalTrading[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        {dataTotalAccount[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                     </tr>}
-                    
-                    {totalAccountPortfolio.length > 0 && dataTotalTrading.map((item, index) => (
+
+                    {totalAccountPortfolio.length > 0 && dataHasOwnedVolume.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
 
