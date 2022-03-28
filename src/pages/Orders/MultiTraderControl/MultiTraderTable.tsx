@@ -12,7 +12,7 @@ const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
     const [accountId, setAccountId] = useState('');
     const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[]"));
-    const [fakeData, setFakeData] = useState<ITradingAccountVertical[]>([]);
+    const [dataTotalTrading, setDataTotalTrading] = useState<ITradingAccountVertical[]>([]);
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<string[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
@@ -24,16 +24,16 @@ const MultiTraderTable = () => {
     const [allTotalPL, setAllTotalPL] = useState(0);
     const [elWidth, setElWidth] = useState(0);
     const [elHeight, setElHeight] = useState(0);
-    const cilentWidth: any = useRef();
-    const cilentHeight: any = useRef();
+    const clientWidth: any = useRef();
+    const clientHeight: any = useRef();
 
     useEffect(() => {
-        if (cilentWidth.current) {
-            const width = cilentWidth.current.clientWidth
+        if (clientWidth.current) {
+            const width = clientWidth.current.clientWidth
             setElWidth(width)
         }
-        if (cilentHeight.current) {
-            const height = cilentHeight.current.clientHeight;
+        if (clientHeight.current) {
+            const height = clientHeight.current.clientHeight;
             setElHeight(height)
         }
     },[lstId])
@@ -119,7 +119,8 @@ const MultiTraderTable = () => {
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
-        setFakeData(tmp);
+        const listDataHasOwnedVolume = tmp.filter(el => el?.holdingVolume?.some(item => Number(item) !== 0));
+        setDataTotalTrading(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
             if (item) {
@@ -233,15 +234,24 @@ const MultiTraderTable = () => {
             <table className="table">
                 <tbody>
                     <tr className="tr-id text-center">
-                        <td ref={cilentHeight}>&nbsp;</td>
+                        <td ref={clientHeight}>&nbsp;</td>
                         {listHeaderName.map((item: any, index: number) => (
                             <th key={index} className='text-end id-posstion align-middle'>{item}</th>
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-                    {fakeData.map((item, index) => (
+
+                   {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
+                        <td></td>
+                        {dataTotalTrading[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        <td>{formatCurrency('0')}</td>
+                        <td>{formatCurrency('0')}</td>
+                        <td>{formatCurrency('0')}</td>
+                    </tr>}
+                    
+                    {totalAccountPortfolio.length > 0 && dataTotalTrading.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
-                            <td ref={cilentWidth}>{item.ticker}</td>
+                            <td>{item.ticker}</td>
 
                             {item.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
 
@@ -251,8 +261,8 @@ const MultiTraderTable = () => {
                         </tr>
                     ))}
 
-<                   tr className='tr-special'>
-                        <td className='td-special'>Total Net Position</td>
+                    <tr className='tr-special'>
+                        <td className='td-special' ref={clientWidth}>Total Net Position</td>
 
                         {totalNetFollowAccountId.map((totalNetItem, index) =>
                             <td className="center" key={index}>{formatCurrency(totalNetItem)}</td>)
@@ -264,16 +274,16 @@ const MultiTraderTable = () => {
                     </tr>
 
                     <tr className='tr-special'>
-                            <td className='td-special'>Total Gross Transactions</td>
+                        <td className='td-special'>Total Gross Transactions</td>
 
-                            {totalGrossFollowAccountId.map((totalGrossItem, index) =>
-                                <td className="center" key={index}>{formatCurrency(totalGrossItem)}</td>)
-                            }
+                        {totalGrossFollowAccountId.map((totalGrossItem, index) =>
+                            <td className="center" key={index}>{formatCurrency(totalGrossItem)}</td>)
+                        }
 
-                            <td className="center"></td>
-                            <td className="center">{formatCurrency(allTotalGross.toString())}</td>
-                            <td className="center"></td>
-                        </tr>
+                        <td className="center"></td>
+                        <td className="center">{formatCurrency(allTotalGross.toString())}</td>
+                        <td className="center"></td>
+                    </tr>
 
                     <tr className='tr-special'>
                         <td className='td-special'>Total Realized PL</td>
