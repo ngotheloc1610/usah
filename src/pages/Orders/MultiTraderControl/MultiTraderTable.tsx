@@ -115,7 +115,7 @@ const MultiTraderTable = () => {
                 totalNetPosition: netPosition.toString(),
                 totalPl: totalPL
             };
-            tmp.push(obj)            
+            tmp.push(obj)
         });
         setDataTotalAccount(tmp);
         setAllTotalNet(totalNet);
