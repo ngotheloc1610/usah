@@ -24,16 +24,16 @@ const MultiTraderTable = () => {
     const [allTotalPL, setAllTotalPL] = useState(0);
     const [elWidth, setElWidth] = useState(0);
     const [elHeight, setElHeight] = useState(0);
-    const cilentWidth: any = useRef();
-    const cilentHeight: any = useRef();
+    const clientWidth: any = useRef();
+    const clientHeight: any = useRef();
 
     useEffect(() => {
-        if (cilentWidth.current) {
-            const width = cilentWidth.current.clientWidth
+        if (clientWidth.current) {
+            const width = clientWidth.current.clientWidth
             setElWidth(width)
         }
-        if (cilentHeight.current) {
-            const height = cilentHeight.current.clientHeight;
+        if (clientHeight.current) {
+            const height = clientHeight.current.clientHeight;
             setElHeight(height)
         }
     },[lstId])
@@ -234,7 +234,7 @@ const MultiTraderTable = () => {
             <table className="table">
                 <tbody>
                     <tr className="tr-id text-center">
-                        <td ref={cilentHeight}>&nbsp;</td>
+                        <td ref={clientHeight}>&nbsp;</td>
                         {listHeaderName.map((item: any, index: number) => (
                             <th key={index} className='text-end id-posstion align-middle'>{item}</th>
                         ))}
@@ -262,7 +262,7 @@ const MultiTraderTable = () => {
                     ))}
 
                     <tr className='tr-special'>
-                        <td className='td-special' ref={cilentWidth}>Total Net Position</td>
+                        <td className='td-special' ref={clientWidth}>Total Net Position</td>
 
                         {totalNetFollowAccountId.map((totalNetItem, index) =>
                             <td className="center" key={index}>{formatCurrency(totalNetItem)}</td>)
