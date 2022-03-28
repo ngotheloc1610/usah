@@ -198,6 +198,17 @@ const MultiTraderTable = () => {
         }
     }
 
+    const getNameClass = (item: number) => {
+        if (item > 0) {
+            return "text-success"
+        }
+        if (item < 0) {
+            return "text-danger"
+        } else {
+            return ""
+        }
+    }
+
     const _rederMultiTraderInvest = () => {
 
         return (
@@ -217,7 +228,7 @@ const MultiTraderTable = () => {
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Realized PL</div>
-                        <div className="fs-5 fw-bold text-success">{formatCurrency(allTotalPL.toString())}</div>
+                        <div className={`fs-5 fw-bold ${getNameClass(allTotalPL)}`}>{formatCurrency(allTotalPL.toString())}</div>
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
