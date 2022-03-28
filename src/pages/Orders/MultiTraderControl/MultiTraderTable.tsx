@@ -12,7 +12,8 @@ const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
     const [accountId, setAccountId] = useState('');
     const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[]"));
-    const [dataTotalTrading, setDataTotalTrading] = useState<ITradingAccountVertical[]>([]);
+    const [dataTotalAccount, setDataTotalAccount] = useState<ITradingAccountVertical[]>([]);
+    const [dataHasOwnedVolume, setDataHasOwnedVolume] = useState<ITradingAccountVertical[]>([]);
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<string[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
@@ -114,13 +115,14 @@ const MultiTraderTable = () => {
                 totalNetPosition: netPosition.toString(),
                 totalPl: totalPL
             };
-            tmp.push(obj)
+            tmp.push(obj)            
         });
+        setDataTotalAccount(tmp);
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
         const listDataHasOwnedVolume = tmp.filter(el => el?.holdingVolume?.some(item => Number(item) !== 0));
-        setDataTotalTrading(listDataHasOwnedVolume);
+        setDataHasOwnedVolume(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
             if (item) {
@@ -240,16 +242,15 @@ const MultiTraderTable = () => {
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-
                    {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
                         <td></td>
-                        {dataTotalTrading[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        {dataTotalAccount[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                     </tr>}
                     
-                    {totalAccountPortfolio.length > 0 && dataTotalTrading.map((item, index) => (
+                    {totalAccountPortfolio.length > 0 && dataHasOwnedVolume.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
 
