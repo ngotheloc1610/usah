@@ -1,5 +1,5 @@
 import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV } from "../../../helper/utils";
+import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -67,11 +67,18 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 <td className="td text-end w-80">{formatCurrency(item.price)}</td>
                 <td className="td text-end w-120" >{formatNumber(item.executedVolume)}</td>
                 <td className="td text-end w-120">{formatCurrency(item.executedPrice)}</td>
-                <td className="td text-end w-120">{formatCurrency(item.matchedValue)}</td>
+                <td className="td text-end w-120">{formatCurrency(calcMatchedValue(item).toString())}</td>
                 <td className="td text-end w-180">{formatOrderTime(Number(item.executedDatetime))}</td>
             </tr>
         ))
     )
+
+    const calcMatchedValue = (item: IListTradeHistory) => {
+        if (item) {
+            return convertNumber(item.executedPrice) * convertNumber(item.executedVolume);
+        }
+        return 0;
+    }
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
