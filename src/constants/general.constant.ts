@@ -158,6 +158,6 @@ export enum TITLE_ORDER_CONFIRM {
 };
 
 export const CURRENCY = {
-    usd: 'USD',
-    sgd: 'SGD'
+    usd: 'US$',
+    sgd: 'SG$'
 };
