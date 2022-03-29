@@ -222,6 +222,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setVolumeModify(nerwVol.toString());
     }
 
+    useEffect(() => {
+        if((priceModify*100)%(tickSize*100) === 0) {
+            setInvalidPrice(false)
+        }
+    }, [priceModify])
+
     const handleUpperPrice = () => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode);
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
