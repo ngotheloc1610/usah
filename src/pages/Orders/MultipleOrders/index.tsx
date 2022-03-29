@@ -274,7 +274,7 @@ const MultipleOrders = () => {
             <th className="text-left"><span>Ticker Name</span></th>
             <th className="text-left"><span>Order Type</span></th>
             <th className="text-left"><span>Order Side</span></th>
-            <th className="text-end"><span>Volume</span></th>
+            <th className="text-end"><span>Quantity</span></th>
             <th className="text-end"><span>Price</span></th>
             {statusPlace && <th className="text-end"><span>Status</span></th>}
         </tr>
@@ -371,7 +371,7 @@ const MultipleOrders = () => {
             <th className="text-center text-nowrap" style={{ width: '25%' }}><span>Ticker Name</span></th>
             <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Order Type</span></th>
             <th className="text-end text-center text-nowrap" style={{ width: '15%' }}><span>Order Side</span></th>
-            <th className="text-end text-nowrap " style={{ width: '15%' }}><span>Volume</span></th>
+            <th className="text-end text-nowrap " style={{ width: '15%' }}><span>Quantity</span></th>
             <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Price</span></th>
         </tr>
     )
