@@ -229,6 +229,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(priceModify);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        setOutOfPrice(false)
         if (ceilingPrice) {
             if (convertNumber(ceilingPrice) < newPrice) {
                 setPriceModify(convertNumber(ceilingPrice));
@@ -252,6 +253,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const currentPrice = Number(priceModify);
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        setOutOfPrice(false)
         if (floorPrice) {
             if (convertNumber(floorPrice) > newPrice) {
                 setPriceModify(convertNumber(floorPrice));
