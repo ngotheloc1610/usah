@@ -2,10 +2,12 @@ import { useEffect, useState } from "react"
 import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
+import * as qmpb from "../../models/proto/query_model_pb";
 import * as rpcpb from '../../models/proto/rpc_pb';
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
+import { LIST_TICKER_INFO } from '../../constants/general.constant'
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
@@ -22,7 +24,9 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [listData, setListData] = useState<ISymbolQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([])
+    const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([]);
+
+    const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
@@ -224,9 +228,23 @@ const TickerDashboard = (props: ITickerDashboard) => {
         return '';
     }
 
+    const checkDeactive = (symbolCode: string) => {
+        const queryModalPb: any = qmpb;
+        const symbol = symbols.find(o => o?.symbolCode === symbolCode);
+        if (symbol) {
+            return symbol?.symbolStatus === queryModalPb.SymbolStatus.SYMBOL_DEACTIVE;
+        }
+        return true;
+    }
 
     const renderDataListCompany = () => {
-        return listData.map((item: ISymbolQuote, index) => (
+        const dataBinding: ISymbolQuote[] = [];
+        listData.forEach(item => {
+            if (!checkDeactive(item.symbolCode)) {
+                dataBinding.push(item);
+            }
+        });
+        return dataBinding.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
