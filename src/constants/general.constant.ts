@@ -161,7 +161,3 @@ export const CURRENCY = {
     usd: 'USD',
     sgd: 'SGD'
 };
-
-export const LocalStorageKey = {
-    SYMBOLS_LIST: 'symbols_list'
-}

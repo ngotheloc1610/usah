@@ -7,7 +7,7 @@ import * as rpcpb from '../../models/proto/rpc_pb';
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
-import { LocalStorageKey } from "../../constants/general.constant";
+import { LIST_TICKER_INFO } from '../../constants/general.constant'
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
@@ -26,7 +26,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([]);
 
-    const symbols = JSON.parse(localStorage.getItem(LocalStorageKey.SYMBOLS_LIST) || '[]');
+    const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
