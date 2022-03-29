@@ -226,7 +226,14 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
 
     const renderDataListCompany = () => {
-        return listData.map((item: ISymbolQuote, index) => (
+        const symbolsList = JSON.parse(localStorage.getItem('symbols_list') || '[]')
+        const renderListData: ISymbolQuote[] = []
+        for(const index in listData) {
+            if(symbolsList[index]?.symbolStatus === 1) {
+                renderListData.push(listData[index])
+            }
+        }
+        return renderListData.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
