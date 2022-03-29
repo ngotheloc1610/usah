@@ -222,6 +222,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setVolumeModify(nerwVol.toString());
     }
 
+    useEffect(() => {
+        if((priceModify*100)%(tickSize*100) === 0) {
+            setInvalidPrice(false)
+        }
+    }, [priceModify])
+
     const handleUpperPrice = () => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode);
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
@@ -230,7 +236,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const currentPrice = Number(priceModify);
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setOutOfPrice(false)
-        setInvalidPrice(false)
         if (ceilingPrice) {
             if (convertNumber(ceilingPrice) < newPrice) {
                 setPriceModify(convertNumber(ceilingPrice));
@@ -255,7 +260,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setOutOfPrice(false)
-        setInvalidPrice(false)
         if (floorPrice) {
             if (convertNumber(floorPrice) > newPrice) {
                 setPriceModify(convertNumber(floorPrice));
