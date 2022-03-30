@@ -159,5 +159,5 @@ export enum TITLE_ORDER_CONFIRM {
 
 export const CURRENCY = {
     usd: 'US$',
-    sgd: 'SG$'
+    sgd: 'S$'
 };
