@@ -8,11 +8,12 @@ const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
         return dataSortTime.map((item, index) => (
             <tr key={index} className="odd">
                 <td>{formatOrderTime(Number(item.executedDatetime))}</td>
-                <td className="text-end">{formatNumber(item.amount)}</td>
-                <td className="text-end">{formatCurrency(item.price)}</td>
+                <td className="text-end">{formatNumber(item.executedVolume)}</td>
+                <td className="text-end">{formatCurrency(item.executedPrice)}</td>
             </tr>
         ))
     }
+
     return <div className="card card-trade-history">
         <div className="card-header">
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
