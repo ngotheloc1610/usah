@@ -33,8 +33,7 @@ export interface IReqLogin {
 export interface IParamHistorySearch {
     symbolCode: string;
     orderState: number;
-    orderSideBuy: string;
-    orderSideSell: string;
+    orderSide: number;
     fromDate: number;
     toDate: number;
 }

@@ -15,16 +15,15 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { IParamHistorySearch } from '../../../interfaces';
 
 interface IPropsOrderSearchHistory {
-    getOrderSide: (item: number) => void;
     paramSearch: (param: IParamHistorySearch) => void;
 }
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
-    const { getOrderSide, paramSearch } = props;
+    const { paramSearch } = props;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
-    const [orderBuy, setOrderBuy] = useState('');
-    const [orderSell, setOrderSell] = useState('');
+    const [orderSideBuy, setOrderSideBuy] = useState(false);
+    const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
     const [fromDatetime, setFromDatetime] = useState(0);
     const [toDatetime, setToDatetime] = useState(0);
@@ -32,9 +31,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
-    const tradingModelPb: any = tmpb;
-
-    useEffect(() => getParamOrderSide(), [orderBuy, orderSell])
+    useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
         const systemModelPb: any = smpb;
@@ -59,28 +56,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME));
-        const paramSearchHistory: IParamHistorySearch = {
-            symbolCode: symbolCode,
-            orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orderSell,
-            fromDate: convertDatetoTimeStamp(value, FROM_DATE_TIME),
-            toDate: toDatetime,
-        }
-        paramSearch(paramSearchHistory);
+        
     }
 
     const handleChangeToDate = (value: string) => {
         setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME));
-        const paramSearchHistory: IParamHistorySearch = {
-            symbolCode: symbolCode,
-            orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orderSell,
-            fromDate: fromDatetime,
-            toDate: convertDatetoTimeStamp(value, TO_DATE_TIME),
-        }
-        paramSearch(paramSearchHistory);
+      
     }
 
     const sendMessageOrderHistory = () => {
@@ -120,13 +101,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const handleSearch = () => {
         // before the core handles the filter but now the font end handle filter
         // sendMessageOrderHistory();
-        getOrderSide(side);
-
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orderSell,
+            orderSide: side,
             fromDate: fromDatetime,
             toDate: toDatetime,
         }
@@ -138,7 +116,14 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             if (event.key === 'Enter') {
                 // before the core handles the filter but now the font end handle filter
                 // sendMessageOrderHistory();
-                getOrderSide(side);
+                const paramSearchHistory: IParamHistorySearch = {
+                    symbolCode: symbolCode,
+                    orderState: orderState,
+                    orderSide: side,
+                    fromDate: fromDatetime,
+                    toDate: toDatetime,
+                }
+                paramSearch(paramSearchHistory);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
@@ -146,44 +131,15 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleChangeTicker = (value: string) => {
-        const searchTicker: IParamHistorySearch = {
-            symbolCode: value ? getSymbolCode(value) : '',
-            orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orderSell,
-            fromDate: fromDatetime,
-            toDate: toDatetime,
-        }
-        paramSearch(searchTicker);
         value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleKeyUp = (value: string) => {
-        const searchTicker: IParamHistorySearch = {
-            symbolCode: value ? getSymbolCode(value) : '',
-            orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orderSell,
-            fromDate: fromDatetime,
-            toDate: toDatetime,
-        }
-        paramSearch(searchTicker);
         value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
 
     const handleOrderStatus = (value) => {
         setOrderState(parseInt(value));
-        if (value) {
-            const searchTicker: IParamHistorySearch = {
-                symbolCode: symbolCode,
-                orderState: parseInt(value),
-                orderSideBuy: orderBuy,
-                orderSideSell: orderSell,
-                fromDate: fromDatetime,
-                toDate: toDatetime,
-            }
-            paramSearch(searchTicker);
-        }
     }
 
     const _renderTicker = () => (
@@ -191,7 +147,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
-                onClick={(event: any) => handleChangeTicker(event.target.innnerText)}
                 onChange={(event: any) => handleChangeTicker(event.target.innerText)}
                 onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                 disablePortal
@@ -211,51 +166,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const getParamOrderSide = () => {
-        if (orderBuy && orderSell) {
-            setSide(tradingModelPb.Side.NONE);
-            return;
-        }
-        if (orderBuy) {
-            setSide(tradingModelPb.Side.BUY);
-            return;
-        }
-        if (orderSell) {
+        const tradingModelPb: any = tmpb
+        if (orderSideSell === true && orderSideBuy === false) {
             setSide(tradingModelPb.Side.SELL);
         }
-    }
-
-    const handleOrderSell = (e) => {
-        let orSell = '';
-        if (e.target.checked) {
-            orSell = tradingModelPb.Side.SELL;
+        else if (orderSideSell === false && orderSideBuy === true) {
+            setSide(tradingModelPb.Side.BUY);
         }
-        setOrderSell(orSell);
-        const searchSide: IParamHistorySearch = {
-            symbolCode: symbolCode,
-            orderState: orderState,
-            orderSideBuy: orderBuy,
-            orderSideSell: orSell,
-            fromDate: fromDatetime,
-            toDate: toDatetime,
+        else {
+            setSide(tradingModelPb.Side.NONE);
         }
-        paramSearch(searchSide);
-    }
-
-    const handleOrderBuy = (e) => {
-        let orBuy = '';
-        if (e.target.checked) {
-            orBuy = tradingModelPb.Side.BUY;
-        }
-        setOrderBuy(orBuy);
-        const searchSide: IParamHistorySearch = {
-            symbolCode: symbolCode,
-            orderState: orderState,
-            orderSideBuy: orBuy,
-            orderSideSell: orderSell,
-            fromDate: fromDatetime,
-            toDate: toDatetime,
-        }
-        paramSearch(searchSide);
     }
 
     const btnClickFromDate = (e) => {
@@ -272,11 +192,11 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <div className="padding-top-5">
 
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(e) => handleOrderSell(e)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Sell" id="sell" onChange={(event) => setOrderSideSell(event.target.checked)} />
                     <label className="form-check-label" htmlFor="sell">Sell</label>
                 </div>
                 <div className="form-check form-check-inline">
-                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(e) => handleOrderBuy(e)} />
+                    <input className="form-check-input input-select" type="checkbox" value="Buy" id="buy" onChange={(event) => setOrderSideBuy(event.target.checked)} />
                     <label className="form-check-label" htmlFor="buy">Buy</label>
                 </div>
             </div>

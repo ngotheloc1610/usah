@@ -11,77 +11,50 @@ function OrderTable(props: IPropListOrderHistory) {
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
     const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL;
-    const [listHistorySortDate, setListHistorySortDate] = useState<IOrderHistory[]>([]);
     const [showModalDetail, setShowModalDetail] = useState(false)
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const [totalItem, setTotalItem] = useState<number>(0);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
-    const [lstDataFillter, setLstDataFillter] = useState<IOrderHistory[]>([]);
 
     useEffect(() => {
-        const historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
-        setListHistorySortDate(historySortDate);
-        setLstDataFillter(historySortDate);
-        setTotalItem(historySortDate.length);
-        const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
-        setDataCurrent(currentList);
-    }, [listOrderHistory]);
-
-    useEffect(() => {
-        let lstHistorySortDate = [...listHistorySortDate];
+        let historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         if (paramHistorySearch.symbolCode) {
-            lstHistorySortDate = lstHistorySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
+            historySortDate = historySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
         }
         if (paramHistorySearch.orderState > 0) {
-            lstHistorySortDate = lstHistorySortDate.filter(item => item.state === paramHistorySearch.orderState);
+            historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState);
         }
-        if ((paramHistorySearch.orderSideBuy && !paramHistorySearch.orderSideSell) ||
-            !paramHistorySearch.orderSideBuy && paramHistorySearch.orderSideSell) {
-            if (paramHistorySearch.orderSideBuy) {
-                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideBuy));
-            }
-            if (paramHistorySearch.orderSideSell) {
-                lstHistorySortDate = lstHistorySortDate.filter(item => item.side === Number(paramHistorySearch.orderSideSell));
-            }
+        if (paramHistorySearch.orderSide > 0) {
+            historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
         }
         if (paramHistorySearch.fromDate > 0) {
-            lstHistorySortDate = lstHistorySortDate.filter(item =>
+            historySortDate = historySortDate.filter(item =>
                 item.time > Number(paramHistorySearch.fromDate) ||
                 item.time === Number(paramHistorySearch.fromDate));
         }
-        if (paramHistorySearch.toDate > 0 ) {
-            lstHistorySortDate = lstHistorySortDate.filter(item =>
+        if (paramHistorySearch.toDate > 0) {
+            historySortDate = historySortDate.filter(item =>
                 item.time < Number(paramHistorySearch.toDate) ||
                 item.time === Number(paramHistorySearch.toDate));
         }
-        setTotalItem(lstHistorySortDate.length);
-        setCurrentPage(START_PAGE);
-        setItemPerPage(DEFAULT_ITEM_PER_PAGE);
-        setLstDataFillter(lstHistorySortDate);
-        const currentList = calcCurrentList(START_PAGE, DEFAULT_ITEM_PER_PAGE, lstHistorySortDate);
+        setTotalItem(historySortDate.length);
+        const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
-    }, [paramHistorySearch]);
-
+    }, [listOrderHistory, itemPerPage, currentPage, paramHistorySearch]);
 
     useEffect(() => {
         setCurrentPage(START_PAGE);
-    }, [listOrderHistory])
+    }, [listOrderHistory, paramHistorySearch])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
         setCurrentPage(START_PAGE);
-        const listDataCurr = [...lstDataFillter];
-        const currentList = calcCurrentList(START_PAGE, item, listDataCurr);
-        setDataCurrent(currentList);
     }
 
     const getCurrentPage = (item: number) => {
         setCurrentPage(item);
-        const listDataCurr = [...lstDataFillter];
-        const currentList = calcCurrentList(item, itemPerPage, listDataCurr);
-        setDataCurrent(currentList);
     }
 
     const getTickerName = (symbolCode: string) => {

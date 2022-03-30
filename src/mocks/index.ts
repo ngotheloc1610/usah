@@ -259,8 +259,7 @@ export const DEFAULT_SYMBOL: ISymbolInfo = {
 export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
     symbolCode: '',
     orderState: 0,
-    orderSideBuy: '',
-    orderSideSell: '',
+    orderSide: 0,
     fromDate: 0,
     toDate: 0,
 }
