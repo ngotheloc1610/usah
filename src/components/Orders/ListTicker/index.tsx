@@ -223,7 +223,7 @@ const ListTicker = (props: IListTickerProps) => {
                 symbolCode: symbolCodeAdd
             });
             localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchLists));
-            const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);            
+            const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
             const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
             setCurrentPage(currentPage);
             getOrderBooks();
