@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, LIST_PRICE_TYPE, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
-import { assignListPrice, formatCurrency, formatNumber } from "../../../helper/utils";
-import { IAskAndBidPrice, ILastQuote, ISymbolInfo, ITickerInfo, IWatchList } from "../../../interfaces/order.interface";
+import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { formatCurrency, formatNumber } from "../../../helper/utils";
+import { IAskAndBidPrice, ILastQuote, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
@@ -9,10 +9,8 @@ import './listTicker.scss';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import * as psbp from "../../../models/proto/pricing_service_pb";
 import { Autocomplete, TextField } from '@mui/material';
-import { DEFAULT_DATA_TICKER } from "../../../mocks";
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
-import { ISymbolList } from "../../../interfaces/ticker.interface";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
@@ -213,6 +211,7 @@ const ListTicker = (props: IListTickerProps) => {
             setSymbolCodeAdd('');
             return;
         }
+        setSymbolCodeAdd('');
     }
 
     const btnAddTicker = () => {
@@ -224,7 +223,7 @@ const ListTicker = (props: IListTickerProps) => {
                 symbolCode: symbolCodeAdd
             });
             localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchLists));
-            const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+            const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);            
             const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
             setCurrentPage(currentPage);
             getOrderBooks();
