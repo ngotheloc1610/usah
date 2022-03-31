@@ -11,22 +11,16 @@ import { DEFAULT_SEARCH_HISTORY } from '../../../mocks';
 
 const OrderHistory = () => {
     const [listOrderHistory, setListOrderHistory] = useState([]);
-    const [orderSide, setOrderSide] = useState(0);
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>(DEFAULT_SEARCH_HISTORY);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendListOrder();;
+                sendListOrder();
             }
         });
 
         const renderDataToScreen = wsService.getListOrderHistory().subscribe(res => {
-            if (orderSide !== 0) {
-                const historyListFilter = res.orderList.filter(item => item.side === orderSide)
-                setListOrderHistory(historyListFilter)
-                return
-            }
             setListOrderHistory(res.orderList)
         });
 
@@ -34,9 +28,10 @@ const OrderHistory = () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
         }
-    }, [orderSide])
+    }, [])
 
-    const buildMessage = (accountId: string) => {
+    const sendListOrder = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
 
         const queryServicePb: any = qspb;
@@ -56,15 +51,6 @@ const OrderHistory = () => {
         }
     }
 
-    const sendListOrder = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-    }
-
-    const getOrderSide = (item: number) => {
-        setOrderSide(item)
-    }
-
     const handleSearch = (item: IParamHistorySearch) => {
         setParamHistorySearch(item);
     }
@@ -74,12 +60,10 @@ const OrderHistory = () => {
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch 
-                            getOrderSide={getOrderSide}
-                            paramSearch={handleSearch}/>
+                        <OrderHistorySearch paramSearch={handleSearch} />
                         <OrderTable
                             listOrderHistory={listOrderHistory}
-                            paramHistorySearch={paramHistorySearch}/>
+                            paramHistorySearch={paramHistorySearch} />
                     </div>
                 </div>
             </div>
