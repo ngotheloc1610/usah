@@ -14,7 +14,7 @@ import Pagination from "react-js-pagination";
 interface IParamPagination {
     page_size: number;
     page: number;
-    read_flag?: boolean
+    read_flag?: boolean;
 }
 
 const News = () => {
@@ -76,12 +76,11 @@ const News = () => {
         return isUnread ? {
             page_size: pageSize,
             page: pageCurrent,
-            read_flag: !isUnread
+            read_flag: false // read_flag = false --> news unread
         } : { page_size: pageSize, page: pageCurrent }
     }
 
-    const getDataNews = (isUnread: boolean) => {
-        const param: IParamPagination = getParams(isUnread)
+    const getNewsFromServer = (param: IParamPagination) => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
             if (resp.status === success) {
                 setListDataNews(resp?.data?.data?.results);
@@ -91,6 +90,11 @@ const News = () => {
             (error) => {
                 console.log("errors");
             });
+    }
+
+    const getDataNews = (isUnread: boolean) => {
+        const param: IParamPagination = getParams(isUnread)
+        getNewsFromServer(param)
     }
 
     const getDataTradingResult = (paramTrading: IParamPagination) => {
@@ -106,13 +110,8 @@ const News = () => {
     }
 
     const handleShowUnread = (isCheck: boolean) => {
-        const param = getParams(isCheck)
-        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
-            if (resp.status === success) {
-                setListDataNews(resp?.data?.data?.results)
-                setTotalItem(resp?.data?.data?.count)
-            }
-        })
+        const param: IParamPagination = getParams(isCheck)
+        getNewsFromServer(param)
         isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
         isNewsTab ? setTotalItemUnRead(listDataUnread?.length || 0) : setTotalTradingUnread(listDataUnreadTrading?.length || 0);
