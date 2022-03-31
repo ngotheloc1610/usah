@@ -88,7 +88,7 @@ const News = () => {
             }
         },
             (error) => {
-                console.log("errors");
+                console.log(error);
             });
     }
 
