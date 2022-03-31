@@ -52,7 +52,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
         if (lotSize && convertNumber(lotSize) !== 0) {
-            setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
+            setInvalidVolume(convertNumber(valueVolume.replaceAll(',', '')) % convertNumber(lotSize) !== 0);
         }
         setVolumeModify(onlyNumberVolumeChange);
     }
