@@ -51,6 +51,12 @@ const News = () => {
         page: pageCurrent,
     }
 
+    const paramNewsUnread = {
+        page_size: pageSize,
+        page: pageCurrent,
+        read_flag: false
+    }
+
     useEffect(() => {
         const paramTrading = {
             page_size: pageSizeTrading,
@@ -60,7 +66,7 @@ const News = () => {
     }, [pageSizeTrading, pageCurrentTrading])
 
     useEffect(() => {
-        getDataNews();
+        isUnread ? handleShowUnread(isUnread) : getDataNews()
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
@@ -80,11 +86,6 @@ const News = () => {
             if (resp.status === success) {
                 setListDataNews(resp?.data?.data?.results);
                 setTotalItem(resp?.data?.data?.count);
-                const listDataUnRead: INews[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
-                if (listDataUnRead) {
-                    setTotalNewsUnread(listDataUnRead.length);
-                    setListDataUnread(listDataUnRead);
-                }
             }
         },
             (error) => {
@@ -97,11 +98,6 @@ const News = () => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
                 setTotalTradingResult(resp?.data?.data?.count);
-                const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.readFlg === false);
-                if (listDataUnReadTrading) {
-                    setTotalUnReadTrading(listDataUnReadTrading.length);
-                    setListDataUnreadTrading(listDataUnReadTrading);
-                }
             }
         },
             (error) => {
@@ -110,6 +106,12 @@ const News = () => {
     }
 
     const handleShowUnread = (isCheck: boolean) => {
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNewsUnread)).then((resp) => {
+            if (resp.status === success) {
+                setListDataUnread(resp?.data?.data?.results)
+                setTotalItemUnRead(resp?.data?.data?.count)
+            }
+        })
         isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
         isNewsTab ? setTotalItemUnRead(listDataUnread?.length || 0) : setTotalTradingUnread(listDataUnreadTrading?.length || 0);
