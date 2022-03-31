@@ -228,23 +228,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
         return '';
     }
 
-    const checkDeactive = (symbolCode: string) => {
-        const queryModalPb: any = qmpb;
-        const symbol = symbols.find(o => o?.symbolCode === symbolCode);
-        if (symbol) {
-            return symbol?.symbolStatus === queryModalPb.SymbolStatus.SYMBOL_DEACTIVE;
-        }
-        return true;
-    }
-
-    const renderDataListCompany = () => {
-        const dataBinding: ISymbolQuote[] = [];
-        listData.forEach(item => {
-            if (!checkDeactive(item.symbolCode)) {
-                dataBinding.push(item);
-            }
-        });
-        return dataBinding.map((item: ISymbolQuote, index) => (
+    const renderDataListCompany = () => (
+        listData.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
@@ -253,7 +238,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
-                <td className="text-end w-header fw-600"><span className={getNameClassLastPrice(Number(item.lastPrice), Number( item.open))}>{formatCurrency(item.lastPrice)}</span></td>
+                <td className="text-end w-header fw-600"><span className={getNameClassLastPrice(Number(item.lastPrice), Number(item.open))}>{formatCurrency(item.lastPrice)}</span></td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600"><span className={getClassName(calcChange(item.lastPrice, item.open || ''))}>
                     {formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}
@@ -263,7 +248,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 </td>
             </tr>
         ))
-    }
+    )
 
     const _renderTableData = () => (
         <div className="tableFixHead" style={{ maxHeight: '56vh' }}>

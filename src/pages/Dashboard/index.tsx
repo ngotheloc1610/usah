@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -10,7 +10,8 @@ import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import * as tspb from "../../models/proto/trading_service_pb";
-import * as sspb from "../../models/proto/system_service_pb"
+import * as sspb from "../../models/proto/system_service_pb";
+import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
 import moment from "moment";
 import 'moment-timezone';
@@ -19,6 +20,7 @@ import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
     const isDashboard = true;
+    const queryModelPb: any = qmpb;
     const [symbolCode, setSymbolCode] = useState('');
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
@@ -53,24 +55,26 @@ const Dashboard = () => {
             }
         });
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            if (res.symbolList) {
-                setSymbolList(res.symbolList);
-                if (res.symbolList.length > 0) {
-                    localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(res.symbolList));
+            if (res.symbolList && res.symbolList.length > 0) {
+                const symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+                setSymbolList(symbolListActive);
+                localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList))
+                if (symbolListActive.length > 0) {
+                    localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                     const temps: string[] = [];
-                    res.symbolList.forEach(item => {
+                    symbolListActive.forEach(item => {
                         if (item) {
                             temps.push(item?.symbolCode);
                         }
                     });
                     setListTickerSearch(temps);
                 }
-                if (res.symbolList[0]) {
-                    setSymbolCode(res.symbolList[0]?.symbolCode || '');
+                if (symbolListActive[0]) {
+                    setSymbolCode(symbolListActive[0]?.symbolCode || '');
                 }
-                subscribeQuoteEvent(res.symbolList);
-                callLastQuoteRequest(res.symbolList)
-                subscribeTradeEvent(res.symbolList);
+                subscribeQuoteEvent(symbolListActive);
+                callLastQuoteRequest(symbolListActive)
+                subscribeTradeEvent(symbolListActive);
             }
         });
 

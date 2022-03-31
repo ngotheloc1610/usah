@@ -118,6 +118,8 @@ export enum MESSAGE_TOAST {
 
 export const LIST_TICKER_INFO = 'TICKER_LIST';
 
+export const LIST_TICKER_ALL = 'TICKER_LIST_ALL';
+
 export const ADMIN_NEWS_FLAG = 'ADMIN_NEWS_FLAG';
 
 export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';

@@ -4,14 +4,14 @@ import * as sspb from "../../../models/proto/system_service_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
 import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
     const [accountId, setAccountId] = useState('');
-    const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || "[]"));
+    const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || "[]"));
     const [dataTotalAccount, setDataTotalAccount] = useState<ITradingAccountVertical[]>([]);
     const [dataHasOwnedVolume, setDataHasOwnedVolume] = useState<ITradingAccountVertical[]>([]);
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
