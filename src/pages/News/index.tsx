@@ -10,6 +10,7 @@ import { SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
 import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
+import moment from 'moment'
 
 interface IParamPagination {
     page_size: number;
@@ -220,6 +221,10 @@ const News = () => {
         return SIDE.find(item => item.code === side)?.title;
     }
 
+    const convertTime = (item: string) => {
+        return moment(item).tz('Asia/Singapore').format()
+    }
+
     const _renderTradingResultsItem = (listTradingResults?: ITradingResult[]) => (
         listTradingResults?.map((item: ITradingResult, idx: number) => (
             <div className={!item.readFlg ? "notification-item unread" : "notification-item"
@@ -236,7 +241,7 @@ const News = () => {
                         {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                     </div>
                     <div className="item-summary opacity-75 fix-line-css">
-                        {item.execTime}
+                        {convertTime(item.execTime)}
                     </div>
                 </div>
             </div>
