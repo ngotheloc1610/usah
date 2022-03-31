@@ -1,14 +1,14 @@
 import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
 import { checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
-import { LIST_TICKER_INCLUDE_DEACTIVE } from '../../../constants/general.constant';
+import { LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
 import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 
 function PortfolioTable() {
-    const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INCLUDE_DEACTIVE) || '[]');
+    const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
