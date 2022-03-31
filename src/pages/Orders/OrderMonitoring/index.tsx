@@ -1,12 +1,9 @@
 import "./orderMonitoring.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { wsService } from "../../../services/websocket-service";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
-import { ISymbolList } from "../../../interfaces/ticker.interface";
-import { SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { DEFAULT_CURRENT_TICKER } from "../../../mocks";
 
 const OrderMonitoring = () => {
