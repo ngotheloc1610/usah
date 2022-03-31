@@ -15,6 +15,7 @@ import moment from 'moment'
 interface IParamPagination {
     page_size: number;
     page: number;
+    read_flag?: boolean;
 }
 
 const News = () => {
@@ -47,10 +48,6 @@ const News = () => {
     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`;
     const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
-    const paramNews = {
-        page_size: pageSize,
-        page: pageCurrent,
-    }
 
     useEffect(() => {
         const paramTrading = {
@@ -61,7 +58,7 @@ const News = () => {
     }, [pageSizeTrading, pageCurrentTrading])
 
     useEffect(() => {
-        getDataNews();
+        getDataNews(isUnread)
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
@@ -76,21 +73,29 @@ const News = () => {
         setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
 
-    const getDataNews = () => {
-        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(paramNews)).then((resp) => {
+    const getParams = (isUnread: boolean) => {
+        return isUnread ? {
+            page_size: pageSize,
+            page: pageCurrent,
+            read_flag: false // read_flag = false --> news unread
+        } : { page_size: pageSize, page: pageCurrent }
+    }
+
+    const getNewsFromServer = (param: IParamPagination) => {
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
             if (resp.status === success) {
                 setListDataNews(resp?.data?.data?.results);
                 setTotalItem(resp?.data?.data?.count);
-                const listDataUnRead: INews[] = resp?.data?.data?.results.filter(item => item.read_flag === false);
-                if (listDataUnRead) {
-                    setTotalNewsUnread(listDataUnRead.length);
-                    setListDataUnread(listDataUnRead);
-                }
             }
         },
             (error) => {
-                console.log("errors");
+                console.log(error);
             });
+    }
+
+    const getDataNews = (isUnread: boolean) => {
+        const param: IParamPagination = getParams(isUnread)
+        getNewsFromServer(param)
     }
 
     const getDataTradingResult = (paramTrading: IParamPagination) => {
@@ -98,11 +103,6 @@ const News = () => {
             if (resp.status === success) {
                 setListTradingResults(resp?.data?.data?.results);
                 setTotalTradingResult(resp?.data?.data?.count);
-                const listDataUnReadTrading: ITradingResult[] = resp?.data?.data?.results.filter(item => item.readFlg === false);
-                if (listDataUnReadTrading) {
-                    setTotalUnReadTrading(listDataUnReadTrading.length);
-                    setListDataUnreadTrading(listDataUnReadTrading);
-                }
             }
         },
             (error) => {
@@ -111,6 +111,8 @@ const News = () => {
     }
 
     const handleShowUnread = (isCheck: boolean) => {
+        const param: IParamPagination = getParams(isCheck)
+        getNewsFromServer(param)
         isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
         isNewsTab ? setTotalItemUnRead(listDataUnread?.length || 0) : setTotalTradingUnread(listDataUnreadTrading?.length || 0);
@@ -158,7 +160,7 @@ const News = () => {
         const urlPostNew = `${urlPostNews}/${idNews}/read-flag`
         axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
-                getDataNews();
+                getDataNews(isUnread);
             }
         },
             (error) => {
@@ -289,7 +291,7 @@ const News = () => {
             </div>
             {isNewsTab ? <Pagination
                 activePage={pageCurrent}
-                totalItemsCount={isUnread ? totalItemUnRead : totalItem}
+                totalItemsCount={totalItem}
                 itemsCountPerPage={pageSize}
                 pageRangeDisplayed={DEFAULT_PAGE_SIZE_FOR_NEWS}
                 prevPageText={'Previous'}
@@ -318,8 +320,7 @@ const News = () => {
     const _renderNewsNotificationList = () => (
         <div className="col-md-6">
             <div className="notification-list" >
-                {!isUnread && _renderNewsNotificationItem(listDataNews)}
-                {isUnread && _renderNewsNotificationItem(listDataUnread)}
+                {_renderNewsNotificationItem(listDataNews)}
             </div>
 
             {_renderNewsPagination()}
