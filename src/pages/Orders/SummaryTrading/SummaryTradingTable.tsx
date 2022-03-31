@@ -7,7 +7,7 @@ import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 
-function PortfolioTable() {
+function SummaryTradingTable() {
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
@@ -289,4 +289,4 @@ function PortfolioTable() {
     )
 }
 
-export default PortfolioTable
+export default SummaryTradingTable
