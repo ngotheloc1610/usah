@@ -26,7 +26,7 @@ const MultiTraderTable = () => {
     const [elWidth, setElWidth] = useState(0);
     const [elHeight, setElHeight] = useState(0);
     const clientWidth: any = useRef();
-    const clientHeight: any = useRef();    
+    const clientHeight: any = useRef();
 
     useEffect(() => {
         if (clientWidth.current) {
