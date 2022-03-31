@@ -222,7 +222,7 @@ const News = () => {
     }
 
     const convertTime = (item: string) => {
-        return moment(item).tz('Asia/Singapore').format()
+        return moment(item).tz('Asia/Singapore').format('lll')
     }
 
     const _renderTradingResultsItem = (listTradingResults?: ITradingResult[]) => (
