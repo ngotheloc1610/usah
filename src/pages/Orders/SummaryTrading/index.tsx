@@ -3,10 +3,10 @@ import * as sspb from "../../../models/proto/system_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { useEffect } from 'react';
 import { ACCOUNT_ID, SOCKET_CONNECTED } from '../../../constants/general.constant';
-import PortfolioTable from './PortfoioTable'
+import SummaryTradingTable from './SummaryTradingTable'
 import './orderPortfolio.scss'
 
-function OrderPortfolio() {
+function SummaryTrading() {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -20,7 +20,8 @@ function OrderPortfolio() {
         }
     }, [])
 
-    const buildMessage = (accountId: string) => {
+    const sendAccountPortfolio = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -36,12 +37,7 @@ function OrderPortfolio() {
         }
     }
 
-    const sendAccountPortfolio = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessage(accountId);
-    }
-
-    const _renderPortfolio = () => (
+    const _renderSummaryTrading = () => (
         <div className="site">
             <div className="site-main">
                 <div className="container">
@@ -50,7 +46,7 @@ function OrderPortfolio() {
                             <h6 className="card-title fs-6 mb-0">Summary Trading</h6>
                         </div>
                         <div className="card-body">
-                            <PortfolioTable/>
+                            <SummaryTradingTable/>
                         </div>
                     </div>
                 </div>
@@ -58,7 +54,7 @@ function OrderPortfolio() {
         </div>
     )
     return (
-        <>{_renderPortfolio()}</>
+        <>{_renderSummaryTrading()}</>
     )
 }
-export default OrderPortfolio
+export default SummaryTrading
