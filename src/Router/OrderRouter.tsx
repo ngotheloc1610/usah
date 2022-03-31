@@ -19,7 +19,7 @@ const OrderRouter = () => {
           <Route path="/history" element={<OrderHistory />} />
           <Route path="/new" element={<OrderNew />} />
           <Route path="/tradeHistory" element={<OrderTradeHistory />} />
-          <Route path="/summary_trading" element={<SummaryTrading />} />
+          <Route path="/summary-trading" element={<SummaryTrading />} />
           <Route path="/multi-trader-control" element={<MultiTraderControl />} />
           <Route path="/modify-cancel" element={<OrderModifyCancel />} />
         </Routes>

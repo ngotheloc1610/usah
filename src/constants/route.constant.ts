@@ -40,7 +40,7 @@ export const ROUTER_MONITORING = [
                 title: 'Summary',
                 subTab: [
                     {
-                        navigation: '/orders/summary_trading',
+                        navigation: '/orders/summary-trading',
                         icon: '',
                         title: 'Summary Trading',
                         subTab: [],
@@ -137,7 +137,7 @@ export const ROUTER_TRADER = [
                 title: 'Summary',
                 subTab: [
                     {
-                        navigation: '/orders/summary_trading',
+                        navigation: '/orders/summary-trading',
                         icon: '',
                         title: 'Summary Trading',
                         subTab: [],
