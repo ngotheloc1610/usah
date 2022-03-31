@@ -214,18 +214,12 @@ function PortfolioTable() {
         return buyVolume - sellVolume;
     }
 
-    const calcSubtractTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume;
-        const sellVolume = item.totalSellVolume;
-        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
-    }
-
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcSubtractTransactionVolume(item) * convertNumber(item.avgBuyPrice);
+        return calcOwnedVolume(item) * convertNumber(item.avgBuyPrice);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcSubtractTransactionVolume(item) * convertNumber(item.marketPrice);
+        return calcOwnedVolume(item) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
