@@ -141,6 +141,7 @@ const News = () => {
     const onChangeTab = (tab: string) => {
         const param = getParamsTrading(isUnreadTradingNotice, 1)
         tab === TAB_NEWS.trading && getDataTradingResult(param)
+        tab === TAB_NEWS.news && getDataNews(isUnread)
         setIsNewsTab(tab === TAB_NEWS.news);
     }
 
