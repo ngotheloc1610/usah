@@ -211,7 +211,7 @@ function PortfolioTable() {
     const calcOwnedVolume = (item: IPortfolio) => {
         const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
         const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
-        return buyVolume - sellVolume;
+        return buyVolume < sellVolume ? 0 : buyVolume - sellVolume;
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
