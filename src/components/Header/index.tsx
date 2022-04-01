@@ -6,19 +6,58 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, ROLE_ACCOUNT_DETAIL, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
+import PopUpNotification from '../Modal/PopUpNotification';
+import axios from 'axios';
+import { DEFAULT_PAGE_SIZE_FOR_NEWS } from '../../constants/news.constant';
+import { IParamPagination, IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
+import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
+import { defindConfigGet, defindConfigPost } from '../../helper/utils';
+import { success } from '../../constants';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
   const roleAccount = localStorage.getItem(ROLE);
   const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
   const menus = (roleAccount === ROLE_ACCOUNT_DETAIL.monitor && subAccount.length > 0) ? ROUTER_MONITORING : ROUTER_TRADER;
+
+  const [isShowNotification, setIsShowNotification] = useState(false);
+
+  const [pageSizeTrading, setPageSizeTrading] = useState(DEFAULT_PAGE_SIZE_FOR_NEWS);
+  const pageCurrentTrading = START_PAGE;
+
+  const [paramTrading, setParamTrading] = useState<IParamPagination>({ page_size: 5, page: 1 });
+  const [totalItem, setTotalItem] = useState(0);
+
+
+  const api_url = process.env.REACT_APP_API_URL;
+  const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
+  const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
+  const [totalItemUnread, setTotalItemUnread] = useState(0);
+
+
+  const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
+
+  useEffect(() => {
+    const paramTrading = {
+      page_size: pageSizeTrading,
+      page: pageCurrentTrading,
+    }
+    setParamTrading(paramTrading)
+  }, [pageSizeTrading, pageCurrentTrading])
+
+
   useEffect(() => {
     _renderAccountId()
   }, [])
+
+
+  useEffect(() => {
+    getDataTradingResult(paramTrading);
+  }, [paramTrading]);
 
   const _renderAccountId = () => {
     const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
@@ -41,6 +80,40 @@ const Header = () => {
     window.location.href = `${baseUrl}/setting`;
   }
 
+  const showPopupNotification = () => {
+    setIsShowNotification(!isShowNotification);
+  }
+  // Notification
+  const getDataTradingResult = (paramTrading) => {
+    axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
+      if (resp.status === success) {
+        const listDataUnRead = resp?.data?.data?.results.filter(item => item.readFlg === false);
+        setTotalItemUnread(listDataUnRead.length);
+        setListTradingResults(resp?.data?.data?.results);
+        setTotalItem(resp?.data?.data?.count);
+      }
+    },
+      (error) => {
+        console.log("errors");
+      });
+  }
+
+  const handleScrollNoti = (pageSize: number) => {
+    setPageSizeTrading(pageSize);
+  }
+
+  const handleReaded = (idTrading: number) => {
+    const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
+    axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
+      if (resp?.data?.meta?.code === success) {
+        getDataTradingResult(paramTrading)
+      }
+    },
+      (error) => {
+        console.log("errors");
+      });
+  }
+
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
@@ -54,9 +127,41 @@ const Header = () => {
           <li className="nav-item item-menu"><a href="#" className="nav-link pl-0">
             <i className="bi bi-list"></i></a>
           </li>
-          <li className="nav-item item-notication"><a href="#" className="nav-link pl-0">
-            <i className="bi bi-bell-fill"></i>
-            <sup className="count">04</sup></a></li>
+          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
+            <a onClick={() => showPopupNotification()}
+              href="#" className="nav-link pl-0" role="button"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i className="bi bi-bell-fill"></i>
+              <sup className="count">{totalItemUnread}</sup></a>
+
+
+            <div className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
+              style={{
+                position: "absolute",
+                willChange: "transform",
+                top: 0,
+                left: 0,
+                width: 400,
+                transform: "translate3d(-360px, 40px, 0px)"
+              }}>
+              <div _ngcontent-mxu-c3="" className="index-angle"></div>
+              <div className="m-3 d-flex justify-content-between">
+                <strong>Thông báo</strong>
+                <div>
+                  <label>Bật/Tắt thông báo: <i className="bi bi-toggle-off"></i></label>
+                </div>
+              </div>
+              <PopUpNotification listTradingResults={listTradingResults}
+                pageSizeTrading={pageSizeTrading}
+                handleScrollNoti={handleScrollNoti}
+                totalItem={totalItem}
+                handleReaded={handleReaded} />
+
+              <div className="text-center small">
+                <a className="text-secondary">View more</a>
+              </div>
+            </div>
+          </li>
           <li className="nav-item dropdown">
             <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
             <ul className="dropdown-menu dropdown-menu-end">
@@ -96,7 +201,7 @@ const Header = () => {
         <div className="site-brand">
           <h1 className="site-title mb-0">
             <a href="" className="site-link text-decoration-none">
-            <img src={LOGO} className="site-logo" alt="" />
+              <img src={LOGO} className="site-logo" alt="" />
             </a>
           </h1>
         </div>
@@ -113,6 +218,8 @@ const Header = () => {
       {_renderHeaderMain()}
     </div>
   )
-  return <div>{_renderHeaderTemplate()}</div>
+  return <>
+    <div>{_renderHeaderTemplate()}</div>
+  </>
 };
 export default Header;

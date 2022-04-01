@@ -80,3 +80,9 @@ export interface ITradingResult {
     symbolCode: string;
     symbolId: string;
 }
+
+export interface IParamPagination {
+    page_size: number;
+    page: number;
+    read_flag?: boolean;
+}
