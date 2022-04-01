@@ -203,23 +203,23 @@ function SummaryTradingTable() {
     )
 
     const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume;
-        const sellVolume = item.totalSellVolume;
+        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
+        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
         return buyVolume + sellVolume;
     }
 
-    const calcSubtractTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume;
-        const sellVolume = item.totalSellVolume;
-        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
+    const calcOwnedVolume = (item: IPortfolio) => {
+        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
+        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
+        return buyVolume < sellVolume ? 0 : buyVolume - sellVolume;
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcSubtractTransactionVolume(item) * convertNumber(item.avgBuyPrice);
+        return calcOwnedVolume(item) * convertNumber(item.avgBuyPrice);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcSubtractTransactionVolume(item) * convertNumber(item.marketPrice);
+        return calcOwnedVolume(item) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -237,13 +237,14 @@ function SummaryTradingTable() {
         <tr>
             <th className="text-start fz-14 w-200" >Ticker Name</th >
             <th className="text-start fz-14 w-s" >Ticker Code</th>
-            <th className="text-end fz-14 w-s" >Transactions Volume</th>
+            <th className="text-end fz-14 w-s" >Owned Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
             <th className="text-end fz-14 w-s" >Invested Value</th>
             <th className="text-end fz-14 w-s" >Market Price</th>
             <th className="text-end fz-14 w-s" >Current Value</th>
             <th className="text-end fz-14 w-s" >Unrealized PL</th>
             <th className="text-end fz-14 w-s" >% Unrealized PL</th>
+            <th className="text-end fz-14 w-s" >Transaction Volume</th>
         </tr>
     )
 
@@ -252,7 +253,7 @@ function SummaryTradingTable() {
             <tr className="odd " key={index}>
                 <td className="text-start w-200 td">{getSymbol(item.symbolCode)?.symbolName}</td>
                 <td className="text-start w-s td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcTransactionVolume(item).toString())}</td>
+                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item).toString())}</td>
                 <td className="text-end w-s td" >{(item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : 0}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
@@ -263,6 +264,7 @@ function SummaryTradingTable() {
                 <td className="text-end w-s td fw-600"><span className={getClassName(calcPctUnrealizedPL(item))}>
                     {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
+                <td className="text-end w-s">{formatNumber(calcTransactionVolume(item).toString())}</td>
             </tr>
         ))
 
