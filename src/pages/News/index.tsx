@@ -4,7 +4,7 @@ import './New.css'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
-import { DEFAULT_PAGE_SIZE_FOR_NEWS, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
+import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import { FORMAT_DATE_TIME_MILLI, SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
@@ -85,7 +85,7 @@ const News = () => {
     }
 
     const getTotalTradingResultsUnread = () => {
-        const paramTrading: IParamPagination = getParamsTrading(true, 1)
+        const paramTrading: IParamPagination = getParamsTrading(true, FIRST_PAGE)
         axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
             if (resp.status === success) {
                 setTotalUnReadTrading(resp?.data?.data?.count);
@@ -139,7 +139,7 @@ const News = () => {
     )
 
     const onChangeTab = (tab: string) => {
-        const param = getParamsTrading(isUnreadTradingNotice, 1)
+        const param = getParamsTrading(isUnreadTradingNotice, FIRST_PAGE)
         tab === TAB_NEWS.trading && getDataTradingResult(param)
         tab === TAB_NEWS.news && getDataNews(isUnread)
         setIsNewsTab(tab === TAB_NEWS.news);
@@ -285,15 +285,15 @@ const News = () => {
     )
 
     const handleItemsPage = (event) => {
-        setPageCurrent(1);
+        setPageCurrent(FIRST_PAGE);
         setPageSize(convertNumber(event.target.value));
     }
 
     const handleItemsPageTrading = (event) => {
-        setPageCurrentTrading(1);
+        setPageCurrentTrading(FIRST_PAGE);
         setPageSizeTrading(convertNumber(event.target.value));
 
-        const paramTrading = { page_size: event.target.value, page: 1 };
+        const paramTrading = { page_size: event.target.value, page: FIRST_PAGE };
         getDataTradingResult(paramTrading);
     }
 
