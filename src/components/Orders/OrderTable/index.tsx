@@ -84,14 +84,14 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-center fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
-            <th className="text-ellipsis text-end fz-14 w-120">
+            <th className="text-ellipsis text-end fz-14 w-140">
                 <div>Order Quantity</div>
                 <div>Remaining Quantity</div>
             </th>
             <th className="text-end fz-14 w-120"> Executed Quantity </th>
             <th className="text-ellipsis text-end fz-14 w-120">
                 <div>Order Price</div>
-                <div>Last Price</div>
+                <div>Executed Price</div>
             </th>
             <th className="text-ellipsis text-end fz-14 w-200">
                 <div> Order Datetime </div>
