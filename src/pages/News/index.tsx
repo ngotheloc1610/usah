@@ -62,6 +62,10 @@ const News = () => {
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
+        getTotalNewsUnread()
+    }, [])
+
+    useEffect(() => {
         setElTradingActive(0);
     }, [pageSizeTrading, pageCurrentTrading])
 
@@ -72,6 +76,18 @@ const News = () => {
         setPageCurrent(START_PAGE);
         setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
+
+    const getTotalNewsUnread = () => {
+        const param: IParamPagination = getParams(true)
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
+            if (resp.status === success) {
+                setTotalNewsUnread(resp?.data?.data?.count)
+            }
+        },
+            (error) => {
+                console.log(error);
+            });
+    }
 
     const getParams = (isUnread: boolean) => {
         return isUnread ? {
