@@ -29,7 +29,7 @@ const Header = () => {
   const [pageSizeTrading, setPageSizeTrading] = useState(DEFAULT_PAGE_SIZE_FOR_NEWS);
   const pageCurrentTrading = START_PAGE;
 
-  const [paramTrading, setParamTrading] = useState<IParamPagination>({ page_size: 5, page: 1 });
+  const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
   const [totalItem, setTotalItem] = useState(0);
 
 
@@ -94,7 +94,7 @@ const Header = () => {
       }
     },
       (error) => {
-        console.log("errors");
+        console.log("errors call list trading result");
       });
   }
 
@@ -110,7 +110,7 @@ const Header = () => {
       }
     },
       (error) => {
-        console.log("errors");
+        console.log("errors call api read");
       });
   }
 
@@ -146,9 +146,9 @@ const Header = () => {
               }}>
               <div _ngcontent-mxu-c3="" className="index-angle"></div>
               <div className="m-3 d-flex justify-content-between">
-                <strong>Thông báo</strong>
+                <strong>Notification</strong>
                 <div>
-                  <label>Bật/Tắt thông báo: <i className="bi bi-toggle-off"></i></label>
+                  <label>Enable/Disable Notifications: <i className="bi bi-toggle-off"></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
