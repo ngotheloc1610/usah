@@ -6,3 +6,5 @@ export const TAB_NEWS = {
 }
 
 export const DEFAULT_PAGE_SIZE_FOR_NEWS = 5;
+
+export const FIRST_PAGE = 1
