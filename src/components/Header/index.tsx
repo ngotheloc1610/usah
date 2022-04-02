@@ -12,8 +12,7 @@ import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
 import PopUpNotification from '../Modal/PopUpNotification';
 import axios from 'axios';
-import { DEFAULT_PAGE_SIZE_FOR_NEWS } from '../../constants/news.constant';
-import { IParamPagination, IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
+import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
 import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
 import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
@@ -26,11 +25,10 @@ const Header = () => {
 
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const [pageSizeTrading, setPageSizeTrading] = useState(DEFAULT_PAGE_SIZE_FOR_NEWS);
+  const pageSizeTrading = 0;
   const pageCurrentTrading = START_PAGE;
 
   const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
-  const [totalItem, setTotalItem] = useState(0);
 
 
   const api_url = process.env.REACT_APP_API_URL;
@@ -90,16 +88,11 @@ const Header = () => {
         const listDataUnRead = resp?.data?.data?.results.filter(item => item.readFlg === false);
         setTotalItemUnread(listDataUnRead.length);
         setListTradingResults(resp?.data?.data?.results);
-        setTotalItem(resp?.data?.data?.count);
       }
     },
       (error) => {
         console.log("errors call list trading result");
       });
-  }
-
-  const handleScrollNoti = (pageSize: number) => {
-    setPageSizeTrading(pageSize);
   }
 
   const handleReaded = (idTrading: number) => {
@@ -152,9 +145,6 @@ const Header = () => {
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
-                pageSizeTrading={pageSizeTrading}
-                handleScrollNoti={handleScrollNoti}
-                totalItem={totalItem}
                 handleReaded={handleReaded} />
 
               <div className="text-center small">

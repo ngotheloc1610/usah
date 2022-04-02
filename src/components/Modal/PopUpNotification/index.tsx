@@ -1,24 +1,14 @@
 import './PopUpNotification.css';
-import axios from 'axios';
-import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
-import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../../constants/api.constant';
-import { defindConfigGet, defindConfigPost } from '../../../helper/utils';
-import { success } from '../../../constants';
-import { useEffect, useState } from 'react';
-import { DEFAULT_PAGE_SIZE_FOR_NEWS } from '../../../constants/news.constant';
-import { FORMAT_DATE_TIME_MILLI, SIDE, START_PAGE } from '../../../constants/general.constant';
+import { ITradingResult } from '../../../interfaces/news.interface';
+import { useState } from 'react';
+import { FORMAT_DATE_TIME_MILLI, SIDE } from '../../../constants/general.constant';
 import moment from 'moment';
-
-
 interface IPopsNotification {
      listTradingResults: ITradingResult[],
-     totalItem: number;
-     pageSizeTrading: number
-     handleScrollNoti: (item: number) => void,
      handleReaded: (item: number) => void,
 }
 const PopUpNotification = (props: IPopsNotification) => {
-     const {listTradingResults, totalItem, handleScrollNoti, handleReaded, pageSizeTrading} = props;
+     const {listTradingResults, handleReaded} = props;
      const [elTradingActive, setElTradingActive] = useState(0);
      
      const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
@@ -34,13 +24,6 @@ const PopUpNotification = (props: IPopsNotification) => {
      }
      const convertTime = (item: string) => {
           return moment(item).format(FORMAT_DATE_TIME_MILLI)
-     }
-
-     const handleWheel = () => {
-          if (totalItem >= Number(pageSizeTrading)) {
-               const pageSizeChange = Number(pageSizeTrading) + 2;
-               handleScrollNoti(pageSizeChange);
-          }
      }
      const _renderTradingResultsItem = () => (
           listTradingResults?.map((item: ITradingResult, idx: number) => (
@@ -66,7 +49,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      )
 
      const _renderTradingResultsList = () => (
-          <div className='notification-list mh-430px' onWheel={handleWheel}>
+          <div className='notification-list mh-430px'>
                <div id='notification-list'>
                     {_renderTradingResultsItem()}
                </div>
