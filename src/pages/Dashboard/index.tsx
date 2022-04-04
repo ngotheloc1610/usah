@@ -13,8 +13,7 @@ import * as tspb from "../../models/proto/trading_service_pb";
 import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
-import moment from "moment";
-import 'moment-timezone';
+import moment from 'moment-timezone'
 import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
