@@ -214,7 +214,7 @@ function SummaryTradingTable() {
         return buyVolume < sellVolume ? 0 : buyVolume - sellVolume;
     }
 
-    const calcInvestedValue = (item: IPortfolio) => {        
+    const calcInvestedValue = (item: IPortfolio) => {
         return calcOwnedVolume(item) * Number(convertNumber(item.avgBuyPrice).toFixed(2));
     }
 
