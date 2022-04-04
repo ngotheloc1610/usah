@@ -215,7 +215,7 @@ function SummaryTradingTable() {
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcOwnedVolume(item) * convertNumber(item.avgBuyPrice);
+        return calcOwnedVolume(item) * Number(convertNumber(item.avgBuyPrice).toFixed(2));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
@@ -239,12 +239,13 @@ function SummaryTradingTable() {
             <th className="text-start fz-14 w-s" >Ticker Code</th>
             <th className="text-end fz-14 w-s" >Owned Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
-            <th className="text-end fz-14 w-s" >Invested Value</th>
+            <th className="text-end fz-14 w-s" >Day Notional</th>
             <th className="text-end fz-14 w-s" >Market Price</th>
             <th className="text-end fz-14 w-s" >Current Value</th>
             <th className="text-end fz-14 w-s" >Unrealized PL</th>
             <th className="text-end fz-14 w-s" >% Unrealized PL</th>
             <th className="text-end fz-14 w-s" >Transaction Volume</th>
+            {portfolio.length > 16 && <th className='w-17'></th>}
         </tr>
     )
 
