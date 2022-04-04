@@ -193,6 +193,7 @@ const News = () => {
         axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
                 getDataNews(isUnread);
+                getTotalNewsUnread();
             }
         },
             (error) => {
@@ -215,7 +216,9 @@ const News = () => {
         const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
         axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
+                const paramTrading = getParamsTrading(isUnreadTradingNotice, pageCurrentTrading)
                 getDataTradingResult(paramTrading)
+                getTotalTradingResultsUnread()
             }
         },
             (error) => {
