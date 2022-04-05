@@ -386,7 +386,7 @@ const Dashboard = () => {
                     <div className="fw-600">{formatNumber(matchedOrder.toString())}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3 border-end">
-                    <div className="small fw-bold">Pending Order</div>
+                    <div className="small fw-bold">Pending Orders</div>
                     <div className="fw-600">{formatNumber(pendingOrder.toString())}</div>
                 </div>
                 <div className="text-center flex-grow-1 px-3">
