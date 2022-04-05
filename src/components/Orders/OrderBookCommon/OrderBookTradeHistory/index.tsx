@@ -2,11 +2,11 @@ import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helpe
 import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
 interface IPropTradeOrderBook {
-    getDataTradeHistory: IListTradeHistory[]
+    getDataTradeHistory: IListTradeHistory[];
     symbolCode: string;
 }
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
-    const { getDataTradeHistory ,symbolCode } = props;
+    const { getDataTradeHistory, symbolCode } = props;
     const _renderData = () => {
         const dataSortTime = getDataTradeHistory.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
         return dataSortTime.map((item, index) => (
