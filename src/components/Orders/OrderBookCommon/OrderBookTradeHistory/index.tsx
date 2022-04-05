@@ -1,8 +1,12 @@
 import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helper/utils';
-import { IPropListTradeHistory } from '../../../../interfaces/order.interface';
+import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
-const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
-    const {getDataTradeHistory} = props;
+interface IPropTradeOrderBook {
+    getDataTradeHistory: IListTradeHistory[]
+    symbolCode: string;
+}
+const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
+    const { getDataTradeHistory ,symbolCode } = props;
     const _renderData = () => {
         const dataSortTime = getDataTradeHistory.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
         return dataSortTime.map((item, index) => (
@@ -43,7 +47,7 @@ const OrderBookTradeHistory = (props: IPropListTradeHistory) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {_renderData()}
+                                                {symbolCode && _renderData()}
                                             </tbody>
                                         </table>
                                     </div>

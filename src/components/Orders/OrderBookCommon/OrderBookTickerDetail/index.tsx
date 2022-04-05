@@ -59,9 +59,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes && quotes.length > 0) {
             const item = quotes.find(o => o?.symbolCode === symbolCode);
-            if (item) {
-                setTickerInfo(item);
-            }
+            item ? setTickerInfo(item) : setTickerInfo(DEFAULT_DATA_TICKER);
         }
     }
 
@@ -213,15 +211,15 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             </tr> */}
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
-                                <td className="text-end">{lotSize}</td>
+                                <td className="text-end">{symbolCode ? lotSize : formatCurrency('0')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Stop Low</strong></td>
-                                <td className="text-end">{floorPrice}</td>
+                                <td className="text-end">{symbolCode ? floorPrice : formatCurrency('0')}</td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Stop High</strong></td>
-                                <td className="text-end">{ceilingPrice}</td>
+                                <td className="text-end">{symbolCode ? ceilingPrice : formatCurrency('0')}</td>
                             </tr>
                         </tbody>
                     </table>

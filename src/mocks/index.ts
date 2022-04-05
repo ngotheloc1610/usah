@@ -1,4 +1,4 @@
-import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo } from "../interfaces/order.interface";
+import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -259,3 +259,10 @@ export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
     fromDate: 0,
     toDate: 0,
 }
+
+export const DEFAULT_ASK_BID_LIST: IAskAndBidPrice[] = [{
+    numOrders: 0,
+    price: '-',
+    tradable: false,
+    volume: '-',
+}]
