@@ -195,21 +195,22 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                                 <td><strong className="text-table">Daily Trading Vol</strong></td>
                                 <td className="text-end">{formatNumber(tickerInfo.volumePerDay.toString())}</td>
                             </tr>
-                            <tr>
+                            {/* TODO: No Display follow #52146 bug */}
+                            {/* <tr>
                                 <td><strong className="text-table">5-Day Average Trading Vol</strong></td>
-                                {/* Waiting Proto */}
                                 <td className="text-end">-</td>
-                            </tr>
+                            </tr> */}
                         </tbody>
                     </table>
                 </div>
                 <div className="col-3">
                     <table className="table table-sm table-borderless mb-0">
                         <tbody>
-                            <tr>
+                            {/* TODO: No Display follow #52146 bug */}
+                            {/* <tr>
                                 <td><strong className="text-table">VWAP</strong></td>
                                 <td className="text-end">{formatCurrency(vwap.toString())}</td>
-                            </tr>
+                            </tr> */}
                             <tr>
                                 <td><strong className="text-table">Lot Size</strong></td>
                                 <td className="text-end">{lotSize}</td>
