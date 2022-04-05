@@ -470,7 +470,7 @@ const OrderBookCommon = () => {
                         </div>
                     </div>
                     <div className="col-md-3">
-                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} />
+                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} symbolCode={tickerSelect} />
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
 import { checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
+import { DEFAULT_ASK_BID_LIST } from '../../../../mocks';
 
 const defaultAskBidList: IListAskBid[] = [
     {
@@ -59,9 +60,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes && quotes.length > 0) {
             const quote = quotes.find(o => o?.symbolCode === symbolCode);
-            if (quote) {
-                mapDataTable(quote?.asksList, quote?.bidsList);
-            }
+            quote ? mapDataTable(quote?.asksList, quote?.bidsList) : mapDataTable(DEFAULT_ASK_BID_LIST, DEFAULT_ASK_BID_LIST);
         }
     }
 
@@ -210,8 +209,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.totalBids) === 0 ? '-' : formatNumber(item.totalBids)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : formatNumber(item.volumeBid)}</td>
-                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}</td>
-                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
+                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.bidPrice) === 0 ? '-' : formatCurrency(item.bidPrice)}</td>
+                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.askPrice) === 0 ? '-' : formatCurrency(item.askPrice)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : formatNumber(item.volumeAsk)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.totalAsks) === 0 ? '-' : formatNumber(item.totalAsks)}</td>
             </tr>
@@ -229,8 +228,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.totalAsks) === 0 ? '-' : formatNumber(item.totalAsks)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : formatNumber(item.volumeAsk)}</td>
-                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
-                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}</td>
+                <td className="text-end border-end border-bottom-0 text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.askPrice) === 0 ? '-' : formatCurrency(item.askPrice)}</td>
+                <td className="text-end border-end border-bottom-0 text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.bidPrice) === 0 ? '-' : formatCurrency(item.bidPrice)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : formatNumber(item.volumeBid)}</td>
                 <td className="text-end border-end border-bottom-0" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.totalBids) === 0 ? '-' : formatNumber(item.totalBids)}</td>
             </tr>
@@ -337,7 +336,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}><span>{convertNumber(item.totalBids) === 0 ? '-' : formatNumber(item.totalBids)}</span></td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : formatNumber(item.volumeBid)}</td>
-                <td className="text-end text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{item.bidPrice === '-' ? '-' : formatCurrency(item.bidPrice)}</td>
+                <td className="text-end text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.bidPrice) === 0 ? '-' : formatCurrency(item.bidPrice)}</td>
             </tr>
         })
     )
@@ -353,7 +352,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}><span>{convertNumber(item.totalAsks) === 0 ? '-' : formatNumber(item.totalAsks)}</span></td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : formatNumber(item.volumeAsk)}</td>
-                <td className="text-end text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{item.askPrice === '-' ? '-' : formatCurrency(item.askPrice)}</td>
+                <td className="text-end text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.askPrice) === 0 ? '-' : formatCurrency(item.askPrice)}</td>
             </tr>
         })
     )
@@ -418,7 +417,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className="text-end" colSpan={2}>&nbsp;</td>
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className={`text-end ${((index + 1) === listAsksBids.length) && 'bg-success-light text-success'}`}>
-                    {item.price === '-' ? '-' : formatCurrency(item.price)}</td>
+                    {convertNumber(item.price) === 0 ? '-' : formatCurrency(item.price)}</td>
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.volume) === 0 ? '-' : formatNumber(item.volume)}</td>
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.total) === 0 ? '-' : formatNumber(item.total)}</td>
             </tr>
@@ -434,7 +433,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volume) === 0 ? '-' : formatNumber(item.volume)}</td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className={`text-end ${index === 0 && 'text-danger'}`}>
-                    {item.price === '-' ? '-' : formatCurrency(item.price)}
+                    {convertNumber(item.price) === 0 ? '-' : formatCurrency(item.price)}
                 </td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
             </tr>
@@ -455,7 +454,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className="text-end">{convertNumber(item.volume) === 0 ? '-' : formatNumber(item.volume)}</td>
 
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className={`text-end ${(index + 1) === listAsksBids.length && 'text-success'}`}>
-                    {item.price === '-' ? '-' : formatCurrency(item.price)}</td>
+                    {convertNumber(item.price) === 0 ? '-' : formatCurrency(item.price)}</td>
                 <td onClick={() => handleTickerGridColumnAsk(item, tradingModel.Side.BUY)} className="text-end" colSpan={2}>&nbsp;</td>
 
             </tr>
@@ -468,7 +467,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             return <tr key={index}>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end" colSpan={2}>&nbsp;</td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className={`text-end ${index === 0 && 'text-danger bg-danger-light'}`}>
-                    {item.price === '-' ? '-' : formatCurrency(item.price)}
+                    {convertNumber(item.price) === 0 ? '-' : formatCurrency(item.price)}
                 </td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">{convertNumber(item.volume) === 0 ? '-' : formatNumber(item.volume)}</td>
                 <td onClick={() => handleTickerGridColumnBid(item, tradingModel.Side.SELL)} className="text-end">
