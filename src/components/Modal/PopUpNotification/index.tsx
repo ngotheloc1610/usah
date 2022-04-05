@@ -28,7 +28,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      const _renderTradingResultsItem = () => (
           listTradingResults?.map((item: ITradingResult, idx: number) => (
                <div className={!item.readFlg ? "notification-item unread" : "notification-item"
-                    && elTradingActive === idx ? "notification-item active" : "notification-item" && 'tableFixHead m-3'}
+                    && elTradingActive === idx ? "notification-item active" : "notification-item"}
                     key={idx}
                     onClick={() => handleClickTradingResult(item, idx)}
                >
@@ -40,8 +40,8 @@ const PopUpNotification = (props: IPopsNotification) => {
                          <div className="item-summary opacity-75 fix-line-css">
                               {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                          </div>
-                         <div className="item-summary opacity-75 fix-line-css">
-                              {convertTime(item.execTime)}
+                         <div className="item-summary opacity-75 fix-line-css float-right">
+                              {moment(item.execTime).fromNow()}
                          </div>
                     </div>
                </div>

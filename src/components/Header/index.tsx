@@ -16,6 +16,7 @@ import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interfa
 import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
 import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
+import { FIRST_PAGE } from '../../constants/news.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -52,6 +53,21 @@ const Header = () => {
     _renderAccountId()
   }, [])
 
+  useEffect(() => {
+    getTotalTradingResultsUnread()
+  }, [])
+
+  useEffect(() => {
+    const hideModalNotification = () => {
+      setIsShowNotification(false)
+    }
+
+    window.addEventListener('click', hideModalNotification)
+
+    return () => {
+      window.removeEventListener('click', hideModalNotification)
+    }
+  }, [])
 
   useEffect(() => {
     getDataTradingResult(paramTrading);
@@ -78,21 +94,37 @@ const Header = () => {
     window.location.href = `${baseUrl}/setting`;
   }
 
-  const showPopupNotification = () => {
+  const showPopupNotification = (e) => {
+    e.stopPropagation()
     setIsShowNotification(!isShowNotification);
   }
   // Notification
   const getDataTradingResult = (paramTrading) => {
     axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
       if (resp.status === success) {
-        const listDataUnRead = resp?.data?.data?.results.filter(item => item.readFlg === false);
-        setTotalItemUnread(listDataUnRead.length);
+        getTotalTradingResultsUnread()
         setListTradingResults(resp?.data?.data?.results);
       }
     },
       (error) => {
         console.log("errors call list trading result");
       });
+  }
+
+  const getTotalTradingResultsUnread = () => {
+      const paramTrading = {
+        page_size: pageSizeTrading,
+        page: FIRST_PAGE,
+        read_flag: false // read_flag = false --> news unread
+    }
+      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
+          if (resp.status === success) {
+            setTotalItemUnread(resp?.data?.data?.count);
+          }
+      },
+          (error) => {
+              console.log(error);
+          });
   }
 
   const handleReaded = (idTrading: number) => {
@@ -121,14 +153,14 @@ const Header = () => {
             <i className="bi bi-list"></i></a>
           </li>
           <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
-            <a onClick={() => showPopupNotification()}
+            <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
               <sup className="count">{totalItemUnread}</sup></a>
 
 
-            <div className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
+            <div onClick={e => e.stopPropagation()} className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
               style={{
                 position: "absolute",
                 willChange: "transform",
@@ -141,7 +173,7 @@ const Header = () => {
               <div className="m-3 d-flex justify-content-between">
                 <strong>Notification</strong>
                 <div>
-                  <label>Enable/Disable Notifications: <i className="bi bi-toggle-off"></i></label>
+                  <label>On/Off Notifications: <i className="bi bi-toggle-off"></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
