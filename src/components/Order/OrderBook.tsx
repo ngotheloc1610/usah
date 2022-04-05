@@ -66,9 +66,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const item = quotes.find(o => o?.symbolCode === ticker)
-        if (item) {
-            setQuote(item)
-        }
+        item ? setQuote(item) : setQuote(DEFAULT_DATA_TICKER)
     }
 
     const processQuoteEvent = (quotes: ILastQuote[]) => {
