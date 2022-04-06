@@ -99,7 +99,8 @@ const MultiTraderTable = () => {
                         const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
                         const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
                         const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
-                        const ownedVolume = buyVolume + sellVolume;
+                        const tmpOwnedVolume = buyVolume - sellVolume;
+                        const ownedVolume = tmpOwnedVolume < 0 ? 0 : tmpOwnedVolume;
                         tempData.push(
                             {
                                 accountId: ele,
