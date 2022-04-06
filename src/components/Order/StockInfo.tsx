@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LIST_TICKER_INFO } from "../../constants/general.constant";
-import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
 import { ILastQuote, ITickerInfo } from "../../interfaces/order.interface";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 import { wsService } from "../../services/websocket-service";
@@ -53,9 +53,9 @@ const StockInfo = (props: IStockInfo) => {
             setLotSize(symbol.lotSize)
             const quote = lastQuote.find(o => o?.symbolCode === symbolCode);
             if (quote) {
-                setVolume(Number(quote.volumePerDay));
-                setHigh(Number(quote.high));
-                setLow(Number(quote.low));
+                quote.volumePerDay && setVolume(convertNumber(quote.volumePerDay));
+                quote.high && setHigh(convertNumber(quote.high));
+                quote.low && setLow(convertNumber(quote.low));
             }
         } else {
             setMinBidSize(0);
