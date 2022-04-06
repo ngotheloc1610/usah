@@ -214,7 +214,7 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
                 totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
                 total = counter === (MARKET_DEPTH_LENGTH - 1) ? numOrders : totalNumOrder;
             } else {
-                totalNumOrder =  isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[0]?.total)).toString() : numOrders;
+                totalNumOrder =  isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
                 total = counter === 0 ? numOrders : totalNumOrder;
             }
             arr.push({
