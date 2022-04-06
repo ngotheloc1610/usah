@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { calcCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
+import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -20,6 +20,7 @@ interface IPropsListModifyCancel {
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const { orderSide, symbolCode } = props;
+    const [listOrderFull, setListOrderFull] = useState<IListOrderModifyCancel[]>([]);
     const [listOrder, setListOrder] = useState<IListOrderModifyCancel[]>([]);
     const [dataOrder, setDataOrder] = useState<IListOrderModifyCancel[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
@@ -63,7 +64,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
-        const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
         if (currentList.length <= 0) {
             currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1)
         }        
@@ -86,7 +87,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         });
 
         const listOrder = wsService.getListOrder().subscribe(response => {
-            setListOrder(response.orderList);
+            setListOrderFull(response.orderList);
         });
 
         return () => {
@@ -96,19 +97,19 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }, []);
 
     useEffect(() => {
-        sendListOrder();
-        const listOrder = wsService.getListOrder().subscribe(response => {
-            let listOrderFilter: IListOrderModifyCancel[] = response.orderList;
-            if (symbolCode !== '') {
-                listOrderFilter = listOrderFilter.filter(item => item.symbolCode === symbolCode)
-            }
-            if (orderSide !== 0) {
-                listOrderFilter = listOrderFilter.filter(item => item.side === orderSide)
-            }
-            setListOrder(listOrderFilter);
-        });
-        return () => listOrder.unsubscribe();
-    }, [msgSuccess, symbolCode, orderSide]);
+        processOrderList(listOrderFull);
+    }, [listOrderFull, symbolCode, orderSide])
+
+    const processOrderList = (listOrder: IListOrderModifyCancel[]) => {
+        let listOrderFilter: IListOrderModifyCancel[] = listOrder;
+        if (symbolCode !== '') {
+            listOrderFilter = listOrderFilter.filter(item => item.symbolCode === symbolCode);
+        }
+        if (orderSide !== 0) {
+            listOrderFilter = listOrderFilter.filter(item => item.side === orderSide);
+        }
+        setListOrder(listOrderFilter);
+    }
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
@@ -178,6 +179,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const _rendetMessageSuccess = (message: string, typeOrderRes: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
+        MESSAGE_TOAST.SUCCESS_PLACE && sendListOrder();
         setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch(typeOrderRes) {
             case TYPE_ORDER_RES.Order:
