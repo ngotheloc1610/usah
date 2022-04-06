@@ -40,7 +40,7 @@ const PopUpNotification = (props: IPopsNotification) => {
                          <div className="item-summary opacity-75 fix-line-css">
                               {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                          </div>
-                         <div className="item-summary opacity-75 fix-line-css float-right">
+                         <div className="item-summary opacity-75 fix-line-css text-end">
                               {moment(item.execTime).fromNow()}
                          </div>
                     </div>
