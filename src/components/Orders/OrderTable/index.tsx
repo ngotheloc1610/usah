@@ -1,5 +1,5 @@
 import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
@@ -40,7 +40,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 item.time === Number(paramHistorySearch.toDate));
         }
         setTotalItem(historySortDate.length);
-        const currentList = calcCurrentList(currentPage, itemPerPage, historySortDate);
+        const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
     }, [listOrderHistory, itemPerPage, currentPage, paramHistorySearch]);
 

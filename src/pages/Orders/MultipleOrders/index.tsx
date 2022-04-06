@@ -4,7 +4,7 @@ import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, calcCurrentList, convertNumber } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, renderCurrentList, convertNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
 import './multipleOrders.css';
 import * as tdspb from '../../../models/proto/trading_service_pb';

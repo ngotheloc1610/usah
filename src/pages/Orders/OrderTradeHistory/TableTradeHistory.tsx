@@ -1,5 +1,5 @@
 import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber, calcCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
+import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -16,7 +16,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         
     useEffect(() => {
         const tradeSortDate: IListTradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
-        const currentList = calcCurrentList(currentPage, itemPerPage, tradeSortDate);
+        const currentList = renderCurrentList(currentPage, itemPerPage, tradeSortDate);
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
 
