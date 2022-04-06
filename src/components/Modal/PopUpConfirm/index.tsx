@@ -1,21 +1,17 @@
-import queryString from 'query-string';
+
 import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
-import { IAuthen } from '../../../interfaces';
 import { wsService } from '../../../services/websocket-service';
-import ReduxPersist from '../../../config/ReduxPersist';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as tspb from '../../../models/proto/trading_service_pb';
-import * as sspb from '../../../models/proto/system_service_pb'
-import { IListOrder } from '../../../interfaces/order.interface';
+import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
-import { useEffect } from 'react';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
     totalOrder: number;
-    listOrder: IListOrder[];
+    listOrder: IListOrderModifyCancel[];
     handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
     handleStatusCancelAll?: (value: boolean) => void;
 }
@@ -50,7 +46,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-                order.setSide(order.side);
+                order.setSide(item.side.toString());
                 cancelOrder.addOrder(order);
             });
             let rpcMsg = new rProtoBuff.RpcMessage();
