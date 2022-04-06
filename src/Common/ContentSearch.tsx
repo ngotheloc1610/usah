@@ -83,14 +83,15 @@ const ContentSearch = (props: IPropsContentSearch) => {
     }
 
     const handleSearch = () => {
-        sendMessageSearch();
+        // Filter hiện đang do bên Front End làm nên tạm thời không gửi msg Request lên
+        // sendMessageSearch();
         getParamSearch(symbolCode, side);
     }
 
     const handlKeyDown = (event: any) => {
         if (symbolCode !== '' || side !== 0) {
             if (event.key === 'Enter') {
-                sendMessageSearch();
+                // sendMessageSearch();
                 getParamSearch(symbolCode, side);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);

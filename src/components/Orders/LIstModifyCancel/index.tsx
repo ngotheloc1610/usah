@@ -64,6 +64,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = calcCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        if (currentList.length <= 0) {
+            currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1)
+        }        
         setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
 
@@ -83,21 +86,14 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         });
 
         const listOrder = wsService.getListOrder().subscribe(response => {
-            let listOrderFilter: IListOrderModifyCancel[] = response.orderList;
-            if (symbolCode !== '') {
-                listOrderFilter = listOrderFilter.filter(item => item.symbolCode === symbolCode)
-            }
-            if (orderSide !== 0) {
-                listOrderFilter = listOrderFilter.filter(item => item.side === orderSide)
-            }
-            setListOrder(listOrderFilter);
+            setListOrder(response.orderList);
         });
 
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
         }
-    }, [symbolCode, orderSide]);
+    }, []);
 
     useEffect(() => {
         sendListOrder();
@@ -112,7 +108,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             setListOrder(listOrderFilter);
         });
         return () => listOrder.unsubscribe();
-    }, [msgSuccess]);
+    }, [msgSuccess, symbolCode, orderSide]);
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
