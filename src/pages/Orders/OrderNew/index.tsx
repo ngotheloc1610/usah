@@ -60,7 +60,7 @@ const OrderNew = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
-
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -186,7 +186,6 @@ const OrderNew = () => {
         setMsgSuccess(item);
         sendMessageQuotes();
         assignDataGetLastQuote(Number(currentTickerSearch));
-        getTicker(currentTickerSearch);
     }
 
     useEffect(() => {
