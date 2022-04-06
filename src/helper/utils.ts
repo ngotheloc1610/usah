@@ -207,14 +207,12 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
             const tradable = askBidItem[counter].tradable ? askBidItem[counter].tradable : false;
             const volume = askBidItem[counter].volume ? askBidItem[counter].volume : '-';
             const isNumOrder = askBidItem[counter] && askBidItem[counter].numOrders;
+            const totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
 
             let total = '';
-            let totalNumOrder = '';
             if (type === LIST_PRICE_TYPE.askList) {
-                totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
                 total = counter === (MARKET_DEPTH_LENGTH - 1) ? numOrders : totalNumOrder;
             } else {
-                totalNumOrder =  isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[0]?.total)).toString() : numOrders;
                 total = counter === 0 ? numOrders : totalNumOrder;
             }
             arr.push({
