@@ -298,24 +298,22 @@ const OrderForm = (props: IOrderForm) => {
         <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
             <div className="flex-grow-1 py-1 px-2">
                 <label className="text text-secondary">{title}</label>
-                <CurrencyInput decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
+                <CurrencyInput decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
                 thousandseparator="{true}" value={value} placeholder=""
-                onChange={title.toLocaleLowerCase() === 'price' ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
+                onChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
             </div>
             <div className="border-start d-flex flex-column">
                 <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
                 <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
             </div>
         </div>
-            {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
         <div>
-            {title.toLocaleLowerCase() === 'price' && <>
+            {title === TITLE_ORDER_CONFIRM.PRICE && <>
                 {invalidPrice && <span className='text-danger'>Invalid Price</span>}
             </>}
         </div>
-            {title.toLocaleLowerCase() === 'volume' && <>
-                {invalidVolume && <span className='text-danger'>Invalid volume</span>}
-            </>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && <> {invalidVolume && <span className='text-danger'>Invalid volume</span>}</>}
     </>
     }
 
