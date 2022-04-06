@@ -26,7 +26,7 @@ const Header = () => {
 
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const pageSizeTrading = 0;
+  const pageSizeTrading = 1000;
   const pageCurrentTrading = START_PAGE;
 
   const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
