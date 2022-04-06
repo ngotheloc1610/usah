@@ -51,12 +51,18 @@ const StockInfo = (props: IStockInfo) => {
         if (symbol) {
             setMinBidSize(symbol.tickSize);
             setLotSize(symbol.lotSize)
-        }
-        const quote = lastQuote.find(o => o?.symbolCode === symbolCode);
-        if (quote) {
-            setVolume(Number(quote.volumePerDay));
-            setHigh(Number(quote.high));
-            setLow(Number(quote.low));
+            const quote = lastQuote.find(o => o?.symbolCode === symbolCode);
+            if (quote) {
+                setVolume(Number(quote.volumePerDay));
+                setHigh(Number(quote.high));
+                setLow(Number(quote.low));
+            }
+        } else {
+            setMinBidSize(0);
+            setLotSize(0)
+            setVolume(0);
+            setHigh(0);
+            setLow(0);
         }
     }
 
