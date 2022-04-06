@@ -54,16 +54,12 @@ const News = () => {
     }, [pageSize, pageCurrent])
 
     useEffect(() => {
-        getTotalNewsUnread()
+        getTotalUnread()
     }, [])
 
     useEffect(() => {
         setElTradingActive(0);
     }, [pageSizeTrading, pageCurrentTrading])
-
-    useEffect(() => {
-        getTotalTradingResultsUnread()
-    }, [])
 
     useEffect(() => {
         setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
@@ -72,11 +68,12 @@ const News = () => {
         setPageCurrentTrading(START_PAGE)
     }, [isNewsTab])
 
-    const getTotalNewsUnread = () => {
-        const param: IParamPagination = getParams(true)
-        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
+    const getTotalUnread = () => {
+        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigPost()).then((resp) => {
+            console.log(resp)
             if (resp.status === success) {
                 setTotalNewsUnread(resp?.data?.data?.count)
+                setTotalUnReadTrading(resp?.data?.data?.count)
             }
         },
             (error) => {
@@ -98,18 +95,6 @@ const News = () => {
             page: pageCurrentTrading,
             read_flag: false // read_flag = false --> news unread
         } : { page_size: pageSizeTrading, page: pageCurrentTrading }
-    }
-
-    const getTotalTradingResultsUnread = () => {
-        const paramTrading: IParamPagination = getParamsTrading(true, FIRST_PAGE)
-        axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
-            if (resp.status === success) {
-                setTotalUnReadTrading(resp?.data?.data?.count);
-            }
-        },
-            (error) => {
-                console.log(error);
-            });
     }
 
     const getNewsFromServer = (param: IParamPagination) => {
@@ -193,7 +178,7 @@ const News = () => {
         axios.post<IReqNews, IReqNews>(urlPostNew, '', defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
                 getDataNews(isUnread);
-                getTotalNewsUnread();
+                getTotalUnread();
             }
         },
             (error) => {
@@ -218,7 +203,7 @@ const News = () => {
             if (resp?.data?.meta?.code === success) {
                 const paramTrading = getParamsTrading(isUnreadTradingNotice, pageCurrentTrading)
                 getDataTradingResult(paramTrading)
-                getTotalTradingResultsUnread()
+                getTotalUnread()
             }
         },
             (error) => {

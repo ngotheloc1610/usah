@@ -13,7 +13,7 @@ import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant
 import PopUpNotification from '../Modal/PopUpNotification';
 import axios from 'axios';
 import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
-import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
+import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
 import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
@@ -34,6 +34,7 @@ const Header = () => {
 
   const api_url = process.env.REACT_APP_API_URL;
   const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
+  const urlGetTotalUnread = `${api_url}${API_GET_TOTAL_UNREAD}`;
   const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
   const [totalItemUnread, setTotalItemUnread] = useState(0);
 
@@ -112,12 +113,8 @@ const Header = () => {
   }
 
   const getTotalTradingResultsUnread = () => {
-      const paramTrading = {
-        page_size: pageSizeTrading,
-        page: FIRST_PAGE,
-        read_flag: false // read_flag = false --> news unread
-    }
-      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
+      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
+          console.log(resp)
           if (resp.status === success) {
             setTotalItemUnread(resp?.data?.data?.count);
           }
