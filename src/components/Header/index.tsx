@@ -26,7 +26,7 @@ const Header = () => {
 
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const pageSizeTrading = 1000;
+  const pageSizeTrading = 5;
   const pageCurrentTrading = START_PAGE;
 
   const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
@@ -177,7 +177,8 @@ const Header = () => {
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
-                handleReaded={handleReaded} />
+                handleReaded={handleReaded}
+                setListTradingResults={setListTradingResults} />
 
               <div className="text-center small">
                 <a className="text-secondary">View more</a>

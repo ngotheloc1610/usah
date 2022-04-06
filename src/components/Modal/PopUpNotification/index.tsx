@@ -1,15 +1,23 @@
 import './PopUpNotification.css';
-import { ITradingResult } from '../../../interfaces/news.interface';
-import { useState } from 'react';
+import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { FORMAT_DATE_TIME_MILLI, SIDE } from '../../../constants/general.constant';
 import moment from 'moment';
+import axios from 'axios';
+import { success } from '../../../constants';
+import { defindConfigGet } from '../../../helper/utils';
+import { API_GET_TRADING_RESULT } from '../../../constants/api.constant';
 interface IPopsNotification {
      listTradingResults: ITradingResult[],
      handleReaded: (item: number) => void,
+     setListTradingResults: Dispatch<SetStateAction<ITradingResult[]>>
 }
 const PopUpNotification = (props: IPopsNotification) => {
-     const {listTradingResults, handleReaded} = props;
+     const {listTradingResults, handleReaded, setListTradingResults} = props;
      const [elTradingActive, setElTradingActive] = useState(0);
+     const [currentPageTrading, setCurrentPageTrading] = useState(1)
+     const api_url = process.env.REACT_APP_API_URL;
+     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
      
      const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
           setElTradingActive(index);
@@ -47,9 +55,32 @@ const PopUpNotification = (props: IPopsNotification) => {
                </div>
           ))
      )
+     
+     const getDataTradingResult = () => {
+          const paramTrading = {
+            page_size: 5,
+            page: currentPageTrading,
+            read_flag: false // read_flag = false --> news unread
+          }
+          axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
+          if (resp.status === success) {
+               setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
+               setCurrentPageTrading(currentPageTrading + 1)
+          }
+          },
+          (error) => {
+               console.log("errors call list trading result");
+          });
+     }
+
+     const handleScrollToBottom = (event: any) => {
+          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
+               getDataTradingResult()
+          }
+     }
 
      const _renderTradingResultsList = () => (
-          <div className='notification-list mh-430px'>
+          <div className='notification-list mh-330px' onScroll={handleScrollToBottom}>
                <div id='notification-list'>
                     {_renderTradingResultsItem()}
                </div>
