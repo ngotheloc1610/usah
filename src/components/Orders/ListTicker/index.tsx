@@ -222,8 +222,6 @@ const ListTicker = (props: IListTickerProps) => {
                 setSymbolCodeAdd(itemTickerAdd.symbolCode);
                 return;
             }
-            setSymbolCodeAdd('');
-            return;
         }
     }
 
