@@ -103,7 +103,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     orderPrice: formatCurrency(item.price),
                     executedQuatity: formatNumber(item.executedVolume),
                     executedPrice: formatCurrency(item.executedPrice),
-                    matchedValue: formatCurrency(item.matchedValue),
+                    matchedValue: formatCurrency(calcMatchedValue(item).toString()),
                     executedDatetime: formatOrderTime(
                         Number(item.executedDatetime)
                     ),
