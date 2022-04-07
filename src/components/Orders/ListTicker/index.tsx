@@ -225,7 +225,12 @@ const ListTicker = (props: IListTickerProps) => {
             setSymbolCodeAdd('');
             return;
         }
-        setSymbolCodeAdd('');
+    }
+
+    const hendleKeyDowm = (e) => {
+        if (e.key === 'Enter') {
+            btnAddTicker()
+        }
     }
 
     const btnAddTicker = () => {
@@ -245,7 +250,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderSearchForm = () => {
-        return <div className="row mb-2" onKeyDown={btnAddTicker}>
+        return <div className="row mb-2" onKeyDown={hendleKeyDowm}>
             <div className="col-lg-6 d-flex">
                 <Autocomplete
                     onChange={onChangeTicker}
