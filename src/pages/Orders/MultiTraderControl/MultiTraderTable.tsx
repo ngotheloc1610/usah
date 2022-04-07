@@ -100,13 +100,8 @@ const MultiTraderTable = () => {
                         const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
                         const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
                         const tmpOwnedVolume = buyVolume - sellVolume;
-                        const ownedVolume = tmpOwnedVolume < 0 ? 0 : tmpOwnedVolume;
-                        tempData.push(
-                            {
-                                accountId: ele,
-                                ownedVolume: ownedVolume.toString()
-                            }
-                        );
+                        const ownedVolume = tmpOwnedVolume <= 0 ? 0 : tmpOwnedVolume;
+                        tempData.push(ownedVolume.toString())
                         netPosition += (avgBuyPrice * buyVolume);
                         totalSell += (avgSellPrice * sellVolume);
                         totalPL += (avgSellPrice - avgBuyPrice) * sellVolume;
@@ -254,7 +249,7 @@ const MultiTraderTable = () => {
                     <tr><td style={{ padding: 0 }}></td></tr>
                     {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
                         <td></td>
-                        {dataTotalAccount[0]?.holdingVolume.map((o, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                        {dataTotalAccount[0]?.holdingVolume.map((item: string, idx: number) => (<td key={idx}>{formatNumber(convertNumber(item).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
                         <td>{formatCurrency('0')}</td>
@@ -264,7 +259,7 @@ const MultiTraderTable = () => {
                         <tr className="tr-maintb" key={index}>
                             <td>{item.ticker}</td>
 
-                            {item.holdingVolume.map((o: any, idx) => (<td key={idx}>{formatNumber(convertNumber(o?.ownedVolume).toString())}</td>))}
+                            {item.holdingVolume.map((item: string, idx: number) => (<td key={idx}>{formatNumber(convertNumber(item).toString())}</td>))}
 
                             <td>{formatCurrency(item.totalNetPosition)}</td>
                             <td>{formatCurrency(item.totalGrossTransactions)}</td>
