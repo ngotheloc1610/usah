@@ -190,8 +190,9 @@ export const formatDate = (datetime) =>{
 }
 
 export const convertNumber = (value: string) => {
-    if (!isNaN(Number(value))) {
-        return Number(value);
+    const tmpValue = value.replaceAll(',', '');
+    if (!isNaN(Number(tmpValue))) {
+        return Number(tmpValue);
     }
     return 0;
 }
