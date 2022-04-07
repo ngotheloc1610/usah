@@ -6,16 +6,17 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
 import PopUpNotification from '../Modal/PopUpNotification';
 import axios from 'axios';
 import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
-import { API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
+import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
 import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
+import { FIRST_PAGE } from '../../constants/news.constant';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -25,7 +26,7 @@ const Header = () => {
 
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const pageSizeTrading = 0;
+  const pageSizeTrading = PAGE_SIZE;
   const pageCurrentTrading = START_PAGE;
 
   const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
@@ -33,6 +34,7 @@ const Header = () => {
 
   const api_url = process.env.REACT_APP_API_URL;
   const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
+  const urlGetTotalUnread = `${api_url}${API_GET_TOTAL_UNREAD}`;
   const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
   const [totalItemUnread, setTotalItemUnread] = useState(0);
 
@@ -52,10 +54,21 @@ const Header = () => {
     _renderAccountId()
   }, [])
 
+  useEffect(() => {
+    const hideModalNotification = () => {
+      setIsShowNotification(false)
+    }
+
+    window.addEventListener('click', hideModalNotification)
+
+    return () => {
+      window.removeEventListener('click', hideModalNotification)
+    }
+  }, [])
 
   useEffect(() => {
     getDataTradingResult(paramTrading);
-  }, [paramTrading]);
+  }, []);
 
   const _renderAccountId = () => {
     const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
@@ -78,21 +91,34 @@ const Header = () => {
     window.location.href = `${baseUrl}/setting`;
   }
 
-  const showPopupNotification = () => {
+  const showPopupNotification = (e) => {
+    e.stopPropagation()
     setIsShowNotification(!isShowNotification);
   }
   // Notification
   const getDataTradingResult = (paramTrading) => {
     axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
       if (resp.status === success) {
-        const listDataUnRead = resp?.data?.data?.results.filter(item => item.readFlg === false);
-        setTotalItemUnread(listDataUnRead.length);
+        getTotalTradingResultsUnread()
         setListTradingResults(resp?.data?.data?.results);
       }
     },
       (error) => {
-        console.log("errors call list trading result");
+        console.log(error);
       });
+  }
+
+  const getTotalTradingResultsUnread = () => {
+      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
+          if (resp.status === success) {
+            if(resp?.data?.data) {
+              setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
+            }
+          }
+      },
+          (error) => {
+              console.log(error);
+          });
   }
 
   const handleReaded = (idTrading: number) => {
@@ -103,7 +129,7 @@ const Header = () => {
       }
     },
       (error) => {
-        console.log("errors call api read");
+        console.log(error);
       });
   }
 
@@ -121,14 +147,14 @@ const Header = () => {
             <i className="bi bi-list"></i></a>
           </li>
           <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
-            <a onClick={() => showPopupNotification()}
+            <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
               <sup className="count">{totalItemUnread}</sup></a>
 
 
-            <div className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
+            <div onClick={e => e.stopPropagation()} className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
               style={{
                 position: "absolute",
                 willChange: "transform",
@@ -141,11 +167,12 @@ const Header = () => {
               <div className="m-3 d-flex justify-content-between">
                 <strong>Notification</strong>
                 <div>
-                  <label>Enable/Disable Notifications: <i className="bi bi-toggle-off"></i></label>
+                  <label>On/Off Notifications: <i className="bi bi-toggle-off"></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
-                handleReaded={handleReaded} />
+                handleReaded={handleReaded}
+                setListTradingResults={setListTradingResults} />
 
               <div className="text-center small">
                 <a className="text-secondary">View more</a>
