@@ -548,7 +548,6 @@ const MultipleOrders = () => {
                     const convertValueToNumber = Number(value.replaceAll(',', ''));
                     if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
                         setVolume(Number(value.replaceAll(',', '')));
-                        setInvalidVolume(Number(value.replaceAll(',', '')) % lotSize !== 0);
                         if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
                             setInvalidVolume(true);
                             return;
