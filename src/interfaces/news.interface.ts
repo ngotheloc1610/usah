@@ -38,8 +38,8 @@ export interface IReqTradingResult {
 
 // declare fields of api
 export interface IDataNews {
-    num_unread_trading_results(num_unread_trading_results: any);
-    num_unread_news(num_unread_news: any);
+    num_unread_trading_results(num_unread_trading_results: number);
+    num_unread_news(num_unread_news: number);
     count: number;
     page_size: number;
     next_page: number;
@@ -49,7 +49,7 @@ export interface IDataNews {
 }
 
 export interface IDataTradingResult {
-    num_unread_trading_results(num_unread_trading_results: any);
+    num_unread_trading_results(num_unread_trading_results: number);
     count: number;
     page_size: number;
     next_page: number;

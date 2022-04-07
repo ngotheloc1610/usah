@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
@@ -26,7 +26,7 @@ const Header = () => {
 
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const pageSizeTrading = 5;
+  const pageSizeTrading = PAGE_SIZE;
   const pageCurrentTrading = START_PAGE;
 
   const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
@@ -104,14 +104,16 @@ const Header = () => {
       }
     },
       (error) => {
-        console.log("errors call list trading result");
+        console.log(error);
       });
   }
 
   const getTotalTradingResultsUnread = () => {
       axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
           if (resp.status === success) {
-            setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
+            if(resp?.data?.data) {
+              setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
+            }
           }
       },
           (error) => {
@@ -127,7 +129,7 @@ const Header = () => {
       }
     },
       (error) => {
-        console.log("errors call api read");
+        console.log(error);
       });
   }
 

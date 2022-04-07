@@ -1,7 +1,7 @@
 import './PopUpNotification.css';
 import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { FORMAT_DATE_TIME_MILLI, SIDE } from '../../../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLI, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
 import moment from 'moment';
 import axios from 'axios';
 import { success } from '../../../constants';
@@ -58,7 +58,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      
      const getDataTradingResult = () => {
           const paramTrading = {
-            page_size: 5,
+            page_size: PAGE_SIZE,
             page: currentPageTrading,
             read_flag: false // read_flag = false --> news unread
           }
@@ -69,7 +69,7 @@ const PopUpNotification = (props: IPopsNotification) => {
           }
           },
           (error) => {
-               console.log("errors call list trading result");
+               console.log(error);
           });
      }
 

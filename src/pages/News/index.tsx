@@ -72,8 +72,10 @@ const News = () => {
     const getTotalUnread = () => {
         axios.get<IReqNews, IReqNews>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
             if (resp.status === success) {
-                setTotalNewsUnread(resp?.data?.data?.num_unread_news)
-                setTotalUnReadTrading(resp?.data?.data?.num_unread_trading_results)
+                if(resp?.data?.data) {
+                    setTotalNewsUnread(resp?.data?.data?.num_unread_news)
+                    setTotalUnReadTrading(resp?.data?.data?.num_unread_trading_results)
+                }
             }
         },
             (error) => {
