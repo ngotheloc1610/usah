@@ -6,8 +6,8 @@ import './OrderBoolListBidsAsk.scss';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
-import { checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
-import { DEFAULT_ASK_BID_LIST } from '../../../../mocks';
+import { calcTotalAsks, calcTotalBids, checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
+import { DEFAULT_ASK_BID_LIST, DEFAULT_ORDER_BOOK } from '../../../../mocks';
 
 const defaultAskBidList: IListAskBid[] = [
     {
@@ -26,6 +26,8 @@ const defaultAskBidList: IListAskBid[] = [
 const OrderBookList = (props: IPropsListBidsAsk) => {
     const { styleListBidsAsk, symbolCode, getTicerLastQuote, handleSide } = props;
     const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
+    const [asksData, setAsksData] = useState<IAsksBidsList[]>([]);
+    const [bidsData, setBidsData] = useState<IAsksBidsList[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quotesEvent, setQuotesEvent] = useState<IQuoteEvent[]>([]);
     const tradingModel: any = tdpb;
@@ -94,7 +96,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     }
 
     const mapDataTable = (asksList: IAskAndBidPrice[], bidsList: IAskAndBidPrice[]) => {
-        let counter = MARKET_DEPTH_LENGTH - 1;
+        let counter = 0;
         let assgnListAsksBids: IListAskBid[] = [];
         const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
         const bidList = styleListBidsAsk.columns || styleListBidsAsk.columnsGap ? bidsList.sort((a, b) => b?.price.localeCompare(a?.price)) : bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
@@ -102,7 +104,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         setAsksList(getListAsksBids(askList, LIST_PRICE_TYPE.askList));
         setBidsList(getListAsksBids(bidList, LIST_PRICE_TYPE.bidList));
 
-        while (counter >= 0) {
+        while (counter < MARKET_DEPTH_LENGTH) {
             if (askList[counter] || bidList[counter]) {
                 const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
                 const volumeBid = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume : '-';
@@ -112,8 +114,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 const bidPrice = (bidList[counter] && bidList[counter].price) ? Number(bidList[counter].price).toFixed(2) : '-';
                 const numberAsks = (askList[counter] && askList[counter].volume) ? askList[counter].volume.toString() : '-';
                 const numberBids = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume.toString() : '-';
-                const isAskNumOrder = askList[counter] && askList[counter].numOrders;
-                const isBidNumOrder = bidList[counter] && bidList[counter].numOrders;
                 assgnListAsksBids.push(
                     {
                         tradableBid: tradableBid,
@@ -124,29 +124,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         bidPrice: bidPrice,
                         numberAsks: numberAsks,
                         numberBids: numberBids,
-                        totalAsks: counter === (MARKET_DEPTH_LENGTH - 1) ?
-                            numberAsks : isAskNumOrder ? (convertNumber(numberAsks) + convertNumber(assgnListAsksBids[assgnListAsksBids.length - 1].totalAsks)).toString() : numberAsks,
-                        totalBids: counter === (MARKET_DEPTH_LENGTH - 1) ?
-                            numberBids : isBidNumOrder ? (convertNumber(numberBids) + convertNumber(assgnListAsksBids[assgnListAsksBids.length - 1].totalBids)).toString() : numberBids,
-                    }
-                )
-            } else {
-                assgnListAsksBids.push(
-                    {
-                        askPrice: '-',
-                        bidPrice: '-',
-                        numberAsks: '-',
-                        numberBids: '-',
-                        totalAsks: '-',
-                        totalBids: '-',
-                        tradableAsk: false,
-                        volumeAsk: '-',
-                        tradableBid: false,
-                        volumeBid: '-'
+                        totalAsks: calcTotalAsks(askList, counter).toString(),
+                        totalBids: calcTotalBids(bidList, counter).toString()
                     }
                 )
             }
-            counter--;
+            counter++;
         }
         setListAsksBids(assgnListAsksBids);
     }
@@ -331,15 +314,25 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
 
-    const _renderDataStyleGirdBid = () => (
-        listAsksBids.map((item, index) => {
+    const _renderDataStyleGirdBid = () => {
+        const temp: IListAskBid[] = [];
+        let idx = 0;
+        while(idx < MARKET_DEPTH_LENGTH) {
+            if (listAsksBids[idx]) {
+                temp.push(listAsksBids[idx]);
+            } else {
+                temp.unshift(DEFAULT_ORDER_BOOK)
+            }
+            idx++;
+        }
+        return temp.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}><span>{convertNumber(item.totalBids) === 0 ? '-' : formatNumber(item.totalBids)}</span></td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : formatNumber(item.volumeBid)}</td>
                 <td className="text-end text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.bidPrice) === 0 ? '-' : formatCurrency(item.bidPrice)}</td>
             </tr>
         })
-    )
+    }
 
     const _renderTitleStyleGirdBids = () => (
         TITLE_LIST_BID_ASK.slice(3, 6).reverse().map((item, index) => {
@@ -347,15 +340,25 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
 
-    const _renderDataStyleGirdAsk = () => (
-        listAsksBids.map((item, index) => {
+    const _renderDataStyleGirdAsk = () => {
+        const temp: IListAskBid[] = [];
+        let idx = 0;
+        while(idx < MARKET_DEPTH_LENGTH) {
+            if (listAsksBids[idx]) {
+                temp.push(listAsksBids[idx])
+            } else {
+                temp.push(DEFAULT_ORDER_BOOK)
+            }
+            idx++;
+        }
+        return temp.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}><span>{convertNumber(item.totalAsks) === 0 ? '-' : formatNumber(item.totalAsks)}</span></td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.volumeAsk) === 0 ? '-' : formatNumber(item.volumeAsk)}</td>
                 <td className="text-end text-success" onClick={() => handleTicker(item, tradingModel.Side.BUY)}>{convertNumber(item.askPrice) === 0 ? '-' : formatCurrency(item.askPrice)}</td>
             </tr>
         })
-    )
+    }
 
     const _renderTableGidBids = () => (
         <div className="order-block table-responsive">
@@ -367,7 +370,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td className="text-end"><strong>{convertNumber(listAsksBids[listAsksBids.length - 1].totalAsks) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1].totalAsks)}</strong></td>
+                        <td className="text-end"><strong>{convertNumber(listAsksBids[0].totalAsks) === 0 ? '-' : formatNumber(listAsksBids[0].totalAsks)}</strong></td>
                         <td className="text-end">&nbsp;</td>
                         <td className="text-end"><strong>OVER</strong></td>
                     </tr>
