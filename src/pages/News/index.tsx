@@ -2,7 +2,7 @@ import { DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
 import './New.css'
 import { useEffect, useState } from 'react'
-import { API_GET_NEWS, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
+import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
 import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
@@ -45,6 +45,7 @@ const News = () => {
     const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0});
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
+    const urlGetTotalUnread = `${api_url}${API_GET_TOTAL_UNREAD}`;
     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`;
     const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
@@ -69,11 +70,10 @@ const News = () => {
     }, [isNewsTab])
 
     const getTotalUnread = () => {
-        axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigPost()).then((resp) => {
-            console.log(resp)
+        axios.get<IReqNews, IReqNews>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
             if (resp.status === success) {
-                setTotalNewsUnread(resp?.data?.data?.count)
-                setTotalUnReadTrading(resp?.data?.data?.count)
+                setTotalNewsUnread(resp?.data?.data?.num_unread_news)
+                setTotalUnReadTrading(resp?.data?.data?.num_unread_trading_results)
             }
         },
             (error) => {

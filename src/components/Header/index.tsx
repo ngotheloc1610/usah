@@ -55,10 +55,6 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    getTotalTradingResultsUnread()
-  }, [])
-
-  useEffect(() => {
     const hideModalNotification = () => {
       setIsShowNotification(false)
     }
@@ -72,7 +68,7 @@ const Header = () => {
 
   useEffect(() => {
     getDataTradingResult(paramTrading);
-  }, [paramTrading]);
+  }, []);
 
   const _renderAccountId = () => {
     const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
@@ -114,9 +110,8 @@ const Header = () => {
 
   const getTotalTradingResultsUnread = () => {
       axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
-          console.log(resp)
           if (resp.status === success) {
-            setTotalItemUnread(resp?.data?.data?.count);
+            setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
           }
       },
           (error) => {
