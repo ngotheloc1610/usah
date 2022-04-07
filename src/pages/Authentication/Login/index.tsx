@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, ROLE, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, POEM_ID, ROLE, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
@@ -30,18 +30,20 @@ const Login = () => {
     const requestLogin = () => {
         const url = `${api_url}${API_LOGIN}`;
         const param = {
-            account_id: email.trim(),
+            poem_id: email.trim(),
             password: password.trim(),
             account_type: 'lp'
         }
 
         return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
             if (resp.status === success) {
+                debugger;
                 if (resp.data.data) {
                     localStorage.setItem(ACCOUNT_ID, resp.data.data.account_id.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
                     localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
                     localStorage.setItem(ROLE, resp.data.data.role);
+                    localStorage.setItem(POEM_ID, resp.data.data.poem_id);
                     if (resp.data.data.sub_accounts) {
                         localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(resp.data.data.sub_accounts));
                     } else {

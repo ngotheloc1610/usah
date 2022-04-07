@@ -8,17 +8,18 @@ export interface IMeta {
     message: string;
 }
 
-export interface IDataLogin {
+export interface IDataLoginResquest {
     account_id: number;
     account_type: string;
     expire_time: string;
     access_token: string;
     sub_accounts?: string[];
     role: string;
+    poem_id: string
 }
 export interface IDataLogin {
     meta: IMeta;
-    data: IDataLogin;
+    data: IDataLoginResquest;
 }
 
 export interface IReqLogin {
