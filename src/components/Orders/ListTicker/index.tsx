@@ -224,6 +224,20 @@ const ListTicker = (props: IListTickerProps) => {
         setSymbolCodeAdd('');
     }
 
+    const handleKeyUp = (value: string) => {
+        const symbolCode = value?.split('-')[0]?.trim();
+        if (symbolCode) {
+            const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+            if (itemTickerAdd) {
+                setSymbolCodeAdd(itemTickerAdd.symbolCode);
+                return;
+            }
+            setSymbolCodeAdd('');
+            return;
+        }
+        setSymbolCodeAdd('');
+    }
+
     const hendleKeyDowm = (e) => {
         if (e.key === 'Enter') {
             btnAddTicker()

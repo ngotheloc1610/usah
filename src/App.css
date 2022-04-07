@@ -32,10 +32,12 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 #root {
   width: 100%;
   min-height: 100vh;
@@ -48,12 +50,15 @@
   flex-direction: column;
   overflow: hidden;
 }
+
 .fm {
   font-family: monospace;
 }
+
 .site-main {
   min-height: calc(100vh - 310px) !important;
 }
+
 .site-logo {
   max-height: 5rem !important;
   margin-top: 10px;

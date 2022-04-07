@@ -136,6 +136,8 @@ export const ROLE = 'role';
 
 export const START_PAGE = 1;
 
+export const PAGE_SIZE = 5;
+
 export const DEFAULT_ITEM_PER_PAGE = 10;
 
 export const DEFAULT_TIME_ZONE = 'SG';
