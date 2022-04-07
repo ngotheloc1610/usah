@@ -17,7 +17,7 @@ interface IPopsNotification {
 const PopUpNotification = (props: IPopsNotification) => {
      const {listTradingResults, handleReaded, setListTradingResults, showNotificationUnread} = props;
      const [elTradingActive, setElTradingActive] = useState(0);
-     const [currentPageTrading, setCurrentPageTrading] = useState(1)
+     const [currentPageTrading, setCurrentPageTrading] = useState(FIRST_PAGE)
      const api_url = process.env.REACT_APP_API_URL;
      const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
 
