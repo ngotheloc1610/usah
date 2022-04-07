@@ -1,5 +1,5 @@
 
-import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
@@ -28,6 +28,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         prepareMessageeCancelAll(accountId);
     }
+
+    const getSide = (side: number) => {
+        return SIDE.find(item => item.code === side)?.code;
+    }
+    
     const prepareMessageeCancelAll = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
@@ -46,7 +51,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-                order.setSide(item.side);
+                order.setSide(getSide(item.side));
                 cancelOrder.addOrder(order);
             });
             let rpcMsg = new rProtoBuff.RpcMessage();
