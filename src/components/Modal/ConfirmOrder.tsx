@@ -43,8 +43,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize;
         const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize;
-        setTickSize(Number(tickSize));
-        setLotSize(Number(lotSize));
+        setTickSize(convertNumber(tickSize));
+        setLotSize(convertNumber(lotSize));
     }, [])
 
     const handleVolumeModify = (valueVolume: string) => {
@@ -52,7 +52,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
         if (lotSize && convertNumber(lotSize) !== 0) {
-            setInvalidVolume(convertNumber(valueVolume.replaceAll(',', '')) % convertNumber(lotSize) !== 0);
+            setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
         }
         setVolumeModify(onlyNumberVolumeChange);
     }
@@ -207,14 +207,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
 
     const handleUpperVolume = () => {
-        const currentVol = Number(volumeModify);
+        const currentVol = convertNumber(volumeModify);
         let nerwVol = currentVol + lotSize;
         setVolumeModify(nerwVol.toString());
 
     }
 
     const handleLowerVolume = () => {
-        const currentVol = Number(volumeModify);
+        const currentVol = convertNumber(volumeModify);
         if (currentVol <= lotSize) {
             return;
         }
@@ -233,7 +233,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
         const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
-        const currentPrice = Number(priceModify);
+        const currentPrice = convertNumber(priceModify.toString());
         const newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
         setOutOfPrice(false)
         if (ceilingPrice) {
@@ -256,7 +256,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
         const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
-        const currentPrice = Number(priceModify);
+        const currentPrice = convertNumber(priceModify.toString());
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
         setOutOfPrice(false)
@@ -325,9 +325,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     )
     const _disableBtnConfirm = () => {
         let isDisable = true;
-        let isConditionPrice = Number(priceModify) > 0;
-        let isConditionVolume = Number(volumeModify.replaceAll(',', '')) > 0;
-        let isChangePriceOrModify = Number(params.volume) !== Number(volumeModify) || Number(params.price) !== Number(priceModify);
+        let isConditionPrice = convertNumber(priceModify.toString()) > 0;
+        let isConditionVolume = convertNumber(volumeModify) > 0;
+        let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
         if (isModify) {
             isDisable = isConditionPrice && isConditionVolume && isChangePriceOrModify;
         }
@@ -357,7 +357,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {isModify && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
-                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((Number(volumeModify.replaceAll(',', '')) * Number(priceModify)).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString())}`)}
                 </tbody>
             </table>
             <div className='mt-30'>
