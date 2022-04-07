@@ -208,14 +208,12 @@ const ListTicker = (props: IListTickerProps) => {
                 setSymbolCodeAdd(itemTickerAdd.symbolCode);
                 return;
             }
-            setSymbolCodeAdd('');
-            return;
         }
         setSymbolCodeAdd('');
     }
 
     const handleKeyUp = (value: string) => {
-        const symbolCode = value?.split('-')[0]?.trim();
+        const symbolCode = value?.split('-')[0]?.trim();        
         if (symbolCode) {
             const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
             if (itemTickerAdd) {
@@ -223,6 +221,7 @@ const ListTicker = (props: IListTickerProps) => {
                 return;
             }
         }
+        setSymbolCodeAdd('');
     }
 
     const hendleKeyDowm = (e) => {
