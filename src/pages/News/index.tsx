@@ -19,8 +19,7 @@ interface IParamPagination {
     read_flag?: boolean;
 }
 
-const News = (props) => {
-    // const {isNewsTab, setIsNewsTab} = props
+const News = () => {
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(0);
     const [elTradingActive, setElTradingActive] = useState(0);

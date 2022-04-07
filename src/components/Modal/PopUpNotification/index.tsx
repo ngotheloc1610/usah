@@ -7,6 +7,7 @@ import axios from 'axios';
 import { success } from '../../../constants';
 import { defindConfigGet } from '../../../helper/utils';
 import { API_GET_TRADING_RESULT } from '../../../constants/api.constant';
+import { FIRST_PAGE } from '../../../constants/news.constant';
 interface IPopsNotification {
      listTradingResults: ITradingResult[],
      handleReaded: (item: number) => void,
@@ -21,7 +22,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
 
      useEffect(() => {
-          setCurrentPageTrading(1)
+          setCurrentPageTrading(FIRST_PAGE)
           setListTradingResults([])
      }, [showNotificationUnread])
      
