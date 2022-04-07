@@ -143,10 +143,12 @@ const MultiTraderTable = () => {
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
                         if (item) {
-                            total += (convertNumber(item.avgBuyPrice) * item.totalBuyVolume);
-                            const totalSell = convertNumber(item.avgSellPrice) * item.totalSellVolume;
-                            totalGross += (totalSell + convertNumber(item.avgBuyPrice) * item.totalBuyVolume)
-                            totalPL += (convertNumber(item.avgSellPrice) - convertNumber(item.avgBuyPrice)) * item.totalSellVolume;
+                            const tmpAvgBuyPrice = formatCurrency(item.avgBuyPrice);
+                            const tmpAvgSellPrice = formatCurrency(item.avgSellPrice);
+                            total += (convertNumber(tmpAvgBuyPrice) * item.totalBuyVolume);
+                            const totalSell = convertNumber(tmpAvgSellPrice) * item.totalSellVolume;
+                            totalGross += (totalSell + convertNumber(tmpAvgBuyPrice) * item.totalBuyVolume)
+                            totalPL += (convertNumber(tmpAvgSellPrice) - convertNumber(tmpAvgBuyPrice)) * item.totalSellVolume;
                         }
                     })
                 }
