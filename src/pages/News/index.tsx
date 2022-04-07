@@ -10,7 +10,8 @@ import { FORMAT_DATE_TIME_MILLI, SIDE, START_PAGE } from '../../constants/genera
 import parse from "html-react-parser";
 import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
-import moment from 'moment'
+import moment from 'moment';
+import queryString from 'query-string';
 
 interface IParamPagination {
     page_size: number;
@@ -18,8 +19,8 @@ interface IParamPagination {
     read_flag?: boolean;
 }
 
-const News = () => {
-
+const News = (props) => {
+    // const {isNewsTab, setIsNewsTab} = props
     const api_url = process.env.REACT_APP_API_URL;
     const [elActive, setELActive] = useState(0);
     const [elTradingActive, setElTradingActive] = useState(0);
@@ -41,7 +42,6 @@ const News = () => {
     const [totalTradingResult, setTotalTradingResult] = useState(0);
     const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
     const [totalTradingUnread, setTotalTradingUnread] = useState(0);
-    const [isNewsTab, setIsNewsTab] = useState(true);
     const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0});
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
@@ -49,6 +49,9 @@ const News = () => {
     const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
     const urlPostNews = `${api_url}${API_POST_NEWS}`;
     const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
+    
+    const isNewTabUrl = queryString.parse(window.location.search)?.isNewTab;
+    const [isNewsTab, setIsNewsTab] = useState(isNewTabUrl ? false : true)
 
     useEffect(() => {
         getDataNews(isUnread)
@@ -62,12 +65,17 @@ const News = () => {
         setElTradingActive(0);
     }, [pageSizeTrading, pageCurrentTrading])
 
+    // useEffect(() => {
+    //     setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
+    //     setPageSizeTrading(DEFAULT_PAGE_SIZE_FOR_NEWS);
+    //     setPageCurrent(START_PAGE);
+    //     setPageCurrentTrading(START_PAGE)
+    // }, [isNewsTab])
+
     useEffect(() => {
-        setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
-        setPageSizeTrading(DEFAULT_PAGE_SIZE_FOR_NEWS);
-        setPageCurrent(START_PAGE);
-        setPageCurrentTrading(START_PAGE)
-    }, [isNewsTab])
+        const param = getParamsTrading(isUnreadTradingNotice, FIRST_PAGE)
+        getDataTradingResult(param);
+    }, [isNewTabUrl])
 
     const getTotalUnread = () => {
         axios.get<IReqNews, IReqNews>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
@@ -151,18 +159,18 @@ const News = () => {
 
     const _renderNewsBodyNavItemLeft = () => (
         <>
-            <li className="nav-item" onClick={() => onChangeTab(TAB_NEWS.news)}>
+            {isNewsTab ? <li className="nav-item" onClick={() => onChangeTab(TAB_NEWS.news)}>
                 <a className={`nav-link ${isNewsTab ? 'active' : ''}`} aria-current="page" href="#">
                     Admin News
                     <span className="badge bg-secondary rounded ml-4">{totalNewsUnread}</span>
                 </a>
-            </li>
+            </li> :
             <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
                 <a className={`nav-link ${!isNewsTab ? 'active' : ''}`} aria-current="page" href="#">
                     Trading Results
                     <span className="badge bg-secondary rounded ml-4">{totalUnReadTrading}</span>
                 </a>
-            </li>
+            </li>}
         </>
     )
 

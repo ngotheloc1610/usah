@@ -17,8 +17,10 @@ import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT }
 import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
+import { Link } from 'react-router-dom';
 
-const Header = () => {
+const Header = (props) => {
+  const {setIsNewsTab} = props
   const [accountId, setAccountId] = useState('');
   const roleAccount = localStorage.getItem(ROLE);
   const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
@@ -40,14 +42,7 @@ const Header = () => {
 
 
   const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
-
-  useEffect(() => {
-    const paramTrading = {
-      page_size: pageSizeTrading,
-      page: pageCurrentTrading,
-    }
-    setParamTrading(paramTrading)
-  }, [pageSizeTrading, pageCurrentTrading])
+  const [showNotificationUnread, setShowNotificationUnread] = useState(false);
 
 
   useEffect(() => {
@@ -67,8 +62,17 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
+    const paramTrading = !showNotificationUnread ? {
+      page_size: pageSizeTrading,
+      page: pageCurrentTrading
+    } : {
+      page_size: pageSizeTrading,
+      page: pageCurrentTrading,
+      read_flag: false
+    }
     getDataTradingResult(paramTrading);
-  }, []);
+  }, [showNotificationUnread]);
+
 
   const _renderAccountId = () => {
     const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
@@ -167,15 +171,17 @@ const Header = () => {
               <div className="m-3 d-flex justify-content-between">
                 <strong>Notification</strong>
                 <div>
-                  <label>On/Off Notifications: <i className="bi bi-toggle-off"></i></label>
+                <label>On/Off Notifications: <i onClick={() => setShowNotificationUnread(!showNotificationUnread)} className={showNotificationUnread ? "bi bi-toggle-on" : "bi bi-toggle-off"}></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
                 handleReaded={handleReaded}
-                setListTradingResults={setListTradingResults} />
+                setListTradingResults={setListTradingResults}
+                showNotificationUnread={showNotificationUnread}
+              />
 
               <div className="text-center small">
-                <a className="text-secondary">View more</a>
+                <a href='/news/?isNewTab=false' className="text-secondary">View more</a>
               </div>
             </div>
           </li>

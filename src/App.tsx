@@ -38,13 +38,16 @@ const App = () => {
     });
   }
 
-  const _renderMainPage = () => (
-    <>
-      <Header />
-      <RouterDom />
-      <Footer />
-    </>
-  )
+  const _renderMainPage = () => {
+    // const [isNewsTab, setIsNewsTab] = useState(true);
+    return (
+      <>
+        <Header />
+        <RouterDom />
+        <Footer />
+      </>
+    )
+  }
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
