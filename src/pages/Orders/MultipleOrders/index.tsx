@@ -123,7 +123,7 @@ const MultipleOrders = () => {
     }
 
 
-    const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {        
+    const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {
         const tickSize = getTickSize(itemSymbol.ticker);
         let newValue = '';
         if (!isNaN(Number(maskedVal))) {
@@ -531,14 +531,15 @@ const MultipleOrders = () => {
                 const lotSize = convertNumber(item.lotSize) !== 0 ? convertNumber(item.lotSize) : 1;
                 if (title.toLocaleLowerCase() === 'price') {
                     setPrice(+maskedVal);
-                    const temp = Math.round(Number(value.replaceAll(',', '')) * 100);
+                    const valueCurrent = (+maskedVal).toString();
+                    const temp = Math.round(Number(valueCurrent.replaceAll(',', '')) * 100);
                     const tempTickeSize = Math.round(tickSize * 100);
                     setInvalidPrice(temp % tempTickeSize !== 0);
-                    if (convertNumber(value) > convertNumber(ceilingPrice)) {
+                    if (convertNumber(valueCurrent) > convertNumber(ceilingPrice)) {
                         setIsShowNotiErrorPrice(true);
                         return;
                     }
-                    if (convertNumber(value) < convertNumber(floorPrice)) {
+                    if (convertNumber(valueCurrent) < convertNumber(floorPrice)) {
                         setIsShowNotiErrorPrice(true);
                         return;
                     }
@@ -547,13 +548,13 @@ const MultipleOrders = () => {
                     const convertValueToNumber = Number(value.replaceAll(',', ''));
                     if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
                         setVolume(Number(value.replaceAll(',', '')));
+                        setInvalidVolume(Number(value.replaceAll(',', '')) % lotSize !== 0);
+                        if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
+                            setInvalidVolume(true);
+                            return;
+                        }
+                        setInvalidVolume(false);
                     }
-                    setInvalidVolume(Number(value.replaceAll(',', '')) % lotSize !== 0);
-                    if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
-                        setInvalidVolume(true);
-                        return;
-                    }
-                    setInvalidVolume(false);
                 }
             }
         }
@@ -584,7 +585,7 @@ const MultipleOrders = () => {
                 {invalidVolume && <div className='text-danger text-end'>Invalid volume</div>}
             </>}
         </>
-        
+
     )
 
     const handelUpperVolume = () => {
