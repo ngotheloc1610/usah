@@ -19,8 +19,7 @@ import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
 import { Link } from 'react-router-dom';
 
-const Header = (props) => {
-  const {setIsNewsTab} = props
+const Header = () => {
   const [accountId, setAccountId] = useState('');
   const roleAccount = localStorage.getItem(ROLE);
   const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
