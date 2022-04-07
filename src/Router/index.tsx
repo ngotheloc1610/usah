@@ -19,7 +19,7 @@ const RouterDom = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/orders/*" element={<OrderRouter />} />
-        <Route path="/news" element={<News />} />
+        <Route path="/news/*" element={<News />} />
         <Route path="/setting" element={<SettingScreen />} />
         <Route path="/report" element={<Report />} />
         <Route path="/order-book" element={<OrderBookCommon />} />
