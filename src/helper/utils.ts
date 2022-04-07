@@ -196,18 +196,44 @@ export const convertNumber = (value: string) => {
     return 0;
 }
 
+export const calcTotalAsks = (arr: IAskAndBidPrice[], index: number) => {
+    let i = index;
+    let sum = 0;
+    while(i < arr.length) {
+        sum += convertNumber(arr[i].volume);
+        i++;
+    }
+    return sum;
+}
+
+export const calcTotalBids = (arr: IAskAndBidPrice[], index: number) => {
+    let i = 0;
+    let sum = 0;
+    while(i <= index) {
+        sum += convertNumber(arr[i]?.volume);
+        i++;
+    }
+    return sum;
+}
+
 export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) => {
     let askBidItem: IAskAndBidPrice[] = asksBidsList;
     let arr: IAsksBidsList[] = [];
-    let counter = type === LIST_PRICE_TYPE.askList ? MARKET_DEPTH_LENGTH - 1 : 0;
-    while (type === LIST_PRICE_TYPE.askList ? counter >= 0 : counter < MARKET_DEPTH_LENGTH) {
+    let counter = 0;
+    while (counter < MARKET_DEPTH_LENGTH) {
         if (askBidItem[counter]) {
             const numOrders = askBidItem[counter].numOrders ? askBidItem[counter].volume.toString() : '-';
             const price = askBidItem[counter].price ? Number(askBidItem[counter].price).toFixed(2) : '-';
             const tradable = askBidItem[counter].tradable ? askBidItem[counter].tradable : false;
             const volume = askBidItem[counter].volume ? askBidItem[counter].volume : '-';
             const isNumOrder = askBidItem[counter] && askBidItem[counter].numOrders;
-            const totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders;
+            let totalNumOrder  = '';
+
+            if (type === LIST_PRICE_TYPE.bidList) {
+                totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders
+            } else {
+                totalNumOrder = calcTotalAsks(asksBidsList, counter).toString();
+            }
 
             let total = '';
             if (type === LIST_PRICE_TYPE.askList) {
@@ -223,17 +249,26 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
                 total,
             });
         } else {
-            arr.push({
-                numOrders: '-',
-                price: '-',
-                tradable: false,
-                volume: '-',
-                total: '-',
-            });
+            if (type === LIST_PRICE_TYPE.askList) {
+                arr.unshift({
+                    numOrders: '-',
+                    price: '-',
+                    tradable: false,
+                    volume: '-',
+                    total: '-',
+                });
+            } else {
+                arr.push({
+                    numOrders: '-',
+                    price: '-',
+                    tradable: false,
+                    volume: '-',
+                    total: '-',
+                });
+            }
         }
-        type === LIST_PRICE_TYPE.askList ? counter-- : counter++;
+        counter++;
     }
-
     return arr
 }
 
