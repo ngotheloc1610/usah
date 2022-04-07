@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote, ITickerInfo } from '../../interfaces/order.interface';
+import { useEffect, useMemo, useState } from 'react';
+import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
@@ -71,6 +71,19 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(side);
         }
     }, [side])
+
+    useEffect(() => {
+        if (price > ceilingPrice) {
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
+        if (price < floorPrice) {
+            setIsShowNotiErrorPrice(true);
+            return;
+        }
+        setIsShowNotiErrorPrice(false);
+        setInvalidVolume(volume % lotSize !== 0)
+    }, [price, volume])
 
     useEffect(() => {
         if (symbolCode) {
@@ -329,6 +342,10 @@ const OrderForm = (props: IOrderForm) => {
         >Reset</button>
     )
 
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+
     const _renderForm = () => (
         <form action="#" className="order-form p-2 border shadow my-3">
             <div className="order-btn-group d-flex align-items-stretch mb-2">
@@ -342,9 +359,8 @@ const OrderForm = (props: IOrderForm) => {
                 </div>
             </div>
 
-
-            {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-            {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+            {_renderPriceInput}
+            {_renderVolumeInput}
 
             <div className="border-top">
                 {_renderPlaceButton()}
