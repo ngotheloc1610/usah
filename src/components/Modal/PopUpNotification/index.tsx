@@ -84,7 +84,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      }
 
      const handleScrollToBottom = (event: any) => {
-          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
+          if (event.target.offsetHeight + event.target.scrollTop + 1 >= event.target.scrollHeight) {
                getDataTradingResult(showNotificationUnread)
           }
      }
