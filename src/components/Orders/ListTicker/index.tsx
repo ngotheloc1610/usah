@@ -214,6 +214,20 @@ const ListTicker = (props: IListTickerProps) => {
         setSymbolCodeAdd('');
     }
 
+    const handleKeyUp = (value: string) => {
+        const symbolCode = value?.split('-')[0]?.trim();
+        if (symbolCode) {
+            const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+            if (itemTickerAdd) {
+                setSymbolCodeAdd(itemTickerAdd.symbolCode);
+                return;
+            }
+            setSymbolCodeAdd('');
+            return;
+        }
+        setSymbolCodeAdd('');
+    }
+
     const btnAddTicker = () => {
         const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const checkExist = watchLists.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
@@ -231,10 +245,11 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderSearchForm = () => {
-        return <div className="row mb-2">
+        return <div className="row mb-2" onKeyDown={btnAddTicker}>
             <div className="col-lg-6 d-flex">
                 <Autocomplete
                     onChange={onChangeTicker}
+                    onKeyUp={(event: any) => handleKeyUp(event.target.value)}
                     options={listSymbolCode}
                     sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
