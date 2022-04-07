@@ -39,7 +39,6 @@ const App = () => {
   }
 
   const _renderMainPage = () => {
-    // const [isNewsTab, setIsNewsTab] = useState(true);
     return (
       <>
         <Header />

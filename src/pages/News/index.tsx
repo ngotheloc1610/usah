@@ -65,13 +65,6 @@ const News = (props) => {
         setElTradingActive(0);
     }, [pageSizeTrading, pageCurrentTrading])
 
-    // useEffect(() => {
-    //     setPageSize(DEFAULT_PAGE_SIZE_FOR_NEWS);
-    //     setPageSizeTrading(DEFAULT_PAGE_SIZE_FOR_NEWS);
-    //     setPageCurrent(START_PAGE);
-    //     setPageCurrentTrading(START_PAGE)
-    // }, [isNewsTab])
-
     useEffect(() => {
         const param = getParamsTrading(isUnreadTradingNotice, FIRST_PAGE)
         getDataTradingResult(param);

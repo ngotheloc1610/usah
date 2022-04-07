@@ -13,19 +13,13 @@ import MultipleOrders from "../pages/Orders/MultipleOrders";
 import MultiTraderControl from "../pages/Orders/MultiTraderControl";
 import Login from "../pages/Authentication/Login";
 
-interface IPropsNewsTab {
-  isNewsTab: boolean,
-  setIsNewsTab: () => boolean
-}
-
-const RouterDom = (props) => {
-  const {isNewsTab, setIsNewsTab} = props
+const RouterDom = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/orders/*" element={<OrderRouter />} />
-        <Route path="/news/*" element={<News isNewsTab={isNewsTab} setIsNewsTab={setIsNewsTab} />} />
+        <Route path="/news/*" element={<News />} />
         <Route path="/setting" element={<SettingScreen />} />
         <Route path="/report" element={<Report />} />
         <Route path="/order-book" element={<OrderBookCommon />} />
