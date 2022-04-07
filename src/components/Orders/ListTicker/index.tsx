@@ -213,7 +213,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const handleKeyUp = (value: string) => {
-        const symbolCode = value?.split('-')[0]?.trim();        
+        const symbolCode = value?.split('-')[0]?.trim();
         if (symbolCode) {
             const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
             if (itemTickerAdd) {
