@@ -29,10 +29,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         prepareMessageeCancelAll(accountId);
     }
 
-    const getSide = (side: number) => {
-        return SIDE.find(item => item.code === side)?.code;
-    }
-    
     const prepareMessageeCancelAll = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
@@ -51,7 +47,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-                order.setSide(getSide(item.side));
+                order.setSide(item.side);
                 cancelOrder.addOrder(order);
             });
             let rpcMsg = new rProtoBuff.RpcMessage();
