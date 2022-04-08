@@ -18,7 +18,7 @@ export const STATE = [
         code: tradingModelPb.OrderState.ORDER_STATE_PLACED
     },
     {
-        title: 'Canceled',
+        title: 'Cancelled',
         code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
     },
     {
