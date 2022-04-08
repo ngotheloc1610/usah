@@ -5,7 +5,7 @@ import { FORMAT_DATE_TIME_MILLI, PAGE_SIZE, SIDE } from '../../../constants/gene
 import moment from 'moment';
 import axios from 'axios';
 import { success } from '../../../constants';
-import { defindConfigGet } from '../../../helper/utils';
+import { defindConfigGet, formatDate } from '../../../helper/utils';
 import { API_GET_TRADING_RESULT } from '../../../constants/api.constant';
 import { FIRST_PAGE } from '../../../constants/news.constant';
 interface IPopsNotification {
@@ -55,8 +55,8 @@ const PopUpNotification = (props: IPopsNotification) => {
                          <div className="item-summary opacity-75 fix-line-css">
                               {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                          </div>
-                         <div className="item-summary opacity-75 fix-line-css text-end">
-                              {moment(item.execTime).fromNow()}
+                         <div className="item-summary opacity-75 fix-line-css">
+                              {formatDate(item.execTime)}
                          </div>
                     </div>
                </div>
@@ -74,8 +74,10 @@ const PopUpNotification = (props: IPopsNotification) => {
           }
           axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
           if (resp.status === success) {
-               setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
-               setCurrentPageTrading(currentPageTrading + 1)
+               if(resp?.data?.data) {
+                    setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
+                    setCurrentPageTrading(currentPageTrading + 1)
+               }
           }
           },
           (error) => {
@@ -84,13 +86,13 @@ const PopUpNotification = (props: IPopsNotification) => {
      }
 
      const handleScrollToBottom = (event: any) => {
-          if (event.target.offsetHeight + event.target.scrollTop + 1 >= event.target.scrollHeight) {
+          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
                getDataTradingResult(showNotificationUnread)
           }
      }
 
      const _renderTradingResultsList = () => (
-          <div className='notification-list mh-330px' onScroll={handleScrollToBottom}>
+          <div className='notification-list mh-700px' onScroll={handleScrollToBottom}>
                <div id='notification-list'>
                     {_renderTradingResultsItem()}
                </div>
