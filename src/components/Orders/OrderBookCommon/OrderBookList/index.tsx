@@ -6,7 +6,7 @@ import './OrderBoolListBidsAsk.scss';
 import * as tdpb from '../../../../models/proto/trading_model_pb';
 import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
-import { calcTotalAsks, calcTotalBids, checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
+import { calcVolumeDESC, calcVolumeASC, checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
 import { DEFAULT_ASK_BID_LIST, DEFAULT_ORDER_BOOK } from '../../../../mocks';
 
 const defaultAskBidList: IListAskBid[] = [
@@ -26,8 +26,6 @@ const defaultAskBidList: IListAskBid[] = [
 const OrderBookList = (props: IPropsListBidsAsk) => {
     const { styleListBidsAsk, symbolCode, getTicerLastQuote, handleSide } = props;
     const [listAsksBids, setListAsksBids] = useState<IListAskBid[]>(defaultAskBidList);
-    const [asksData, setAsksData] = useState<IAsksBidsList[]>([]);
-    const [bidsData, setBidsData] = useState<IAsksBidsList[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quotesEvent, setQuotesEvent] = useState<IQuoteEvent[]>([]);
     const tradingModel: any = tdpb;
@@ -124,8 +122,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         bidPrice: bidPrice,
                         numberAsks: numberAsks,
                         numberBids: numberBids,
-                        totalAsks: calcTotalAsks(askList, counter).toString(),
-                        totalBids: calcTotalBids(bidList, counter).toString()
+                        totalAsks: (styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) ? calcVolumeASC(askList, counter).toString() : calcVolumeDESC(askList, counter).toString(),
+                        totalBids: calcVolumeASC(bidList, counter).toString()
                     }
                 )
             }
@@ -494,7 +492,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     <td className="text-end"><strong>OVER</strong></td>
                     <td className="text-end" colSpan={2}>
                         <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks)}
+                            {convertNumber(listAsksBids[0]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[0]?.totalAsks)}
                         </strong>
                     </td>
                 </tr>
@@ -537,7 +535,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end" >
                         <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks)}
+                            {convertNumber(listAsksBids[0]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[0]?.totalAsks)}
                         </strong>
                     </td>
                     <td className="text-end">&nbsp;</td>

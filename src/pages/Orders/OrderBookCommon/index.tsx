@@ -42,6 +42,7 @@ const OrderBookCommon = () => {
     const [symbolSearch, setSymbolSearch] = useState('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [side, setSide] = useState(0);
+    const [isFirstTimeLoadComponent, setIsFirstTimeLoadComponent] = useState(true);
 
     const year = new Date().getFullYear();
     // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
@@ -69,10 +70,12 @@ const OrderBookCommon = () => {
             listTicker.forEach((item: ISymbolInfo) => {
                 listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
             });
-
-            getTickerSearch(listSymbolCode[0]);
             setListSymbolCode(listSymbolCode);
-            assignTickerToOrderForm(listSymbolCode[0]);
+            if (isFirstTimeLoadComponent) {
+                getTickerSearch(listSymbolCode[0]);
+                assignTickerToOrderForm(listSymbolCode[0]);
+                setIsFirstTimeLoadComponent(false);
+            }
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
