@@ -128,6 +128,8 @@ export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
 
 export const ACCOUNT_ID = 'account_id';
 
+export const POEM_ID = 'poem_id';
+
 export const EXPIRE_TIME = 'expire_time';
 
 export const SUB_ACCOUNTS = 'sub_accounts';
