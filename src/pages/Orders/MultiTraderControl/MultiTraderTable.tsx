@@ -90,6 +90,7 @@ const MultiTraderTable = () => {
             const tempData: any[] = [];
             let netPosition = 0;
             let totalSell = 0;
+            let totalBuy = 0;
             let totalPL = 0;
             lstId.forEach((ele: string) => {
                 if (ele) {
@@ -102,8 +103,9 @@ const MultiTraderTable = () => {
                         const tmpOwnedVolume = buyVolume - sellVolume;
                         const ownedVolume = tmpOwnedVolume <= 0 ? 0 : tmpOwnedVolume;
                         tempData.push(ownedVolume.toString())
-                        netPosition += (avgBuyPrice * buyVolume);
+                        netPosition += (avgBuyPrice * ownedVolume);
                         totalSell += (avgSellPrice * sellVolume);
+                        totalBuy += (avgBuyPrice * buyVolume);
                         totalPL += (avgSellPrice - avgBuyPrice) * sellVolume;
                     } else {
                         tempData.push('0');
@@ -111,12 +113,12 @@ const MultiTraderTable = () => {
                 }
             });
             totalNet += netPosition;
-            totalGross += (netPosition + totalSell);
+            totalGross += (totalBuy + totalSell);
             totalAllPL += totalPL;
             const obj: ITradingAccountVertical = {
                 holdingVolume: tempData,
                 ticker: item?.symbolCode,
-                totalGrossTransactions: (netPosition + totalSell).toString(),
+                totalGrossTransactions: (totalBuy + totalSell).toString(),
                 totalNetPosition: netPosition.toString(),
                 totalPl: totalPL
             };
@@ -134,11 +136,12 @@ const MultiTraderTable = () => {
                 let total = 0;
                 let totalGross = 0;
                 let totalPL = 0;
-                const objs = totalAccountPortfolio.filter(o => o?.accountId.toString() === item.toString());
+                const objs = totalAccountPortfolio.filter(o => o?.accountId.toString() === item.toString()); 
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
                         if (item) {
-                            total += (convertNumber(item.avgBuyPrice) * item.totalBuyVolume);
+                            const ownedVolume = item.totalBuyVolume < item.totalSellVolume ? 0 : item.totalBuyVolume - item.totalSellVolume;
+                            total += (convertNumber(item.avgBuyPrice) * (ownedVolume));
                             const totalSell = convertNumber(item.avgSellPrice) * item.totalSellVolume;
                             totalGross += (totalSell + convertNumber(item.avgBuyPrice) * item.totalBuyVolume)
                             totalPL += (convertNumber(item.avgSellPrice) - convertNumber(item.avgBuyPrice)) * item.totalSellVolume;
