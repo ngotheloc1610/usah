@@ -136,7 +136,7 @@ const MultiTraderTable = () => {
                 let total = 0;
                 let totalGross = 0;
                 let totalPL = 0;
-                const objs = totalAccountPortfolio.filter(o => o?.accountId.toString() === item.toString()); 
+                const objs = totalAccountPortfolio.filter(o => o?.accountId.toString() === item.toString());
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
                         if (item) {
