@@ -100,7 +100,7 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-center fz-14 w-120">Comment</th>
         </tr>
     )
-
+    
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
@@ -121,10 +121,10 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div>{formatNumber(item.amount)}</div>
-                    <div>{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</div>
+                    <div>{formatNumber(calcPendingVolume(item.amount, item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? item.amount : item.filledAmount).toString())}</div>
                 </td>
 
-                <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
+                <td className="text-end w-120">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.amount) : formatNumber(item.filledAmount)}</td>
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
