@@ -197,7 +197,7 @@ export const convertNumber = (value: string) => {
     return 0;
 }
 
-export const calcTotalAsks = (arr: IAskAndBidPrice[], index: number) => {
+export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
     let i = index;
     let sum = 0;
     while(i < arr.length) {
@@ -207,7 +207,7 @@ export const calcTotalAsks = (arr: IAskAndBidPrice[], index: number) => {
     return sum;
 }
 
-export const calcTotalBids = (arr: IAskAndBidPrice[], index: number) => {
+export const calcVolumeASC = (arr: IAskAndBidPrice[], index: number) => {
     let i = 0;
     let sum = 0;
     while(i <= index) {
@@ -218,7 +218,8 @@ export const calcTotalBids = (arr: IAskAndBidPrice[], index: number) => {
 }
 
 export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) => {
-    let askBidItem: IAskAndBidPrice[] = asksBidsList;
+    let askBidItem: IAskAndBidPrice[] = [];
+    askBidItem = asksBidsList.sort((a, b) => b?.price.localeCompare(a?.price));
     let arr: IAsksBidsList[] = [];
     let counter = 0;
     while (counter < MARKET_DEPTH_LENGTH) {
@@ -233,7 +234,7 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
             if (type === LIST_PRICE_TYPE.bidList) {
                 totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders
             } else {
-                totalNumOrder = calcTotalAsks(asksBidsList, counter).toString();
+                totalNumOrder = calcVolumeDESC(asksBidsList, counter).toString();
             }
 
             let total = '';
