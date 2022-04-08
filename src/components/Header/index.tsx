@@ -30,7 +30,7 @@ const Header = () => {
   const pageSizeTrading = PAGE_SIZE;
   const pageCurrentTrading = START_PAGE;
 
-  const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
+  const [paramTrading, setParamTrading] = useState({ page_size: PAGE_SIZE, page: 1 });
 
 
   const api_url = process.env.REACT_APP_API_URL;
@@ -179,9 +179,6 @@ const Header = () => {
                 showNotificationUnread={showNotificationUnread}
               />
 
-              <div className="text-center small">
-                <a href='/news/?isNewTab=false' className="text-secondary">View more</a>
-              </div>
             </div>
           </li>
           <li className="nav-item dropdown">
