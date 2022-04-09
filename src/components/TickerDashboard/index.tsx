@@ -204,8 +204,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
         <tr>
             <th className="text-left sorting_disabled header-cell w-header fz-14">Ticker Code</th>
             <th className=" text-end sorting_disabled header-cell w-header fz-14">Close</th>
-            <th className="text-end sorting_disabled header-cell w-header fz-14">Stop High</th>
-            <th className="text-end sorting_disabled header-cell w-header fz-14">Stop Low</th>
+            <th className="text-end sorting_disabled header-cell w-header fz-14">Limit Up</th>
+            <th className="text-end sorting_disabled header-cell w-header fz-14">Limit Down</th>
             <th className="text-end sorting_disabled header-cell w-header fz-14">Open</th>
             <th className="text-end sorting_disabled header-cell w-header fz-14">High</th>
             <th className="text-end sorting_disabled header-cell w-header fz-14">Low</th>
