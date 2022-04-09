@@ -40,6 +40,7 @@ const Dashboard = () => {
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [isFirstTime, setIsFirstTime] = useState(true);
 
     const usTime: any = useRef();
     const zoneTime: any = useRef();
@@ -68,8 +69,9 @@ const Dashboard = () => {
                     });
                     setListTickerSearch(temps);
                 }
-                if (symbolListActive[0]) {
+                if (symbolListActive[0] && isFirstTime) {
                     setSymbolCode(symbolListActive[0]?.symbolCode || '');
+                    setIsFirstTime(false);
                 }
                 subscribeQuoteEvent(symbolListActive);
                 callLastQuoteRequest(symbolListActive)
