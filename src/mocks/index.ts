@@ -50,7 +50,7 @@ export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
     },
     {
         code: TradingModel.OrderState.ORDER_STATE_CANCELED,
-        name: "Canceled"
+        name: "Cancelled"
     },
     {
         code: TradingModel.OrderState.ORDER_STATE_FILLED,
