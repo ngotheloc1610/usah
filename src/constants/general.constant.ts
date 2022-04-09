@@ -18,7 +18,7 @@ export const STATE = [
         code: tradingModelPb.OrderState.ORDER_STATE_PLACED
     },
     {
-        title: 'Canceled',
+        title: 'Cancelled',
         code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
     },
     {
@@ -128,6 +128,8 @@ export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
 
 export const ACCOUNT_ID = 'account_id';
 
+export const POEM_ID = 'poem_id';
+
 export const EXPIRE_TIME = 'expire_time';
 
 export const SUB_ACCOUNTS = 'sub_accounts';
@@ -136,7 +138,7 @@ export const ROLE = 'role';
 
 export const START_PAGE = 1;
 
-export const PAGE_SIZE = 5;
+export const PAGE_SIZE = 10;
 
 export const DEFAULT_ITEM_PER_PAGE = 10;
 

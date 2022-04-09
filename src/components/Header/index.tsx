@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
@@ -30,7 +30,7 @@ const Header = () => {
   const pageSizeTrading = PAGE_SIZE;
   const pageCurrentTrading = START_PAGE;
 
-  const [paramTrading, setParamTrading] = useState({ page_size: 5, page: 1 });
+  const [paramTrading, setParamTrading] = useState({ page_size: PAGE_SIZE, page: 1 });
 
 
   const api_url = process.env.REACT_APP_API_URL;
@@ -74,7 +74,7 @@ const Header = () => {
 
 
   const _renderAccountId = () => {
-    const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
+    const accountIdCurrent = localStorage.getItem(POEM_ID);
     if (accountIdCurrent) {
       setAccountId(accountIdCurrent);
     }
@@ -85,6 +85,7 @@ const Header = () => {
     localStorage.removeItem(ROLE);
     localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
     localStorage.removeItem(EXPIRE_TIME);
+    localStorage.removeItem(POEM_ID);
     const baseUrl = window.location.origin;
     window.location.href = `${baseUrl}/login`;
   }
@@ -179,9 +180,6 @@ const Header = () => {
                 showNotificationUnread={showNotificationUnread}
               />
 
-              <div className="text-center small">
-                <a href='/news/?isNewTab=false' className="text-secondary">View more</a>
-              </div>
             </div>
           </li>
           <li className="nav-item dropdown">
