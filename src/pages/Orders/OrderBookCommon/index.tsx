@@ -42,7 +42,6 @@ const OrderBookCommon = () => {
     const [symbolSearch, setSymbolSearch] = useState('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [side, setSide] = useState(0);
-    const [isFirstTimeLoadComponent, setIsFirstTimeLoadComponent] = useState(true);
 
     const year = new Date().getFullYear();
     // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
@@ -62,27 +61,25 @@ const OrderBookCommon = () => {
     useEffect(() => searchTicker(), [itemTickerInfor])
 
     useEffect(() => {
+        const listSymbolCode: string[] = [];
+        listTicker.forEach((item: ISymbolInfo) => {
+            listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
+        });
+        setListSymbolCode(listSymbolCode);
+        getTickerSearch(listSymbolCode[0]);
+        assignTickerToOrderForm(listSymbolCode[0]);
+    }, [])
+
+    useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
-            }
-            const listSymbolCode: string[] = [];
-            listTicker.forEach((item: ISymbolInfo) => {
-                listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
-            });
-            setListSymbolCode(listSymbolCode);
-            if (isFirstTimeLoadComponent) {
-                getTickerSearch(listSymbolCode[0]);
-                assignTickerToOrderForm(listSymbolCode[0]);
-                setIsFirstTimeLoadComponent(false);
             }
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
             setTradeHistory(res.tradeList)
         });
-
-
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
             if (resp.msgText === "SUCCESS") {
