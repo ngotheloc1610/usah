@@ -214,11 +214,11 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                                 <td className="text-end">{symbolCode ? lotSize : formatCurrency('0')}</td>
                             </tr>
                             <tr>
-                                <td><strong className="text-table">Stop Low</strong></td>
+                                <td><strong className="text-table">Limit Down</strong></td>
                                 <td className="text-end">{symbolCode ? floorPrice : formatCurrency('0')}</td>
                             </tr>
                             <tr>
-                                <td><strong className="text-table">Stop High</strong></td>
+                                <td><strong className="text-table">Limit Up</strong></td>
                                 <td className="text-end">{symbolCode ? ceilingPrice : formatCurrency('0')}</td>
                             </tr>
                         </tbody>
