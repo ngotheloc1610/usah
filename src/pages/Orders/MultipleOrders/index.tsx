@@ -61,6 +61,13 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
+        if (!ticker.trim()) {
+            setPrice(0)
+            setVolume(0)
+        }
+    }, [ticker])
+
+    useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
     }, [listTickers, isDelete])
 
@@ -706,11 +713,11 @@ const MultipleOrders = () => {
             lstStr.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         return <Autocomplete
-            className='ticker-input'
+            className='ticker-input w-100'
             onChange={(event: any) => handleChangeTicker(event.target.innerText)}
             onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
             disablePortal
-            sx={{ width: 400}}
+            sx={{ width: 400 }}
             value={ticker}
             options={lstStr}
             renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
@@ -734,8 +741,10 @@ const MultipleOrders = () => {
         tmp.unshift(obj);
         setListTickers(tmp);
         setIsAddOrder(false);
-        setPrice(0);
-        setVolume(0);
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
+        const symbol = symbols.find(symbol => symbol.symbolCode === ticker.split('-')[0])
+        setPrice(symbol ? symbol.floor : 0);
+        setVolume(symbol ? symbol.lotSize : 0);
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
@@ -760,8 +769,8 @@ const MultipleOrders = () => {
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
                     </div>
                     <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                        <label className="text text-secondary">Ticker</label>
-                        <div className="fs-18 mr-3">
+                        <label className="text text-secondary mr-10">Ticker</label>
+                        <div className="fs-18 mr-3 flex-fill">
                             {renderSymbolSelect()}
                         </div>
                     </div>
