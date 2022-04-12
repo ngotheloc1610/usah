@@ -108,6 +108,7 @@ const Header = () => {
         if (counter === 0) {
           setListTradingResults(resp?.data?.data?.results);
         }
+        // block Automatically update all news to read when click to 1 record unread
         setCounter(counter + 1);
       }
     },
