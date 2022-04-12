@@ -29,8 +29,10 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quotesEvent, setQuotesEvent] = useState<IQuoteEvent[]>([]);
     const tradingModel: any = tdpb;
-    const [asksList, setAsksList] = useState<IAsksBidsList[]>([])
-    const [bidsList, setBidsList] = useState<IAsksBidsList[]>([])
+    const [asksList, setAsksList] = useState<IAsksBidsList[]>([]);
+    const [bidsList, setBidsList] = useState<IAsksBidsList[]>([]);
+    const [totalAsks, setTotalAsks] = useState('');
+    const [totalBids, setTotalBids] = useState('');
 
     useEffect(() => {
         const lastQuoteResponse = wsService.getDataLastQuotes().subscribe(lastQuote => {
@@ -114,6 +116,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 const numberBids = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume.toString() : '-';
                 const totalAsks = (styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) ? calcVolumeASC(askList, counter).toString() : calcVolumeDESC(askList, counter).toString();
                 const totalBids = calcVolumeASC(bidList, counter).toString();
+                setTotalAsks(totalAsks);
+                setTotalBids(totalBids)
                 assgnListAsksBids.push(
                     {
                         tradableBid: tradableBid,
@@ -126,6 +130,21 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         numberBids: numberBids,
                         totalAsks: convertNumber(numberAsks) === 0 ? '-' : totalAsks,
                         totalBids: convertNumber(numberBids) === 0 ? '-' : totalBids
+                    }
+                )
+            } else {
+                assgnListAsksBids.push(
+                    {
+                        tradableBid: false,
+                        volumeBid: '-',
+                        tradableAsk: false,
+                        volumeAsk: '-',
+                        askPrice: '-',
+                        bidPrice: '-',
+                        numberAsks: '-',
+                        numberBids: '-',
+                        totalAsks: '-',
+                        totalBids: '-'
                     }
                 )
             }
@@ -271,8 +290,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             </tr>
             <tr>
                 <td className="text-end border-end border-bottom-0">
-                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{convertNumber(listAsksBids[listAsksBids.length - 1]?.totalBids) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalBids)}</strong>}
-                    {styleListBidsAsk.spreadsheet && <strong>{convertNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks)}</strong>}
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>{convertNumber(totalAsks) === 0 ? '-' : formatNumber(totalAsks)}</strong>}
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
@@ -285,8 +304,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </td>
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
                 <td className="text-end border-end border-bottom-0">
-                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{convertNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalAsks)}</strong>}
-                    {styleListBidsAsk.spreadsheet && <strong>{convertNumber(listAsksBids[listAsksBids.length - 1]?.totalBids) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalBids)}</strong>}
+                    {styleListBidsAsk.earmarkSpreadSheet && <strong>{convertNumber(totalAsks) === 0 ? '-' : formatNumber(totalAsks)}</strong>}
+                    {styleListBidsAsk.spreadsheet && <strong>{convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}</strong>}
                 </td>
             </tr>
         </>
@@ -314,25 +333,15 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
         })
     )
 
-    const _renderDataStyleGirdBid = () => {
-        const temp: IListAskBid[] = [];
-        let idx = 0;
-        while(idx < MARKET_DEPTH_LENGTH) {
-            if (listAsksBids[idx]) {
-                temp.push(listAsksBids[idx]);
-            } else {
-                temp.unshift(DEFAULT_ORDER_BOOK)
-            }
-            idx++;
-        }
-        return temp.map((item, index) => {
+    const _renderDataStyleGirdBid = () => (
+        listAsksBids.map((item, index) => {
             return <tr key={index}>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}><span>{convertNumber(item.totalBids) === 0 ? '-' : formatNumber(item.totalBids)}</span></td>
                 <td className="text-end" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.volumeBid) === 0 ? '-' : formatNumber(item.volumeBid)}</td>
                 <td className="text-end text-danger" onClick={() => handleTicker(item, tradingModel.Side.SELL)}>{convertNumber(item.bidPrice) === 0 ? '-' : formatCurrency(item.bidPrice)}</td>
             </tr>
         })
-    }
+    )
 
     const _renderTitleStyleGirdBids = () => (
         TITLE_LIST_BID_ASK.slice(3, 6).reverse().map((item, index) => {
@@ -398,7 +407,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     <tr>
                         <td className="text-end">
                             <strong>
-                                {convertNumber(listAsksBids[listAsksBids.length - 1]?.totalBids) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalBids)}
+                                {convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}
                             </strong>
                         </td>
                         <td className="text-end">&nbsp;</td>
@@ -515,7 +524,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end">
                         <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1]?.totalBids) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalBids)}
+                            {convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}
                         </strong>
                     </td>
                     <td className="text-end">&nbsp;</td>
@@ -566,7 +575,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     <td className="text-end">UNDER</td>
                     <td className="text-end" colSpan={2}>
                         <strong>
-                            {convertNumber(listAsksBids[listAsksBids.length - 1]?.totalBids) === 0 ? '-' : formatNumber(listAsksBids[listAsksBids.length - 1]?.totalBids)}
+                            {convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}
                         </strong>
                     </td>
                 </tr>
