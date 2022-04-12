@@ -77,9 +77,10 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
-            <th className="text-ellipsis text-start fz-14 w-220">
+            <th className="text-ellipsis text-start fz-14 w-80">
                 <div>Ticker Code</div>
-                <div>Ticker Name</div>
+                {/* TODO: Fix responsive (BA confirmed) */}
+                {/* <div>Ticker Name</div> */}
             </th >
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-center fz-14 w-120" > Order Status</th>
@@ -97,7 +98,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <div> Order Datetime </div>
                 <div> Executed Datetime </div>
             </th>
-            <th className="text-center fz-14 w-120">Comment</th>
+            <th className="text-center fz-14 w-220">Comment</th>
         </tr>
     )
     
@@ -105,9 +106,9 @@ function OrderTable(props: IPropListOrderHistory) {
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
-                <td className="text-ellipsis text-start w-220">
+                <td className="text-ellipsis text-start w-80">
                     <div>{item?.symbolCode}</div>
-                    <div>{getTickerName(item?.symbolCode)}</div>
+                    {/* <div>{getTickerName(item?.symbolCode)}</div> */}
                 </td>
                 <td className="text-center w-120">
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
@@ -138,7 +139,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
 
-                <td className="text-ellipsis fz-14 w-120">{item.comment}</td>
+                <td className="text-ellipsis text-center fz-14 w-220">{item.comment}</td>
 
             </tr>
         ))
