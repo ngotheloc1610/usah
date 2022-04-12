@@ -42,6 +42,7 @@ const Header = () => {
 
   const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
   const [showNotificationUnread, setShowNotificationUnread] = useState(false);
+  const [counter, setCounter] = useState(0);
 
 
   useEffect(() => {
@@ -103,8 +104,11 @@ const Header = () => {
   const getDataTradingResult = (paramTrading) => {
     axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
       if (resp.status === success) {
-        getTotalTradingResultsUnread()
-        setListTradingResults(resp?.data?.data?.results);
+        getTotalTradingResultsUnread();
+        if (counter === 0) {
+          setListTradingResults(resp?.data?.data?.results);
+        }
+        setCounter(counter + 1);
       }
     },
       (error) => {
@@ -126,7 +130,11 @@ const Header = () => {
   }
 
   const handleReaded = (idTrading: number) => {
-    const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
+    const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`;
+    const indexIdTradingReaded = listTradingResults.findIndex(item => item.id === idTrading);
+    listTradingResults[indexIdTradingReaded].readFlg = true;
+    const lstTradingResult = [...listTradingResults];
+    setListTradingResults(lstTradingResult);
     axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
       if (resp?.data?.meta?.code === success) {
         getDataTradingResult(paramTrading)
