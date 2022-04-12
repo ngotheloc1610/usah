@@ -122,8 +122,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         bidPrice: bidPrice,
                         numberAsks: numberAsks,
                         numberBids: numberBids,
-                        totalAsks: (styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) ? calcVolumeASC(askList, counter).toString() : calcVolumeDESC(askList, counter).toString(),
-                        totalBids: calcVolumeASC(bidList, counter).toString()
+                        totalAsks: convertNumber(numberAsks) === 0 ? '-' : (styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) ? calcVolumeASC(askList, counter).toString() : calcVolumeDESC(askList, counter).toString(),
+                        totalBids: convertNumber(numberBids) === 0 ? '-' :calcVolumeASC(bidList, counter).toString()
                     }
                 )
             }
