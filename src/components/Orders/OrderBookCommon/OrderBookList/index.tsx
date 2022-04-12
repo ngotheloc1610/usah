@@ -116,8 +116,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 const numberBids = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume.toString() : '-';
                 const totalAsks = (styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) ? calcVolumeASC(askList, counter).toString() : calcVolumeDESC(askList, counter).toString();
                 const totalBids = calcVolumeASC(bidList, counter).toString();
-                setTotalAsks(totalAsks);
-                setTotalBids(totalBids)
                 assgnListAsksBids.push(
                     {
                         tradableBid: tradableBid,
@@ -150,6 +148,12 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
             }
             counter++;
         }
+
+        const listTotalAsks = assgnListAsksBids.filter(item => item?.totalAsks !== '-');
+        const listTotalBids = assgnListAsksBids.filter(item => item?.totalBids !== '-');
+        setTotalAsks(listTotalAsks[listTotalAsks.length - 1]?.totalAsks );
+        setTotalBids(listTotalBids[listTotalBids.length - 1]?.totalBids );
+        
         setListAsksBids(assgnListAsksBids);
     }
 
