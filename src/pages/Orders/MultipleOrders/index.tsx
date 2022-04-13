@@ -53,7 +53,6 @@ const MultipleOrders = () => {
                 setStatusPlace(true);
                 setListSelected([]);
             }
-            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
             
         });
 
