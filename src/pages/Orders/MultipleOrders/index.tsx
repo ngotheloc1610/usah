@@ -61,7 +61,7 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
-        if (!ticker.trim()) {
+        if (!ticker?.trim()) {
             setPrice(0)
             setVolume(0)
         }
@@ -690,7 +690,7 @@ const MultipleOrders = () => {
 
     const handleChangeTicker = (value: string) => {
         setTicker(value);
-        const symbolCode = value.split('-')[0]?.trim();
+        const symbolCode = value?.split('-')[0]?.trim();
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const item = symbols.find(o => o?.symbolCode === symbolCode);
         if (item) {
@@ -742,7 +742,7 @@ const MultipleOrders = () => {
         setListTickers(tmp);
         setIsAddOrder(false);
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
-        const symbol = symbols.find(symbol => symbol.symbolCode === ticker.split('-')[0])
+        const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
         setPrice(symbol ? symbol.floor : 0);
         setVolume(symbol ? symbol.lotSize : 0);
     }
