@@ -77,9 +77,7 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
-            <th className="text-ellipsis text-start fz-14 w-110">
-                <div>Ticker Code</div>
-            </th >
+            <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-center fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
@@ -96,7 +94,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <div> Order Datetime </div>
                 <div> Executed Datetime </div>
             </th>
-            <th className="text-center fz-14 w-120">Comment</th>
+            <th className="text-ellipsis text-start fz-14 w-200">Comment</th>
         </tr>
     )
     
@@ -117,7 +115,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>
 
-                <td className="text-ellipsis text-end w-120">
+                <td className="text-ellipsis text-end w-140">
                     <div>{formatNumber(item.amount)}</div>
                     <div>{formatNumber(calcPendingVolume(item.amount, item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? item.amount : item.filledAmount).toString())}</div>
                 </td>
@@ -136,7 +134,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
 
-                <td className="text-ellipsis fz-14 w-120">{item.comment}</td>
+                <td className="text-ellipsis text-start fz-14 w-200">{item.comment}</td>
 
             </tr>
         ))
