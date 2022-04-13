@@ -30,17 +30,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
 
-    const defaultData: IParamOrder = {
-        tickerCode: '',
-        tickerName: '',
-        orderType: '',
-        volume: '',
-        price: 0,
-        side: '',
-        confirmationConfig: false,
-        tickerId: ''
-    }
-
     const defaultDataModiFyCancel: IParamOrderModifyCancel = {
         tickerCode: '',
         tickerName: '',
@@ -261,7 +250,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                     </div>
                 </td>
                 <td className="fm">{item.orderId}</td>
-                <td>{getTickerCode(item.symbolCode.toString())}</td>
+                <td title={getTickerName(item.symbolCode)}>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                 <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                 <td className="text-end ">{formatCurrency(item.price.toString())}</td>

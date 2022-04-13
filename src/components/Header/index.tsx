@@ -141,15 +141,6 @@ const Header = () => {
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
         <ul className="nav header-top-nav">
-          <li className="nav-item">
-            <a href="#" className="nav-link"><i className="bi bi-arrow-bar-left"></i></a>
-          </li>
-          <li className="nav-item">
-            <a href="#" className="nav-link pl-0"><i className="bi bi-arrows-angle-contract"></i></a>
-          </li>
-          <li className="nav-item item-menu"><a href="#" className="nav-link pl-0">
-            <i className="bi bi-list"></i></a>
-          </li>
           <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
             <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0" role="button"

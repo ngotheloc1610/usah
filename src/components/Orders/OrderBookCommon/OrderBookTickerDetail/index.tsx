@@ -131,20 +131,14 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
         setVwap(resultVWAP);
     }
 
-    const getTickerName = (symbolCode: string) => {
+    const getTicker = (symbolCode: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
-        return tickerList.find(item => item.symbolCode === symbolCode)?.symbolCode;
-    }
-
-    const getTickerInfor = (symbolCode: string) => {
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const ticker = symbols.find(o => o?.symbolId.toString() === symbolCode);
-        return ticker;
+        return tickerList.find(item => item.symbolCode === symbolCode);
     }
 
     return <>
         <div className="card-header">
-            {symbolCode !== "" ? <h6 className="card-title mb-0">{getTickerName(symbolCode)}</h6> : <h6 className="card-title mb-0">&nbsp;</h6>}
+            {symbolCode !== "" ? <h6 className="card-title mb-0" title={getTicker(symbolCode)?.symbolName}>{getTicker(symbolCode)?.symbolCode}</h6> : <h6 className="card-title mb-0">&nbsp;</h6>}
         </div>
         <div className="card-body">
             <div className="row">

@@ -61,6 +61,13 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
+        if (!ticker.trim()) {
+            setPrice(0)
+            setVolume(0)
+        }
+    }, [ticker])
+
+    useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
     }, [listTickers, isDelete])
 
@@ -271,7 +278,6 @@ const MultipleOrders = () => {
             </th>
             <th><span>No.</span></th>
             <th className="text-left"><span>Ticker Code</span></th>
-            <th className="text-left"><span>Ticker Name</span></th>
             <th className="text-left"><span>Order Type</span></th>
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Quantity</span></th>
@@ -305,8 +311,7 @@ const MultipleOrders = () => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
-                <td className="text-left">{item.ticker}</td>
-                <td className="text-left">{getTickerName(item.ticker)}</td>
+                <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-left">Limit</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
@@ -318,46 +323,50 @@ const MultipleOrders = () => {
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <svg
-                            onClick={() => decreaseVolume(item, index)}
-                            xmlns="http://www.w3.org/2000/svg" width="16"
-                            height="16" fill="currentColor" className="bi bi-caret-left-fill"
-                            viewBox="0 0 16 16">
-                            <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                        </svg>
-                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 p-0"
+                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 py-0 px-10"
                             onChange={(e) => changeVolume(e.target.value, item, index)}
                             thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
                         />
-                        <svg
-                            onClick={(e) => increaseVolume(item, index)}
-                            xmlns="http://www.w3.org/2000/svg" width="16"
-                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16"
-                        >
-                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                        </svg>
+                        <div className="d-flex flex-column">
+                            <svg
+                                onClick={(e) => increaseVolume(item, index)}
+                                xmlns="http://www.w3.org/2000/svg" width="16"
+                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16"
+                            >
+                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+                            </svg>
+                            <svg
+                                onClick={() => decreaseVolume(item, index)}
+                                xmlns="http://www.w3.org/2000/svg" width="16"
+                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
+                                viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+                            </svg>
+                        </div>
                     </div>
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <svg
-                            onClick={() => decreasePrice(item, index)}
-                            xmlns="http://www.w3.org/2000/svg" width="16"
-                            height="16" fill="currentColor" className="bi bi-caret-left-fill"
-                            viewBox="0 0 16 16">
-                            <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                        </svg>
                         <CurrencyInput
                             onChange={(e, maskedVal) => changePrice(e.target.value, maskedVal, item, index)}
-                            decimalscale={2} type="text" className="form-control text-end border-1 p-0"
+                            decimalscale={2} type="text" className="form-control text-end border-1 py-0 px-10"
                             thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
-                        <svg
-                            onClick={(e) => increasePrice(item, index)}
-                            xmlns="http://www.w3.org/2000/svg" width="16"
-                            height="16" fill="currentColor" className="bi bi-caret-right-fill" viewBox="0 0 16 16">
-                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                        </svg>
+                        <div className="d-flex flex-column">
+                            <svg
+                                onClick={(e) => increasePrice(item, index)}
+                                xmlns="http://www.w3.org/2000/svg" width="16"
+                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16">
+                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
+                            </svg>
+                            <svg
+                                onClick={() => decreasePrice(item, index)}
+                                xmlns="http://www.w3.org/2000/svg" width="16"
+                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
+                                viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
+                            </svg>
+                        </div>
                     </div>
                 </td>
                 {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
@@ -367,25 +376,23 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap" style={{ width: '15%' }}><span>Ticker Code</span></th>
-            <th className="text-center text-nowrap" style={{ width: '25%' }}><span>Ticker Name</span></th>
-            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Order Type</span></th>
-            <th className="text-end text-center text-nowrap" style={{ width: '15%' }}><span>Order Side</span></th>
-            <th className="text-end text-nowrap " style={{ width: '15%' }}><span>Quantity</span></th>
-            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Price</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Order Type</span></th>
+            <th className="text-center text-center text-nowrap" style={{ width: '20%' }}><span>Order Side</span></th>
+            <th className="text-center text-nowrap " style={{ width: '20%' }}><span>Quantity</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
         listSelected.map((item, index) => {
             return <tr key={index}>
-                <td className="text-nowrap">{item.ticker}</td>
-                <td className="text-nowrap">{getTickerName(item.ticker)}</td>
-                <td className="text-end">Limit</td>
-                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
+                <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
+                <td className="text-center">Limit</td>
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
                     {item.orderSide}
                 </td>
-                <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
-                <td className="text-end text-nowrap"> {formatCurrency(item.price)}</td>
+                <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
+                <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
             </tr>
         })
     )
@@ -706,11 +713,11 @@ const MultipleOrders = () => {
             lstStr.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         return <Autocomplete
-            className='ticker-input'
+            className='ticker-input w-100'
             onChange={(event: any) => handleChangeTicker(event.target.innerText)}
             onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
             disablePortal
-            sx={{ width: 400}}
+            sx={{ width: 400 }}
             value={ticker}
             options={lstStr}
             renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
@@ -734,8 +741,10 @@ const MultipleOrders = () => {
         tmp.unshift(obj);
         setListTickers(tmp);
         setIsAddOrder(false);
-        setPrice(0);
-        setVolume(0);
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
+        const symbol = symbols.find(symbol => symbol.symbolCode === ticker.split('-')[0])
+        setPrice(symbol ? symbol.floor : 0);
+        setVolume(symbol ? symbol.lotSize : 0);
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
@@ -760,8 +769,8 @@ const MultipleOrders = () => {
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
                     </div>
                     <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                        <label className="text text-secondary">Ticker</label>
-                        <div className="fs-18 mr-3">
+                        <label className="text text-secondary mr-10">Ticker</label>
+                        <div className="fs-18 mr-3 flex-fill">
                             {renderSymbolSelect()}
                         </div>
                     </div>
