@@ -134,6 +134,8 @@ export const EXPIRE_TIME = 'expire_time';
 
 export const SUB_ACCOUNTS = 'sub_accounts';
 
+export const TIME_ZONE = 'time_zone'
+
 export const ROLE = 'role';
 
 export const START_PAGE = 1;

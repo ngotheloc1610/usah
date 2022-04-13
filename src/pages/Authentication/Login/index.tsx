@@ -52,9 +52,9 @@ const Login = () => {
                 }
             }
         },
-        (error) => {
-            setIsMessErr(true);
-        });
+            (error) => {
+                setIsMessErr(true);
+            });
     }
     useEffect(() => unLogin(), [email, password])
 

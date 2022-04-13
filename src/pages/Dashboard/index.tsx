@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -26,7 +26,7 @@ const Dashboard = () => {
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
-    const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
+    const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
 
     const [side, setSide] = useState(0);
     const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
@@ -400,7 +400,7 @@ const Dashboard = () => {
             <div className="small text-end col-md-4">
                 <div>US <span className="ms-2" ref={usTime}></span></div>
                 <div className="d-flex align-items-center justify-content-end">
-                    <select className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => setTimeZone(e.target.value)}>
+                    <select value={timeZone ? timeZone : ''} className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => { setTimeZone(e.target.value); localStorage.setItem(TIME_ZONE, e.target.value) }}>
                         <option value="SG" >SG</option>
                         <option value="JP">JP</option>
                     </select>
