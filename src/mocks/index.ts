@@ -138,10 +138,20 @@ export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
 }
 
 export const DEFAULT_TICKER_DATA: ITickerInfo = {
-    ...DEFAULT_CURRENT_TICKER,
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
     asks: [],
     bids: [],
-    volume: '',
     lotSize: ''
 }
 
