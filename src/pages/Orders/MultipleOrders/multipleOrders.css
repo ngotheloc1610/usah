@@ -1,12 +1,15 @@
 .w-100-persent {
     width: 100%;
 }
+
 .w-200 {
     width: 200px;
 }
+
 .mh-500 {
     max-height: 500px;
 }
+
 .popup-box {
     z-index: 2;
 }
@@ -15,9 +18,9 @@
     position: relative;
     overflow: hidden;
     display: inline-block;
-  }
-  
-  .btn {
+}
+
+.btn {
     border: 2px solid gray;
     color: gray;
     background-color: white;
@@ -25,46 +28,50 @@
     border-radius: 8px;
     font-size: 20px;
     font-weight: bold;
-  }
-  
-  .upload-btn-wrapper input[type=file] {
+}
+
+.upload-btn-wrapper input[type=file] {
     font-size: 100px;
     position: absolute;
     left: 0;
     top: 0;
     opacity: 0;
-  }
+}
 
-  .btn-upload {
-      color: #fff !important;
-      background-color: #16365c !important;
-      cursor: pointer;
-      margin-left: 5px;
-  }
+.btn-upload {
+    color: #fff !important;
+    background-color: #16365c !important;
+    cursor: pointer;
+    margin-left: 5px;
+}
 
-  .position-close-popup {
-        right: calc(36% - 100px) !important;
-  }
+.position-close-popup {
+    right: calc(36% - 100px) !important;
+}
 
-  .w-persent-30 {
-      width: 30%;
-  }
+.w-persent-30 {
+    width: 30%;
+}
 
-  .header-import {
-      background: #16365c;
-      color: white;
-      height: 30px;
-      width: 100%;
-  }
+.header-import {
+    background: #16365c;
+    color: white;
+    height: 30px;
+    width: 100%;
+}
 
-  .mr {
-      margin: auto;
-  }
+.mr {
+    margin: auto;
+}
 
-  .border-1 {
-      border: 1px solid black;
-  }
+.border-1 {
+    border: 1px solid black;
+}
 
-  .mb-30 {
-      margin-bottom: 30px;
-  }
+.mb-30 {
+    margin-bottom: 30px;
+}
+
+.rotate-90deg {
+    transform: rotate(-90deg);
+}
