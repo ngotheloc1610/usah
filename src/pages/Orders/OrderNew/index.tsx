@@ -53,7 +53,7 @@ const OrderNew = () => {
     const [lastQuotes, setLastQuotes] = useState(defaultLastQuotesData)
     const [currentTicker, setCurrentTicker] = useState(defaultTickerData);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [currentTickerSearch, setCurrentTickerSearch] = useState<string>('');
     const [quoteEvent, setQuoteEvent] = useState([]);
@@ -64,16 +64,12 @@ const OrderNew = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                callSymbolList();
+                sendMessageQuotes()
             }
         });
 
-        const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList);
-        });
         return () => {
             ws.unsubscribe();
-            renderDataSymbolList.unsubscribe();
         }
     }, [])
 
@@ -91,27 +87,6 @@ const OrderNew = () => {
         return () => lastQuotesRes.unsubscribe();
 
     }, [currentTickerSearch])
-
-    useEffect(() => {
-        sendMessageQuotes()
-    }, [symbolList])
-
-    const callSymbolList = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID);
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let symbolListRequest = new queryServicePb.SymbolListRequest();
-            symbolListRequest.setAccountId(Number(accountId));
-            const rpcModel: any = rpcpb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SYMBOL_LIST_REQ);
-            rpcMsg.setPayloadData(symbolListRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
 
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;
@@ -146,7 +121,7 @@ const OrderNew = () => {
 
     }
 
-    const getTicker = (value: string) => {
+    const getTicker = (value: string) => {        
         setSymbolCode(value);
         const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const itemTickerInfor = symbolLocalList.find(item => item.ticker === value.toUpperCase());
@@ -220,9 +195,8 @@ const OrderNew = () => {
 
     const processQuotes = (quotes: IQuoteEvent[]) => {        
         const quote = quotes.find(o => o?.symbolCode === dataSearchTicker?.symbolCode);
-        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolId.toString() === currentTickerSearch)
+        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolCode.toString() === currentTickerSearch)        
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
-
         if (quote && dataSearchTicker) {
             const tmpItem = {
                 asksList: assignListPrice(dataSearchTicker.asksList, quote.asksList, LIST_PRICE_TYPE.askList),

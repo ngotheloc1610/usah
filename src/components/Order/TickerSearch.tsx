@@ -122,7 +122,7 @@ const TickerSearch = (props: ITickerSearch) => {
                     onClick={searchTicker}
                     disablePortal
                     options={listSymbolCode}
-                    value={symbolSelected}
+                    defaultValue={listTicker[0].symbolCode}
                     sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
