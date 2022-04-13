@@ -4,6 +4,7 @@ import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } f
 import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
 import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
+import { DEFAULT_TICKER_DATA } from '../../mocks'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { wsService } from '../../services/websocket-service'
 
@@ -68,6 +69,10 @@ const TickerDetail = (props: ITickerDetailProps) => {
         processQuoteEvent(quoteEvent);
     }, [quoteEvent])
 
+    useEffect(() => {
+        symbolCode === '' && setTickerInfo(DEFAULT_TICKER_DATA);
+    }, [symbolCode])
+
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const symbol = symbolsList.find(o => o?.symbolCode === symbolCode);
@@ -86,21 +91,8 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     volume: item?.volume,
                     lotSize: symbol.lotSize
                 });
-                return
             } 
         }
-        setTickerInfo({
-            ...symbol,
-            asks: [],
-            bids: [],
-            high: '',
-            lastPrice: '',
-            open: '',
-            low: '',
-            previousClose: '',
-            volume: '',
-            lotSize: ''
-        });
     }
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[]) => {

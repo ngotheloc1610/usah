@@ -1,38 +1,20 @@
 import { useEffect, useState } from 'react'
-import sendMsgSymbolList from '../../../Common/sendMsgSymbolList'
 import OrderBook from '../../../components/Order/OrderBook'
 import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
-import { ACCOUNT_ID, LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
+import { LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
 import { ISymbolList } from '../../../interfaces/ticker.interface'
 import { wsService } from "../../../services/websocket-service"
 import * as pspb from '../../../models/proto/pricing_service_pb'
-import * as qspb from '../../../models/proto/query_service_pb';
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
-import { DEFAULT_DATA_TICKER } from '../../../mocks'
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
 import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../../helper/utils'
 import { IQuoteEvent } from '../../../interfaces/quotes.interface'
 
 const OrderNew = () => {
-
-    const defaultTickerData: ITickerInfo | any = {
-        symbolId: 0,
-        tickerName: '',
-        ticker: '',
-        stockPrice: '',
-        previousClose: '',
-        open: '',
-        high: '',
-        low: '',
-        lastPrice: '',
-        volume: '',
-        change: '',
-        changePrecent: '',
-    }
-
     const defaultItemSymbol: ISymbolList = {
         calculationMode: 0,
         contractSize: 0,
@@ -51,7 +33,7 @@ const OrderNew = () => {
     const defaultLastQuotesData: ILastQuote[] = []
 
     const [lastQuotes, setLastQuotes] = useState(defaultLastQuotesData)
-    const [currentTicker, setCurrentTicker] = useState(defaultTickerData);
+    const [currentTicker, setCurrentTicker] = useState(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
     const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();

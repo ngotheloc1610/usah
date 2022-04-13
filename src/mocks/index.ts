@@ -137,6 +137,14 @@ export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
     side: '',
 }
 
+export const DEFAULT_TICKER_DATA: ITickerInfo = {
+    ...DEFAULT_CURRENT_TICKER,
+    asks: [],
+    bids: [],
+    volume: '',
+    lotSize: ''
+}
+
 // TODO: Don't have MatchingHistory message in proto so use fake data
 export const DATA_MATCHING_DETAIL = [
     {
