@@ -61,19 +61,16 @@ const OrderBookCommon = () => {
     useEffect(() => searchTicker(), [itemTickerInfor])
 
     useEffect(() => {
-        const listSymbolCode: string[] = [];
-        listTicker.forEach((item: ISymbolInfo) => {
-            listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
-        });
-        setListSymbolCode(listSymbolCode);
-        getTickerSearch(listSymbolCode[0]);
-        assignTickerToOrderForm(listSymbolCode[0]);
-    }, [])
-
-    useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 getOrderBooks();
+                const listSymbolCode: string[] = [];
+                listTicker.forEach((item: ISymbolInfo) => {
+                    listSymbolCode.push(`${item.symbolCode} - ${item.symbolName}`);
+                });
+                setListSymbolCode(listSymbolCode);
+                getTickerSearch(listSymbolCode[0]);
+                assignTickerToOrderForm(listSymbolCode[0]);
             }
         });
 
@@ -415,7 +412,7 @@ const OrderBookCommon = () => {
                         onKeyUp={handleKeyUp}
                         disablePortal
                         options={listSymbolCode}
-                        defaultValue={listTicker[0].symbolCode}
+                        defaultValue={`${listTicker[0].symbolCode} - ${listTicker[0].symbolName}`}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />
