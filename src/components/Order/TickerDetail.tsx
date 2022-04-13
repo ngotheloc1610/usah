@@ -91,7 +91,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                     volume: item?.volume,
                     lotSize: symbol.lotSize
                 });
-            } 
+            }
         }
     }
 
