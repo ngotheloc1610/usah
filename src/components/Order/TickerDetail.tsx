@@ -48,7 +48,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
         });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-            if (quote && quote.quoteList) {                
+            if (quote && quote.quoteList) {
                 setQuoteEvent(quote.quoteList);
             }
         });
@@ -68,7 +68,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
         processQuoteEvent(quoteEvent);
     }, [quoteEvent])
 
-    const processLastQuote = (quotes: ILastQuote[]) => {        
+    const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const symbol = symbolsList.find(o => o?.symbolCode === symbolCode);
         if (symbol) {

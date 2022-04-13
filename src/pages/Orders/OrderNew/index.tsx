@@ -64,7 +64,7 @@ const OrderNew = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
-                sendMessageQuotes()
+                sendMessageQuotes();
             }
         });
 
@@ -121,7 +121,7 @@ const OrderNew = () => {
 
     }
 
-    const getTicker = (value: string) => {        
+    const getTicker = (value: string) => {
         setSymbolCode(value);
         const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const itemTickerInfor = symbolLocalList.find(item => item.ticker === value.toUpperCase());
@@ -195,7 +195,7 @@ const OrderNew = () => {
 
     const processQuotes = (quotes: IQuoteEvent[]) => {        
         const quote = quotes.find(o => o?.symbolCode === dataSearchTicker?.symbolCode);
-        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolCode.toString() === currentTickerSearch)        
+        const itemSymbol = symbolList.find((o: ISymbolList) => o.symbolCode.toString() === currentTickerSearch)
         let item: ISymbolList = itemSymbol ? itemSymbol : defaultItemSymbol;
         if (quote && dataSearchTicker) {
             const tmpItem = {
