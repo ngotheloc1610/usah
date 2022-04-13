@@ -47,12 +47,14 @@ const MultipleOrders = () => {
             } else {
                 tmp = RESPONSE_RESULT.error;
             }
-            getStatusOrderResponse(tmp, resp[MSG_TEXT]);
+            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
                 setStatusPlace(true);
                 setListSelected([]);
             }
+            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
+            
         });
 
         return () => {
@@ -433,9 +435,22 @@ const MultipleOrders = () => {
             setShowModalConfirmMultiOrders(false);
         }
     }
-    const getStatusOrderResponse = (value: number, content: string) => {
+    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[]) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
+            if (lstResponse && lstResponse?.length > 0) {
+                const lengItemSuccess = lstResponse?.filter(item => item?.note?.toLocaleLowerCase().includes('success'))?.length;
+                const lengItemReject = lstResponse?.filter(item => item?.note.toLocaleUpperCase().includes('RISK_NSF'))?.length;
+                if (lengItemSuccess !== lstResponse.length && lengItemReject !== lstResponse.length) {
+                    return <div>{toast.warning(`Success: ${lengItemSuccess}, Reject: ${lengItemReject}`)}</div>
+                }
+                if (lengItemReject === lstResponse.length) {
+                    return <div>{toast.error(`Reject: ${lengItemReject}`)}</div>
+                }
+                if (lengItemSuccess === lstResponse.length) {
+                    return <div>{toast.success(`Success: ${lengItemSuccess}`)}</div>
+                }
+            }
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
