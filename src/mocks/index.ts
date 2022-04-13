@@ -137,6 +137,24 @@ export const DEFAULT_CURRENT_TICKER: ITickerInfo = {
     side: '',
 }
 
+export const DEFAULT_TICKER_DATA: ITickerInfo = {
+    symbolId: 0,
+    tickerName: '',
+    ticker: '',
+    stockPrice: '',
+    previousClose: '',
+    open: '',
+    high: '',
+    low: '',
+    lastPrice: '',
+    volume: '',
+    change: '',
+    changePrecent: '',
+    asks: [],
+    bids: [],
+    lotSize: ''
+}
+
 // TODO: Don't have MatchingHistory message in proto so use fake data
 export const DATA_MATCHING_DETAIL = [
     {

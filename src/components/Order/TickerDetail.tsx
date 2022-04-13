@@ -4,6 +4,7 @@ import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } f
 import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
 import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
+import { DEFAULT_TICKER_DATA } from '../../mocks'
 import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { wsService } from '../../services/websocket-service'
 
@@ -67,6 +68,10 @@ const TickerDetail = (props: ITickerDetailProps) => {
     useEffect(() => {
         processQuoteEvent(quoteEvent);
     }, [quoteEvent])
+
+    useEffect(() => {
+        symbolCode === '' && setTickerInfo(DEFAULT_TICKER_DATA);
+    }, [symbolCode])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
