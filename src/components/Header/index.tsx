@@ -42,7 +42,6 @@ const Header = () => {
 
   const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
   const [showNotificationUnread, setShowNotificationUnread] = useState(false);
-  const [counter, setCounter] = useState(0);
 
 
   useEffect(() => {
@@ -71,6 +70,7 @@ const Header = () => {
       read_flag: false
     }
     getDataTradingResult(paramTrading);
+    getTotalTradingResultsUnread();
   }, [showNotificationUnread]);
 
 
@@ -104,12 +104,7 @@ const Header = () => {
   const getDataTradingResult = (paramTrading) => {
     axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
       if (resp.status === success) {
-        getTotalTradingResultsUnread();
-        if (counter === 0) {
-          setListTradingResults(resp?.data?.data?.results);
-        }
-        // block Automatically update all news to read when click to 1 record unread
-        setCounter(counter + 1);
+        setListTradingResults(resp?.data?.data?.results);
       }
     },
       (error) => {
@@ -118,16 +113,16 @@ const Header = () => {
   }
 
   const getTotalTradingResultsUnread = () => {
-      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
-          if (resp.status === success) {
-            if(resp?.data?.data) {
-              setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
-            }
-          }
-      },
-          (error) => {
-              console.log(error);
-          });
+    axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
+      if (resp.status === success) {
+        if (resp?.data?.data) {
+          setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
+        }
+      }
+    },
+      (error) => {
+        console.log(error);
+      });
   }
 
   const handleReaded = (idTrading: number) => {
@@ -138,7 +133,7 @@ const Header = () => {
     setListTradingResults(lstTradingResult);
     axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
       if (resp?.data?.meta?.code === success) {
-        getDataTradingResult(paramTrading)
+        getTotalTradingResultsUnread();
       }
     },
       (error) => {
@@ -180,7 +175,7 @@ const Header = () => {
               <div className="m-3 d-flex justify-content-between">
                 <strong>Notification</strong>
                 <div>
-                <label>On/Off Notifications: <i onClick={() => setShowNotificationUnread(!showNotificationUnread)} className={showNotificationUnread ? "bi bi-toggle-on" : "bi bi-toggle-off"}></i></label>
+                  <label>On/Off Notifications: <i onClick={() => setShowNotificationUnread(!showNotificationUnread)} className={showNotificationUnread ? "bi bi-toggle-on" : "bi bi-toggle-off"}></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}
