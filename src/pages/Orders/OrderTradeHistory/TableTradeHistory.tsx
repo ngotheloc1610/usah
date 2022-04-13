@@ -40,7 +40,6 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     (<tr>
         <th className="text-left fz-14 w-160">Order ID</th>
         <th className="text-start fz-14 w-120">Ticker Code</th >
-        <th className="text-start fz-14 w-180" >Ticker Name</th>
         <th className="text-center fz-14 w-80" > Order Side </th>
         <th className="text-center fz-14 w-80" >Order Type </th>
         <th className="text-end fz-14 w-120 "> Order Quantity </th>
@@ -55,8 +54,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         listTradeSortDate.map((item: IListTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
                 <td className="td w-160"><a href="#">{item.orderId}</a></td>
-                <td className="td text-start w-120">{getTickerCode(item.tickerCode)}</td>
-                <td className="td text-start w-180">{getTickerName(item.tickerCode)}</td>
+                <td className="td text-start w-120" title={getTickerName(item.tickerCode)}>{getTickerCode(item.tickerCode)}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>
                         {getSideName(item.side)}

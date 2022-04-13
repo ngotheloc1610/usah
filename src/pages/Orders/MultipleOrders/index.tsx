@@ -278,7 +278,6 @@ const MultipleOrders = () => {
             </th>
             <th><span>No.</span></th>
             <th className="text-left"><span>Ticker Code</span></th>
-            <th className="text-left"><span>Ticker Name</span></th>
             <th className="text-left"><span>Order Type</span></th>
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Quantity</span></th>
@@ -312,8 +311,7 @@ const MultipleOrders = () => {
             return <tr key={index}>
                 <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
-                <td className="text-left">{item.ticker}</td>
-                <td className="text-left">{getTickerName(item.ticker)}</td>
+                <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-left">Limit</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
@@ -374,25 +372,23 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap" style={{ width: '15%' }}><span>Ticker Code</span></th>
-            <th className="text-center text-nowrap" style={{ width: '25%' }}><span>Ticker Name</span></th>
-            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Order Type</span></th>
-            <th className="text-end text-center text-nowrap" style={{ width: '15%' }}><span>Order Side</span></th>
-            <th className="text-end text-nowrap " style={{ width: '15%' }}><span>Quantity</span></th>
-            <th className="text-end text-nowrap" style={{ width: '15%' }}><span>Price</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Order Type</span></th>
+            <th className="text-center text-center text-nowrap" style={{ width: '20%' }}><span>Order Side</span></th>
+            <th className="text-center text-nowrap " style={{ width: '20%' }}><span>Quantity</span></th>
+            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
         listSelected.map((item, index) => {
             return <tr key={index}>
-                <td className="text-nowrap">{item.ticker}</td>
-                <td className="text-nowrap">{getTickerName(item.ticker)}</td>
-                <td className="text-end">Limit</td>
-                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center w-100-persent text-nowrap`}>
+                <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
+                <td className="text-center">Limit</td>
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
                     {item.orderSide}
                 </td>
-                <td className="text-end text-nowrap">{formatNumber(item.volume)}</td>
-                <td className="text-end text-nowrap"> {formatCurrency(item.price)}</td>
+                <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
+                <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
             </tr>
         })
     )

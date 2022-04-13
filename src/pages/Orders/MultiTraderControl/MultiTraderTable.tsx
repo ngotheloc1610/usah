@@ -4,7 +4,7 @@ import * as sspb from "../../../models/proto/system_service_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
 import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
@@ -235,6 +235,12 @@ const MultiTraderTable = () => {
         )
     }
 
+    const getTickerName = (ticker: string) => {
+        const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const tickerName = listSymbols.find(o => o?.symbolCode === ticker)?.symbolName;
+        return tickerName ? tickerName : '';
+    }
+
     const _renderTradingAccountId = () => {
         return (<div className="div_maintb">
             <div>
@@ -260,7 +266,7 @@ const MultiTraderTable = () => {
 
                     {totalAccountPortfolio.length > 0 && dataHasOwnedVolume.map((item, index) => (
                         <tr className="tr-maintb" key={index}>
-                            <td>{item.ticker}</td>
+                            <td title={getTickerName(item.ticker)}>{item.ticker}</td>
 
                             {item.holdingVolume.map((item: string, idx: number) => (<td key={idx}>{formatNumber(convertNumber(item).toString())}</td>))}
 

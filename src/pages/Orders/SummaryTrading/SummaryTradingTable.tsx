@@ -235,7 +235,6 @@ function SummaryTradingTable() {
 
     const _renderPortfolioTableHeader = () => (
         <tr>
-            <th className="text-start fz-14 w-200" >Ticker Name</th >
             <th className="text-start fz-14 w-s" >Ticker Code</th>
             <th className="text-end fz-14 w-s" >Owned Volume</th>
             <th className="text-end fz-14 w-s" >AVG Price</th>
@@ -252,8 +251,7 @@ function SummaryTradingTable() {
     const _renderPortfolioTableBody = () => (
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
-                <td className="text-start w-200 td">{getSymbol(item.symbolCode)?.symbolName}</td>
-                <td className="text-start w-s td" >{getSymbol(item.symbolCode)?.symbolCode}</td>
+                <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
                 <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item).toString())}</td>
                 <td className="text-end w-s td" >{(item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : 0}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
