@@ -811,7 +811,7 @@ const MultipleOrders = () => {
 
                 <div className="text-end mb-3 mt-10">
                     <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
-                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Execute</a>
+                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Submit</a>
                 </div>
             </div>
         </div>
