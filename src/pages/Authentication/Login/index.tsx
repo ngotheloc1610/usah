@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, POEM_ID, ROLE, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, POEM_ID, ROLE, SUB_ACCOUNTS, TIME_ZONE } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
@@ -52,9 +52,9 @@ const Login = () => {
                 }
             }
         },
-        (error) => {
-            setIsMessErr(true);
-        });
+            (error) => {
+                setIsMessErr(true);
+            });
     }
     useEffect(() => unLogin(), [email, password])
 
