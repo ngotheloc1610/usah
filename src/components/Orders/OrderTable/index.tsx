@@ -77,9 +77,8 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
-            <th className="text-ellipsis text-start fz-14 w-220">
+            <th className="text-ellipsis text-start fz-14 w-110">
                 <div>Ticker Code</div>
-                <div>Ticker Name</div>
             </th >
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-center fz-14 w-120" > Order Status</th>
@@ -105,9 +104,8 @@ function OrderTable(props: IPropListOrderHistory) {
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
                 <td className="w-180"><span className="text-ellipsis fm"><a href="#">{item.orderId}</a></span></td>
-                <td className="text-ellipsis text-start w-220">
-                    <div>{item?.symbolCode}</div>
-                    <div>{getTickerName(item?.symbolCode)}</div>
+                <td className="text-ellipsis text-start w-110">
+                    <div title={getTickerName(item?.symbolCode)}>{item?.symbolCode}</div>
                 </td>
                 <td className="text-center w-120">
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>

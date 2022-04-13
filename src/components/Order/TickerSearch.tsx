@@ -55,7 +55,7 @@ const TickerSearch = (props: ITickerSearch) => {
     const _renderRecentSearch = () => {
         if (symbolsLocals[0]?.symbolCode) {
             return symbolsLocals.map((ite: ITickerBindingOrder, index: number) =>
-                (<a key={index} href="# " onClick={() => handleSymbols(ite.symbolCode)} className='color-primary mr-10'>{ite.symbolName} [{ite.symbolCode}]</a>))
+                (<a key={index} href="# " onClick={() => handleSymbols(ite.symbolCode)} className='color-primary mr-10'><span title={ite.symbolName}>{ite.symbolCode}</span></a>))
         } else {
             return <></>
         }

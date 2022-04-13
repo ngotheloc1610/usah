@@ -171,12 +171,9 @@ const ListOrder = (props: IPropsListOrder) => {
         window.scrollTo(position.x, position.y)
     }, [position])
 
-    const getTickerCode = (symbolCode: string): string => {
+    const getTicker = (symbolCode: string) => {
         const ticker = symbolList.find(item => item.symbolCode === symbolCode);
-        if (ticker) {
-            return `${ticker.symbolCode} - ${ticker.symbolName}`;
-        }
-        return '';
+        return ticker;
     }
 
     const handleModify = (item: IListOrderMonitoring) => {
@@ -350,7 +347,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         </div>
                     </td>
                     <td className="fm">{item.orderId}</td>
-                    <td>{getTickerCode(item.symbolCode)}</td>
+                    <td title={getTicker(item.symbolCode)?.symbolName}>{getTicker(item.symbolCode)?.symbolCode}</td>
                     <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
                     <td className="text-end ">{formatCurrency(item.price.toString())}</td>
