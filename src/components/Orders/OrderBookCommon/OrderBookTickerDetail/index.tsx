@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
 import { ItemsPage } from '../../../../constants/news.constant';
-import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from '../../../../helper/utils';
+import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber, getNameClassLastPrice, getClassNameChange } from '../../../../helper/utils';
 import { ILastQuote, IPropsDetail } from '../../../../interfaces/order.interface';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
 import { DEFAULT_DATA_TICKER } from '../../../../mocks';
@@ -65,7 +65,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
         if (quotes && quotes.length > 0) {
-            let temp = {...tickerInfo};
+            let temp = { ...tickerInfo };
             const index = quotes.findIndex(o => o?.symbolCode === temp?.symbolCode);
             if (index >= 0) {
                 temp = {
@@ -147,7 +147,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end">{formatCurrency(tickerInfo.currentPrice)}</td>
+                                <td className="text-end"><span className={getNameClassLastPrice(Number(tickerInfo.currentPrice), Number(tickerInfo.open))}>{formatCurrency(tickerInfo.currentPrice)}</span></td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
@@ -170,17 +170,13 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    <span className={getClassNameChange(calcChange(tickerInfo.currentPrice, tickerInfo.open || ''))}>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    <span className={getClassNameChange(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || ''))}>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>
                                 </td>
                             </tr>
                             <tr>
