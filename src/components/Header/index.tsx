@@ -70,6 +70,7 @@ const Header = () => {
       read_flag: false
     }
     getDataTradingResult(paramTrading);
+    getTotalTradingResultsUnread();
   }, [showNotificationUnread]);
 
 
@@ -103,7 +104,6 @@ const Header = () => {
   const getDataTradingResult = (paramTrading) => {
     axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
       if (resp.status === success) {
-        getTotalTradingResultsUnread()
         setListTradingResults(resp?.data?.data?.results);
       }
     },
@@ -113,23 +113,27 @@ const Header = () => {
   }
 
   const getTotalTradingResultsUnread = () => {
-      axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
-          if (resp.status === success) {
-            if(resp?.data?.data) {
-              setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
-            }
-          }
-      },
-          (error) => {
-              console.log(error);
-          });
+    axios.get<IReqTradingResult, IReqTradingResult>(urlGetTotalUnread, defindConfigPost()).then((resp) => {
+      if (resp.status === success) {
+        if (resp?.data?.data) {
+          setTotalItemUnread(resp?.data?.data?.num_unread_trading_results);
+        }
+      }
+    },
+      (error) => {
+        console.log(error);
+      });
   }
 
   const handleReaded = (idTrading: number) => {
-    const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`
+    const urlPostTradingResult = `${urlPostTrading}/${idTrading}/read-flag`;
+    const indexIdTradingReaded = listTradingResults.findIndex(item => item.id === idTrading);
+    listTradingResults[indexIdTradingReaded].readFlg = true;
+    const lstTradingResult = [...listTradingResults];
+    setListTradingResults(lstTradingResult);
     axios.post<IReqTradingResult, IReqTradingResult>(urlPostTradingResult, '', defindConfigPost()).then((resp) => {
       if (resp?.data?.meta?.code === success) {
-        getDataTradingResult(paramTrading)
+        getTotalTradingResultsUnread();
       }
     },
       (error) => {
@@ -162,7 +166,7 @@ const Header = () => {
               <div className="m-3 d-flex justify-content-between">
                 <strong>Notification</strong>
                 <div>
-                <label>On/Off Notifications: <i onClick={() => setShowNotificationUnread(!showNotificationUnread)} className={showNotificationUnread ? "bi bi-toggle-on" : "bi bi-toggle-off"}></i></label>
+                  <label>On/Off Notifications: <i onClick={() => setShowNotificationUnread(!showNotificationUnread)} className={showNotificationUnread ? "bi bi-toggle-on" : "bi bi-toggle-off"}></i></label>
                 </div>
               </div>
               <PopUpNotification listTradingResults={listTradingResults}

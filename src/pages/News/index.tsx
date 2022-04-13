@@ -102,7 +102,9 @@ const News = () => {
     const getNewsFromServer = (param: IParamPagination) => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
             if (resp.status === success) {
-                setListDataNews(resp?.data?.data?.results);
+                const tmpResults = resp?.data?.data?.results;
+                const tmpResultActive = tmpResults?.filter(item => item?.active === true);
+                setListDataNews(tmpResultActive);
                 setTotalItem(resp?.data?.data?.count);
             }
         },
