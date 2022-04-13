@@ -191,10 +191,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const getNameClassLastPrice = (lastPrice: number, open: number) => {
         if (lastPrice > open) {
-            return "text-success"
+            return "text-danger"
         }
         if (lastPrice < open) {
-            return "text-danger"
+            return "text-success"
         } else {
             return ""
         }
