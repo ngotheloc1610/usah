@@ -319,6 +319,7 @@ const OrderBookCommon = () => {
             setTickerSelect(symbolCode);
             setItemTickerInfor(itemTickerInfor);
             setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
+            getTickerSearch(symbolCode)
             searchTicker()
         }
     }
