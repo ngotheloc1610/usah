@@ -31,7 +31,8 @@ message Order {
   Side side					= 28;
   string external_order_id			= 29;
   string currency_code				= 30;
-  string comment					= 31;
+  string total_filled_amount		= 31;
+  string comment					= 32;
 }
 
 message Trade {

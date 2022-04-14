@@ -165,3 +165,23 @@ message GroupUpdateResponse {
 	MsgCode msg_code					= 1;
 	string msg_text			= 2;
 }
+
+// Open Trading Session
+message OpenTradingSessionRequest {
+}
+
+// Open Trading Session
+message OpenTradingSessionResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
+
+// Close Trading Session
+message CloseTradingSessionRequest {
+}
+
+// Close Trading Session
+message CloseTradingSessionResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
