@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { chooseLayoutOrderBook } from '../../../redux/actions/User'
 
 const OrderBookCommon = () => {
+    // State nhận nhiều kiểu dữ liệu nên sẽ khai báo là any
     const styleLayout = useSelector((state: any) => state.user.layoutOrderBook);
     const dispatch = useDispatch();
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(styleLayout.earmarkSpreadSheet);
