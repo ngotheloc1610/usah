@@ -19,8 +19,6 @@ import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
 import { Link } from 'react-router-dom';
 import moment from 'moment-timezone';
-import { useDispatch } from 'react-redux';
-import { keepListOrder } from '../../redux/actions/User'
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -49,8 +47,6 @@ const Header = () => {
   const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
   const usTime: any = useRef();
   const zoneTime: any = useRef();
-
-  const dispatch = useDispatch()
 
   useEffect(() => {
     _renderAccountId()
@@ -109,7 +105,6 @@ const Header = () => {
     localStorage.removeItem(POEM_ID);
     const baseUrl = window.location.origin;
     window.location.href = `${baseUrl}/login`;
-    dispatch(keepListOrder([]));
   }
 
   const handleDisplaySetting = () => {
