@@ -45,7 +45,7 @@ const OrderBookCommon = () => {
     const [symbolSearch, setSymbolSearch] = useState('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [side, setSide] = useState(0);
-    const [listStyleBidsAsk, setListStyleBidsAsk] = useState(DEFAULT_STYLE_LAYOUT)
+    const [listStyleBidsAsk, setListStyleBidsAsk] = useState(DEFAULT_STYLE_LAYOUT);
 
     const year = new Date().getFullYear();
     // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
