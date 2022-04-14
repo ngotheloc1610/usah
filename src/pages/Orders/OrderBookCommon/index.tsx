@@ -17,18 +17,21 @@ import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE } from 
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_TICKER_INFO } from '../../../mocks';
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_STYLE_LAYOUT, DEFAULT_TICKER_INFO } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 import { assignListPrice, calcChange, calcPctChange, checkValue, getSymbolCode, toTimestamp } from '../../../helper/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { chooseLayoutOrderBook } from '../../../redux/actions/User'
 
 const OrderBookCommon = () => {
-    const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(true);
-
+    const styleLayout = useSelector((state: any) => state.user.layoutOrderBook);
+    const dispatch = useDispatch();
+    const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(styleLayout.earmarkSpreadSheet);
+    const [isSpreadsheet, setSpreadsheet] = useState<boolean>(styleLayout.spreadsheet);
+    const [isGrid, setGrid] = useState<boolean>(styleLayout.grid);
+    const [isColumns, setColumns] = useState<boolean>(styleLayout.columns);
+    const [isColumnsGap, setColumnsGap] = useState<boolean>(styleLayout.columnsGap);
     const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
-    const [isSpreadsheet, setSpreadsheet] = useState<boolean>(false);
-    const [isGrid, setGrid] = useState<boolean>(false);
-    const [isColumns, setColumns] = useState<boolean>(false);
-    const [isColumnsGap, setColumnsGap] = useState<boolean>(false);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>(0);
@@ -42,6 +45,7 @@ const OrderBookCommon = () => {
     const [symbolSearch, setSymbolSearch] = useState('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [side, setSide] = useState(0);
+    const [listStyleBidsAsk, setListStyleBidsAsk] = useState(DEFAULT_STYLE_LAYOUT)
 
     const year = new Date().getFullYear();
     // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
@@ -57,6 +61,19 @@ const OrderBookCommon = () => {
         setColumns(false);
         setColumnsGap(false);
     }
+
+    useEffect(() => {
+        const listStyleBidsAsk: IStyleBidsAsk = {
+            earmarkSpreadSheet: isEarmarkSpreadSheet,
+            spreadsheet: isSpreadsheet,
+            grid: isGrid,
+            columns: isColumns,
+            columnsGap: isColumnsGap,
+        };
+        setListStyleBidsAsk(listStyleBidsAsk);
+        dispatch(chooseLayoutOrderBook(listStyleBidsAsk));
+
+    }, [isEarmarkSpreadSheet, isSpreadsheet, isGrid, isColumns, isColumnsGap])
 
     useEffect(() => searchTicker(), [itemTickerInfor])
 
@@ -257,14 +274,6 @@ const OrderBookCommon = () => {
                 break;
             }
         }
-    }
-
-    const listStyleBidsAsk: IStyleBidsAsk = {
-        earmarkSpreadSheet: isEarmarkSpreadSheet,
-        spreadsheet: isSpreadsheet,
-        grid: isGrid,
-        columns: isColumns,
-        columnsGap: isColumnsGap,
     }
 
     const _renderListStyle = (isStyle: boolean, itemStyle: string) => (

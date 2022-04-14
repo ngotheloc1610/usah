@@ -1,4 +1,4 @@
-import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid } from "../interfaces/order.interface";
+import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid, IStyleBidsAsk } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -296,4 +296,12 @@ export const DEFAULT_ORDER_BOOK: IListAskBid = {
     volumeAsk: '-',
     tradableBid: false,
     volumeBid: '-'
+}
+
+export const DEFAULT_STYLE_LAYOUT: IStyleBidsAsk = {
+    earmarkSpreadSheet: true,
+    spreadsheet: false,
+    grid: false,
+    columns: false,
+    columnsGap: false,
 }
