@@ -23,7 +23,7 @@ const MultipleOrders = () => {
     const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
-    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>(listOrderDispatch);
+    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -42,6 +42,11 @@ const MultipleOrders = () => {
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
+
+    useEffect(() => {
+        const listOrderDisplay = listOrderDispatch.filter(item => item.status === undefined);
+        setListTickers(listOrderDisplay);
+    }, [])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -101,6 +106,7 @@ const MultipleOrders = () => {
                 }
             });
             setListTickers(temps);
+            dispatch(keepListOrder(temps));
         }
     }
 
