@@ -25,13 +25,23 @@ import { chooseLayoutOrderBook } from '../../../redux/actions/User'
 
 const OrderBookCommon = () => {
     // State nhận nhiều kiểu dữ liệu nên sẽ khai báo là any
-    const styleLayout = useSelector((state: any) => state.user.layoutOrderBook);
+    let styleLayout = useSelector((state: any) => state.user.layoutOrderBook);
+    if (!styleLayout?.columns && !styleLayout?.columnsGap && !styleLayout?.earmarkSpreadSheet && !styleLayout?.grid && !styleLayout?.spreadsheet) {
+        styleLayout = {
+            columns: true,
+            columnsGap: false,
+            earmarkSpreadSheet: false,
+            grid: false,
+            spreadsheet: false
+        }
+    }
+    
     const dispatch = useDispatch();
-    const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(styleLayout.earmarkSpreadSheet);
-    const [isSpreadsheet, setSpreadsheet] = useState<boolean>(styleLayout.spreadsheet);
-    const [isGrid, setGrid] = useState<boolean>(styleLayout.grid);
-    const [isColumns, setColumns] = useState<boolean>(styleLayout.columns);
-    const [isColumnsGap, setColumnsGap] = useState<boolean>(styleLayout.columnsGap);
+    const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(styleLayout?.earmarkSpreadSheet);
+    const [isSpreadsheet, setSpreadsheet] = useState<boolean>(styleLayout?.spreadsheet);
+    const [isGrid, setGrid] = useState<boolean>(styleLayout?.grid);
+    const [isColumns, setColumns] = useState<boolean>(styleLayout?.columns);
+    const [isColumnsGap, setColumnsGap] = useState<boolean>(styleLayout?.columnsGap);
     const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');

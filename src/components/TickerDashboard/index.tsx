@@ -26,8 +26,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([]);
 
-    const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);

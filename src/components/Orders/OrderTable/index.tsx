@@ -1,5 +1,5 @@
 import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
@@ -130,7 +130,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="td w-200 text-end">
                     <div>{formatOrderTime(item.time)}</div>
-                    {item.executedDatetime && <div >{formatOrderTime(item.time)}</div>}
+                    {item.executedDatetime && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
 
