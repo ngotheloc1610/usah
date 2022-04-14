@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY } from "../../../constants/general.constant";
+import { useEffect, useMemo, useState } from "react";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -575,8 +575,8 @@ const MultipleOrders = () => {
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                    <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
+                    <CurrencyInput disabled={disableControl()} decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
                         thousandseparator="{true}" placeholder=""
                         onChange={(e, maskedVal) => handleChangeValue(e.target.value, maskedVal, title)}
                     />
@@ -586,10 +586,9 @@ const MultipleOrders = () => {
                     <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
-            {title.toLocaleLowerCase() === 'volume' && <>
-                {invalidVolume && <div className='text-danger text-end'>Invalid volume</div>}
-            </>}
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
+            {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid volume</div>}
         </>
 
     )
@@ -756,6 +755,10 @@ const MultipleOrders = () => {
         return '';
     }
 
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
             <div className="box d-flex">
@@ -776,8 +779,8 @@ const MultipleOrders = () => {
                     </div>
 
 
-                    {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-                    {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+                    {_renderPriceInput}
+                    {_renderVolumeInput}
 
                     <div className="border-top">
 
