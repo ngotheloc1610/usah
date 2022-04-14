@@ -98,8 +98,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const mapDataTable = (asksList: IAskAndBidPrice[], bidsList: IAskAndBidPrice[]) => {
         let counter = 0;
         let assgnListAsksBids: IListAskBid[] = [];
-        const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => b?.price.localeCompare(a?.price)) : asksList.sort((a, b) => a?.price.localeCompare(b?.price));
-        const bidList = styleListBidsAsk.columns || styleListBidsAsk.columnsGap ? bidsList.sort((a, b) => b?.price.localeCompare(a?.price)) : bidsList.sort((a, b) => a?.price.localeCompare(b?.price));
+        const askList = styleListBidsAsk?.earmarkSpreadSheet || styleListBidsAsk?.spreadsheet ? asksList.sort((a, b) => a?.price.localeCompare(b?.price)) : asksList.sort((a, b) => b?.price.localeCompare(a?.price));
+        const bidList = bidsList.sort((a, b) => b?.price.localeCompare(a?.price));
 
         setAsksList(getListAsksBids(askList, LIST_PRICE_TYPE.askList));
         setBidsList(getListAsksBids(bidList, LIST_PRICE_TYPE.bidList));
