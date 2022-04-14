@@ -86,8 +86,9 @@ const MultipleOrders = () => {
                         }
                     } else {
                         listSelected.forEach(o => {
-                            temps[Number(o.no)] = {
-                                ...temps[Number(o.no)],
+                            const indexTicker = temps.findIndex(item => Number(item.no) === Number(o.no));
+                            temps[indexTicker] = {
+                                ...temps[indexTicker],
                                 status: item.note
                             }
                         });
