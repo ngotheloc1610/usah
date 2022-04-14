@@ -190,7 +190,8 @@ const Header = () => {
               href="#" className="nav-link pl-0" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
-              <sup className="count">{totalItemUnread}</sup></a>
+              {totalItemUnread > 0 && <sup className="count">{totalItemUnread}</sup>}
+            </a>
 
 
             <div onClick={e => e.stopPropagation()} className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
