@@ -1,4 +1,4 @@
-import { IStyleBidsAsk } from '../../interfaces/order.interface';
+import { IStyleBidsAsk, ISymbolMultiOrder } from '../../interfaces/order.interface';
 import Types from '../types';
 
 const loginSuccess = (payload: any) => ({
@@ -15,4 +15,9 @@ const chooseLayoutOrderBook = (payload: IStyleBidsAsk) => ({
   payload
 })
 
-export {loginSuccess, clearUser, chooseLayoutOrderBook};
+const keepListOrder = (payload: ISymbolMultiOrder[]) => ({
+  type: Types.LIST_ORDER_MULTI_ORDER,
+  payload
+})
+
+export {loginSuccess, clearUser, chooseLayoutOrderBook, keepListOrder};

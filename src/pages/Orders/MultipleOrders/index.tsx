@@ -14,11 +14,16 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
+import { useDispatch, useSelector } from "react-redux";
+import { keepListOrder } from '../../../redux/actions/User'
 
 const MultipleOrders = () => {
+    const listOrderDispatch = useSelector((state: any) => state.user.listOrderMultiOrder);
+    // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
+    const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
-    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
+    const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>(listOrderDispatch);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
@@ -263,6 +268,7 @@ const MultipleOrders = () => {
             }
         });
         setIsDelete(true)
+        dispatch(keepListOrder(tmp));
         setListTickers(tmp);
         setListSelected([]);
     }
@@ -740,6 +746,7 @@ const MultipleOrders = () => {
         const tmp = [...listTickers];
         tmp.unshift(obj);
         setListTickers(tmp);
+        dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
         const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())

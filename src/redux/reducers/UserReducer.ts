@@ -6,7 +6,8 @@ const initState = {
   create_date: '',
   id: 0,
   login: '',
-  layoutOrderBook: DEFAULT_STYLE_LAYOUT
+  layoutOrderBook: DEFAULT_STYLE_LAYOUT,
+  listOrderMultiOrder: []
 };
 
 const UserReducers = (state = initState, action: AnyAction) => {
@@ -23,6 +24,11 @@ const UserReducers = (state = initState, action: AnyAction) => {
       return {
         ...state,
         layoutOrderBook: payload
+      };
+    case Types.LIST_ORDER_MULTI_ORDER:
+      return {
+        ...state,
+        listOrderMultiOrder: payload
       }
 
     default:
