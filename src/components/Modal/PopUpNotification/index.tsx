@@ -12,19 +12,13 @@ interface IPopsNotification {
      listTradingResults: ITradingResult[],
      handleReaded: (item: number) => void,
      setListTradingResults: Dispatch<SetStateAction<ITradingResult[]>>
-     showNotificationUnread: boolean
 }
 const PopUpNotification = (props: IPopsNotification) => {
-     const {listTradingResults, handleReaded, setListTradingResults, showNotificationUnread} = props;
+     const {listTradingResults, handleReaded, setListTradingResults} = props;
      const [elTradingActive, setElTradingActive] = useState(0);
      const [currentPageTrading, setCurrentPageTrading] = useState(FIRST_PAGE)
      const api_url = process.env.REACT_APP_API_URL;
      const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
-
-     useEffect(() => {
-          setCurrentPageTrading(FIRST_PAGE)
-          setListTradingResults([])
-     }, [showNotificationUnread])
      
      const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
           setElTradingActive(index);
@@ -63,14 +57,10 @@ const PopUpNotification = (props: IPopsNotification) => {
           ))
      )
      
-     const getDataTradingResult = (showNotificationUnread: boolean) => {
-          const paramTrading = !showNotificationUnread ? {   
+     const getDataTradingResult = () => {
+          const paramTrading = {   
             page_size: PAGE_SIZE,
             page: currentPageTrading
-          } : {
-            page_size: PAGE_SIZE,
-            page: currentPageTrading,
-            read_flag: false // read_flag = false --> news unread
           }
           axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
           if (resp.status === success) {
@@ -87,7 +77,7 @@ const PopUpNotification = (props: IPopsNotification) => {
 
      const handleScrollToBottom = (event: any) => {
           if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
-               getDataTradingResult(showNotificationUnread)
+               getDataTradingResult()
           }
      }
 

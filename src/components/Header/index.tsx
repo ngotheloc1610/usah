@@ -42,7 +42,7 @@ const Header = () => {
 
 
   const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
-  const [showNotificationUnread, setShowNotificationUnread] = useState(false);
+  const [showNotificationUnread, setShowNotificationUnread] = useState(true);
 
   const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
   const usTime: any = useRef();
@@ -77,13 +77,9 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    const paramTrading = !showNotificationUnread ? {
+    const paramTrading = {
       page_size: pageSizeTrading,
       page: pageCurrentTrading
-    } : {
-      page_size: pageSizeTrading,
-      page: pageCurrentTrading,
-      read_flag: false
     }
     getDataTradingResult(paramTrading);
     getTotalTradingResultsUnread();
@@ -185,12 +181,12 @@ const Header = () => {
           </div>
         </div>
         <ul className="nav header-top-nav">
-          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
+          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show w-37px">
             <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
-              {totalItemUnread > 0 && <sup className="count">{totalItemUnread}</sup>}
+              {totalItemUnread > 0 && showNotificationUnread && <sup className="count">{totalItemUnread}</sup>}
             </a>
 
 
@@ -213,7 +209,6 @@ const Header = () => {
               <PopUpNotification listTradingResults={listTradingResults}
                 handleReaded={handleReaded}
                 setListTradingResults={setListTradingResults}
-                showNotificationUnread={showNotificationUnread}
               />
 
             </div>
