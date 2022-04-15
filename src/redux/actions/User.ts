@@ -1,3 +1,4 @@
+import { IStyleBidsAsk } from '../../interfaces/order.interface';
 import Types from '../types';
 
 const loginSuccess = (payload: any) => ({
@@ -9,4 +10,9 @@ const clearUser = () => ({
   type: Types.CLEAR_USER,
 });
 
-export {loginSuccess, clearUser};
+const chooseLayoutOrderBook = (payload: IStyleBidsAsk) => ({
+  type: Types.LAYOUT_ORDER_BOOK,
+  payload
+})
+
+export {loginSuccess, clearUser, chooseLayoutOrderBook};

@@ -184,7 +184,8 @@ proto.Order.toObject = function(includeInstance, msg) {
     side: jspb.Message.getFieldWithDefault(msg, 28, 0),
     externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, ""),
     currencyCode: jspb.Message.getFieldWithDefault(msg, 30, ""),
-    comment: jspb.Message.getFieldWithDefault(msg, 31, "")
+    totalFilledAmount: jspb.Message.getFieldWithDefault(msg, 31, ""),
+    comment: jspb.Message.getFieldWithDefault(msg, 32, "")
   };
 
   if (includeInstance) {
@@ -342,6 +343,10 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
       msg.setCurrencyCode(value);
       break;
     case 31:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTotalFilledAmount(value);
+      break;
+    case 32:
       var value = /** @type {string} */ (reader.readString());
       msg.setComment(value);
       break;
@@ -584,10 +589,17 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getComment();
+  f = message.getTotalFilledAmount();
   if (f.length > 0) {
     writer.writeString(
       31,
+      f
+    );
+  }
+  f = message.getComment();
+  if (f.length > 0) {
+    writer.writeString(
+      32,
       f
     );
   }
@@ -1135,10 +1147,10 @@ proto.Order.prototype.setCurrencyCode = function(value) {
 
 
 /**
- * optional string comment = 31;
+ * optional string total_filled_amount = 31;
  * @return {string}
  */
-proto.Order.prototype.getComment = function() {
+proto.Order.prototype.getTotalFilledAmount = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 31, ""));
 };
 
@@ -1147,8 +1159,26 @@ proto.Order.prototype.getComment = function() {
  * @param {string} value
  * @return {!proto.Order} returns this
  */
-proto.Order.prototype.setComment = function(value) {
+proto.Order.prototype.setTotalFilledAmount = function(value) {
   return jspb.Message.setProto3StringField(this, 31, value);
+};
+
+
+/**
+ * optional string comment = 32;
+ * @return {string}
+ */
+proto.Order.prototype.getComment = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 32, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setComment = function(value) {
+  return jspb.Message.setProto3StringField(this, 32, value);
 };
 
 
