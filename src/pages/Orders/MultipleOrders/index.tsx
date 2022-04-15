@@ -87,11 +87,12 @@ const MultipleOrders = () => {
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
-            orderList.forEach((item: IOrderListResponse, index: number) => {
+            orderList.forEach((item: IOrderListResponse) => {
+                const idx = temps.findIndex(o => o?.ticker === item?.symbolCode && o?.price === item.price);
                 if (item) {
                     if (orderList.length === temps.length) {
-                        temps[index] = {
-                            ...temps[index],
+                        temps[idx] = {
+                            ...temps[idx],
                             status: item.note
                         }
                     } else {
@@ -402,7 +403,7 @@ const MultipleOrders = () => {
                 <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-center">Limit</td>
                 <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
-                    {item.orderSide}
+                    {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
                 <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
