@@ -65,7 +65,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
         if (quotes && quotes.length > 0) {
-            let temp = {...tickerInfo};
+            let temp = { ...tickerInfo };
             const index = quotes.findIndex(o => o?.symbolCode === temp?.symbolCode);
             if (index >= 0) {
                 temp = {
@@ -147,7 +147,11 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         <tbody>
                             <tr>
                                 <td><strong className="text-table">Last price</strong></td>
-                                <td className="text-end">{formatCurrency(tickerInfo.currentPrice)}</td>
+                                <td className="text-end">
+                                    {Number(tickerInfo.currentPrice) > Number(tickerInfo.open) && <span className='text-danger'>{formatCurrency(tickerInfo.currentPrice)}</span>}
+                                    {Number(tickerInfo.currentPrice) < Number(tickerInfo.open) && <span className='text-success'>{formatCurrency(tickerInfo.currentPrice)}</span>}
+                                    {Number(tickerInfo.currentPrice) === Number(tickerInfo.open) && <span>{formatCurrency(tickerInfo.currentPrice)}</span>}
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Open</strong></td>
@@ -170,16 +174,16 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-danger'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-success'>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                     {calcChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-success'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
-                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') > 0 && <span className='text-danger'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
+                                    {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') < 0 && <span className='text-success'>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                     {calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '') === 0 && <span>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>}
                                 </td>
                             </tr>
