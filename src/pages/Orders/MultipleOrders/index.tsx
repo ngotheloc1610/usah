@@ -14,8 +14,13 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
+import { useDispatch, useSelector } from "react-redux";
+import { keepListOrder } from '../../../redux/actions/Orders'
 
 const MultipleOrders = () => {
+    const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
+    // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
+    const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
@@ -37,6 +42,11 @@ const MultipleOrders = () => {
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
+
+    useEffect(() => {
+        const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
+        setListTickers(listOrderDisplay);
+    }, [])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -77,11 +87,12 @@ const MultipleOrders = () => {
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
-            orderList.forEach((item: IOrderListResponse, index: number) => {
+            orderList.forEach((item: IOrderListResponse) => {
+                const idx = temps.findIndex(o => o?.ticker === item?.symbolCode && o?.price === item.price);
                 if (item) {
                     if (orderList.length === temps.length) {
-                        temps[index] = {
-                            ...temps[index],
+                        temps[idx] = {
+                            ...temps[idx],
                             status: item.note
                         }
                     } else {
@@ -96,6 +107,7 @@ const MultipleOrders = () => {
                 }
             });
             setListTickers(temps);
+            dispatch(keepListOrder(temps));
         }
     }
 
@@ -264,6 +276,7 @@ const MultipleOrders = () => {
             }
         });
         setIsDelete(true)
+        dispatch(keepListOrder(tmp));
         setListTickers(tmp);
         setListSelected([]);
     }
@@ -390,7 +403,7 @@ const MultipleOrders = () => {
                 <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-center">Limit</td>
                 <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
-                    {item.orderSide}
+                    {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
                 <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
@@ -740,6 +753,7 @@ const MultipleOrders = () => {
         const tmp = [...listTickers];
         tmp.unshift(obj);
         setListTickers(tmp);
+        dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
         const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())

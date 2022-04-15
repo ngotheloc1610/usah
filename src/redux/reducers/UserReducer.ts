@@ -23,7 +23,7 @@ const UserReducers = (state = initState, action: AnyAction) => {
       return {
         ...state,
         layoutOrderBook: payload
-      }
+      };
 
     default:
       return state;
