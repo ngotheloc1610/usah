@@ -12,7 +12,7 @@ const initState = {
         return {
           ...state,
           listOrderMultiOrder: payload
-        }
+        };
   
       default:
         return state;
