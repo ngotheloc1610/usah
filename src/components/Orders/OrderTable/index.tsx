@@ -92,7 +92,7 @@ function OrderTable(props: IPropListOrderHistory) {
             </th>
             <th className="text-ellipsis text-end fz-14 w-200">
                 <div> Order Datetime </div>
-                <div> Executed Datetime </div>
+                <div> Last Updated time </div>
             </th>
             <th className="text-ellipsis text-start fz-14 w-200">Comment</th>
         </tr>
@@ -120,7 +120,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <div>{formatNumber(calcPendingVolume(item.amount, item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? item.amount : item.filledAmount).toString())}</div>
                 </td>
 
-                <td className="text-end w-120">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.amount) : formatNumber(item.filledAmount)}</td>
+                <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
