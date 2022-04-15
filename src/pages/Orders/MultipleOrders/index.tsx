@@ -15,7 +15,7 @@ import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
-import { keepListOrder } from '../../../redux/actions/User'
+import { keepListOrder } from '../../../redux/actions/Orders'
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.user.listOrderMultiOrder);
