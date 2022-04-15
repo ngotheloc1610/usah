@@ -5,7 +5,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
+import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
 import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
@@ -225,7 +225,9 @@ const MultiTraderTable = () => {
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Realized PL</div>
-                        <div className={`fs-5 fw-bold ${getClassName(allTotalPL)}`}>{formatCurrency(allTotalPL.toString())}</div>
+                        {allTotalPL > 0 && <div className="fs-5 fw-bold text-success">{formatCurrency(allTotalPL.toString())}</div>}
+                        {allTotalPL < 0 && <div className="fs-5 fw-bold text-danger">{formatCurrency(allTotalPL.toString())}</div>}
+                        {allTotalPL === 0 && <div className="fs-5 fw-bold">{formatCurrency(allTotalPL.toString())}</div>}
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>

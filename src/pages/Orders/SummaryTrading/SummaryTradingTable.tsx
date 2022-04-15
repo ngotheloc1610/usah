@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -193,7 +193,9 @@ function SummaryTradingTable() {
                 </div>
                 <div className="col-md-2 text-center">
                     <div>Total Unrealized PL:</div>
-                    <div className={`fs-5 fw-bold ${getClassName(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
+                    {totalUnrealizedPL(portfolio) > 0 && <div className='fs-5 fw-bold text-success'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
+                    {totalUnrealizedPL(portfolio) < 0 && <div className='fs-5 fw-bold text-danger'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
+                    {totalUnrealizedPL(portfolio) === 0 && <div className='fs-5 fw-bold'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
                 </div>
                 <div className="col-md-4 order-0 order-md-4">
                     <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -257,11 +259,15 @@ function SummaryTradingTable() {
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>
-                <td className="text-end w-s td fw-600" ><span className={getClassName(calcUnrealizedPL(item))}>
-                    {formatCurrency(calcUnrealizedPL(item).toString())}</span>
+                <td className="text-end w-s td fw-600" >
+                    {calcUnrealizedPL(item) > 0 && <span className='text-success'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
+                    {calcUnrealizedPL(item) < 0 && <span className='text-danger'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
+                    {calcUnrealizedPL(item) === 0 && <span>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
                 </td>
-                <td className="text-end w-s td fw-600"><span className={getClassName(calcPctUnrealizedPL(item))}>
-                    {calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
+                <td className="text-end w-s td fw-600">
+                    {calcPctUnrealizedPL(item) > 0 && <span className='text-success'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
+                    {calcPctUnrealizedPL(item) < 0 && <span className='text-danger'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
+                    {calcPctUnrealizedPL(item) === 0 && <span>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
                 </td>
                 <td className="text-end w-s">{formatNumber(calcTransactionVolume(item).toString())}</td>
             </tr>
