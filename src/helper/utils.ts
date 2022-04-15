@@ -284,35 +284,3 @@ export const exportCSV = (csvData, fileName) => {
     FileSaver.saveAs(data, fileName + fileExtension);
 }
 
-export const getClassName = (item: number) => {
-    if (item > 0) {
-        return "text-success";
-    }
-    if (item < 0) {
-        return "text-danger";
-    } else {
-        return "";
-    }
-}
-
-export const getClassNameChange = (item: number) => {
-    if (item > 0) {
-        return "text-dange";
-    }
-    if (item < 0) {
-        return "text-success";
-    } else {
-        return "";
-    }
-}
-
-export const getNameClassLastPrice = (lastPrice: number, open: number) => {
-    if (lastPrice > open) {
-        return "text-danger"
-    }
-    if (lastPrice < open) {
-        return "text-success"
-    } else {
-        return ""
-    }
-}
