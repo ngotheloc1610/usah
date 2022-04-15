@@ -17,7 +17,7 @@ interface IOrderBookProps {
     listTickerSearch?: string[];
     tickerDetailLastQuote: (item: IAskAndBidPrice) => void;
     currentTicker?: ITickerInfo;
-    symbolCode?:  string;
+    symbolCode?: string;
     handleSide?: (side: number) => void;
 }
 
@@ -211,7 +211,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     value={ticker}
                     disablePortal
                     sx={{ width: 300 }}
-                    options={listTickerSearch ? listTickerSearch : []}
+                    options={listTickerSearch ? listTickerSearch.filter(tickerSearch => tickerSearch.includes(ticker?.toUpperCase())) : []}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />
             </div>
