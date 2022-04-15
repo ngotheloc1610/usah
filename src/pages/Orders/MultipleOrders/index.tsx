@@ -341,7 +341,7 @@ const MultipleOrders = () => {
                             onChange={(e) => changeVolume(e.target.value, item, index)}
                             thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
+                        <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increaseVolume(item, index)}></i>
                             <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreaseVolume(item, index)}></i>
                         </div>
@@ -354,11 +354,9 @@ const MultipleOrders = () => {
                             decimalscale={2} type="text" className="form-control text-end border-1 py-0 px-10"
                             thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
-                            <div className="d-flex flex-column">
+                        <div className="d-flex flex-column opacity-75">
                                 <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
                                 <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreasePrice(item, index)}></i>
-                            </div>
                         </div>
                     </div>
                 </td>
