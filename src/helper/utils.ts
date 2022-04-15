@@ -218,8 +218,7 @@ export const calcVolumeASC = (arr: IAskAndBidPrice[], index: number) => {
 }
 
 export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) => {
-    let askBidItem: IAskAndBidPrice[] = [];
-    askBidItem = asksBidsList.sort((a, b) => b?.price.localeCompare(a?.price));
+    let askBidItem: IAskAndBidPrice[] = asksBidsList;
     let arr: IAsksBidsList[] = [];
     let counter = 0;
     while (counter < MARKET_DEPTH_LENGTH) {
