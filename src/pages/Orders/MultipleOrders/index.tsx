@@ -499,6 +499,7 @@ const MultipleOrders = () => {
             }
         }
         setListTickers(list);
+        dispatch(keepListOrder(list));
     }
 
     const handleFileUpload = (event: any) => {
