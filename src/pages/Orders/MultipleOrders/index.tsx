@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders'
 
 const MultipleOrders = () => {
-    const listOrderDispatch = useSelector((state: any) => state.user.listOrderMultiOrder);
+    const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
     // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
     const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
@@ -44,7 +44,7 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
 
     useEffect(() => {
-        const listOrderDisplay = listOrderDispatch.filter(item => item.status === undefined);
+        const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
     }, [])
 
