@@ -205,7 +205,7 @@ const OrderBook = (props: IOrderBookProps) => {
         <div className="card-header-style">
             <div className="input-group input-group-sm dark">
                 <Autocomplete
-                    className='ticker-input'
+                    className='ticker-search'
                     onChange={(event: any) => handleKeyUp(event)}
                     onKeyUp={(event: any) => handleKeyUp(event)}
                     value={ticker}

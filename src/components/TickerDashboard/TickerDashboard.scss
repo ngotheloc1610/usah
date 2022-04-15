@@ -105,7 +105,7 @@
 }
 
 .card-header-style {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.45rem;
     background-color: #16365C;
     color: #fff;
     border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
@@ -139,4 +139,13 @@
     position: sticky;
     top: 0;
     z-index: 1;
+}
+
+.ticker-search .MuiAutocomplete-input {
+    padding-right: 55px !important;
+}
+
+.ticker-search .MuiAutocomplete-inputRoot,
+.ticker-search .MuiButtonBase-root  {
+    color: #fff;
 }
