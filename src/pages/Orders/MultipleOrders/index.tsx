@@ -6,7 +6,7 @@ import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, renderCurrentList, convertNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
-import './multipleOrders.css';
+import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
 import { toast } from "react-toastify";
@@ -341,21 +341,9 @@ const MultipleOrders = () => {
                             onChange={(e) => changeVolume(e.target.value, item, index)}
                             thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
-                            <svg
-                                onClick={(e) => increaseVolume(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16"
-                            >
-                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                            </svg>
-                            <svg
-                                onClick={() => decreaseVolume(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
-                                viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                            </svg>
+                        <div className="d-flex flex-column opacity-75">
+                            <i className="bi bi-caret-up-fill line-height-16" onClick={() => increaseVolume(item, index)}></i>
+                            <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreaseVolume(item, index)}></i>
                         </div>
                     </div>
                 </td>
@@ -366,20 +354,9 @@ const MultipleOrders = () => {
                             decimalscale={2} type="text" className="form-control text-end border-1 py-0 px-10"
                             thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
-                            <svg
-                                onClick={(e) => increasePrice(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16">
-                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                            </svg>
-                            <svg
-                                onClick={() => decreasePrice(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
-                                viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                            </svg>
+                        <div className="d-flex flex-column opacity-75">
+                                <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
+                                <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreasePrice(item, index)}></i>
                         </div>
                     </div>
                 </td>
@@ -499,6 +476,7 @@ const MultipleOrders = () => {
             }
         }
         setListTickers(list);
+        dispatch(keepListOrder(list));
     }
 
     const handleFileUpload = (event: any) => {
