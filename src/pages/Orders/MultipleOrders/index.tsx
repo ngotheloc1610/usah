@@ -84,6 +84,7 @@ const MultipleOrders = () => {
     useEffect(() => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
+
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
@@ -97,7 +98,7 @@ const MultipleOrders = () => {
                         }
                     } else {
                         listSelected.forEach(o => {
-                            const indexTicker = temps.findIndex(item => Number(item.no) === Number(o.no));
+                            const indexTicker = temps.findIndex(item => item.ticker === o.ticker && o?.price === item.price);
                             temps[indexTicker] = {
                                 ...temps[indexTicker],
                                 status: item.note
