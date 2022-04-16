@@ -183,7 +183,7 @@ const Header = () => {
         <ul className="nav header-top-nav">
           <li className="nav-item nav-item-notification dropdown d-none d-sm-block show w-37px">
             <a onClick={(e) => showPopupNotification(e)}
-              href="#" className="nav-link pl-0 d-flex align-items-center" role="button"
+              href="#" className="nav-link pl-0 position-fixed" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
               {totalItemUnread > 0 && showNotificationUnread && <sup className="count">{totalItemUnread}</sup>}
