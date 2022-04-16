@@ -297,7 +297,7 @@ const MultipleOrders = () => {
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Quantity</span></th>
             <th className="text-end"><span>Price</span></th>
-            {statusPlace && <th className="text-end w-120"><span>Status</span></th>}
+            {statusPlace && <th className="text-end w-140"><span>Status</span></th>}
         </tr>
     )
 
@@ -361,7 +361,7 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                {statusPlace && <td className="text-end w-120">{defindStatusOrder(item)}</td>}
+                {statusPlace && <td className="text-end w-140">{defindStatusOrder(item)}</td>}
             </tr>
         })
     )
