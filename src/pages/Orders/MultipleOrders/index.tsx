@@ -758,7 +758,7 @@ const MultipleOrders = () => {
             return <div title={STATUS_ORDER.success} className="text-success text-truncate max-width-150">{STATUS_ORDER.success}</div>
         }
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase() +'ashdkashsah'}</div>
+            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase()}</div>
         }
         return '';
     }
