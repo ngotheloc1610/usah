@@ -4,7 +4,7 @@ import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, renderCurrentList, convertNumber } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
@@ -15,7 +15,8 @@ import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
-import { keepListOrder } from '../../../redux/actions/Orders'
+import { keepListOrder } from '../../../redux/actions/Orders';
+import { ORDER_RESPONSE } from "../../../constants";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -57,12 +58,13 @@ const MultipleOrders = () => {
             } else {
                 tmp = RESPONSE_RESULT.error;
             }
-            getStatusOrderResponse(tmp, resp[MSG_TEXT]);
+            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
                 setStatusPlace(true);
                 setListSelected([]);
             }
+            
         });
 
         return () => {
@@ -424,9 +426,22 @@ const MultipleOrders = () => {
             setShowModalConfirmMultiOrders(false);
         }
     }
-    const getStatusOrderResponse = (value: number, content: string) => {
+    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[]) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
+            if (lstResponse && lstResponse?.length > 0) {
+                const lengItemSuccess = lstResponse?.filter(item => item?.state === tradingModel.OrderState.ORDER_STATE_PLACED)?.length;
+                if (lengItemSuccess === 0) {
+                    return <div>{toast.error(`${ORDER_RESPONSE.REJECT}: ${lstResponse.length}`)}</div>
+                }
+                if (lengItemSuccess !== lstResponse.length) {
+                    return <div>{toast.warning(`${ORDER_RESPONSE.SUCCESS}: ${lengItemSuccess}, ${ORDER_RESPONSE.REJECT}: ${lstResponse?.length - lengItemSuccess}`)}</div>
+                }
+                
+                if (lengItemSuccess === lstResponse.length) {
+                    return <div>{toast.success(`${ORDER_RESPONSE.SUCCESS}: ${lengItemSuccess}`)}</div>
+                }
+            }
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}

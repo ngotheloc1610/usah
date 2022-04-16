@@ -12,3 +12,8 @@ export const SIDE = {
 export const pageSizeTicker = 8;
 export const pageFirst = 1;
 export const success = 200;
+
+export const ORDER_RESPONSE = {
+    REJECT: 'Reject',
+    SUCCESS: 'Success',
+};
