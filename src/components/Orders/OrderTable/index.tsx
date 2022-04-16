@@ -91,10 +91,10 @@ function OrderTable(props: IPropListOrderHistory) {
                 <div>Executed Price</div>
             </th>
             <th className="text-ellipsis text-end fz-14 w-200">
-                <div> Order Datetime </div>
-                <div> Last Updated time </div>
+                <div className="mg-right-24"> Order Datetime </div>
+                <div className="mg-right-24"> Last Updated time </div>
             </th>
-            <th className="text-ellipsis text-start fz-14 w-200">Comment</th>
+            <th className="text-ellipsis fz-14 w-200">Comment</th>
         </tr>
     )
     
@@ -128,13 +128,13 @@ function OrderTable(props: IPropListOrderHistory) {
                     {item.lastPrice === '' && <div>&nbsp;</div>}
                 </td>
 
-                <td className="td w-200 text-end">
+                <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
                     {item.executedDatetime && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
 
-                <td className="text-ellipsis text-start fz-14 w-200">{item.comment}</td>
+                <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
 
             </tr>
         ))
