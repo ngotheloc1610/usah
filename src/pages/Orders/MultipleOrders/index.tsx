@@ -94,6 +94,7 @@ const MultipleOrders = () => {
                     if (orderList.length === temps.length) {
                         temps[idx] = {
                             ...temps[idx],
+                            state: item.state,
                             status: item.note
                         }
                     } else {
@@ -101,6 +102,7 @@ const MultipleOrders = () => {
                             const indexTicker = temps.findIndex(item => item.ticker === o.ticker && o?.price === item.price);
                             temps[indexTicker] = {
                                 ...temps[indexTicker],
+                                state: item.state,
                                 status: item.note
                             }
                         });
@@ -741,12 +743,11 @@ const MultipleOrders = () => {
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
-        if (order.status?.toLocaleLowerCase().includes('success')) {
+        if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ) {
             return <span className="text-success">{STATUS_ORDER.success}</span>
-        } else if (order.status?.toLocaleLowerCase().includes('invalid')) {
-            return <span className="text-danger">{STATUS_ORDER.rejected}</span>
-        } else if (order.status?.toUpperCase().includes('RISK_NSF')) {
-            return <span className="text-danger">{STATUS_ORDER.rejected}</span>
+        }
+        if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
+            return <span className="text-danger">{order.status?.toUpperCase()}</span>
         }
         return '';
     }
