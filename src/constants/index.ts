@@ -14,7 +14,7 @@ export const pageFirst = 1;
 export const success = 200;
 
 export const REQUEST_SUCCESS = 'Request success';
-export const ORDER_RESPONE = {
+export const ORDER_RESPONSE = {
     REJECT: 'Reject',
     SUCCESS: 'Success',
 };
