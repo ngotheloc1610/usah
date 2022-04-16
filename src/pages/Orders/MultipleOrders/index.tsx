@@ -755,10 +755,10 @@ const MultipleOrders = () => {
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ) {
-            return <div title={STATUS_ORDER.success} className="text-success text-overflow">{STATUS_ORDER.success}</div>
+            return <div title={STATUS_ORDER.success} className="text-success text-truncate max-width-150">{STATUS_ORDER.success}</div>
         }
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <div title={order.status?.toUpperCase()} className="text-danger text-overflow">{order.status?.toUpperCase()}</div>
+            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase() +'ashdkashsah'}</div>
         }
         return '';
     }

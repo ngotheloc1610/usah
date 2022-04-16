@@ -80,9 +80,6 @@
     line-height: 16px;
 }
 
-.text-overflow {
-    white-space: nowrap; 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 140px;
+.max-width-150{
+    max-width: 150px;
 }
