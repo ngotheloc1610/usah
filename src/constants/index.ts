@@ -12,3 +12,7 @@ export const SIDE = {
 export const pageSizeTicker = 8;
 export const pageFirst = 1;
 export const success = 200;
+
+export const REQUEST_SUCCESS = 'Request success';
+export const REJECT = 'Reject';
+export const SUCCESS = 'Success';

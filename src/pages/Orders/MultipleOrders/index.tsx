@@ -14,6 +14,7 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
+import { REJECT, REQUEST_SUCCESS, SUCCESS } from "../../../constants";
 
 const MultipleOrders = () => {
     const tradingModelPb: any = tspb;
@@ -438,16 +439,16 @@ const MultipleOrders = () => {
         if (statusOrder === 0) {
             setStatusOrder(value);
             if (lstResponse && lstResponse?.length > 0) {
-                const lengItemSuccess = lstResponse?.filter(item => item?.note?.toLocaleLowerCase().includes('success'))?.length;
-                const lengItemReject = lstResponse?.filter(item => item?.note.toLocaleUpperCase().includes('RISK_NSF'))?.length;
-                if (lengItemSuccess !== lstResponse.length && lengItemReject !== lstResponse.length) {
-                    return <div>{toast.warning(`Success: ${lengItemSuccess}, Reject: ${lengItemReject}`)}</div>
+                const lengItemSuccess = lstResponse?.filter(item => item?.note?.toLocaleLowerCase().includes(REQUEST_SUCCESS))?.length;
+                if (lengItemSuccess === 0) {
+                    return <div>{toast.error(`${REJECT}: ${lstResponse.length}`)}</div>
                 }
-                if (lengItemReject === lstResponse.length) {
-                    return <div>{toast.error(`Reject: ${lengItemReject}`)}</div>
+                if (lengItemSuccess !== lstResponse.length) {
+                    return <div>{toast.warning(`${SUCCESS}: ${lengItemSuccess}, ${REJECT}: ${lstResponse?.length - lengItemSuccess}`)}</div>
                 }
+                
                 if (lengItemSuccess === lstResponse.length) {
-                    return <div>{toast.success(`Success: ${lengItemSuccess}`)}</div>
+                    return <div>{toast.success(`${SUCCESS}: ${lengItemSuccess}`)}</div>
                 }
             }
             return <>
