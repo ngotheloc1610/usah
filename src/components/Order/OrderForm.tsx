@@ -64,8 +64,8 @@ const OrderForm = (props: IOrderForm) => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
 
     const [statusCancel, setStatusCancel] = useState(0);
-    const [statusModify, setStatusModify] = useState(0); 
-    
+    const [statusModify, setStatusModify] = useState(0);
+
     useEffect(() => {
         if (side) {
             setCurrentSide(side);
@@ -104,7 +104,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-        
+
     }, [symbolCode])
 
     useEffect(() => {
@@ -123,7 +123,7 @@ const OrderForm = (props: IOrderForm) => {
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
         messageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
-        switch(typeStatusRes) {
+        switch (typeStatusRes) {
             case TYPE_ORDER_RES.Order:
                 return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
             case TYPE_ORDER_RES.Cancel:
@@ -183,7 +183,7 @@ const OrderForm = (props: IOrderForm) => {
             return;
         }
         setIsShowNotiErrorPrice(false);
-        
+
     }
 
     const handleLowerPrice = () => {
@@ -308,26 +308,26 @@ const OrderForm = (props: IOrderForm) => {
     )
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
-        <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-            <div className="flex-grow-1 py-1 px-2">
-                <label className="text text-secondary">{title}</label>
-                <CurrencyInput decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600" 
-                thousandseparator="{true}" value={value} placeholder=""
-                onChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
+            <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
+                <div className="flex-grow-1 py-1 px-2">
+                    <label className="text text-secondary">{title}</label>
+                    <CurrencyInput decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        thousandseparator="{true}" value={convertNumber(value)} placeholder=""
+                        onChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
+                </div>
+                <div className="border-start d-flex flex-column">
+                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                </div>
             </div>
-            <div className="border-start d-flex flex-column">
-                <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
-            </div>
-        </div>
             {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-        <div>
-            {title === TITLE_ORDER_CONFIRM.PRICE && <>
-                {invalidPrice && <span className='text-danger'>Invalid Price</span>}
-            </>}
-        </div>
+            <div>
+                {title === TITLE_ORDER_CONFIRM.PRICE && <>
+                    {invalidPrice && <span className='text-danger'>Invalid Price</span>}
+                </>}
+            </div>
             {title === TITLE_ORDER_CONFIRM.QUANLITY && <> {invalidVolume && <span className='text-danger'>Invalid volume</span>}</>}
-    </>
+        </>
     }
 
     const _renderPlaceButton = () => (
@@ -346,29 +346,33 @@ const OrderForm = (props: IOrderForm) => {
 
     const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
 
-    const _renderForm = () => (
-        <form action="#" className="order-form p-2 border shadow my-3">
-            <div className="order-btn-group d-flex align-items-stretch mb-2">
-                {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
-                {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.Side.BUY, '', 'selected')}
-            </div>
-            <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
-                <label className="text text-secondary">Ticker</label>
-                <div className="fs-18 mr-3">
-                    <b>{symbolCode ? symbolCode : ''}</b>
+    const _renderForm = () => {
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const existSymbol = symbols.find(symbol => symbol.symbolCode === symbolCode);
+        return (
+            <form action="#" className="order-form p-2 border shadow my-3">
+                <div className="order-btn-group d-flex align-items-stretch mb-2">
+                    {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
+                    {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.Side.BUY, '', 'selected')}
                 </div>
-            </div>
+                <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
+                    <label className="text text-secondary">Ticker</label>
+                    <div className="fs-18 mr-3">
+                        <b>{existSymbol ? existSymbol.symbolCode : ''}</b>
+                    </div>
+                </div>
 
-            {_renderPriceInput}
-            {_renderVolumeInput}
+                {_renderPriceInput}
+                {_renderVolumeInput}
 
-            <div className="border-top">
-                {_renderPlaceButton()}
-                {isDashboard && _renderResetButton()}
-            </div>
-            {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
-        </form>
-    )
+                <div className="border-top">
+                    {_renderPlaceButton()}
+                    {isDashboard && _renderResetButton()}
+                </div>
+                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
+            </form>
+        )
+    }
 
     return <div>
         {_renderForm()}
