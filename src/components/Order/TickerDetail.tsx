@@ -145,9 +145,9 @@ const TickerDetail = (props: ITickerDetailProps) => {
         if (Number(changeDisplay) === 0) {
             textColor = 'text-warning';
         } else if (Number(changeDisplay) < 0) {
-            textColor = 'text-danger';
-        } else {
             textColor = 'text-success';
+        } else {
+            textColor = 'text-danger';
         }
         return (
             <td className="text-end w-precent-19">

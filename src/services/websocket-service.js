@@ -8,6 +8,7 @@ import ReduxPersist from '../config/ReduxPersist';
 import queryString from 'query-string';
 import { TOKEN } from '../constants/general.constant';
 import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID } from '../constants/general.constant';
+import { toast } from 'react-toastify';
 
 const url = process.env.REACT_APP_BASE_URL;
 let token = process.env.REACT_APP_TOKEN;
@@ -61,7 +62,11 @@ const startWs = async () => {
         localStorage.removeItem(EXPIRE_TIME);
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
-        window.location.href = '/login';
+        toast.error('Invalid Token');
+        // Time to display notification error is 3s
+        setTimeout(()=> {
+            window.location.href = '/login';
+        }, 3000);
     }
     
     socket.onclose = () => {
