@@ -367,7 +367,7 @@ const News = () => {
     // detail
     const _renderNewsNotificationDetailItem = () => (
 
-        <div className="notification-detail border p-3 shadow-sm" >
+        <div className="notification-detail border p-3 shadow-sm overflow-auto" >
             <div className="d-flex mb-2 border-bottom pb-1">
                 <div>
                     <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>

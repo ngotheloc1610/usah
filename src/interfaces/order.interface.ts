@@ -183,6 +183,7 @@ export interface ISymbolMultiOrder {
     price: string;
     ticker: string;
     volume: string;
+    state?: number;
     status?: string;
 }
 
