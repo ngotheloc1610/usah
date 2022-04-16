@@ -91,24 +91,20 @@ const MultipleOrders = () => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
             orderList.forEach((item: IOrderListResponse) => {
-                const idx = temps.findIndex(o => o?.ticker === item?.symbolCode && o?.price === item.price);
                 if (item) {
-                    if (orderList.length === temps.length) {
-                        temps[idx] = {
-                            ...temps[idx],
+                    const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
+                        if (order?.ticker === item?.symbolCode && order?.price === item.price)
+                            listIndex.push(idx);
+                        return listIndex;
+                    }, []);
+
+                    listIndex.forEach(el => {
+                        temps[el] = {
+                            ...temps[el],
                             state: item.state,
                             status: item.note
                         }
-                    } else {
-                        listSelected.forEach(o => {
-                            const indexTicker = temps.findIndex(item => item.ticker === o.ticker && o?.price === item.price);
-                            temps[indexTicker] = {
-                                ...temps[indexTicker],
-                                state: item.state,
-                                status: item.note
-                            }
-                        });
-                    }
+                    });
                 }
             });
             setListTickers(temps);
@@ -301,7 +297,7 @@ const MultipleOrders = () => {
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Quantity</span></th>
             <th className="text-end"><span>Price</span></th>
-            {statusPlace && <th className="text-end"><span>Status</span></th>}
+            {statusPlace && <th className="text-end w-140"><span>Status</span></th>}
         </tr>
     )
 
@@ -365,7 +361,7 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
+                {statusPlace && <td className="text-end w-140">{defindStatusOrder(item)}</td>}
             </tr>
         })
     )
@@ -759,10 +755,10 @@ const MultipleOrders = () => {
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ) {
-            return <span className="text-success">{STATUS_ORDER.success}</span>
+            return <div title={STATUS_ORDER.success} className="text-success text-truncate max-width-150">{STATUS_ORDER.success}</div>
         }
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <span className="text-danger">{order.status?.toUpperCase()}</span>
+            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase()}</div>
         }
         return '';
     }
