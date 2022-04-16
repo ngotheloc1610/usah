@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY } from "../../../constants/general.constant";
+import { useEffect, useMemo, useState } from "react";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, renderCurrentList, convertNumber } from "../../../helper/utils";
 import CurrencyInput from 'react-currency-masked-input';
-import './multipleOrders.css';
+import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
 import { toast } from "react-toastify";
@@ -14,9 +14,14 @@ import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
+import { useDispatch, useSelector } from "react-redux";
+import { keepListOrder } from '../../../redux/actions/Orders'
 import { ORDER_RESPONSE, REQUEST_SUCCESS } from "../../../constants";
 
 const MultipleOrders = () => {
+    const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
+    // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
+    const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
@@ -38,6 +43,11 @@ const MultipleOrders = () => {
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
+
+    useEffect(() => {
+        const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
+        setListTickers(listOrderDisplay);
+    }, [])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -79,17 +89,19 @@ const MultipleOrders = () => {
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
             const temps = [...listTickers];
-            orderList.forEach((item: IOrderListResponse, index: number) => {
+            orderList.forEach((item: IOrderListResponse) => {
+                const idx = temps.findIndex(o => o?.ticker === item?.symbolCode && o?.price === item.price);
                 if (item) {
                     if (orderList.length === temps.length) {
-                        temps[index] = {
-                            ...temps[index],
+                        temps[idx] = {
+                            ...temps[idx],
                             status: item.note
                         }
                     } else {
                         listSelected.forEach(o => {
-                            temps[Number(o.no)] = {
-                                ...temps[Number(o.no)],
+                            const indexTicker = temps.findIndex(item => Number(item.no) === Number(o.no));
+                            temps[indexTicker] = {
+                                ...temps[indexTicker],
                                 status: item.note
                             }
                         });
@@ -97,6 +109,7 @@ const MultipleOrders = () => {
                 }
             });
             setListTickers(temps);
+            dispatch(keepListOrder(temps));
         }
     }
 
@@ -265,6 +278,7 @@ const MultipleOrders = () => {
             }
         });
         setIsDelete(true)
+        dispatch(keepListOrder(tmp));
         setListTickers(tmp);
         setListSelected([]);
     }
@@ -329,21 +343,9 @@ const MultipleOrders = () => {
                             onChange={(e) => changeVolume(e.target.value, item, index)}
                             thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
-                            <svg
-                                onClick={(e) => increaseVolume(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16"
-                            >
-                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                            </svg>
-                            <svg
-                                onClick={() => decreaseVolume(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
-                                viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                            </svg>
+                        <div className="d-flex flex-column opacity-75">
+                            <i className="bi bi-caret-up-fill line-height-16" onClick={() => increaseVolume(item, index)}></i>
+                            <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreaseVolume(item, index)}></i>
                         </div>
                     </div>
                 </td>
@@ -354,20 +356,9 @@ const MultipleOrders = () => {
                             decimalscale={2} type="text" className="form-control text-end border-1 py-0 px-10"
                             thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
                         />
-                        <div className="d-flex flex-column">
-                            <svg
-                                onClick={(e) => increasePrice(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-right-fill rotate-90deg" viewBox="0 0 16 16">
-                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z" />
-                            </svg>
-                            <svg
-                                onClick={() => decreasePrice(item, index)}
-                                xmlns="http://www.w3.org/2000/svg" width="16"
-                                height="14" fill="currentColor" className="bi bi-caret-left-fill rotate-90deg"
-                                viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z" />
-                            </svg>
+                        <div className="d-flex flex-column opacity-75">
+                                <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
+                                <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreasePrice(item, index)}></i>
                         </div>
                     </div>
                 </td>
@@ -391,7 +382,7 @@ const MultipleOrders = () => {
                 <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-center">Limit</td>
                 <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
-                    {item.orderSide}
+                    {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
                 <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
@@ -500,6 +491,7 @@ const MultipleOrders = () => {
             }
         }
         setListTickers(list);
+        dispatch(keepListOrder(list));
     }
 
     const handleFileUpload = (event: any) => {
@@ -590,8 +582,8 @@ const MultipleOrders = () => {
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                    <CurrencyInput disabled={disableControl()} decimalscale={title.toLocaleLowerCase() === 'price' ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        value={title.toLocaleLowerCase() === 'price' ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
+                    <CurrencyInput disabled={disableControl()} decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
                         thousandseparator="{true}" placeholder=""
                         onChange={(e, maskedVal) => handleChangeValue(e.target.value, maskedVal, title)}
                     />
@@ -601,10 +593,9 @@ const MultipleOrders = () => {
                     <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title.toLocaleLowerCase() === 'price' && _renderNotiErrorPrice()}
-            {title.toLocaleLowerCase() === 'volume' && <>
-                {invalidVolume && <div className='text-danger text-end'>Invalid volume</div>}
-            </>}
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
+            {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid volume</div>}
         </>
 
     )
@@ -755,6 +746,7 @@ const MultipleOrders = () => {
         const tmp = [...listTickers];
         tmp.unshift(obj);
         setListTickers(tmp);
+        dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
         const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
@@ -770,6 +762,10 @@ const MultipleOrders = () => {
         }
         return '';
     }
+
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
 
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
@@ -791,8 +787,8 @@ const MultipleOrders = () => {
                     </div>
 
 
-                    {_renderInputControl('Price', formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice)}
-                    {_renderInputControl('Volume', formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume)}
+                    {_renderPriceInput}
+                    {_renderVolumeInput}
 
                     <div className="border-top">
 

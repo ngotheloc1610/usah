@@ -17,7 +17,7 @@ interface IOrderBookProps {
     listTickerSearch?: string[];
     tickerDetailLastQuote: (item: IAskAndBidPrice) => void;
     currentTicker?: ITickerInfo;
-    symbolCode?:  string;
+    symbolCode?: string;
     handleSide?: (side: number) => void;
 }
 
@@ -190,21 +190,28 @@ const OrderBook = (props: IOrderBookProps) => {
         <div className="text-uppercase small text-secondary mb-2"><strong>Order Book</strong></div>
     )
 
-    const handleKeyUp = (value: string) => {
-        itemTickerSearch(value);
+    const handleKeyUp = (event: any) => {
+        const value = event.target?.value || event.target?.innerText;
         setTicker(value);
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const symbol = symbols.find(o => o?.symbolCode?.includes(value));
+        if (symbol) {
+            itemTickerSearch(value);
+        } else {
+            itemTickerSearch('');
+        }
     }
     const _renderSearchBox = () => (
         <div className="card-header-style">
             <div className="input-group input-group-sm dark">
                 <Autocomplete
-                    className='ticker-input'
-                    onChange={(event: any) => handleKeyUp(event.target.innerText)}
-                    onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                    className='ticker-search'
+                    onChange={(event: any) => handleKeyUp(event)}
+                    onKeyUp={(event: any) => handleKeyUp(event)}
                     value={ticker}
                     disablePortal
                     sx={{ width: 300 }}
-                    options={listTickerSearch ? listTickerSearch : []}
+                    options={listTickerSearch ? listTickerSearch.filter(tickerSearch => tickerSearch.includes(ticker?.toUpperCase())) : []}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />
             </div>

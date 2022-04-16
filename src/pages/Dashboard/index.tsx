@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
 import moment from 'moment-timezone'
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -24,9 +24,7 @@ const Dashboard = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
     const [handleSymbolList, sethandleSymbolList] = useState<ITickerInfo[]>([]);
-    const [dataSearchTicker, setDataSearchTicker] = useState<ILastQuote>();
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
-    const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
 
     const [side, setSide] = useState(0);
     const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
@@ -41,9 +39,6 @@ const Dashboard = () => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
-
-    const usTime: any = useRef();
-    const zoneTime: any = useRef();
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -176,18 +171,6 @@ const Dashboard = () => {
             setPortfolio(temp);
         }
     }
-
-    useEffect(() => {
-        const timer = setInterval(() => handleUsTime(), 1000);
-
-        return () => clearTimeout(timer);
-    }, [timeZone]);
-
-    useEffect(() => {
-        const timer = setInterval(() => handleSetTimeZone(), 1000);
-
-        return () => clearTimeout(timer);
-    }, [timeZone]);
 
     const sendTradeHistoryReq = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
@@ -331,20 +314,6 @@ const Dashboard = () => {
         }
     }
 
-    const handleUsTime = () => {
-        if (usTime.current) {
-            usTime.current.innerText = moment.tz(moment(), "America/New_York").format('LTS');
-        }
-    }
-
-    const handleSetTimeZone = () => {
-        let time: string = '';
-        timeZone === DEFAULT_TIME_ZONE ? time = moment.tz(moment(), "Asia/Singapore").format('LTS') : time = moment.tz(moment(), "Asia/Tokyo").format('LTS');
-        if (zoneTime.current) {
-            zoneTime.current.innerText = time;
-        }
-    }
-
     const totalPctUnrealizedPL = (portfolios: IPortfolio[]) => {
         let totalUnrealizedPL = 0;
         let totalInvestedValue = 0;
@@ -393,65 +362,22 @@ const Dashboard = () => {
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    <div className={`${getClassName(totalPctUnrealizedPL(portfolio))} fw-600`}>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>
+                    {totalPctUnrealizedPL(portfolio) > 0 && <div className="text-success fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+                    {totalPctUnrealizedPL(portfolio) < 0 && <div className="text-danger fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+                    {totalPctUnrealizedPL(portfolio) === 0 && <div>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
                 </div>
             </div>
             <div className="col-md-4"></div>
-            <div className="small text-end col-md-4">
-                <div>US <span className="ms-2" ref={usTime}></span></div>
-                <div className="d-flex align-items-center justify-content-end">
-                    <select value={timeZone ? timeZone : ''} className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => { setTimeZone(e.target.value); localStorage.setItem(TIME_ZONE, e.target.value) }}>
-                        <option value="SG" >SG</option>
-                        <option value="JP">JP</option>
-                    </select>
-                    <span ref={zoneTime}></span>
-                </div>
-            </div>
         </div>
     )
 
     const getTickerInfo = (value: ISymbolQuote) => {
         setSymbolCode(value?.symbolCode);
         setSymbolQuote(value);
-        // const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        // const ticker = symbols?.find(o => o?.ticker === value.symbolCode)
-        // const  element: ITickerInfo = {
-        //     ...defaultTickerInfo,
-        //     ticker: value.symbolCode,
-        //     previousClose: value.close,
-        //     open: value.open,
-        //     high: value.high,
-        //     low: value.low,
-        //     lastPrice: value.currentPrice,
-        //     volume: value.volumePerDay,
-        //     lotSize: ticker.lotSize,
-        //     tickSize: ticker.tickSize
-        // }
-        // handleGetTicker(element);
-        // setTicker(element);
     }
 
     const getPriceOrder = (value: IAskAndBidPrice) => {
         setQuoteInfo(value);
-    }
-
-    const getQuoteEventValue = (value: ITickerInfo) => {
-        const item: ILastQuote = {
-            asksList: value?.asks || [],
-            bidsList: value?.bids || [],
-            currentPrice: value?.lastPrice,
-            pctChange: value?.change,
-            quoteTime: 0,
-            scale: 0,
-            symbolCode: value.symbolId.toString(),
-            symbolId: value.symbolId,
-            tickPerDay: 0,
-            volumePerDay: value.volume,
-            volume: value.volume
-
-
-        }
-        setDataSearchTicker(item);
     }
 
     const messageSuccess = (item: string) => {
@@ -459,33 +385,6 @@ const Dashboard = () => {
 
         if (item === MESSAGE_TOAST.SUCCESS_PLACE) {
             sendListOrder();
-        }
-    }
-
-    const handleGetTicker = (value: ITickerInfo) => {
-        if (value.asks) {
-            const data: ILastQuote = {
-                asksList: value.asks,
-                bidsList: value.bids || [],
-                close: value.previousClose,
-                currentPrice: value.lastPrice,
-                high: value.high,
-                low: value.low,
-                netChange: value.change,
-                open: value.open,
-                pctChange: value.changePrecent,
-                quoteTime: 0,
-                scale: 0,
-                symbolCode: value.symbolId.toString(),
-                symbolId: value.symbolId,
-                tickPerDay: 0,
-                volumePerDay: value.volume,
-                volume: value.volume,
-                ticker: value.ticker
-            }
-            setDataSearchTicker(data)
-        } else {
-            handleTickerSearch(value.ticker)
         }
     }
 

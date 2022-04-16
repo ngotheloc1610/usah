@@ -61,19 +61,21 @@ const TickerSearch = (props: ITickerSearch) => {
         }
     }
 
-    const getTickerSearch = (value: string) => {
-        const symbolCode = value !== undefined ? value?.split('-')[0]?.trim() : '';
-        setSymbolSeleted(value);
-        const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
-        storageSymbolList(symbolCode?.split('-')[0]?.trim(), value?.split('-')[1]?.trim());
-        setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
-        handleTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+    const getTickerSearch = (e: any) => {
+        if (e.key !== 'Enter') {
+            const symbolCode = e.target.innerText !== undefined ? e.target.innerText?.split('-')[0]?.trim() : '';
+            setSymbolSeleted(e.target?.innerText);
+            const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode?.toUpperCase());
+            storageSymbolList(symbolCode?.split('-')[0]?.trim(), e.target.innerText?.split('-')[1]?.trim());
+            setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+            handleTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
+        }
     }
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
             const symbolCode = event.target.value.split('-')[0]?.trim();
-            setSymbolSeleted(symbolCode);
+            setSymbolSeleted(event.target.value);
             storageSymbolList(event.target.value?.split('-')[0]?.trim(), event.target.value?.split('-')[1]?.trim());
             const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
             setTicker(itemTickerInfor ? itemTickerInfor.symbolCode : '');
@@ -108,18 +110,15 @@ const TickerSearch = (props: ITickerSearch) => {
         });
     }
 
-    const searchTicker = () => { }
-
     const _renderTemplate = () => (
         <div className="row g-2 align-items-end" >
-            <div className="col-lg-2 col-md-3 mb-1 mb-md-0">
+            <div className="col-xl-2 col-lg-2 col-md-2 mb-1 mb-md-0">
                 <label className="d-block text-secondary">Ticker <span className="text-danger ">*</span></label>
             </div>
-            <div className="col-lg-3 col-md-6">
+            <div className="col-xl-4 col-lg-5 col-md-7">
                 <Autocomplete
-                    onChange={(event: any) => getTickerSearch(event.target.innerText)}
+                    onChange={getTickerSearch}
                     onKeyUp={handleKeyUp}
-                    onClick={searchTicker}
                     disablePortal
                     options={listSymbolCode}
                     value={symbolSelected}
@@ -127,7 +126,7 @@ const TickerSearch = (props: ITickerSearch) => {
                     renderInput={(params) => <TextField {...params} placeholder="Search Ticker" />}
                 />
             </div>
-            <div className="col-lg-6">
+            <div className="col-xl-6 col-lg-5 col-md-3">
                 {_renderRecentSearch()}
             </div>
         </div>

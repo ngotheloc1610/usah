@@ -2,11 +2,11 @@ import { Colors } from '../../themes';
 import './Header.scss'
 import { IOrderDropdownModel } from '../../constants/route.interface';
 import TabBarItem, { ITabBarItem } from './TabBarItem';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS } from '../../constants/general.constant';
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TIME_ZONE } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
@@ -18,6 +18,7 @@ import { defindConfigGet, defindConfigPost } from '../../helper/utils';
 import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
 import { Link } from 'react-router-dom';
+import moment from 'moment-timezone';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -41,12 +42,27 @@ const Header = () => {
 
 
   const [listTradingResults, setListTradingResults] = useState<ITradingResult[]>([]);
-  const [showNotificationUnread, setShowNotificationUnread] = useState(false);
+  const [showNotificationUnread, setShowNotificationUnread] = useState(true);
 
+  const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
+  const usTime: any = useRef();
+  const zoneTime: any = useRef();
 
   useEffect(() => {
     _renderAccountId()
   }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => handleUsTime(), 1000);
+
+    return () => clearTimeout(timer);
+  }, [timeZone]);
+
+  useEffect(() => {
+    const timer = setInterval(() => handleSetTimeZone(), 1000);
+
+    return () => clearTimeout(timer);
+  }, [timeZone]);
 
   useEffect(() => {
     const hideModalNotification = () => {
@@ -61,13 +77,9 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    const paramTrading = !showNotificationUnread ? {
+    const paramTrading = {
       page_size: pageSizeTrading,
       page: pageCurrentTrading
-    } : {
-      page_size: pageSizeTrading,
-      page: pageCurrentTrading,
-      read_flag: false
     }
     getDataTradingResult(paramTrading);
     getTotalTradingResultsUnread();
@@ -141,16 +153,41 @@ const Header = () => {
       });
   }
 
+  const handleUsTime = () => {
+    if (usTime.current) {
+      usTime.current.innerText = moment.tz(moment(), "America/New_York").format('LTS');
+    }
+  }
+
+  const handleSetTimeZone = () => {
+    let time: string = '';
+    timeZone === DEFAULT_TIME_ZONE ? time = moment.tz(moment(), "Asia/Singapore").format('LTS') : time = moment.tz(moment(), "Asia/Tokyo").format('LTS');
+    if (zoneTime.current) {
+      zoneTime.current.innerText = time;
+    }
+  }
+
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
+        <div className="small text-end mr-px-20">
+          <div>US <span className="ms-2" ref={usTime}></span></div>
+          <div className="d-flex align-items-center justify-content-end">
+            <select value={timeZone ? timeZone : ''} className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => { setTimeZone(e.target.value); localStorage.setItem(TIME_ZONE, e.target.value) }}>
+              <option value="SG" >SG</option>
+              <option value="JP">JP</option>
+            </select>
+            <span ref={zoneTime}></span>
+          </div>
+        </div>
         <ul className="nav header-top-nav">
-          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show">
+          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show w-37px">
             <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i className="bi bi-bell-fill"></i>
-              <sup className="count">{totalItemUnread}</sup></a>
+              {totalItemUnread > 0 && showNotificationUnread && <sup className="count">{totalItemUnread}</sup>}
+            </a>
 
 
             <div onClick={e => e.stopPropagation()} className={`dropdown-menu dropdown-menu-notification dropdown-menu-right notification-box ${isShowNotification ? 'show' : ''}`}
@@ -172,7 +209,6 @@ const Header = () => {
               <PopUpNotification listTradingResults={listTradingResults}
                 handleReaded={handleReaded}
                 setListTradingResults={setListTradingResults}
-                showNotificationUnread={showNotificationUnread}
               />
 
             </div>
@@ -220,7 +256,7 @@ const Header = () => {
             </a>
           </h1>
         </div>
-        <ul className="nav header-nav">
+        <ul className="nav header-nav mt-px-50">
           {_renderMenuItems()}
         </ul>
       </div>

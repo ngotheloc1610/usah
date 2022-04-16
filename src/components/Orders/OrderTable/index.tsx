@@ -1,5 +1,5 @@
 import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
@@ -92,7 +92,7 @@ function OrderTable(props: IPropListOrderHistory) {
             </th>
             <th className="text-ellipsis text-end fz-14 w-200">
                 <div> Order Datetime </div>
-                <div> Executed Datetime </div>
+                <div> Last Updated time </div>
             </th>
             <th className="text-ellipsis text-start fz-14 w-200">Comment</th>
         </tr>
@@ -120,7 +120,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <div>{formatNumber(calcPendingVolume(item.amount, item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? item.amount : item.filledAmount).toString())}</div>
                 </td>
 
-                <td className="text-end w-120">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.amount) : formatNumber(item.filledAmount)}</td>
+                <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
@@ -130,7 +130,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="td w-200 text-end">
                     <div>{formatOrderTime(item.time)}</div>
-                    {item.executedDatetime && <div >{formatOrderTime(item.time)}</div>}
+                    {item.executedDatetime && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
                     {item.executedDatetime === '' && <div >&nbsp;</div>}
                 </td>
 
