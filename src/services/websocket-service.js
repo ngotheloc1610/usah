@@ -4,13 +4,11 @@ import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
-import ReduxPersist from '../config/ReduxPersist';
-import queryString from 'query-string';
-import { TOKEN } from '../constants/general.constant';
 import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID } from '../constants/general.constant';
+import { toast } from 'react-toastify';
+import { INVALID_TOKEN } from '../constants';
 
 const url = process.env.REACT_APP_BASE_URL;
-let token = process.env.REACT_APP_TOKEN;
 var socket = null;
 var wsConnected = false;
 // var dataLastQuotes = {quotesList: []};
@@ -25,7 +23,6 @@ const dataLastQuotes = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
 const accountPortfolioSubject = new Subject();
-const paramStr = window.location.search;
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
 const customerInfoDetailSubject = new Subject();
@@ -36,7 +33,6 @@ const subscribeQuoteSubject = new Subject();
 const subscribeTradeEventSubject = new Subject();
 const unsubscribeTradeEventSubject = new Subject();
 const tradeSubject = new Subject();
-const objAuthen = queryString.parse(paramStr);
 const startWs = async () => {
     
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
@@ -61,7 +57,11 @@ const startWs = async () => {
         localStorage.removeItem(EXPIRE_TIME);
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
-        window.location.href = '/login';
+        toast.error(INVALID_TOKEN);
+        // Time to display notification error is 3s
+        setTimeout(()=> {
+            window.location.href = '/login';
+        }, 3000);
     }
     
     socket.onclose = () => {

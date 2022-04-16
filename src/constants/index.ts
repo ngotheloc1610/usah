@@ -17,3 +17,5 @@ export const ORDER_RESPONSE = {
     REJECT: 'Reject',
     SUCCESS: 'Success',
 };
+
+export const INVALID_TOKEN = 'Invalid Token';
