@@ -92,13 +92,13 @@ const MultipleOrders = () => {
             const temps = [...listTickers];
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
-                    const indexList = temps.reduce((acc: number[], crr: ISymbolMultiOrder, idx: number) => {
-                        if (crr?.ticker === item?.symbolCode && crr?.price === item.price)
-                            acc.push(idx);
-                        return acc;
+                    const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
+                        if (order?.ticker === item?.symbolCode && order?.price === item.price)
+                            listIndex.push(idx);
+                        return listIndex;
                     }, []);
 
-                    indexList.forEach(el => {
+                    listIndex.forEach(el => {
                         temps[el] = {
                             ...temps[el],
                             state: item.state,
