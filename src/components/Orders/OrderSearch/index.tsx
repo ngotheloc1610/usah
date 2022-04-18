@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IParamHistorySearch } from '../../../interfaces';
+import moment from 'moment';
 
 interface IPropsOrderSearchHistory {
     paramSearch: (param: IParamHistorySearch) => void;
@@ -32,12 +33,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
-        const today: number = new Date().getDate();
+        const today: number = moment().date();
         let currentDate = '';
         if (today > 0 && today < 10) {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+            currentDate = `${moment().year()}-0${(moment().month() + 1)}-0${moment().date()}`;
         } else {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+            currentDate = `${moment().year()}-0${(moment().month() + 1)}-${moment().date()}`;
         }
         setCurrentDate(currentDate);
 

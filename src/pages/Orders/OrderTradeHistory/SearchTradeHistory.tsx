@@ -10,6 +10,7 @@ import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPO
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import moment from 'moment';
 
 interface IPropsSearchTradeHistory {
     getOrderSide: (item: number) => void
@@ -28,12 +29,12 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
-        const today: number = new Date().getDate();
+        const today: number = moment().date();
         let currentDate = '';
         if (today > 0 && today < 10) {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+            currentDate = `${moment().year()}-0${(moment().month() + 1)}-0${moment().date()}`;
         } else {
-            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+            currentDate = `${moment().year()}-0${(moment().month() + 1)}-${moment().date()}`;
         }
         setCurrentDate(currentDate);
         setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
