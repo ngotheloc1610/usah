@@ -314,7 +314,7 @@ const OrderForm = (props: IOrderForm) => {
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary">{title}</label>
                     <CurrencyInput decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        thousandseparator="{true}" value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : formatCurrency(formatNumber(value?.replaceAll(',', '')))} placeholder=""
+                        thousandseparator="{true}" value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : convertNumber(formatNumber(value?.replaceAll(',', ''))).toString()} placeholder=""
                         onChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
                 </div>
                 <div className="border-start d-flex flex-column">
