@@ -208,7 +208,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     className='ticker-search'
                     onChange={(event: any) => handleKeyUp(event)}
                     onKeyUp={(event: any) => handleKeyUp(event)}
-                    value={ticker}
+                    value={ticker ? ticker : null}
                     disablePortal
                     sx={{ width: 300 }}
                     options={listTickerSearch ? listTickerSearch.filter(tickerSearch => tickerSearch.includes(ticker?.toUpperCase())) : []}
