@@ -31,6 +31,26 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
+    useEffect(() => {
+        const today: number = new Date().getDate();
+        let currentDate = '';
+        if (today > 0 && today < 10) {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-0${new Date().getDate()}`;
+        } else {
+            currentDate = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+        }
+        setCurrentDate(currentDate);
+
+        const paramSearchHistory: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: side,
+            fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
+            toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
+        };
+        paramSearch(paramSearchHistory);
+    }, [])
+
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
