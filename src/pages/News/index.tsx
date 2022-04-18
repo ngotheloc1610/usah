@@ -371,7 +371,7 @@ const News = () => {
             <div className="d-flex mb-2 border-bottom pb-1">
                 <div>
                     <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>
-                    <div className="small opacity-50"> {formatDate(dataDetailNews?.createDate)} </div>
+                    <div className="small opacity-50"> {formatDate(dataDetailNews?.publishDate)} </div>
                 </div>
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
