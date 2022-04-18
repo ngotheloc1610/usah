@@ -4,6 +4,8 @@ import {AnyAction} from 'redux';
 const initState = {
   isSplash: true,
   isLogin: true,
+  secretKey: '',
+  rememberKey: ''
 };
 
 const authReducer = (state = initState, action: AnyAction) => {
@@ -19,6 +21,18 @@ const authReducer = (state = initState, action: AnyAction) => {
       return {
         ...state,
         isSplash: payload,
+      };
+    }
+    case Types.SECRET_KEY: {
+      return {
+        ...state,
+        secretKey: payload,
+      };
+    }
+    case Types.REMEMBER_KEY: {
+      return {
+        ...state,
+        rememberKey: payload,
       };
     }
     default:

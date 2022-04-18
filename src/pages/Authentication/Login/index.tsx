@@ -7,6 +7,8 @@ import { IReqLogin } from '../../../interfaces';
 import { success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { generateUUID } from '../../../helper/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -15,14 +17,15 @@ const Login = () => {
     const [password, setPassword] = useState('')
     const [isRemeber, setIsRemeber] = useState(false)
     const [isMessErr, setIsMessErr] = useState(false);
-    const secretKey = localStorage.getItem(SECRET_KEY);
-    const rememberKey = localStorage.getItem(REMEMBER_KEY);
+    const secretKey = useSelector((state: any) => state.auth.secretKey);
+    const rememberKey = useSelector((state: any) => state.auth.rememberKey);
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
     const cryptoJS = require("crypto-js");
+    const dispatch = useDispatch();
     useEffect(() => {
         setIsRemeber(isRememberMe === 'true');
         if (isRememberMe && isRememberMe === 'true') {
-            if (rememberKey) {
+            if (rememberKey && secretKey) {
                 const bytes = cryptoJS.AES.decrypt(rememberKey, secretKey);
                 const decryptedData = JSON.parse(bytes.toString(cryptoJS.enc.Utf8));
                 if (decryptedData) {
@@ -54,10 +57,10 @@ const Login = () => {
             account_type: 'lp'
         }
         const secretKey = generateUUID();
-        localStorage.setItem(SECRET_KEY, secretKey);
+        dispatch(setSecretKey(secretKey));
         var encrypt = cryptoJS.AES.encrypt(JSON.stringify(param), secretKey).toString();
         if (encrypt) {
-            localStorage.setItem(REMEMBER_KEY, encrypt);
+            dispatch(setRememberKey(encrypt));
         }
         return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
             if (resp.status === success) {
