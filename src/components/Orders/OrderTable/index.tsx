@@ -180,8 +180,8 @@ function OrderTable(props: IPropListOrderHistory) {
                 <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                     getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
                 />
-                <p className="text-end border-top pt-3" onClick={handleDownload}>
-                    <a href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+                <p className="text-end border-top pt-3">
+                    <a className="btn btn-success text-white ps-4 pe-4" onClick={handleDownload}><i className="bi bi-cloud-download"></i> Download</a>
                 </p>
                 {showModalDetail && <ModalMatching getStatusFromModal={getStatusFromModal} />}
             </div>
