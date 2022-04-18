@@ -6,7 +6,7 @@ import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
 import { success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
-import { generateUUID } from '../../../helper/utils';
+import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
 
@@ -27,10 +27,12 @@ const Login = () => {
         if (isRememberMe && isRememberMe === 'true') {
             if (rememberKey && secretKey) {
                 const bytes = cryptoJS.AES.decrypt(rememberKey, secretKey);
-                const decryptedData = JSON.parse(bytes.toString(cryptoJS.enc.Utf8));
-                if (decryptedData) {
-                    setEmail(decryptedData.poem_id);
-                    setPassword(decryptedData.password);
+                if (bytes.toString(cryptoJS.enc.Utf8)) {
+                    const decryptedData = JSON.parse(bytes.toString(cryptoJS.enc.Utf8));
+                    if (decryptedData) {
+                        setEmail(decryptedData.poem_id);
+                        setPassword(decryptedData.password);
+                    }
                 }
             }
         }
@@ -56,8 +58,9 @@ const Login = () => {
             password: password.trim(),
             account_type: 'lp'
         }
-        const secretKey = generateUUID();
+        const secretKey = getRandomNumbers();
         dispatch(setSecretKey(secretKey));
+
         var encrypt = cryptoJS.AES.encrypt(JSON.stringify(param), secretKey).toString();
         if (encrypt) {
             dispatch(setRememberKey(encrypt));

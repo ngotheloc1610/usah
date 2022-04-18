@@ -181,8 +181,8 @@ export const defindConfigPost = () => {
     }
     return data;
 }
-export const formatDate = (datetime) =>{
-    if(datetime !== null && datetime !== ""){
+export const formatDate = (datetime) => {
+    if (datetime !== null && datetime !== "") {
         let date = new Date(datetime);
         let mDateStr = moment(date).format("MMMM DD, YYYY");
         return mDateStr;
@@ -200,7 +200,7 @@ export const convertNumber = (value: string) => {
 export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
     let i = index;
     let sum = 0;
-    while(i < arr.length) {
+    while (i < arr.length) {
         sum += convertNumber(arr[i].volume);
         i++;
     }
@@ -210,7 +210,7 @@ export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
 export const calcVolumeASC = (arr: IAskAndBidPrice[], index: number) => {
     let i = 0;
     let sum = 0;
-    while(i <= index) {
+    while (i <= index) {
         sum += convertNumber(arr[i]?.volume);
         i++;
     }
@@ -228,10 +228,10 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
             const tradable = askBidItem[counter].tradable ? askBidItem[counter].tradable : false;
             const volume = askBidItem[counter].volume ? askBidItem[counter].volume : '-';
             const isNumOrder = askBidItem[counter] && askBidItem[counter].numOrders;
-            let totalNumOrder  = '';
+            let totalNumOrder = '';
 
             if (type === LIST_PRICE_TYPE.bidList) {
-                totalNumOrder  = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders
+                totalNumOrder = isNumOrder ? (convertNumber(numOrders) + convertNumber(arr[arr.length - 1]?.total)).toString() : numOrders
             } else {
                 totalNumOrder = calcVolumeDESC(asksBidsList, counter).toString();
             }
@@ -283,19 +283,14 @@ export const exportCSV = (csvData, fileName) => {
     FileSaver.saveAs(data, fileName + fileExtension);
 }
 
-export const generateUUID = () => {
-    var d = new Date().getTime();//Timestamp
-    var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16;//random number between 0 and 16
-        if(d > 0){//Use timestamp until depleted
-            r = (d + r)%16 | 0;
-            d = Math.floor(d/16);
-        } else {//Use microseconds since page-load if supported
-            r = (d2 + r)%16 | 0;
-            d2 = Math.floor(d2/16);
-        }
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-}
+export const getRandomNumbers = () => {
+    const array = new Uint32Array(10);
+    crypto.getRandomValues(array);
 
+    let textContent = "";
+    for (let i = 0; i < array.length; i++) {
+        textContent += array[i];
+    }
+
+    return textContent;
+}
