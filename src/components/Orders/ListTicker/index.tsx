@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { useEffect, useMemo, useState } from "react";
+import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -11,6 +11,7 @@ import * as psbp from "../../../models/proto/pricing_service_pb";
 import { Autocomplete, TextField } from '@mui/material';
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
+import { toast } from "react-toastify";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
@@ -148,7 +149,7 @@ const ListTicker = (props: IListTickerProps) => {
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
-        }        
+        }
     }
 
     const unSubscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -164,7 +165,7 @@ const ListTicker = (props: IListTickerProps) => {
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
-        }        
+        }
     }
 
     useEffect(() => {
@@ -201,36 +202,50 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const onChangeTicker = (event) => {
-        const symbolCode = event.target.innerText?.split('-')[0]?.trim();
-        if (symbolCode) {
-            const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
-            if (itemTickerAdd) {
-                setSymbolCodeAdd(itemTickerAdd.symbolCode);
-                return;
+        if (event.key !== 'Enter') {
+            const symbolCode = event.target.innerText?.split('-')[0]?.trim();
+            if (symbolCode) {
+                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+                if (itemTickerAdd) {
+                    setSymbolCodeAdd(itemTickerAdd.symbolCode);
+                    return;
+                }
             }
+            setSymbolCodeAdd('');
         }
-        setSymbolCodeAdd('');
     }
 
-    const handleKeyUp = (value: string) => {
-        const symbolCode = value?.split('-')[0]?.trim();
-        if (symbolCode) {
-            const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
-            if (itemTickerAdd) {
-                setSymbolCodeAdd(itemTickerAdd.symbolCode);
-                return;
-            }
-        }
-        setSymbolCodeAdd('');
-    }
-
-    const handleKeyDown = (e) => {
+    const handleKeyUp = (e: any) => {
         if (e.key === 'Enter') {
-            btnAddTicker()
+            const symbolCode = e.target.value?.split('-')[0]?.trim();
+            if (symbolCode) {
+                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+                if (itemTickerAdd) {
+                    setSymbolCodeAdd(itemTickerAdd.symbolCode);
+                    btnAddTicker(itemTickerAdd.symbolCode);
+                    return;
+                }
+            }
+            _renderMessageError();
+            setSymbolCodeAdd('');
         }
+
     }
 
-    const btnAddTicker = () => {
+    const _rendetMessageSuccess = () => (
+        <div>{toast.success(MESSAGE_TOAST.SUCCESS_ADD)}</div>
+    )
+
+    const _renderMessageExist = () => (
+        <div>{toast.error(MESSAGE_TOAST.EXIST_ADD)}</div>
+    )
+
+    const _renderMessageError = () => (
+        <div>{toast.error(MESSAGE_TOAST.ERROR_ADD)}</div>
+    )
+
+
+    const btnAddTicker = (symbolCodeAdd) => {
         const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const checkExist = watchLists.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
         if (!checkExist) {
@@ -243,25 +258,29 @@ const ListTicker = (props: IListTickerProps) => {
             const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
             setCurrentPage(currentPage);
             getOrderBooks();
+            _rendetMessageSuccess();
+
+        } else {
+            _renderMessageExist();
         }
     }
 
-    const _renderSearchForm = () => {
-        return <div className="row mb-2" onKeyDown={handleKeyDown}>
+    const _renderSearchForm = useMemo(() => {
+        return <div className="row mb-2">
             <div className="col-lg-6 d-flex">
                 <Autocomplete
                     onChange={onChangeTicker}
-                    onKeyUp={(event: any) => handleKeyUp(event.target.value)}
+                    onKeyUp={handleKeyUp}
                     options={listSymbolCode}
                     sx={{ width: 350 }}
                     renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
                 />
 
-                <button type="button" className="btn btn-primary h-2r pt-3-px" disabled={symbolCodeAdd === ''} onClick={btnAddTicker}>Add</button>
+                <button type="button" className="btn btn-primary h-2r pt-3-px" disabled={symbolCodeAdd === ''} onClick={() => btnAddTicker(symbolCodeAdd)} >Add</button>
 
             </div>
         </div>
-    }
+    }, [listSymbolCode, symbolCodeAdd])
 
     const _renderAskPrice = (itemData: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = itemData ? itemData.asksList : [];
@@ -388,7 +407,7 @@ const ListTicker = (props: IListTickerProps) => {
                         {_renderBidPrice(item)}
                     </tbody>
                 </table>
-    
+
             </div>
         })
     )
@@ -424,9 +443,10 @@ const ListTicker = (props: IListTickerProps) => {
         const ownWatchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         return ownWatchList.length > pageSizeTicker;
     }
+
     const _renderTemplateMonitoring = () => (
         <>
-            {_renderSearchForm()}
+            {_renderSearchForm}
             <div className="d-flex">
 
                 <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">

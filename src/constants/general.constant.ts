@@ -113,7 +113,12 @@ export enum MESSAGE_TOAST {
     SUCCESS_CANCEL = 'Cancel order successfully',
     SUCCESS_MODIFY = 'Modify order successfully',
 
-    ERROR_UPDATE = 'Update error'
+    SUCCESS_ADD = 'Add symbol successfully',
+
+    ERROR_UPDATE = 'Update error',
+    ERROR_ADD = 'Add symbol failed',
+
+    EXIST_ADD = 'Symbol already existed'
 };
 
 export const LIST_TICKER_INFO = 'TICKER_LIST';
