@@ -101,7 +101,7 @@ const OrderForm = (props: IOrderForm) => {
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
             setPrice(Number(floor));
-            setVolume(Number(lotSize));
+            setVolume(convertNumber(lotSize));
         } else {
             setPrice(0);
             setVolume(0);
