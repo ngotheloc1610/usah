@@ -169,3 +169,5 @@ export const CURRENCY = {
     usd: 'US$',
     sgd: 'S$'
 };
+
+export const FORMAT_DATE = 'YYYY-MM-DD';

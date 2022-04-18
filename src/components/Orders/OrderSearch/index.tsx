@@ -6,7 +6,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -33,15 +33,9 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
-        const today: number = moment().date();
-        let currentDate = '';
-        if (today > 0 && today < 10) {
-            currentDate = `${moment().year()}-0${(moment().month() + 1)}-0${moment().date()}`;
-        } else {
-            currentDate = `${moment().year()}-0${(moment().month() + 1)}-${moment().date()}`;
-        }
+        const currentDate = moment().format(FORMAT_DATE);
         setCurrentDate(currentDate);
-
+        
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
