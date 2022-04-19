@@ -26,11 +26,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
-    const [fromDatetime, setFromDatetime] = useState(0);
-    const [toDatetime, setToDatetime] = useState(0);
+    const [fromDatetime, setFromDatetime] = useState(new Date().getTime());
+    const [toDatetime, setToDatetime] = useState(new Date().getTime());
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+
+    const [isErrorDate, setIsErrorDate] = useState(false);
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
