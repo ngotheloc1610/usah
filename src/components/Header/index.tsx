@@ -181,7 +181,7 @@ const Header = () => {
           </div>
         </div>
         <ul className="nav header-top-nav">
-          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show w-37px">
+          <li className="nav-item nav-item-notification dropdown d-none d-sm-block show w-37px mw-px-50">
             <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0 d-content" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

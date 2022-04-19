@@ -33,8 +33,8 @@ const subscribeQuoteSubject = new Subject();
 const subscribeTradeEventSubject = new Subject();
 const unsubscribeTradeEventSubject = new Subject();
 const tradeSubject = new Subject();
+let isRender = true;
 const startWs = async () => {
-    
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
     if (!token) {
         return;
@@ -45,7 +45,12 @@ const startWs = async () => {
     socket.onopen = () =>{
         console.log("websocket connected");
         wsConnected = true;
-        socketSubject.next('SOCKET_CONNECTED');
+        if (isRender) {
+            socketSubject.next('SOCKET_CONNECTED');
+        } else {
+            socketSubject.next('SOCKET_RECONNECTED');
+        }
+        
     }
     
     socket.onerror = () => {
@@ -63,11 +68,12 @@ const startWs = async () => {
             window.location.href = '/login';
         }, 3000);
     }
-    
+
     socket.onclose = () => {
         console.log("websocket closed -> reconnect websocket");
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
+        isRender = false;
         setTimeout(function(){startWs()}, 5000);
     }
     

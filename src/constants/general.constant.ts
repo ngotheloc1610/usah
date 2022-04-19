@@ -101,6 +101,8 @@ export enum ERROR_MSG_VALIDATE {
 
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
 
+export const SOCKET_RECONNECTED = 'SOCKET_RECONNECTED';
+
 export const FROM_DATE_TIME = '00:00:00';
 
 export const TO_DATE_TIME = '23:59:59';
