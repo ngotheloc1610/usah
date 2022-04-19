@@ -103,7 +103,7 @@ const OrderBookCommon = () => {
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setTradeHistory(res.tradeList)
+            setTradeHistory(res.tradeList);
         });
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
@@ -488,7 +488,7 @@ const OrderBookCommon = () => {
                         </div>
                     </div>
                     <div className="col-md-3">
-                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} symbolCode={tickerSelect} />
+                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} />
                     </div>
                 </div>
             </div>

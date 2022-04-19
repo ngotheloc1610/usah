@@ -45,7 +45,7 @@ export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
         name: "All"
     },
     {
-        code: TradingModel.OrderState.ORDER_STATE_PLACED,
+        code: TradingModel.OrderState.ORDER_STATE_PARTIAL,
         name: "Working"
     },
     {
