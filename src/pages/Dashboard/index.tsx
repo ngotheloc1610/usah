@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -44,11 +44,23 @@ const Dashboard = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 callSymbolListRequest();
+            }
+
+            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendTradeHistoryReq();
                 sendListOrder();
                 sendAccountPortfolio();
             }
+
+            if (resp === SOCKET_RECONNECTED) {
+                const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
+                const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+                subscribeQuoteEvent(symbolListActive);
+                callLastQuoteRequest(symbolListActive)
+                subscribeTradeEvent(symbolListActive);
+            }
         });
+
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList && res.symbolList.length > 0) {
                 const symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);

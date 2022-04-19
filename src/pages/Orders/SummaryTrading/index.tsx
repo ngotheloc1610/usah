@@ -2,7 +2,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as sspb from "../../../models/proto/system_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { useEffect } from 'react';
-import { ACCOUNT_ID, SOCKET_CONNECTED } from '../../../constants/general.constant';
+import { ACCOUNT_ID, SOCKET_CONNECTED, SOCKET_RECONNECTED } from '../../../constants/general.constant';
 import SummaryTradingTable from './SummaryTradingTable'
 import './orderPortfolio.scss'
 
@@ -10,7 +10,7 @@ function SummaryTrading() {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendAccountPortfolio();;
             }
         });

@@ -13,7 +13,7 @@ import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
-import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE } from '../../../constants/general.constant';
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE, SOCKET_RECONNECTED } from '../../../constants/general.constant';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -90,7 +90,7 @@ const OrderBookCommon = () => {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 getOrderBooks();
                 const listSymbolCode: string[] = [];
                 listTicker.forEach((item: ISymbolInfo) => {

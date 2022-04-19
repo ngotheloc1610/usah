@@ -6,13 +6,14 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IParamHistorySearch } from '../../../interfaces';
+import moment from 'moment';
 
 interface IPropsOrderSearchHistory {
     paramSearch: (param: IParamHistorySearch) => void;
@@ -31,7 +32,19 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
-    const [isErrorDate, setIsErrorDate] = useState(false);
+    useEffect(() => {
+        const currentDate = moment().format(FORMAT_DATE);
+        setCurrentDate(currentDate);
+        
+        const paramSearchHistory: IParamHistorySearch = {
+            symbolCode: symbolCode,
+            orderState: orderState,
+            orderSide: side,
+            fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
+            toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
+        };
+        paramSearch(paramSearchHistory);
+    }, [])
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
