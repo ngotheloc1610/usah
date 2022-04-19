@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { useEffect, useMemo, useState } from "react";
 import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
@@ -49,7 +51,7 @@ const ListTicker = (props: IListTickerProps) => {
     useEffect(() => {
 
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 getOrderBooks();
                 subscribeQuoteEvent(symbols);
             }

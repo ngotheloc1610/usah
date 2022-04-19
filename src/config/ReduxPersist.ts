@@ -6,7 +6,7 @@ const ReduxPersist = {
   storeConfig: {
     key: 'primary',
     storage: storage,
-    whitelist: ['user', 'orders'],
+    whitelist: ['user', 'orders', 'auth'],
   },
 };
 
