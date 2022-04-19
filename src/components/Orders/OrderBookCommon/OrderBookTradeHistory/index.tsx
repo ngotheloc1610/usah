@@ -8,14 +8,16 @@ interface IPropTradeOrderBook {
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
     const { getDataTradeHistory, symbolCode } = props;
     const _renderData = () => {
-        const dataSortTime = getDataTradeHistory.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
-        return dataSortTime.map((item, index) => (
-            <tr key={index} className="odd">
-                <td>{formatOrderTime(Number(item.executedDatetime))}</td>
-                <td className="text-end">{formatNumber(item.executedVolume)}</td>
-                <td className="text-end">{formatCurrency(item.executedPrice)}</td>
-            </tr>
-        ))
+        const dataSortTime = getDataTradeHistory?.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
+        if (symbolCode) {
+            return dataSortTime?.map((item, index) => (
+                <tr key={index} className="odd">
+                    <td>{formatOrderTime(Number(item?.executedDatetime))}</td>
+                    <td className="text-end">{formatNumber(item?.executedVolume)}</td>
+                    <td className="text-end">{formatCurrency(item?.executedPrice)}</td>
+                </tr>
+            ));
+        }
     }
 
     return <div className="card card-trade-history">
@@ -47,7 +49,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {symbolCode && _renderData()}
+                                                {_renderData()}
                                             </tbody>
                                         </table>
                                     </div>

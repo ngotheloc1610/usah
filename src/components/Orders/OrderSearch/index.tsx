@@ -26,11 +26,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
-    const [fromDatetime, setFromDatetime] = useState(0);
-    const [toDatetime, setToDatetime] = useState(0);
+    const [fromDatetime, setFromDatetime] = useState(new Date().getTime());
+    const [toDatetime, setToDatetime] = useState(new Date().getTime());
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+
+    const [isErrorDate, setIsErrorDate] = useState(false);
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
@@ -71,12 +73,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME));
-        
     }
 
     const handleChangeToDate = (value: string) => {
         setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME));
-      
     }
 
     const sendMessageOrderHistory = () => {
@@ -116,6 +116,11 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const handleSearch = () => {
         // before the core handles the filter but now the font end handle filter
         // sendMessageOrderHistory();
+        if (fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime) {
+            setIsErrorDate(true);
+            return;
+        }
+        setIsErrorDate(false);
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
@@ -261,6 +266,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                     {_renderDateTime()}
                     <div className="col-xl-1 mb-2 mb-xl-0">
                         <a href="#" className="btn btn-sm d-block btn-primary" onClick={handleSearch}><strong>Search</strong></a>
+                    </div>
+                </div>
+                <div className='row g-2 align-items-end'>
+                    <div className="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+                    </div>
+                    <div className="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                        {isErrorDate && <div className='text-danger'>Period is incorrect, the to date must be greater than the from date</div>}
                     </div>
                 </div>
             </div>

@@ -103,7 +103,7 @@ const OrderBookCommon = () => {
         });
 
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setTradeHistory(res.tradeList)
+            setTradeHistory(res.tradeList);
         });
 
         const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
