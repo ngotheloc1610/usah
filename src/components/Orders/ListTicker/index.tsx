@@ -205,7 +205,7 @@ const ListTicker = (props: IListTickerProps) => {
         if (event.key !== 'Enter') {
             const symbolCode = event.target.innerText?.split('-')[0]?.trim();
             if (symbolCode) {
-                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode.toUpperCase());
                 if (itemTickerAdd) {
                     setSymbolCodeAdd(itemTickerAdd.symbolCode);
                     return;
@@ -219,14 +219,14 @@ const ListTicker = (props: IListTickerProps) => {
         if (e.key === 'Enter') {
             const symbolCode = e.target.value?.split('-')[0]?.trim();
             if (symbolCode) {
-                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode);
+                const itemTickerAdd = symbols.find(item => item.symbolCode === symbolCode.toUpperCase());
                 if (itemTickerAdd) {
                     setSymbolCodeAdd(itemTickerAdd.symbolCode);
                     btnAddTicker(itemTickerAdd.symbolCode);
                     return;
                 }
             }
-            _renderMessageError();
+            btnAddTicker('');
             setSymbolCodeAdd('');
         }
 
@@ -246,22 +246,26 @@ const ListTicker = (props: IListTickerProps) => {
 
 
     const btnAddTicker = (symbolCodeAdd) => {
-        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-        const checkExist = watchLists.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
-        if (!checkExist) {
-            watchLists.push({
-                accountId: currentAccId,
-                symbolCode: symbolCodeAdd
-            });
-            localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchLists));
-            const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
-            const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
-            setCurrentPage(currentPage);
-            getOrderBooks();
-            _rendetMessageSuccess();
-
+        if (symbolCodeAdd) {
+            const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+            const checkExist = watchLists.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
+            if (!checkExist) {
+                watchLists.push({
+                    accountId: currentAccId,
+                    symbolCode: symbolCodeAdd
+                });
+                localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchLists));
+                const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+                const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
+                setCurrentPage(currentPage);
+                getOrderBooks();
+                _rendetMessageSuccess();
+    
+            } else {
+                _renderMessageExist();
+            }
         } else {
-            _renderMessageExist();
+            _renderMessageError();
         }
     }
 
