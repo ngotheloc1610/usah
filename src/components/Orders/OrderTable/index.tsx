@@ -23,7 +23,10 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.symbolCode) {
             historySortDate = historySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
         }
-        if (paramHistorySearch.orderState > 0) {
+        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+            historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState || item.state === tradingModelPb.OrderState.ORDER_STATE_PARTIAL);
+        }
+        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState !== tradingModelPb.OrderState.ORDER_STATE_PLACED) {
             historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState);
         }
         if (paramHistorySearch.orderSide > 0) {
