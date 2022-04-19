@@ -58,12 +58,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeFromDate = (value: string) => {
         setFromDatetime(convertDatetoTimeStamp(value, FROM_DATE_TIME));
-
     }
 
     const handleChangeToDate = (value: string) => {
         setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME));
-
     }
 
     const sendMessageOrderHistory = () => {
@@ -103,7 +101,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const handleSearch = () => {
         // before the core handles the filter but now the font end handle filter
         // sendMessageOrderHistory();
-        //Ccheck Date)
         if (fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime) {
             setIsErrorDate(true);
             return;
