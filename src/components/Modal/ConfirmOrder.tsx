@@ -280,7 +280,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            {title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
+            {(isModify || isCancel) && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
         </tr>
     )
 
