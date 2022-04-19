@@ -7,9 +7,7 @@ import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interfac
 import { DEFAULT_CURRENT_TICKER } from "../../../mocks";
 
 const OrderMonitoring = () => {
-    const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
-    const [symbolName, setSymbolName] = useState<string[]>([]);
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
