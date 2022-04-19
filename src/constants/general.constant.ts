@@ -170,4 +170,8 @@ export const CURRENCY = {
     sgd: 'S$'
 };
 
+export const SECRET_KEY = 'secret_key';
+export const REMEMBER_KEY = 'remember_key';
+export const IS_REMEMBER_ME = 'isRememberMe';
+
 export const FORMAT_DATE = 'YYYY-MM-DD';

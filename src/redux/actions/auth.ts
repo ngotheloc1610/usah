@@ -10,4 +10,14 @@ const setSplash = (payload: any) => ({
   payload,
 });
 
-export {setLogin, setSplash};
+const setSecretKey = (payload: string) => ({
+  type: Types.SECRET_KEY,
+  payload,
+});
+
+const setRememberKey = (payload: string) => ({
+  type: Types.REMEMBER_KEY,
+  payload,
+})
+
+export {setLogin, setSplash, setSecretKey, setRememberKey};

@@ -11,7 +11,9 @@ const persistedReducer = persistReducer(ReduxPersist.storeConfig, rootReducer);
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(
   persistedReducer,
-  applyMiddleware(thunkMiddleware, logger, sagaMiddleware),
+  // applyMiddleware(thunkMiddleware, logger, sagaMiddleware),
+  // TODO: Hidden log of redux store
+  applyMiddleware(thunkMiddleware, sagaMiddleware),
 );
 sagaMiddleware.run(rootSaga)
 const persistor = persistStore(store);

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, KEY_LOCAL_STORAGE, POEM_ID, ROLE, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
 import { success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
+import { getRandomNumbers } from '../../../helper/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -14,6 +17,26 @@ const Login = () => {
     const [password, setPassword] = useState('')
     const [isRemeber, setIsRemeber] = useState(false)
     const [isMessErr, setIsMessErr] = useState(false);
+    const secretKey = useSelector((state: any) => state.auth.secretKey);
+    const rememberKey = useSelector((state: any) => state.auth.rememberKey);
+    const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
+    const cryptoJS = require("crypto-js");
+    const dispatch = useDispatch();
+    useEffect(() => {
+        setIsRemeber(isRememberMe === 'true');
+        if (isRememberMe && isRememberMe === 'true') {
+            if (rememberKey && secretKey) {
+                const bytes = cryptoJS.AES.decrypt(rememberKey, secretKey);
+                if (bytes.toString(cryptoJS.enc.Utf8)) {
+                    const decryptedData = JSON.parse(bytes.toString(cryptoJS.enc.Utf8));
+                    if (decryptedData) {
+                        setEmail(decryptedData.poem_id);
+                        setPassword(decryptedData.password);
+                    }
+                }
+            }
+        }
+    }, [])
 
     const handleEmail = (value: string) => {
         setEmail(value);
@@ -24,6 +47,7 @@ const Login = () => {
     }
 
     const handleRemember = (checked: boolean) => {
+        localStorage.setItem(IS_REMEMBER_ME, JSON.stringify(checked));
         setIsRemeber(checked)
     }
 
@@ -34,7 +58,13 @@ const Login = () => {
             password: password.trim(),
             account_type: 'lp'
         }
+        const secretKey = getRandomNumbers();
+        dispatch(setSecretKey(secretKey));
 
+        var encrypt = cryptoJS.AES.encrypt(JSON.stringify(param), secretKey).toString();
+        if (encrypt) {
+            dispatch(setRememberKey(encrypt));
+        }
         return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
             if (resp.status === success) {
                 if (resp.data.data) {
