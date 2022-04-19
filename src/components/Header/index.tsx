@@ -249,10 +249,13 @@ const Header = () => {
   const _renderHeaderMain = () => (
     <div className="header-main">
       <div className="container d-flex align-items-end">
-        <div className="site-brand">
-          <h1 className="site-title mb-0">
+        <div className="site-brand" style={{marginRight: '1.5rem'}}>
+          <h1 className="site-title mb-0 text-center">
             <a href="" className="site-link text-decoration-none">
-              <img src={LOGO} className="site-logo" alt="" />
+              <strong style={{fontSize: '22px', display: 'grid'}}>
+                <span>US Market Trading</span>
+                <span>(Asian Hrs)</span>
+              </strong>
             </a>
           </h1>
         </div>
