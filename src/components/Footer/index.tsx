@@ -47,12 +47,15 @@ const _renderElementFooter = () => (
     <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
         <div className="container">
             <div className="copyright width_common d-flex justify-content-between mb20">
-                <a href="" className="site-link text-decoration-none">
-                    <img src={LOGO} className="site-logo" alt="" />
+                <a href="" className="site-link text-decoration-none text-center">
+                <strong className='logo-site'>
+                    <span>US Market Trading</span>
+                    <span>
+                (Asian Hrs)
+                    </span>
+                </strong>
                 </a>
-                <div className="right d-flex">
-                    <span className="txt-follow">2022 @POEM<sup>2</sup></span>
-                </div>
+                
             </div>
             <div className="copyright-footer flexbox width_common">
 

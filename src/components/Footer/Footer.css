@@ -33,3 +33,10 @@
 .fs-12 {
     font-size: 12px !important;
 }
+
+.logo-site {
+    font-size: 18px;
+    display: grid;
+    line-height: 22px;
+    padding: 5px 0;
+}
