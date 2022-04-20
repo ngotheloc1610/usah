@@ -26,8 +26,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
-    const [fromDatetime, setFromDatetime] = useState(new Date().getTime());
-    const [toDatetime, setToDatetime] = useState(new Date().getTime());
+    const [fromDatetime, setFromDatetime] = useState(0);
+    const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -45,6 +45,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
             toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
         };
+        setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
+        setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
         paramSearch(paramSearchHistory);
     }, [])
 
