@@ -186,7 +186,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
-                            value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : 0}
+                            value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
