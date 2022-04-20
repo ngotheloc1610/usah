@@ -140,8 +140,8 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
-                    {item.executedDatetime && !checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
-                    {(item.executedDatetime === '' || checkDisLastUpdatedTime(item)) && <div >&nbsp;</div>}
+                    {!checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    {checkDisLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
                 <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
