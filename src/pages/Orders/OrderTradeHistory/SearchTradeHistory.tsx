@@ -5,7 +5,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, convertNumber, formatOrderTime, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
@@ -26,6 +26,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [toDatetime, setDateTimeTo] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
+    const [isErrorDate, setIsErrorDate] = useState(false);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
@@ -68,7 +69,6 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const sendMessageTradeSearch = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -78,8 +78,8 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             tradeHistoryRequest.setAccountId(Number(accountId));
             tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setSide(side);
-            tradeHistoryRequest.setFromDatetime(fromDatetime);
-            tradeHistoryRequest.setToDatetime(toDatetime);
+            convertNumber(fromDatetime.toString()) !== 0 && tradeHistoryRequest.setFromDatetime(fromDatetime);
+            convertNumber(toDatetime.toString()) !== 0 && tradeHistoryRequest.setToDatetime(toDatetime);
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
@@ -101,6 +101,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const handleSearch = () => {
+        fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
         sendMessageTradeSearch();
         getOrderSide(side);
     }
@@ -175,7 +176,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
-                            defaultValue={currentDate}
+                            value={fromDatetime ? moment(fromDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
@@ -185,7 +186,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
-                            defaultValue={currentDate}
+                            value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
@@ -207,6 +208,13 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                     {_renderDateTime()}
                     <div className="col-xl-1 mb-2 mb-xl-0">
                         <a href="#" className="btn btn-sm d-block btn-primary" onClick={handleSearch}><strong>Search</strong></a>
+                    </div>
+                </div>
+                <div className='row g-2 align-items-end'>
+                    <div className="col-xl-5 ">
+                    </div>
+                    <div className="col-xl-5 ">
+                        {isErrorDate && <div className='text-danger'>Period is incorrect, the to date must be greater than the from date</div>}
                     </div>
                 </div>
             </div>
