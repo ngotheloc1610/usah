@@ -83,7 +83,7 @@ const Header = () => {
     }
     getDataTradingResult(paramTrading);
     getTotalTradingResultsUnread();
-  }, [showNotificationUnread]);
+  }, []);
 
 
   const _renderAccountId = () => {

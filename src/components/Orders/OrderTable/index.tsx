@@ -76,6 +76,13 @@ function OrderTable(props: IPropListOrderHistory) {
         setShowModalDetail(isShowDetail);
     }
 
+    const checkDisLastUpdatedTime = (item: IOrderHistory) => {
+        const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
+        if (getStateName(item?.state) === STATE[0].title && !isCheckItemFilledAmount) {
+            return true;
+        }
+        return false;
+    }
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
@@ -133,8 +140,8 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
-                    {item.executedDatetime && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
-                    {item.executedDatetime === '' && <div >&nbsp;</div>}
+                    {!checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    {checkDisLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
                 <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
