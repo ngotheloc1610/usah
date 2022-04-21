@@ -53,7 +53,7 @@ const OrderBook = (props: IOrderBookProps) => {
     }, [])
 
     useEffect(() => {
-        setTicker(symbolCode || '');
+        symbolCode && setTicker(symbolCode);
     }, [symbolCode])
 
     useEffect(() => {
