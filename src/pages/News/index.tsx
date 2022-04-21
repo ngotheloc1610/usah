@@ -1,6 +1,6 @@
 import { DEFAULT_DETAIL_NEWS } from '../../mocks'
 import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
-import './New.css'
+import './New.scss'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
@@ -367,15 +367,15 @@ const News = () => {
     // detail
     const _renderNewsNotificationDetailItem = () => (
 
-        <div className="notification-detail border p-3 shadow-sm overflow-auto" >
-            <div className="d-flex mb-2 border-bottom pb-1">
+        <div className="notification-detail border" >
+            <div className="d-flex border-bottom pb-1 p-3">
                 <div>
                     <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>
                     <div className="small opacity-50"> {formatDate(dataDetailNews?.publishDate)} </div>
                 </div>
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
-            <div>
+            <div className='overflow-auto detail-news p-3'>
                 {parse(dataDetailNews?.newsContent)}
             </div>
         </div>
