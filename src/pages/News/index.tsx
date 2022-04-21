@@ -343,7 +343,7 @@ const News = () => {
 
     const _renderNewsNotificationList = () => (
         <div className="col-md-6">
-            <div className="notification-list" >
+            <div className="notification-list mh-news" >
                 {_renderNewsNotificationItem(listDataNews)}
             </div>
 
