@@ -132,17 +132,10 @@ export const ROUTER_TRADER = [
                 subTab: []
             },
             {
-                navigation: '',
+                navigation: '/orders/summary-trading',
                 icon: '',
-                title: 'Summary',
-                subTab: [
-                    {
-                        navigation: '/orders/summary-trading',
-                        icon: '',
-                        title: 'Summary Trading',
-                        subTab: [],
-                    }
-                ]
+                title: 'Summary Trading',
+                subTab: []
             },
             {
                 navigation: '/order-book',
