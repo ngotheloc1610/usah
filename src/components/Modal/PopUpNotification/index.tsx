@@ -1,7 +1,7 @@
 import './PopUpNotification.css';
 import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FORMAT_DATE_TIME_MILLI, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLISECOND, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
 import moment from 'moment';
 import axios from 'axios';
 import { success } from '../../../constants';
@@ -32,7 +32,7 @@ const PopUpNotification = (props: IPopsNotification) => {
           return SIDE.find(item => item.code === side)?.title;
      }
      const convertTime = (item: string) => {
-          return moment(item).format(FORMAT_DATE_TIME_MILLI)
+          return moment(item).format(FORMAT_DATE_TIME_MILLISECOND)
      }
      const _renderTradingResultsItem = () => (
           listTradingResults?.map((item: ITradingResult, idx: number) => (
