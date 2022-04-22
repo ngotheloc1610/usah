@@ -36,7 +36,7 @@ export const STATE = [
 ];
 export const INVALID_DATE = 'Invalid date';
 
-export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss';
+export const FORMAT_DATE_TIME_MILLI = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
@@ -182,3 +182,4 @@ export const REMEMBER_KEY = 'remember_key';
 export const IS_REMEMBER_ME = 'isRememberMe';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';
+export const FORMAT_DATE_TIME = 'YYYYMMDD_HH:mm:ss';

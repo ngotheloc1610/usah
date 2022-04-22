@@ -1,10 +1,11 @@
-import { DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_TIME, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
+import moment from "moment";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory, paramHistorySearch } = props;
@@ -151,6 +152,7 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 
     const handleDownload = () => {
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_TIME);
         const data: IDataHistory[] = [];
         dataCurrent.forEach(item => {
             if (item) {
@@ -171,7 +173,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 });
             }
         });
-        exportCSV(data, 'orderHistory');
+        exportCSV(data, `orderHistory_${dateTimeCurrent}`);
     }
 
     const _renderOrderHistoryTable = () => {

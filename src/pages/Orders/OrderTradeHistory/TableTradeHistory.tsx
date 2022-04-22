@@ -1,9 +1,10 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO, FORMAT_DATE_TIME } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
+import moment from "moment";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const { getDataTradeHistory } = props
@@ -88,6 +89,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     }
 
     const handleDownloadTradeHistory = () => {
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_TIME);
         const data: IFixListTradeHistory[] = []
         listTradeSortDate.forEach((item) => {
             if (item) {
@@ -108,7 +110,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 })
             }
         })
-        exportCSV(data, 'tradeHistory')
+        exportCSV(data, `tradeHistory_${dateTimeCurrent}`)
     }
 
     const _renderTradeHistoryTable = () => (

@@ -1,11 +1,12 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
 import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
-import { LIST_TICKER_ALL } from '../../../constants/general.constant';
+import { FORMAT_DATE_TIME, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
 import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
+import moment from 'moment';
 
 function SummaryTradingTable() {
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
@@ -236,6 +237,7 @@ function SummaryTradingTable() {
     }
 
     const handleDownLoadSummaryTrading = () => {
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_TIME);
         const data: IPortfolioDownLoad[] = [];
         portfolio.forEach((item) => {
             if (item) {
@@ -252,7 +254,7 @@ function SummaryTradingTable() {
                 })
             }
         })
-        exportCSV(data, 'summaryTrading');
+        exportCSV(data, `summaryTrading_${dateTimeCurrent}`);
     }
 
     const _renderPortfolioTableHeader = () => (
