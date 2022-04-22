@@ -53,7 +53,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listTradeSortDate.map((item: IListTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td className="td w-160"><a href="#">{item.orderId}</a></td>
+                <td className="td w-160">{item.orderId}</td>
                 <td className="td text-start w-120" title={getTickerName(item.tickerCode)}>{getTickerCode(item.tickerCode)}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>
@@ -126,9 +126,9 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
-            <p className="text-end border-top pt-3">
+            {listTradeSortDate.length > 0 && <p className="text-end border-top pt-3">
                 <a onClick={handleDownloadTradeHistory} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-            </p>
+            </p>}
         </div>
     )
 
