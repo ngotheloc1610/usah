@@ -69,7 +69,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const sendMessageTradeSearch = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const todate = convertDatetoTimeStamp(moment().format(FORMAT_DATE), TO_DATE_TIME)
+        const todate = convertDatetoTimeStamp(moment().format(FORMAT_DATE), TO_DATE_TIME);
 
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
