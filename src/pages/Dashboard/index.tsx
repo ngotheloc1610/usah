@@ -136,7 +136,7 @@ const Dashboard = () => {
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
         }
-    }, [])    
+    }, [])
 
     useEffect(() => {
         setMatchedOrder(matchedOrder + tradeEvent.length)
