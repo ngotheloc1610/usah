@@ -39,7 +39,6 @@ const Dashboard = () => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -102,7 +101,6 @@ const Dashboard = () => {
 
         const listOrder = wsService.getListOrder().subscribe(res => {
             if (res && res.orderList) {
-                setIsLoading(false);
                 setPendingOrder(res.orderList.length)
             }
         });
@@ -136,10 +134,10 @@ const Dashboard = () => {
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
         }
-    }, [])    
+    }, [])
 
     useEffect(() => {
-        setMatchedOrder(matchedOrder + tradeEvent.length)
+        setMatchedOrder(matchedOrder + 1)
     }, [tradeEvent])
 
     useEffect(() => {
@@ -363,32 +361,22 @@ const Dashboard = () => {
         return calcCurrentValue(item) - calcInvestedValue(item);
     }
 
-    const getClassName = (item: number) => {
-        if (item > 0) {
-            return 'text-success';
-        }
-        if (item < 0) {
-            return 'text-danger';
-        }
-        return '';
-    }
-
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
-            <div className="col-md-4">
-                <div className="row d-flex justify-content-center align-items-center">
-                    <div className="text-center px-3 border-end col-md-4">
-                        <div className="small fw-bold">Matched Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : formatNumber(matchedOrder.toString())}</div>
-                    </div>
-                    <div className="text-center px-3 border-end col-md-4">
-                        <div className="small fw-bold">Pending Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : formatNumber(pendingOrder.toString())}</div>
-                    </div>
-                    <div className="text-center px-3 col-md-4">
-                        <div className="small fw-bold">% P/L</div>
-                        <div className={`${getClassName(totalPctUnrealizedPL(portfolio))} fx-600`}>{isLoading ? '-' : formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2)) + '%'}</div>
-                    </div>
+            <div className="d-flex justify-content-center align-items-center col-md-4">
+                <div className="text-center flex-grow-1 px-3 border-end">
+                    <div className="small fw-bold">Matched Orders</div>
+                    <div className="fw-600">{formatNumber(matchedOrder.toString())}</div>
+                </div>
+                <div className="text-center flex-grow-1 px-3 border-end">
+                    <div className="small fw-bold">Pending Orders</div>
+                    <div className="fw-600">{formatNumber(pendingOrder.toString())}</div>
+                </div>
+                <div className="text-center flex-grow-1 px-3">
+                    <div className="small fw-bold">% P/L</div>
+                    {totalPctUnrealizedPL(portfolio) > 0 && <div className="text-success fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+                    {totalPctUnrealizedPL(portfolio) < 0 && <div className="text-danger fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+                    {totalPctUnrealizedPL(portfolio) === 0 && <div>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
                 </div>
             </div>
             <div className="col-md-4"></div>
