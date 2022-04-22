@@ -1,11 +1,11 @@
 import './PopUpNotification.css';
 import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FORMAT_DATE_TIME_MILLI, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
+import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
 import moment from 'moment';
 import axios from 'axios';
 import { success } from '../../../constants';
-import { defindConfigGet, formatDate } from '../../../helper/utils';
+import { defindConfigGet } from '../../../helper/utils';
 import { API_GET_TRADING_RESULT } from '../../../constants/api.constant';
 import { FIRST_PAGE } from '../../../constants/news.constant';
 interface IPopsNotification {
@@ -32,7 +32,7 @@ const PopUpNotification = (props: IPopsNotification) => {
           return SIDE.find(item => item.code === side)?.title;
      }
      const convertTime = (item: string) => {
-          return moment(item).format(FORMAT_DATE_TIME_MILLI)
+          return moment(item).format(FORMAT_DATE_TIME_MILLIS)
      }
      const _renderTradingResultsItem = () => (
           listTradingResults?.map((item: ITradingResult, idx: number) => (
@@ -50,7 +50,7 @@ const PopUpNotification = (props: IPopsNotification) => {
                               {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                          </div>
                          <div className="item-summary opacity-75 fix-line-css">
-                              {formatDate(item.execTime)}
+                              {moment(item.execTime).format(FORMAT_DATE_NEW_OR_RESULT)}
                          </div>
                     </div>
                </div>

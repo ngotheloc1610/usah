@@ -1,5 +1,5 @@
 
-import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, OBJ_AUTHEN, RESPONSE_RESULT, SIDE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';

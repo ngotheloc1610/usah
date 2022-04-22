@@ -1,11 +1,12 @@
-import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
+import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
+import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
-import { LIST_TICKER_ALL } from '../../../constants/general.constant';
+import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
 import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
+import moment from 'moment';
 
 function SummaryTradingTable() {
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
@@ -235,6 +236,33 @@ function SummaryTradingTable() {
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
+    const handleDownLoadSummaryTrading = () => {
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
+        const data: IPortfolioDownLoad[] = [];
+        portfolio.forEach((item) => {
+            if (item) {
+                data.push({
+                    tickerCode: getSymbol(item.symbolCode)?.symbolCode,
+                    ownedVol: formatNumber(calcOwnedVolume(item).toString()),
+                    avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
+                    dayNotional: formatCurrency(calcInvestedValue(item).toString()),
+                    marketPrice: formatCurrency(item.marketPrice),
+                    currentPrice: formatCurrency(calcCurrentValue(item).toString()),
+                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
+                    presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
+                    transactionVol: formatNumber(calcTransactionVolume(item).toString()),
+                })
+            }
+        })
+        exportCSV(data, `summaryTrading_${dateTimeCurrent}`);
+    }
+
+    const _renderDownloadPortfolio = () => (
+        <p className="text-end border-top pt-3">
+                <a onClick={handleDownLoadSummaryTrading} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+            </p>
+    )
+
     const _renderPortfolioTableHeader = () => (
         <tr>
             <th className="text-start fz-14 w-s" >Ticker Code</th>
@@ -292,6 +320,7 @@ function SummaryTradingTable() {
         <>
             {_rederPortfolioInvest()}
             {_renderPortfolioTable()}
+            {portfolio?.length > 0 && _renderDownloadPortfolio()}
         </>
     )
 }

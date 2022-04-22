@@ -460,6 +460,17 @@ export interface IPortfolio {
     currencyCode: string;
 }
 
+export interface IPortfolioDownLoad {
+    tickerCode: string;
+    ownedVol: string;
+    avgPrice: string;
+    dayNotional: string;
+    marketPrice: string;
+    currentPrice: string;
+    unrealizedPl: string;
+    presentUnrealizedPl: string;
+    transactionVol: string;
+}
 export interface ITotalNetFollowAccountId {
     title: string;
     totalNetFollowAccountId: string[];

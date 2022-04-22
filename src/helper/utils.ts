@@ -1,13 +1,13 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLI, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 
 export function formatOrderTime(date: number): string {
     // time
-    const dateTime = moment(date).format(FORMAT_DATE_TIME_MILLI);
+    const dateTime = moment(date).format(FORMAT_DATE_TIME_MILLIS);
     if (dateTime !== INVALID_DATE) {
         return dateTime;
     }
@@ -180,13 +180,6 @@ export const defindConfigPost = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` }
     }
     return data;
-}
-export const formatDate = (datetime) => {
-    if (datetime !== null && datetime !== "") {
-        let date = new Date(datetime);
-        let mDateStr = moment(date).format("MMMM DD, YYYY");
-        return mDateStr;
-    } return null;
 }
 
 export const convertNumber = (value: string) => {

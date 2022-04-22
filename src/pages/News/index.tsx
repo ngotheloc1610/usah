@@ -6,9 +6,9 @@ import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NE
 import axios from 'axios';
 import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
-import { FORMAT_DATE_TIME_MILLI, SIDE, START_PAGE } from '../../constants/general.constant'
+import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
-import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
+import { convertNumber, defindConfigGet, defindConfigPost } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 import moment from 'moment';
 import queryString from 'query-string';
@@ -248,7 +248,7 @@ const News = () => {
     }
 
     const convertTime = (item: string) => {
-        return moment(item).format(FORMAT_DATE_TIME_MILLI)
+        return moment(item).format(FORMAT_DATE_TIME_MILLIS)
     }
 
     const _renderTradingResultsItem = (listTradingResults?: ITradingResult[]) => (
@@ -371,7 +371,7 @@ const News = () => {
             <div className="d-flex border-bottom pb-1 p-3">
                 <div>
                     <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>
-                    <div className="small opacity-50"> {formatDate(dataDetailNews?.publishDate)} </div>
+                    <div className="small opacity-50"> {moment(dataDetailNews?.publishDate).format(FORMAT_DATE_NEW_OR_RESULT)} </div>
                 </div>
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
