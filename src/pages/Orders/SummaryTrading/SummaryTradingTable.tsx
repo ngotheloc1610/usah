@@ -1,5 +1,5 @@
-import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
+import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
+import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -235,6 +235,26 @@ function SummaryTradingTable() {
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
+    const handleDownLoadSummaryTrading = () => {
+        const data: IPortfolioDownLoad[] = [];
+        portfolio.forEach((item) => {
+            if (item) {
+                data.push({
+                    tickerCode: getSymbol(item.symbolCode)?.symbolCode,
+                    ownedVol: formatNumber(calcOwnedVolume(item).toString()),
+                    avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
+                    dayNotional: formatCurrency(calcInvestedValue(item).toString()),
+                    marketPrice: formatCurrency(item.marketPrice),
+                    currentPrice: formatCurrency(calcCurrentValue(item).toString()),
+                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
+                    presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
+                    transactionVol: formatNumber(calcTransactionVolume(item).toString()),
+                })
+            }
+        })
+        exportCSV(data, 'summaryTrading');
+    }
+
     const _renderPortfolioTableHeader = () => (
         <tr>
             <th className="text-start fz-14 w-s" >Ticker Code</th>
@@ -292,6 +312,9 @@ function SummaryTradingTable() {
         <>
             {_rederPortfolioInvest()}
             {_renderPortfolioTable()}
+            <p className="text-end border-top pt-3">
+                <a onClick={handleDownLoadSummaryTrading} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+            </p>
         </>
     )
 }
