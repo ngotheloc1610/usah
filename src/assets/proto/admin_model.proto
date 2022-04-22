@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+enum ActionType {
+	ACTION_TYPE_NONE = 0;
+	ACTION_TYPE_NEW = 1;
+	ACTION_TYPE_UPDATE = 2;
+	ACTION_TYPE_DELETE = 4;
+}
