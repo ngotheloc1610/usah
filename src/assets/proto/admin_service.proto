@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "trading_model.proto";
+import "system_model.proto";
+import "query_model.proto";
+import "pricing_model.proto";
+import "admin_model.proto";
+
+//Get All Pending Order List
+message AdminGetPendingOrderListRequest {
+}
+
+message AdminGetPendingOrderListResponse {
+	MsgCode msg_code = 1;
+  	string msg_text = 2;
+	repeated Order order = 3;
+}
