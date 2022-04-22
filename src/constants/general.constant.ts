@@ -38,9 +38,11 @@ export const INVALID_DATE = 'Invalid date';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';
 
+export const FORMAT_DATE_NEW_OR_RESULT = 'MMMM DD, YYYY';
+
 export const FORMAT_DATE_DOWLOAD = 'YYYYMMDD_HH:mm:ss';
 
-export const FORMAT_DATE_TIME_SECOND = 'MMM DD YYYY HH:mm:ss.SSS';
+export const FORMAT_DATE_TIME_MILLIS = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
