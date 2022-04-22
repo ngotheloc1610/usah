@@ -257,6 +257,12 @@ function SummaryTradingTable() {
         exportCSV(data, `summaryTrading_${dateTimeCurrent}`);
     }
 
+    const _renderDownloadPortfolio = () => (
+        <p className="text-end border-top pt-3">
+                <a onClick={handleDownLoadSummaryTrading} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+            </p>
+    )
+
     const _renderPortfolioTableHeader = () => (
         <tr>
             <th className="text-start fz-14 w-s" >Ticker Code</th>
@@ -314,9 +320,7 @@ function SummaryTradingTable() {
         <>
             {_rederPortfolioInvest()}
             {_renderPortfolioTable()}
-            <p className="text-end border-top pt-3">
-                <a onClick={handleDownLoadSummaryTrading} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-            </p>
+            {portfolio?.length > 0 && _renderDownloadPortfolio()}
         </>
     )
 }
