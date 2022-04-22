@@ -1,4 +1,4 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO, FORMAT_DATE_TIME } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO, FORMAT_DATE_DOWLOAD } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
@@ -89,7 +89,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     }
 
     const handleDownloadTradeHistory = () => {
-        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_TIME);
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: IFixListTradeHistory[] = []
         listTradeSortDate.forEach((item) => {
             if (item) {

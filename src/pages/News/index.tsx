@@ -6,7 +6,7 @@ import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NE
 import axios from 'axios';
 import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
-import { FORMAT_DATE_TIME_MILLISECOND, SIDE, START_PAGE } from '../../constants/general.constant'
+import { FORMAT_DATE_TIME_SECOND, SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
 import { convertNumber, defindConfigGet, defindConfigPost, formatDate } from '../../helper/utils';
 import Pagination from "react-js-pagination";
@@ -248,7 +248,7 @@ const News = () => {
     }
 
     const convertTime = (item: string) => {
-        return moment(item).format(FORMAT_DATE_TIME_MILLISECOND)
+        return moment(item).format(FORMAT_DATE_TIME_SECOND)
     }
 
     const _renderTradingResultsItem = (listTradingResults?: ITradingResult[]) => (

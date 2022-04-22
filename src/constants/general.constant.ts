@@ -36,7 +36,11 @@ export const STATE = [
 ];
 export const INVALID_DATE = 'Invalid date';
 
-export const FORMAT_DATE_TIME_MILLISECOND = 'MMM DD YYYY HH:mm:ss.SSS';
+export const FORMAT_DATE = 'YYYY-MM-DD';
+
+export const FORMAT_DATE_DOWLOAD = 'YYYYMMDD_HH:mm:ss';
+
+export const FORMAT_DATE_TIME_SECOND = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
@@ -49,8 +53,6 @@ export const SIDE_NAME = {
 };
 
 export const MARKET_DEPTH_LENGTH = 3;
-
-export const OBJ_AUTHEN = 'objAuthen';
 
 export const MSG_CODE = 'msgCode';
 
@@ -180,6 +182,3 @@ export const CURRENCY = {
 export const SECRET_KEY = 'secret_key';
 export const REMEMBER_KEY = 'remember_key';
 export const IS_REMEMBER_ME = 'isRememberMe';
-
-export const FORMAT_DATE = 'YYYY-MM-DD';
-export const FORMAT_DATE_TIME = 'YYYYMMDD_HH:mm:ss';

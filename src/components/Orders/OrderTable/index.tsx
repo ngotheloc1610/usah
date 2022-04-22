@@ -1,4 +1,4 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_TIME, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
@@ -152,7 +152,7 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 
     const handleDownload = () => {
-        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_TIME);
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: IDataHistory[] = [];
         dataCurrent.forEach(item => {
             if (item) {
