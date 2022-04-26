@@ -130,6 +130,7 @@ enum ExecutionMode {
  	ORDER_STATE_FILLED = 4;		//Filled — the order has been filled in full.
  	ORDER_STATE_REJECTED = 5;	//Rejected — the order has been rejected by the broker.
  	ORDER_STATE_EXPIRED = 6;	//Expired — the order has been canceled upon expiration.
+	ORDER_STATE_MODIFIED = 7;	//Modified — the order has been modified
 	ORDER_STATE_MATCHED = 10;	//Matched by ME system
 	ORDER_STATE_STARTED = 11; 	//Started — the order correctness has been checked, and now the order is awaiting processing.
  }
