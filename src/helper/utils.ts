@@ -287,3 +287,13 @@ export const getRandomNumbers = () => {
 
     return textContent;
 }
+
+export const getClassName = (item: number) => {
+    if (item > 0) {
+        return 'text-success';
+    }
+    if (item < 0) {
+        return 'text-danger';
+    }
+    return '';
+}
