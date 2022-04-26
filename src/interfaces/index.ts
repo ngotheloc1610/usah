@@ -21,7 +21,6 @@ export interface IDataLogin {
     meta: IMeta;
     data: IDataLoginResquest;
 }
-
 export interface IReqLogin {
     config: string;
     data: IDataLogin;
@@ -31,6 +30,27 @@ export interface IReqLogin {
     statusText: string;
 }
 
+export interface IReqChangePassword {
+    config: string;
+    data: IDataChangePassword;
+    headers: string;
+    request: string;
+    status: number;
+    statusText: string;
+}
+
+export interface IDataChangePassword {
+    meta: IMeta;
+    data: IDataChangePasswordRequest;
+}
+
+export interface IDataChangePasswordRequest {
+    meta: string;
+    data: {
+        password: string,
+        new_password: string,
+    }
+}
 export interface IParamHistorySearch {
     symbolCode: string;
     orderState: number;

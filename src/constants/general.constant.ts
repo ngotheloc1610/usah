@@ -92,14 +92,14 @@ export const MODIFY_CANCEL_STATUS = {
 
 export const LENGTH_PASSWORD = 8;
 
-export const MAX_LENGTH_PASSWORD = 30;
+export const MAX_LENGTH_PASSWORD = 20;
 
 export enum ERROR_MSG_VALIDATE {
     TRADING_PIN_EXIST = 'Trading PIN already exist',
     TRADING_PIN_INCORRECT = 'Incorrect confirm trading Pin',
     TRADING_PIN_NOT_VALID = 'Trading PIN must be a six-digit number',
 
-    PASSWORD_EXIST = 'Password already exist',
+    DUPPLICATE_PASSWORD = 'Current password and new passwords cannot be the same',
     PASSORD_INCORRECT = 'Incorrect confirm new password'
 };
 
@@ -114,14 +114,14 @@ export const TO_DATE_TIME = '23:59:59';
 export enum MESSAGE_TOAST {
     SUCCESS_SEARCH = 'Search successfully',
     SUCCESS_PLACE = 'Place order successfully',
-    SUCCESS_UPDATE = 'Update successfully',
+    SUCCESS_PASSWORD_UPDATE = 'Update password successfully',
 
     SUCCESS_CANCEL = 'Cancel order successfully',
     SUCCESS_MODIFY = 'Modify order successfully',
 
     SUCCESS_ADD = 'Add symbol successfully',
 
-    ERROR_UPDATE = 'Update error',
+    ERROR_PASSWORD_UPDATE = 'Update password error',
     ERROR_ADD = 'Add symbol failed',
 
     EXIST_ADD = 'Symbol already existed'
