@@ -91,12 +91,11 @@ const ListTicker = (props: IListTickerProps) => {
         const quotes: ILastQuote[] = [];
         const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const ownWatchList = watchList.filter((o: IWatchList) => o?.accountId === currentAccId);
-        lastQoutes.forEach(item => {
+        ownWatchList.forEach(item => {
             if (item) {
-                const idx = ownWatchList.findIndex(o => o?.symbolCode === item?.symbolCode);
-                const idxQuote = quotes.findIndex(e => e?.symbolCode === item?.symbolCode);
-                if (idx >= 0 && idxQuote < 0) {
-                    quotes.push(item)
+                const idxQuote = lastQoutes.findIndex(e => e?.symbolCode === item?.symbolCode);
+                if (idxQuote >= 0) {
+                    quotes.push(lastQoutes[idxQuote]);
                 }
             }
         });
@@ -258,6 +257,35 @@ const ListTicker = (props: IListTickerProps) => {
                 const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
                 const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
                 setCurrentPage(currentPage);
+
+                const quotesDefault: ILastQuote[] = [];
+                ownWatchList.forEach((item, index) => {
+                    if (item) {
+                        const lastQuoteDefault: ILastQuote = {
+                            asksList: pageShowCurrentLastQuote[index]?.asksList || [],
+                            bidsList: pageShowCurrentLastQuote[index]?.bidsList || [],
+                            close: pageShowCurrentLastQuote[index]?.close || '',
+                            currentPrice: pageShowCurrentLastQuote[index]?.currentPrice || '',
+                            high: pageShowCurrentLastQuote[index]?.high || '',
+                            low: pageShowCurrentLastQuote[index]?.low || '',
+                            netChange: pageShowCurrentLastQuote[index]?.netChange || '',
+                            open: pageShowCurrentLastQuote[index]?.open || '',
+                            pctChange: pageShowCurrentLastQuote[index]?.pctChange || '',
+                            quoteTime: pageShowCurrentLastQuote[index]?.quoteTime || 0,
+                            scale: pageShowCurrentLastQuote[index]?.scale || 0,
+                            symbolCode: pageShowCurrentLastQuote[index]?.symbolCode || item.symbolCode,
+                            symbolId: pageShowCurrentLastQuote[index]?.symbolId || 0,
+                            tickPerDay: pageShowCurrentLastQuote[index]?.tickPerDay || 0,
+                            volumePerDay: pageShowCurrentLastQuote[index]?.volumePerDay || '',
+                            volume: pageShowCurrentLastQuote[index]?.volume || ''
+                        }
+                        quotesDefault.push(lastQuoteDefault);
+                    }
+                });
+                const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+                temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+                setPageShowCurrentLastQuote(temp);
+
                 getOrderBooks();
                 _rendetMessageSuccess();
     
