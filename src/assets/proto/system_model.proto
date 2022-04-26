@@ -46,6 +46,7 @@ message GroupAccount {
 	string group_name			= 2;
 	GroupType group_type		= 3;
 	int64 max_order_volume 		= 4;
+	string min_order_value		= 5;
 }
 
 enum GroupType {
@@ -93,6 +94,9 @@ message AccountPortfolio {
 	string realized_pl			= 10;
 	string unrealized_pl 		= 11;
 	string currency_code		= 12;
+	string owned_volume			= 13;
+	string avg_price			= 14;
+	int64 total_volume			= 15;
 }
 
 enum DealAction {

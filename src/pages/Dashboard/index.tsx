@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
 import moment from 'moment-timezone'
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -345,32 +345,16 @@ const Dashboard = () => {
         return 0;
     }
 
-    const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item?.totalBuyVolume;
-        const sellVolume = item?.totalSellVolume;
-        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
-    }
-
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.avgBuyPrice);
+        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgBuyPrice));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.marketPrice);
+        return convertNumber(item.ownedVolume) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
         return calcCurrentValue(item) - calcInvestedValue(item);
-    }
-
-    const getClassName = (item: number) => {
-        if (item > 0) {
-            return 'text-success';
-        }
-        if (item < 0) {
-            return 'text-danger';
-        }
-        return '';
     }
 
     const setGeneralTemplate = () => (

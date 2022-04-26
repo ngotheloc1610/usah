@@ -303,7 +303,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {isModify ? <>
                     <div className="border d-flex h-46">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
-                            {(title === TITLE_ORDER_CONFIRM.VOLUME) ?
+                            {(title === TITLE_ORDER_CONFIRM.QUANLITY) ?
                                 <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
                                     onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                                 :
@@ -318,7 +318,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     </div>
                     {outOfPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger'>Out of price day</div>}
                     {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger'>Invalid price</div>}
-                    {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger'>Invalid volume</div>}
+                    {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
                 </> : value}
             </td>
         </tr>
@@ -355,7 +355,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 <tbody>
                     {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString())}`)}
                 </tbody>

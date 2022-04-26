@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { ACCOUNT_ID, OBJ_AUTHEN, SOCKET_CONNECTED } from '../../constants/general.constant';
+import { ACCOUNT_ID, SOCKET_CONNECTED } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
 
 const SettingScreen = () => {

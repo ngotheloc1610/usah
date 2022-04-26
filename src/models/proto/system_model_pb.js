@@ -1224,7 +1224,8 @@ proto.GroupAccount.toObject = function(includeInstance, msg) {
     groupId: jspb.Message.getFieldWithDefault(msg, 1, 0),
     groupName: jspb.Message.getFieldWithDefault(msg, 2, ""),
     groupType: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    maxOrderVolume: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    maxOrderVolume: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    minOrderValue: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -1276,6 +1277,10 @@ proto.GroupAccount.deserializeBinaryFromReader = function(msg, reader) {
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setMaxOrderVolume(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMinOrderValue(value);
       break;
     default:
       reader.skipField();
@@ -1331,6 +1336,13 @@ proto.GroupAccount.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt64(
       4,
+      f
+    );
+  }
+  f = message.getMinOrderValue();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -1406,6 +1418,24 @@ proto.GroupAccount.prototype.getMaxOrderVolume = function() {
  */
 proto.GroupAccount.prototype.setMaxOrderVolume = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional string min_order_value = 5;
+ * @return {string}
+ */
+proto.GroupAccount.prototype.getMinOrderValue = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.GroupAccount} returns this
+ */
+proto.GroupAccount.prototype.setMinOrderValue = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
@@ -2162,7 +2192,10 @@ proto.AccountPortfolio.toObject = function(includeInstance, msg) {
     currentValue: jspb.Message.getFieldWithDefault(msg, 9, ""),
     realizedPl: jspb.Message.getFieldWithDefault(msg, 10, ""),
     unrealizedPl: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    currencyCode: jspb.Message.getFieldWithDefault(msg, 12, "")
+    currencyCode: jspb.Message.getFieldWithDefault(msg, 12, ""),
+    ownedVolume: jspb.Message.getFieldWithDefault(msg, 13, ""),
+    avgPrice: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    totalVolume: jspb.Message.getFieldWithDefault(msg, 15, 0)
   };
 
   if (includeInstance) {
@@ -2246,6 +2279,18 @@ proto.AccountPortfolio.deserializeBinaryFromReader = function(msg, reader) {
     case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setCurrencyCode(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setOwnedVolume(value);
+      break;
+    case 14:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAvgPrice(value);
+      break;
+    case 15:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setTotalVolume(value);
       break;
     default:
       reader.skipField();
@@ -2357,6 +2402,27 @@ proto.AccountPortfolio.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       12,
+      f
+    );
+  }
+  f = message.getOwnedVolume();
+  if (f.length > 0) {
+    writer.writeString(
+      13,
+      f
+    );
+  }
+  f = message.getAvgPrice();
+  if (f.length > 0) {
+    writer.writeString(
+      14,
+      f
+    );
+  }
+  f = message.getTotalVolume();
+  if (f !== 0) {
+    writer.writeInt64(
+      15,
       f
     );
   }
@@ -2576,6 +2642,60 @@ proto.AccountPortfolio.prototype.getCurrencyCode = function() {
  */
 proto.AccountPortfolio.prototype.setCurrencyCode = function(value) {
   return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional string owned_volume = 13;
+ * @return {string}
+ */
+proto.AccountPortfolio.prototype.getOwnedVolume = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountPortfolio} returns this
+ */
+proto.AccountPortfolio.prototype.setOwnedVolume = function(value) {
+  return jspb.Message.setProto3StringField(this, 13, value);
+};
+
+
+/**
+ * optional string avg_price = 14;
+ * @return {string}
+ */
+proto.AccountPortfolio.prototype.getAvgPrice = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.AccountPortfolio} returns this
+ */
+proto.AccountPortfolio.prototype.setAvgPrice = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
+/**
+ * optional int64 total_volume = 15;
+ * @return {number}
+ */
+proto.AccountPortfolio.prototype.getTotalVolume = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 15, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.AccountPortfolio} returns this
+ */
+proto.AccountPortfolio.prototype.setTotalVolume = function(value) {
+  return jspb.Message.setProto3IntField(this, 15, value);
 };
 
 

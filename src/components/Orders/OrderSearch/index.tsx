@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import { IHistorySearchStatus } from '../../../interfaces/order.interface'
-import { ORDER_HISTORY_SEARCH_STATUS } from '../../../mocks'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -182,7 +181,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderStatus(e.target.value)}>
-                {ORDER_HISTORY_SEARCH_STATUS.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
+                {STATE.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
             </select>
         </div>
     )

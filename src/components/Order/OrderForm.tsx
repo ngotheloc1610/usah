@@ -352,7 +352,7 @@ const OrderForm = (props: IOrderForm) => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const existSymbol = symbols.find(symbol => symbol.symbolCode === symbolCode);
         return (
-            <form action="#" className="order-form p-2 border shadow my-3">
+            <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                 <div className="order-btn-group d-flex align-items-stretch mb-2">
                     {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
                     {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.Side.BUY, '', 'selected')}

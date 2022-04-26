@@ -1,11 +1,12 @@
-import { ILastQuote, IPortfolio, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, formatCurrency, formatNumber } from '../../../helper/utils'
+import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
+import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
-import { LIST_TICKER_ALL } from '../../../constants/general.constant';
+import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
 import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
+import moment from 'moment';
 
 function SummaryTradingTable() {
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
@@ -16,10 +17,9 @@ function SummaryTradingTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                const portfolioList = res.accountPortfolioList.filter(item => item.totalBuyVolume - item.totalSellVolume !== 0)
-                setPortfolio(portfolioList);
-                callLastQuoteReq(portfolioList);
-                subscribeQuoteEvent(portfolioList);
+                setPortfolio(res.accountPortfolioList);
+                callLastQuoteReq(res.accountPortfolioList);
+                subscribeQuoteEvent(res.accountPortfolioList);
             }
         });
 
@@ -204,24 +204,12 @@ function SummaryTradingTable() {
         </div>
     )
 
-    const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
-        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
-        return buyVolume + sellVolume;
-    }
-
-    const calcOwnedVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
-        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
-        return buyVolume < sellVolume ? 0 : buyVolume - sellVolume;
-    }
-
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcOwnedVolume(item) * Number(convertNumber(item.avgBuyPrice).toFixed(2));
+        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgBuyPrice));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcOwnedVolume(item) * convertNumber(item.marketPrice);
+        return  convertNumber(item.ownedVolume) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -234,6 +222,33 @@ function SummaryTradingTable() {
         }
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
+
+    const handleDownLoadSummaryTrading = () => {
+        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
+        const data: IPortfolioDownLoad[] = [];
+        portfolio.forEach((item) => {
+            if (item) {
+                data.push({
+                    tickerCode: getSymbol(item.symbolCode)?.symbolCode,
+                    ownedVol: formatNumber(item.ownedVolume),
+                    avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
+                    dayNotional: formatCurrency(calcInvestedValue(item).toString()),
+                    marketPrice: formatCurrency(item.marketPrice),
+                    currentPrice: formatCurrency(calcCurrentValue(item).toString()),
+                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
+                    presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
+                    transactionVol: formatNumber(item.totalVolume.toString()),
+                })
+            }
+        })
+        exportCSV(data, `summaryTrading_${dateTimeCurrent}`);
+    }
+
+    const _renderDownloadPortfolio = () => (
+        <p className="text-end border-top pt-3">
+                <a onClick={handleDownLoadSummaryTrading} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
+            </p>
+    )
 
     const _renderPortfolioTableHeader = () => (
         <tr>
@@ -254,22 +269,18 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item).toString())}</td>
-                <td className="text-end w-s td" >{(item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : 0}</td>
+                <td className='text-end w-s td'>{formatNumber(item.ownedVolume)}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>
                 <td className="text-end w-s td fw-600" >
-                    {calcUnrealizedPL(item) > 0 && <span className='text-success'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
-                    {calcUnrealizedPL(item) < 0 && <span className='text-danger'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
-                    {calcUnrealizedPL(item) === 0 && <span>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
+                    <span className={getClassName(calcUnrealizedPL(item))}>{formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
                 <td className="text-end w-s td fw-600">
-                    {calcPctUnrealizedPL(item) > 0 && <span className='text-success'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
-                    {calcPctUnrealizedPL(item) < 0 && <span className='text-danger'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
-                    {calcPctUnrealizedPL(item) === 0 && <span>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
+                    <span className={getClassName(calcPctUnrealizedPL(item))}>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
-                <td className="text-end w-s">{formatNumber(calcTransactionVolume(item).toString())}</td>
+                <td className="text-end w-s">{formatNumber(item.totalVolume.toString())}</td>
             </tr>
         ))
 
@@ -292,6 +303,7 @@ function SummaryTradingTable() {
         <>
             {_rederPortfolioInvest()}
             {_renderPortfolioTable()}
+            {portfolio?.length > 0 && _renderDownloadPortfolio()}
         </>
     )
 }

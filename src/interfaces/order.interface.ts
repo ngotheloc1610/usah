@@ -447,19 +447,33 @@ export interface ITradingAccountVertical {
 
 export interface IPortfolio {
     accountId: number;
+    avgBuyPrice: string;
+    avgPrice: string;
+    avgSellPrice: string
+    currencyCode: string
+    currentValue: string;
+    investedValue: string;
+    marketPrice: string;
+    ownedVolume: string;
+    realizedPl: string;
     symbolCode: string;
     totalBuyVolume: number;
-    avgBuyPrice: string;
     totalSellVolume: number;
-    avgSellPrice: string;
-    marketPrice: string;
-    investedValue: string;
-    currentValue: string;
-    realizedPl: string;
+    totalVolume: number;
     unrealizedPl: string;
-    currencyCode: string;
 }
 
+export interface IPortfolioDownLoad {
+    tickerCode: string;
+    ownedVol: string;
+    avgPrice: string;
+    dayNotional: string;
+    marketPrice: string;
+    currentPrice: string;
+    unrealizedPl: string;
+    presentUnrealizedPl: string;
+    transactionVol: string;
+}
 export interface ITotalNetFollowAccountId {
     title: string;
     totalNetFollowAccountId: string[];
