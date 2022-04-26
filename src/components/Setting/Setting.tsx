@@ -138,9 +138,6 @@ const Setting = (props: ISetting) => {
             setCheckConfirm(false);
         }
         if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
-            setPassword('');
-            setNewPassword('');
-            setConfirmPassword('');
             handleChangePassword();
         }
     }
@@ -153,6 +150,9 @@ const Setting = (props: ISetting) => {
         axios.post<IReqChangePassword, IReqChangePassword>(urlPostChangePassword, param, defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
                 {toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE)}
+                setPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
             } else {
                 {toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE)}
             }
