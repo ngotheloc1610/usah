@@ -70,7 +70,7 @@ export const LIST_PRICE_TYPE = {
 export const TITLE_CONFIRM = {
     modify: 'Modify',
     cancel: 'Cancel',
-    newOrder: 'New order confirmation'
+    newOrder: 'New Order Confirmation'
 };
 
 export const ORDER_TYPE = [

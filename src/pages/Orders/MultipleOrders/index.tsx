@@ -821,7 +821,7 @@ const MultipleOrders = () => {
 
 
                 <div className="text-end mb-3 mt-10">
-                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Clear</a>
+                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Close</a>
                     <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Submit</a>
                 </div>
             </div>
@@ -836,7 +836,7 @@ const MultipleOrders = () => {
                 <div>
                     <img src={ICON_FILE} className="img-responsive" alt="Image" />
                 </div>
-                <span className="label text-nowrap mb-3 fw-600">Select a Excel file to import</span>
+                <span className="label text-nowrap mb-3 fw-600">Select a CSV file to import</span>
                 <div className="mb-30 mt-30">
                     <div className="upload-btn-wrapper">
                         <button className="btn btn-upload">Import File</button>
