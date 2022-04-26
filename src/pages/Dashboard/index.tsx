@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
 import moment from 'moment-timezone'
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -343,18 +343,12 @@ const Dashboard = () => {
         return 0;
     }
 
-    const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item?.totalBuyVolume;
-        const sellVolume = item?.totalSellVolume;
-        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
-    }
-
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.avgBuyPrice);
+        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgBuyPrice));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.marketPrice);
+        return convertNumber(item.ownedVolume) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -374,9 +368,7 @@ const Dashboard = () => {
                 </div>
                 <div className="text-center flex-grow-1 px-3">
                     <div className="small fw-bold">% P/L</div>
-                    {totalPctUnrealizedPL(portfolio) > 0 && <div className="text-success fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
-                    {totalPctUnrealizedPL(portfolio) < 0 && <div className="text-danger fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
-                    {totalPctUnrealizedPL(portfolio) === 0 && <div>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+                    <div className={`${getClassName(totalPctUnrealizedPL(portfolio))} fx-600`}>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>
                 </div>
             </div>
             <div className="col-md-4"></div>
