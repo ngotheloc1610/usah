@@ -361,18 +361,18 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                {statusPlace && <td className="text-end w-140">{defindStatusOrder(item)}</td>}
+                {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>
         })
     )
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Ticker Code</span></th>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Order Type</span></th>
-            <th className="text-center text-center text-nowrap" style={{ width: '20%' }}><span>Order Side</span></th>
-            <th className="text-center text-nowrap " style={{ width: '20%' }}><span>Quantity</span></th>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Price</span></th>
+            <th className="text-center text-nowrap"><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap"><span>Order Type</span></th>
+            <th className="text-center text-center text-nowrap"><span>Order Side</span></th>
+            <th className="text-center text-nowrap"><span>Quantity</span></th>
+            <th className="text-center text-nowrap"><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
@@ -755,10 +755,10 @@ const MultipleOrders = () => {
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ) {
-            return <div title={STATUS_ORDER.success} className="text-success text-truncate max-width-150">{STATUS_ORDER.success}</div>
+            return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
         }
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase()}</div>
+            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order.status?.toUpperCase()}</div>
         }
         return '';
     }
