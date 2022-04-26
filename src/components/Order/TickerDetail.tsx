@@ -190,8 +190,8 @@ const TickerDetail = (props: ITickerDetailProps) => {
     const _renderMiniumSize = () => (
         <tr className="align-middle">
             <th className='w-precent-15'>
-                <div>Minimum Lot Size</div>
-                <div className='mt-10'>Minimum Bid Size</div>
+                <div>Min Lot</div>
+                <div className='mt-10'>Tick Size</div>
             </th>
             <td className="text-end fw-600 w-precent-41">
                 <div>{formatNumber(tickerInfo?.minLot ? tickerInfo.minLot : '0')}</div>
