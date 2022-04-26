@@ -11,7 +11,6 @@ function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory, paramHistorySearch } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
-    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL;
     const [showModalDetail, setShowModalDetail] = useState(false)
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
@@ -24,10 +23,7 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.symbolCode) {
             historySortDate = historySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
         }
-        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
-            historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState || item.state === tradingModelPb.OrderState.ORDER_STATE_PARTIAL);
-        }
-        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState !== tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+        if (paramHistorySearch.orderState > 0) {
             historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState);
         }
         if (paramHistorySearch.orderSide > 0) {
@@ -70,7 +66,7 @@ function OrderTable(props: IPropListOrderHistory) {
     }
 
     const getStateName = (state: number) => {
-        return STATE.find(item => item.code === state)?.title;
+        return STATE.find(item => item.code === state)?.name;
     }
 
     const getStatusFromModal = (isShowDetail: boolean) => {
@@ -79,7 +75,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const checkDisLastUpdatedTime = (item: IOrderHistory) => {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
-        if (getStateName(item?.state) === STATE[0].title && !isCheckItemFilledAmount) {
+        if (getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) {
             return true;
         }
         return false;
@@ -90,7 +86,7 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
             <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
             <th className="text-center fz-14 w-120" >Order Side</th>
-            <th className="text-center fz-14 w-120" > Order Status</th>
+            <th className="text-start fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
             <th className="text-ellipsis text-end fz-14 w-140">
                 <div>Order Quantity</div>
@@ -108,7 +104,7 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-ellipsis fz-14 w-200">Comment</th>
         </tr>
     )
-    
+
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
@@ -120,8 +116,8 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
                 </td>
 
-                <td className="text-center w-120">
-                    <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
+                <td className="text-start w-120">
+                    <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
                 </td>
 
                 <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>

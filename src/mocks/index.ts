@@ -38,30 +38,6 @@ export const defaultTicker: ITickerInfo = {
 
 export const ORDER_BOOK_HEADER = ['ask volume', 'price', 'bid volume'];
 
-
-export const ORDER_HISTORY_SEARCH_STATUS: IHistorySearchStatus[] = [
-    {
-        code: TradingModel.OrderState.ORDER_STATE_NONE,
-        name: "All"
-    },
-    {
-        code: TradingModel.OrderState.ORDER_STATE_PLACED,
-        name: "Working"
-    },
-    {
-        code: TradingModel.OrderState.ORDER_STATE_CANCELED,
-        name: "Cancelled"
-    },
-    {
-        code: TradingModel.OrderState.ORDER_STATE_FILLED,
-        name: "Filled"
-    },
-    {
-        code: TradingModel.OrderState.ORDER_STATE_REJECTED,
-        name: "Rejected"
-    },
-]
-
 export const REPORT_LIST: IReportList[] = [
     {
         name: 'Monthly_Report_20211201',

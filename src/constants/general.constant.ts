@@ -14,23 +14,27 @@ export const SIDE = [
 
 export const STATE = [
     {
-        title: 'Working',
+        name: 'All',
+        code: tradingModelPb.OrderState.ORDER_STATE_NONE
+    },
+    {
+        name: 'Order Received',
         code: tradingModelPb.OrderState.ORDER_STATE_PLACED
     },
     {
-        title: 'Cancelled',
-        code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
-    },
-    {
-        title: 'Working',
+        name: 'Partially Done',
         code: tradingModelPb.OrderState.ORDER_STATE_PARTIAL
     },
     {
-        title: 'Filled',
+        name: 'Withdraw Done ',
+        code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
+    },
+    {
+        name: 'Done',
         code: tradingModelPb.OrderState.ORDER_STATE_FILLED
     },
     {
-        title: 'Rejected',
+        name: 'Rejected',
         code: tradingModelPb.OrderState.ORDER_STATE_REJECTED
     }
 ];
