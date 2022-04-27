@@ -774,7 +774,7 @@ const MultipleOrders = () => {
                 <span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
-                <form action="#" className="order-form p-2 border shadow my-3">
+                <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
@@ -849,14 +849,16 @@ const MultipleOrders = () => {
     const _renderDataTableListOrder = () => (
         <div className="card-modify mb-3">
             <div className="card-body p-0 mb-3 table table-responsive mh-500 tableFixHead">
-                <table className="table table-sm table-hover mb-0 dataTable no-footer">
-                    <thead>
-                        {_renderHearderMultipleOrders()}
-                    </thead>
-                    <tbody>
-                        {_renderDataMultipleOrders()}
-                    </tbody>
-                </table>
+                <form noValidate={true}>
+                    <table className="table table-sm table-hover mb-0 dataTable no-footer">
+                        <thead>
+                            {_renderHearderMultipleOrders()}
+                        </thead>
+                        <tbody>
+                            {_renderDataMultipleOrders()}
+                        </tbody>
+                    </table>
+                </form>
             </div>
         </div>
     )
