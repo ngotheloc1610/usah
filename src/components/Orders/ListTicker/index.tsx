@@ -16,7 +16,7 @@ interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
     msgSuccess?: string;
-    getSymbolCode: (item: string) => void;
+    getSymbolCodeRemove: (item: string) => void;
 }
 
 const defaultProps = {
@@ -26,7 +26,7 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote, msgSuccess, handleSide, getSymbolCode } = props;
+    const { getTicerLastQuote, msgSuccess, handleSide, getSymbolCodeRemove } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
@@ -397,7 +397,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const removeTicker = (itemLstQuote: ILastQuote) => {
         unSubscribeQuoteEvent([itemLstQuote]);
-        getSymbolCode(itemLstQuote.symbolCode);
+        getSymbolCodeRemove(itemLstQuote.symbolCode);
         const currentWactchList: IWatchList[] = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const idx = currentWactchList.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode && o?.accountId === currentAccId);
         if (idx >= 0) {
