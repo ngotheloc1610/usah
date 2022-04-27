@@ -76,7 +76,6 @@ const ListTicker = (props: IListTickerProps) => {
         const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
         temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
         setPageShowCurrentLastQuote(temp);
-        getOrderBooks();
     }, [])
 
     useEffect(() => {
