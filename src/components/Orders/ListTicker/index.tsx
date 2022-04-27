@@ -50,25 +50,26 @@ const ListTicker = (props: IListTickerProps) => {
         const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
         const quotesDefault: ILastQuote[] = [];
-        ownWatchList.forEach((item, index) => {
+        ownWatchList.forEach(item => {
+            const idx = pageShowCurrentLastQuote.findIndex(o => o.symbolCode === item.symbolCode)
             if (item) {
                 const lastQuoteDefault: ILastQuote = {
-                    asksList: pageShowCurrentLastQuote[index]?.asksList || [],
-                    bidsList: pageShowCurrentLastQuote[index]?.bidsList || [],
-                    close: pageShowCurrentLastQuote[index]?.close || '',
-                    currentPrice: pageShowCurrentLastQuote[index]?.currentPrice || '',
-                    high: pageShowCurrentLastQuote[index]?.high || '',
-                    low: pageShowCurrentLastQuote[index]?.low || '',
-                    netChange: pageShowCurrentLastQuote[index]?.netChange || '',
-                    open: pageShowCurrentLastQuote[index]?.open || '',
-                    pctChange: pageShowCurrentLastQuote[index]?.pctChange || '',
-                    quoteTime: pageShowCurrentLastQuote[index]?.quoteTime || 0,
-                    scale: pageShowCurrentLastQuote[index]?.scale || 0,
-                    symbolCode: pageShowCurrentLastQuote[index]?.symbolCode || item.symbolCode,
-                    symbolId: pageShowCurrentLastQuote[index]?.symbolId || 0,
-                    tickPerDay: pageShowCurrentLastQuote[index]?.tickPerDay || 0,
-                    volumePerDay: pageShowCurrentLastQuote[index]?.volumePerDay || '',
-                    volume: pageShowCurrentLastQuote[index]?.volume || ''
+                    asksList: pageShowCurrentLastQuote[idx]?.asksList || [],
+                    bidsList: pageShowCurrentLastQuote[idx]?.bidsList || [],
+                    close: pageShowCurrentLastQuote[idx]?.close || '',
+                    currentPrice: pageShowCurrentLastQuote[idx]?.currentPrice || '',
+                    high: pageShowCurrentLastQuote[idx]?.high || '',
+                    low: pageShowCurrentLastQuote[idx]?.low || '',
+                    netChange: pageShowCurrentLastQuote[idx]?.netChange || '',
+                    open: pageShowCurrentLastQuote[idx]?.open || '',
+                    pctChange: pageShowCurrentLastQuote[idx]?.pctChange || '',
+                    quoteTime: pageShowCurrentLastQuote[idx]?.quoteTime || 0,
+                    scale: pageShowCurrentLastQuote[idx]?.scale || 0,
+                    symbolCode: pageShowCurrentLastQuote[idx]?.symbolCode || item.symbolCode,
+                    symbolId: pageShowCurrentLastQuote[idx]?.symbolId || 0,
+                    tickPerDay: pageShowCurrentLastQuote[idx]?.tickPerDay || 0,
+                    volumePerDay: pageShowCurrentLastQuote[idx]?.volumePerDay || '',
+                    volume: pageShowCurrentLastQuote[idx]?.volume || ''
                 }
                 quotesDefault.push(lastQuoteDefault);
             }
