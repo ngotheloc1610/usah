@@ -333,13 +333,13 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const _renderPlaceButton = () => (
-        <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
+        <button type='button' className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
             disabled={disableButtonPlace()}
             onClick={handlePlaceOrder} >Place</button>
     )
 
     const _renderResetButton = () => (
-        <button className="btn btn-reset btn-outline-secondary d-block fw-bold mb-1 w-100"
+        <button type='button' className="btn btn-reset btn-outline-secondary d-block fw-bold mb-1 w-100"
             onClick={resetFormNewOrder}
         >Reset</button>
     )
