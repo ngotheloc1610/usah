@@ -47,6 +47,38 @@ const ListTicker = (props: IListTickerProps) => {
     }, [pageShowCurrentLastQuote])
 
     useEffect(() => {
+        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+        const quotesDefault: ILastQuote[] = [];
+        ownWatchList.forEach((item, index) => {
+            if (item) {
+                const lastQuoteDefault: ILastQuote = {
+                    asksList: pageShowCurrentLastQuote[index]?.asksList || [],
+                    bidsList: pageShowCurrentLastQuote[index]?.bidsList || [],
+                    close: pageShowCurrentLastQuote[index]?.close || '',
+                    currentPrice: pageShowCurrentLastQuote[index]?.currentPrice || '',
+                    high: pageShowCurrentLastQuote[index]?.high || '',
+                    low: pageShowCurrentLastQuote[index]?.low || '',
+                    netChange: pageShowCurrentLastQuote[index]?.netChange || '',
+                    open: pageShowCurrentLastQuote[index]?.open || '',
+                    pctChange: pageShowCurrentLastQuote[index]?.pctChange || '',
+                    quoteTime: pageShowCurrentLastQuote[index]?.quoteTime || 0,
+                    scale: pageShowCurrentLastQuote[index]?.scale || 0,
+                    symbolCode: pageShowCurrentLastQuote[index]?.symbolCode || item.symbolCode,
+                    symbolId: pageShowCurrentLastQuote[index]?.symbolId || 0,
+                    tickPerDay: pageShowCurrentLastQuote[index]?.tickPerDay || 0,
+                    volumePerDay: pageShowCurrentLastQuote[index]?.volumePerDay || '',
+                    volume: pageShowCurrentLastQuote[index]?.volume || ''
+                }
+                quotesDefault.push(lastQuoteDefault);
+            }
+        });
+        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+        setPageShowCurrentLastQuote(temp);
+    }, [])
+
+    useEffect(() => {
 
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -132,7 +164,6 @@ const ListTicker = (props: IListTickerProps) => {
             // setLastQoutes(tempLastQuote);
             setPageShowCurrentLastQuote(tmpList);
         }
-
     }
 
     const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -243,7 +274,6 @@ const ListTicker = (props: IListTickerProps) => {
         <div>{toast.error(MESSAGE_TOAST.ERROR_ADD)}</div>
     )
 
-
     const btnAddTicker = (symbolCodeAdd) => {
         if (symbolCodeAdd) {
             const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
@@ -288,7 +318,7 @@ const ListTicker = (props: IListTickerProps) => {
 
                 getOrderBooks();
                 _rendetMessageSuccess();
-    
+
             } else {
                 _renderMessageExist();
             }
@@ -409,10 +439,9 @@ const ListTicker = (props: IListTickerProps) => {
         if (idxQuote >= 0) {
             temps.splice(idxQuote, 1)
             if (temps.length === 0) {
-                setCurrentPage(currentPage - 1);
-            } else {
-                setPageShowCurrentLastQuote(temps);
+                currentPage === pageFirst ? setCurrentPage(pageFirst) : setCurrentPage(currentPage - 1);
             }
+            setPageShowCurrentLastQuote(temps);
         }
     }
 
