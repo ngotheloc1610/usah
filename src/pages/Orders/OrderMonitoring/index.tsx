@@ -19,6 +19,10 @@ const OrderMonitoring = () => {
         }
     }
 
+    const getSymbolCode = (symbolRemove: string) => {
+        symbolCode && symbolCode === symbolRemove && setSymbolCode('');
+    }
+
     const messageSuccess = (item: string) => {
         setMsgSuccess('');
         setMsgSuccess(item);
@@ -34,7 +38,7 @@ const OrderMonitoring = () => {
                 <div className="container">
                     <div className="row align-items-stretch g-2 mb-3">
                         <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} />
+                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} getSymbolCode={getSymbolCode} />
                         </div>
                         <div className="col-lg-3 d-flex">
                             <div className="card flex-grow-1 card-order-form mb-2">
