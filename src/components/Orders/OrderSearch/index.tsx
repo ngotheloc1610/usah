@@ -231,9 +231,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
-                            defaultValue={currentDate}
+                            value={fromDatetime ? moment(fromDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
-                            onClick={(event) => btnClickFromDate(event)}
                             onChange={(event) => handleChangeFromDate(event.target.value)}
                         />
                     </div>
@@ -242,9 +241,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
-                            defaultValue={currentDate}
+                            value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
-                            onClick={(event) => btnClickToDate(event)}
                             onChange={(event) => handleChangeToDate(event.target.value)}
                         />
                     </div>
