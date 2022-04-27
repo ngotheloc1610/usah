@@ -331,15 +331,15 @@ const OrderForm = (props: IOrderForm) => {
             {title === TITLE_ORDER_CONFIRM.QUANLITY && <> {invalidVolume && <span className='text-danger'>Invalid volume</span>}</>}
         </>
     }
-
+    // TODO: The type button has no default behavior, and does nothing when pressed by default
     const _renderPlaceButton = () => (
-        <button className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
+        <button type='button' className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
             disabled={disableButtonPlace()}
             onClick={handlePlaceOrder} >Place</button>
     )
 
     const _renderResetButton = () => (
-        <button className="btn btn-reset btn-outline-secondary d-block fw-bold mb-1 w-100"
+        <button type='button' className="btn btn-reset btn-outline-secondary d-block fw-bold mb-1 w-100"
             onClick={resetFormNewOrder}
         >Reset</button>
     )
