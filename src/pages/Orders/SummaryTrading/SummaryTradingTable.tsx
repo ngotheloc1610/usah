@@ -206,11 +206,11 @@ function SummaryTradingTable() {
     )
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgPrice));
+        return convertNumber(item.ownedVolume.toString()) * convertNumber(formatCurrency(item.avgBuyPrice));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return  convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.marketPrice));
+        return  convertNumber(item.ownedVolume.toString()) * convertNumber(formatCurrency(item.marketPrice));
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -231,7 +231,7 @@ function SummaryTradingTable() {
             if (item) {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
-                    ownedVol: formatNumber(item.ownedVolume),
+                    ownedVol: formatNumber(item.ownedVolume.toString()),
                     avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
                     dayNotional: formatCurrency(calcInvestedValue(item).toString()),
                     marketPrice: formatCurrency(item.marketPrice),
@@ -270,8 +270,8 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(item.ownedVolume)}</td>
-                <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
+                <td className='text-end w-s td'>{formatNumber(item.ownedVolume.toString())}</td>
+                <td className="text-end w-s td" >{formatCurrency(item.avgBuyPrice)}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>

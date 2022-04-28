@@ -346,11 +346,11 @@ const Dashboard = () => {
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgBuyPrice));
+        return convertNumber(item.ownedVolume.toString()) * convertNumber(formatCurrency(item.avgBuyPrice));
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(item.marketPrice);
+        return convertNumber(item.ownedVolume.toString()) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {

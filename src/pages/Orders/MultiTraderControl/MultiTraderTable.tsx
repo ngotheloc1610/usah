@@ -49,6 +49,8 @@ const MultiTraderTable = () => {
 
         const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
+                console.log(52, res.accountPortfolioList);
+                
                 setTotalAccountPortfolio(res.accountPortfolioList);
             }
         });
@@ -96,15 +98,14 @@ const MultiTraderTable = () => {
                 if (ele) {
                     const idx = totalAccountPortfolio.findIndex(o => o?.symbolCode === item?.symbolCode && o?.accountId.toString() === ele);
                     if (idx >= 0) {
-                        const buyVolume = convertNumber(totalAccountPortfolio[idx]?.totalBuyVolume.toString());
                         const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
-                        const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
-                        const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
-                        const ownedVolume = convertNumber(totalAccountPortfolio[idx].ownedVolume);
+                        const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.totalBuyAmount) / convertNumber(totalAccountPortfolio[idx]?.totalBuyVolume.toString());
+                        const avgSellPrice =  convertNumber(totalAccountPortfolio[idx]?.totalSellAmount) / convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
+                        const ownedVolume = convertNumber(totalAccountPortfolio[idx].ownedVolume.toString());
                         tempData.push(ownedVolume.toString())
                         netPosition += (avgBuyPrice * ownedVolume);
-                        totalSell += (avgSellPrice * sellVolume);
-                        totalBuy += (avgBuyPrice * buyVolume);
+                        totalSell += convertNumber(totalAccountPortfolio[idx]?.totalSellAmount);
+                        totalBuy += convertNumber(totalAccountPortfolio[idx]?.totalBuyAmount);
                         totalPL += (avgSellPrice - avgBuyPrice) * sellVolume;
                     } else {
                         tempData.push('0');
@@ -139,11 +140,12 @@ const MultiTraderTable = () => {
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
                         if (item) {
-                            const ownedVolume = convertNumber(item.ownedVolume);
+                            const ownedVolume = convertNumber(item.ownedVolume.toString());
+                            const avgBuyPrice = convertNumber(item.totalBuyAmount) / convertNumber(item.totalBuyVolume.toString());
+                            const avgSellPrice = convertNumber(item.totalSellAmount) / convertNumber(item.totalSellVolume.toString());
                             total += (convertNumber(item.avgBuyPrice) * (ownedVolume));
-                            const totalSell = convertNumber(item.avgSellPrice) * item.totalSellVolume;
-                            totalGross += (totalSell + convertNumber(item.avgBuyPrice) * item.totalBuyVolume)
-                            totalPL += (convertNumber(item.avgSellPrice) - convertNumber(item.avgBuyPrice)) * item.totalSellVolume;
+                            totalGross += convertNumber(item.totalBuyAmount) + convertNumber(item.totalSellAmount);
+                            totalPL += (avgSellPrice - avgBuyPrice) * item.totalSellVolume;
                         }
                     })
                 }
