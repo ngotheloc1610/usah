@@ -39,6 +39,7 @@ message AdminSettings {
 	int64 gross_buy_limit	= 1;
 	int64 gross_sell_limit	= 2;
 	repeated SessionSettings session_settings = 3;
+	repeated Holiday holiday_settings = 4;
 }
 
 message GroupAccount {
@@ -62,6 +63,19 @@ message SessionSettings {
 	int64 pre_order_time	= 4; // Minutes couting from 00:00 
 }
 
+message Holiday {
+	int64 holiday_id		= 1;
+	HolidayStatus holiday_status		= 2;
+	int64 timestamp_from		= 3; // Unix timestamp in milliseconds, e.g: 1651131000000
+	int64 timestamp_to		= 4; // Unix timestamp in milliseconds, e.g: 1651159800000
+}
+
+enum HolidayStatus {
+	HS_NONE 				= 0;
+	HS_ACTIVE				= 1;
+	HS_DEACTIVE				= 2;
+}
+
 message AccountBalance {
 	int64 account_id 			= 1;
 	string balance				= 2;
@@ -83,10 +97,10 @@ message AccountPortfolio {
 	string symbol_code			= 2;
 	
 	int64 total_buy_volume = 3;
-	string avg_buy_price = 4;
+	string total_buy_amount = 4;
 
 	int64 total_sell_volume = 5;
-	string avg_sell_price = 6;
+	string total_sell_amount = 6;
 	
 	string market_price			= 7;
 	string invested_value		= 8;
