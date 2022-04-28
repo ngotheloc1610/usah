@@ -102,7 +102,6 @@ const Dashboard = () => {
 
         const listOrder = wsService.getListOrder().subscribe(res => {
             if (res && res.orderList) {
-                setIsLoading(false);
                 setPendingOrder(res.orderList.length)
             }
         });
@@ -162,6 +161,7 @@ const Dashboard = () => {
                             marketPrice: item?.currentPrice
                         }
                     }
+                    setIsLoading(item.symbolCode !== symbolList[symbolList.length - 1].symbolCode);
                 }
             });
             setPortfolio(temp);
