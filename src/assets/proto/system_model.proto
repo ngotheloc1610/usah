@@ -108,8 +108,8 @@ message AccountPortfolio {
 	string realized_pl			= 10;
 	string unrealized_pl 		= 11;
 	string currency_code		= 12;
-	string owned_volume			= 13;
-	string avg_price			= 14;
+	int64 owned_volume			= 13;
+	string owned_amount			= 14;
 	int64 total_volume			= 15;
 }
 

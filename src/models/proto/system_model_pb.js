@@ -2489,8 +2489,8 @@ proto.AccountPortfolio.toObject = function(includeInstance, msg) {
     realizedPl: jspb.Message.getFieldWithDefault(msg, 10, ""),
     unrealizedPl: jspb.Message.getFieldWithDefault(msg, 11, ""),
     currencyCode: jspb.Message.getFieldWithDefault(msg, 12, ""),
-    ownedVolume: jspb.Message.getFieldWithDefault(msg, 13, ""),
-    avgPrice: jspb.Message.getFieldWithDefault(msg, 14, ""),
+    ownedVolume: jspb.Message.getFieldWithDefault(msg, 13, 0),
+    ownedAmount: jspb.Message.getFieldWithDefault(msg, 14, ""),
     totalVolume: jspb.Message.getFieldWithDefault(msg, 15, 0)
   };
 
@@ -2577,12 +2577,12 @@ proto.AccountPortfolio.deserializeBinaryFromReader = function(msg, reader) {
       msg.setCurrencyCode(value);
       break;
     case 13:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {number} */ (reader.readInt64());
       msg.setOwnedVolume(value);
       break;
     case 14:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAvgPrice(value);
+      msg.setOwnedAmount(value);
       break;
     case 15:
       var value = /** @type {number} */ (reader.readInt64());
@@ -2702,13 +2702,13 @@ proto.AccountPortfolio.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getOwnedVolume();
-  if (f.length > 0) {
-    writer.writeString(
+  if (f !== 0) {
+    writer.writeInt64(
       13,
       f
     );
   }
-  f = message.getAvgPrice();
+  f = message.getOwnedAmount();
   if (f.length > 0) {
     writer.writeString(
       14,
@@ -2942,28 +2942,28 @@ proto.AccountPortfolio.prototype.setCurrencyCode = function(value) {
 
 
 /**
- * optional string owned_volume = 13;
- * @return {string}
+ * optional int64 owned_volume = 13;
+ * @return {number}
  */
 proto.AccountPortfolio.prototype.getOwnedVolume = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.AccountPortfolio} returns this
  */
 proto.AccountPortfolio.prototype.setOwnedVolume = function(value) {
-  return jspb.Message.setProto3StringField(this, 13, value);
+  return jspb.Message.setProto3IntField(this, 13, value);
 };
 
 
 /**
- * optional string avg_price = 14;
+ * optional string owned_amount = 14;
  * @return {string}
  */
-proto.AccountPortfolio.prototype.getAvgPrice = function() {
+proto.AccountPortfolio.prototype.getOwnedAmount = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
 };
 
@@ -2972,7 +2972,7 @@ proto.AccountPortfolio.prototype.getAvgPrice = function() {
  * @param {string} value
  * @return {!proto.AccountPortfolio} returns this
  */
-proto.AccountPortfolio.prototype.setAvgPrice = function(value) {
+proto.AccountPortfolio.prototype.setOwnedAmount = function(value) {
   return jspb.Message.setProto3StringField(this, 14, value);
 };
 
