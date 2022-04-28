@@ -72,7 +72,7 @@ const OrderForm = (props: IOrderForm) => {
         }
     }, [side])
 
-    useEffect(() => {        
+    useEffect(() => {
         if (price > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
             return;
