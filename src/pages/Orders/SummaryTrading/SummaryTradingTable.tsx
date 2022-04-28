@@ -17,7 +17,8 @@ function SummaryTradingTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                setPortfolio(res.accountPortfolioList);
+                const portfolioInday = res.accountPortfolioList.filter(o => o.totalVolume !== 0);
+                setPortfolio(portfolioInday);
                 callLastQuoteReq(res.accountPortfolioList);
                 subscribeQuoteEvent(res.accountPortfolioList);
             }
