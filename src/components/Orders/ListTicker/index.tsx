@@ -47,7 +47,6 @@ const ListTicker = (props: IListTickerProps) => {
         setListSymbol(listSymbol)
     }, [pageShowCurrentLastQuote])
 
-    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
