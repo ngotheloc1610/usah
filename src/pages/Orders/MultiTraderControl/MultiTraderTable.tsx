@@ -6,7 +6,7 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SOCKET_RECONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
-import { IListPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
+import { IPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
@@ -19,7 +19,7 @@ const MultiTraderTable = () => {
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
     const lstId = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]');
     const listHeaderName = [...lstId, 'Total Net Position', 'Total Gross Transactions', 'Total Realized PL'];
-    const [totalAccountPortfolio, setTotalAccountPortfolio] = useState<IListPortfolio[]>([]);
+    const [totalAccountPortfolio, setTotalAccountPortfolio] = useState<IPortfolio[]>([]);
     const [allTotalNet, setAllTotalNet] = useState(0);
     const [allTotalGross, setAllTotalGross] = useState(0);
     const [allTotalPL, setAllTotalPL] = useState(0);
@@ -78,7 +78,7 @@ const MultiTraderTable = () => {
 
     window.onresize = reportWindowSize;
 
-    const processPortfolio = (totalAccountPortfolio: IListPortfolio[]) => {
+    const processPortfolio = (totalAccountPortfolio: IPortfolio[]) => {
         const tmp: ITradingAccountVertical[] = [];
         const tempTotalNetPositions: string[] = [];
         const tempTotalGross: string[] = [];
@@ -100,8 +100,7 @@ const MultiTraderTable = () => {
                         const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
                         const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
                         const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
-                        const tmpOwnedVolume = buyVolume - sellVolume;
-                        const ownedVolume = tmpOwnedVolume <= 0 ? 0 : tmpOwnedVolume;
+                        const ownedVolume = convertNumber(totalAccountPortfolio[idx].ownedVolume);
                         tempData.push(ownedVolume.toString())
                         netPosition += (avgBuyPrice * ownedVolume);
                         totalSell += (avgSellPrice * sellVolume);
@@ -140,7 +139,7 @@ const MultiTraderTable = () => {
                 if (objs && objs.length > 0) {
                     objs.forEach(item => {
                         if (item) {
-                            const ownedVolume = item.totalBuyVolume < item.totalSellVolume ? 0 : item.totalBuyVolume - item.totalSellVolume;
+                            const ownedVolume = convertNumber(item.ownedVolume);
                             total += (convertNumber(item.avgBuyPrice) * (ownedVolume));
                             const totalSell = convertNumber(item.avgSellPrice) * item.totalSellVolume;
                             totalGross += (totalSell + convertNumber(item.avgBuyPrice) * item.totalBuyVolume)
