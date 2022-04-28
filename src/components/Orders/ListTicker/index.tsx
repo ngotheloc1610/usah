@@ -12,6 +12,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { toast } from "react-toastify";
+import { DEFAULT_DATA_TICKER } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
@@ -48,7 +49,6 @@ const ListTicker = (props: IListTickerProps) => {
     }, [pageShowCurrentLastQuote])
 
     useEffect(() => {
-
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 getOrderBooks();
@@ -87,6 +87,24 @@ const ListTicker = (props: IListTickerProps) => {
     useEffect(() => {
         processLastQuote(lastQoutes)
     }, [lastQoutes, currentPage])
+
+    useEffect(() => {
+        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+        const quotesDefault: ILastQuote[] = [];
+        ownWatchList.forEach(item => {
+            if (item) {
+                const lastQuoteDefault: ILastQuote = {
+                    ...DEFAULT_DATA_TICKER,
+                    symbolCode: item.symbolCode,
+                }
+                quotesDefault.push(lastQuoteDefault);
+            }
+        });
+        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+        setPageShowCurrentLastQuote(temp);
+    }, [])
 
     const processLastQuote = (lastQoutes: ILastQuote[]) => {
         const quotes: ILastQuote[] = [];
@@ -133,7 +151,6 @@ const ListTicker = (props: IListTickerProps) => {
             // setLastQoutes(tempLastQuote);
             setPageShowCurrentLastQuote(tmpList);
         }
-
     }
 
     const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -244,7 +261,6 @@ const ListTicker = (props: IListTickerProps) => {
         <div>{toast.error(MESSAGE_TOAST.ERROR_ADD)}</div>
     )
 
-
     const btnAddTicker = (symbolCodeAdd) => {
         if (symbolCodeAdd) {
             const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
@@ -289,7 +305,7 @@ const ListTicker = (props: IListTickerProps) => {
 
                 getOrderBooks();
                 _rendetMessageSuccess();
-    
+
             } else {
                 _renderMessageExist();
             }
@@ -411,10 +427,9 @@ const ListTicker = (props: IListTickerProps) => {
         if (idxQuote >= 0) {
             temps.splice(idxQuote, 1)
             if (temps.length === 0) {
-                setCurrentPage(currentPage - 1);
-            } else {
-                setPageShowCurrentLastQuote(temps);
+                currentPage === pageFirst ? setCurrentPage(pageFirst) : setCurrentPage(currentPage - 1);
             }
+            setPageShowCurrentLastQuote(temps);
         }
     }
 
