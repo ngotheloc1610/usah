@@ -290,10 +290,10 @@ export const getRandomNumbers = () => {
 
 export const getClassName = (item: number) => {
     if (item > 0) {
-        return 'text-success';
+        return 'text-danger';
     }
     if (item < 0) {
-        return 'text-danger';
+        return 'text-success';
     }
     return '';
 }

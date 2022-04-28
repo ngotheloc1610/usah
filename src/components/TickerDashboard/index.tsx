@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber } from "../../helper/utils"
+import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
@@ -187,16 +187,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         }
     }
 
-    const getColorText = (item: number) => {
-        if (item < 0) {
-            return 'text-success';
-        }
-        if (item > 0) {
-            return 'text-danger';
-        }
-        return '';
-    }
-
     const headerTable = () => (
         <tr>
             <th className="text-left sorting_disabled header-cell w-header fz-14">Ticker Code</th>
@@ -236,14 +226,14 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getColorText(convertNumber(item.lastPrice) - convertNumber(item.open))}>{formatCurrency(item.lastPrice)}</span>
+                     <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.open))}>{formatCurrency(item.lastPrice)}</span>
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getColorText(calcChange(item.lastPrice, item.open))}>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>
+                     <span className={getClassName(calcChange(item.lastPrice, item.open))}>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    <span className={getColorText(calcPctChange(item.lastPrice, item.open))}>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
+                    <span className={getClassName(calcPctChange(item.lastPrice, item.open))}>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
                 </td>
             </tr>
         ))
