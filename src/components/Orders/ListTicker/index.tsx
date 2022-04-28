@@ -12,6 +12,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { toast } from "react-toastify";
+import { DEFAULT_DATA_TICKER } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
@@ -46,39 +47,7 @@ const ListTicker = (props: IListTickerProps) => {
         setListSymbol(listSymbol)
     }, [pageShowCurrentLastQuote])
 
-    useEffect(() => {
-        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
-        const quotesDefault: ILastQuote[] = [];
-        ownWatchList.forEach(item => {
-            const idx = pageShowCurrentLastQuote.findIndex(o => o.symbolCode === item.symbolCode)
-            if (item) {
-                const lastQuoteDefault: ILastQuote = {
-                    asksList: pageShowCurrentLastQuote[idx]?.asksList || [],
-                    bidsList: pageShowCurrentLastQuote[idx]?.bidsList || [],
-                    close: pageShowCurrentLastQuote[idx]?.close || '',
-                    currentPrice: pageShowCurrentLastQuote[idx]?.currentPrice || '',
-                    high: pageShowCurrentLastQuote[idx]?.high || '',
-                    low: pageShowCurrentLastQuote[idx]?.low || '',
-                    netChange: pageShowCurrentLastQuote[idx]?.netChange || '',
-                    open: pageShowCurrentLastQuote[idx]?.open || '',
-                    pctChange: pageShowCurrentLastQuote[idx]?.pctChange || '',
-                    quoteTime: pageShowCurrentLastQuote[idx]?.quoteTime || 0,
-                    scale: pageShowCurrentLastQuote[idx]?.scale || 0,
-                    symbolCode: pageShowCurrentLastQuote[idx]?.symbolCode || item.symbolCode,
-                    symbolId: pageShowCurrentLastQuote[idx]?.symbolId || 0,
-                    tickPerDay: pageShowCurrentLastQuote[idx]?.tickPerDay || 0,
-                    volumePerDay: pageShowCurrentLastQuote[idx]?.volumePerDay || '',
-                    volume: pageShowCurrentLastQuote[idx]?.volume || ''
-                }
-                quotesDefault.push(lastQuoteDefault);
-            }
-        });
-        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
-        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
-        setPageShowCurrentLastQuote(temp);
-    }, [])
-
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -118,6 +87,24 @@ const ListTicker = (props: IListTickerProps) => {
     useEffect(() => {
         processLastQuote(lastQoutes)
     }, [lastQoutes, currentPage])
+
+    useEffect(() => {
+        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+        const quotesDefault: ILastQuote[] = [];
+        ownWatchList.forEach(item => {
+            if (item) {
+                const lastQuoteDefault: ILastQuote = {
+                    ...DEFAULT_DATA_TICKER,
+                    symbolCode: item.symbolCode,
+                }
+                quotesDefault.push(lastQuoteDefault);
+            }
+        });
+        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+        setPageShowCurrentLastQuote(temp);
+    }, [])
 
     const processLastQuote = (lastQoutes: ILastQuote[]) => {
         const quotes: ILastQuote[] = [];
