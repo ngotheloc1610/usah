@@ -454,11 +454,14 @@ export interface IPortfolio {
     currentValue: string;
     investedValue: string;
     marketPrice: string;
-    ownedVolume: string;
+    ownedAmount: string;
+    ownedVolume: number;
     realizedPl: string;
     symbolCode: string;
     totalBuyVolume: number;
     totalSellVolume: number;
+    totalBuyAmount: string;
+    totalSellAmount: string;
     totalVolume: number;
     unrealizedPl: string;
 }

@@ -5,7 +5,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SOCKET_RECONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../../helper/utils";
+import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
 import { IPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
@@ -96,15 +96,14 @@ const MultiTraderTable = () => {
                 if (ele) {
                     const idx = totalAccountPortfolio.findIndex(o => o?.symbolCode === item?.symbolCode && o?.accountId.toString() === ele);
                     if (idx >= 0) {
-                        const buyVolume = convertNumber(totalAccountPortfolio[idx]?.totalBuyVolume.toString());
-                        const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume.toString());
-                        const avgBuyPrice = convertNumber(totalAccountPortfolio[idx]?.avgBuyPrice);
-                        const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.avgSellPrice);
+                        const sellVolume = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume);
+                        const avgBuyPrice =  convertNumber(totalAccountPortfolio[idx]?.totalBuyVolume) !== 0 ? convertNumber(totalAccountPortfolio[idx]?.totalBuyAmount) / convertNumber(totalAccountPortfolio[idx]?.totalBuyVolume) : 0;
+                        const avgSellPrice = convertNumber(totalAccountPortfolio[idx]?.totalSellVolume) !== 0 ? convertNumber(totalAccountPortfolio[idx]?.totalSellAmount) / convertNumber(totalAccountPortfolio[idx]?.totalSellVolume) : 0;
                         const ownedVolume = convertNumber(totalAccountPortfolio[idx].ownedVolume);
                         tempData.push(ownedVolume.toString())
                         netPosition += (avgBuyPrice * ownedVolume);
-                        totalSell += (avgSellPrice * sellVolume);
-                        totalBuy += (avgBuyPrice * buyVolume);
+                        totalSell += convertNumber(totalAccountPortfolio[idx]?.totalSellAmount);
+                        totalBuy += convertNumber(totalAccountPortfolio[idx]?.totalBuyAmount);
                         totalPL += (avgSellPrice - avgBuyPrice) * sellVolume;
                     } else {
                         tempData.push('0');
@@ -140,10 +139,11 @@ const MultiTraderTable = () => {
                     objs.forEach(item => {
                         if (item) {
                             const ownedVolume = convertNumber(item.ownedVolume);
-                            total += (convertNumber(item.avgBuyPrice) * (ownedVolume));
-                            const totalSell = convertNumber(item.avgSellPrice) * item.totalSellVolume;
-                            totalGross += (totalSell + convertNumber(item.avgBuyPrice) * item.totalBuyVolume)
-                            totalPL += (convertNumber(item.avgSellPrice) - convertNumber(item.avgBuyPrice)) * item.totalSellVolume;
+                            const avgBuyPrice = convertNumber(item.totalBuyVolume) !== 0 ? convertNumber(item.totalBuyAmount) / item.totalBuyVolume : 0;
+                            const avgSellPrice = convertNumber(item.totalSellVolume) !== 0 ? convertNumber(item.totalSellAmount) / item.totalSellVolume : 0;
+                            total += avgBuyPrice * ownedVolume;
+                            totalGross += convertNumber(item.totalBuyAmount) + convertNumber(item.totalSellAmount);
+                            totalPL += (avgSellPrice - avgBuyPrice) * convertNumber(item.totalSellVolume);
                         }
                     })
                 }
@@ -224,9 +224,7 @@ const MultiTraderTable = () => {
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Realized PL</div>
-                        {allTotalPL > 0 && <div className="fs-5 fw-bold text-success">{formatCurrency(allTotalPL.toString())}</div>}
-                        {allTotalPL < 0 && <div className="fs-5 fw-bold text-danger">{formatCurrency(allTotalPL.toString())}</div>}
-                        {allTotalPL === 0 && <div className="fs-5 fw-bold">{formatCurrency(allTotalPL.toString())}</div>}
+                        {allTotalPL > 0 && <div className={`${getClassName(allTotalPL)} fs-5 fw-bold `}>{formatCurrency(allTotalPL.toString())}</div>}
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -257,7 +255,7 @@ const MultiTraderTable = () => {
                         ))}
                     </tr>
                     <tr><td style={{ padding: 0 }}></td></tr>
-                    {totalAccountPortfolio.length === 0 && <tr className="tr-maintb">
+                    {totalAccountPortfolio.length === 0 || dataHasOwnedVolume.length === 0 && <tr className="tr-maintb">
                         <td></td>
                         {dataTotalAccount[0]?.holdingVolume.map((item: string, idx: number) => (<td key={idx}>{formatNumber(convertNumber(item).toString())}</td>))}
                         <td>{formatCurrency('0')}</td>
