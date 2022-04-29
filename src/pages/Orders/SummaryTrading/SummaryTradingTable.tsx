@@ -204,9 +204,13 @@ function SummaryTradingTable() {
             </div>
         </div>
     )
+    
+    const calcAvgPrice = (item: IPortfolio) => {
+        return convertNumber(item.totalBuyVolume) !== 0 && convertNumber(item.ownedVolume) > 0 ? convertNumber(item.totalBuyAmount) / convertNumber(item.totalBuyVolume) : 0;
+    }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgPrice));
+        return convertNumber(item.ownedVolume) * calcAvgPrice(item);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
@@ -214,7 +218,7 @@ function SummaryTradingTable() {
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
-        return calcCurrentValue(item) - calcInvestedValue(item);
+        return calcCurrentValue(item) !== 0 ? calcCurrentValue(item) - calcInvestedValue(item) : 0;
     }
 
     const calcPctUnrealizedPL = (item: IPortfolio) => {
@@ -226,13 +230,13 @@ function SummaryTradingTable() {
 
     const handleDownLoadSummaryTrading = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IPortfolioDownLoad[] = [];
+        const data: IPortfolioDownLoad[] = [];        
         portfolio.forEach((item) => {
             if (item) {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
-                    ownedVol: formatNumber(item.ownedVolume),
-                    avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
+                    ownedVol: formatNumber(item.ownedVolume.toString()),
+                    avgPrice: formatCurrency(calcAvgPrice(item).toString()),
                     dayNotional: formatCurrency(calcInvestedValue(item).toString()),
                     marketPrice: formatCurrency(item.marketPrice),
                     currentPrice: formatCurrency(calcCurrentValue(item).toString()),
@@ -262,7 +266,7 @@ function SummaryTradingTable() {
             <th className="text-end fz-14 w-s" >Unrealized PL</th>
             <th className="text-end fz-14 w-s" >% Unrealized PL</th>
             <th className="text-end fz-14 w-s" >Transaction Volume</th>
-            {portfolio.length > 16 && <th className='w-17'></th>}
+            {portfolio.length > 16 && <th className='w-5'></th>}
         </tr>
     )
 
@@ -270,8 +274,8 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(item.ownedVolume)}</td>
-                <td className="text-end w-s td" >{formatCurrency(item.avgPrice)}</td>
+                <td className='text-end w-s td'>{formatNumber(item.ownedVolume.toString())}</td>
+                <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>

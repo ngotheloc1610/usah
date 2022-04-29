@@ -345,12 +345,16 @@ const Dashboard = () => {
         return 0;
     }
 
+    const calcAvgPrice = (item: IPortfolio) => {
+        return convertNumber(item.totalBuyVolume) !== 0 && convertNumber(item.ownedVolume) > 0 ? convertNumber(item.totalBuyAmount) / convertNumber(item.totalBuyVolume) : 0;
+    }
+
     const calcInvestedValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.avgBuyPrice));
+        return convertNumber(item.ownedVolume) * calcAvgPrice(item);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return convertNumber(item.ownedVolume) * convertNumber(item.marketPrice);
+        return convertNumber(item.ownedVolume.toString()) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {

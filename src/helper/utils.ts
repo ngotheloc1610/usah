@@ -182,9 +182,9 @@ export const defindConfigPost = () => {
     return data;
 }
 
-export const convertNumber = (value: string) => {
-    const tmpValue = value?.replaceAll(',', '');
-    if (!isNaN(Number(tmpValue))) {
+export const convertNumber = (value: any) => {
+    const tmpValue = value?.toString().replaceAll(',', '');
+    if (tmpValue && !isNaN(Number(tmpValue))) {
         return Number(tmpValue);
     }
     return 0;
