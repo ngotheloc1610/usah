@@ -82,7 +82,8 @@ const OrderForm = (props: IOrderForm) => {
             return;
         }
         setIsShowNotiErrorPrice(false);
-        setInvalidVolume(volume % lotSize !== 0)
+        setInvalidPrice(Math.round(Number(price) * 100) % Math.round(tickSize * 100) !== 0);
+        setInvalidVolume(volume % lotSize !== 0);
     }, [price, volume])
 
     useEffect(() => {
@@ -324,11 +325,9 @@ const OrderForm = (props: IOrderForm) => {
             </div>
             {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
             <div>
-                {title === TITLE_ORDER_CONFIRM.PRICE && <>
-                    {invalidPrice && <span className='text-danger'>Invalid Price</span>}
-                </>}
+                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && <span className='text-danger'>Invalid Price</span>}
             </div>
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && <> {invalidVolume && <span className='text-danger'>Invalid volume</span>}</>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && <span className='text-danger'>Invalid volume</span>}
         </>
     }
     // TODO: The type button has no default behavior, and does nothing when pressed by default
