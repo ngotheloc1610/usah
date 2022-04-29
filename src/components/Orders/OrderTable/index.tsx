@@ -2,7 +2,7 @@ import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYP
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IOrderHistory, IDataHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
@@ -149,21 +149,21 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const handleDownload = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IDataHistory[] = [];
+        const data: IDataHistoryDownload[] = [];
         dataCurrent.forEach(item => {
             if (item) {
                 data.push({
-                    orderId: Number(item?.orderId),
+                    orderId: item?.orderId,
                     tickerCode: item?.symbolCode,
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
                     orderStatus: getStateName(item.state) || '',
                     orderType: ORDER_TYPE_NAME.limit,
-                    orderVolume: formatNumber(item.amount) || '',
-                    remainingVolume: formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString()) || '',
-                    executedVolume: formatNumber(item.filledAmount),
-                    orderPrice: formatCurrency(item.price),
-                    lastPrice: formatCurrency(item.lastPrice),
+                    orderVolume: convertNumber(item.amount),
+                    remainingVolume: convertNumber(calcPendingVolume(item.amount, item.filledAmount).toString()),
+                    executedVolume: convertNumber(item.filledAmount),
+                    orderPrice: convertNumber(item.price),
+                    lastPrice: convertNumber(item.lastPrice),
                     orderDateTime: formatOrderTime(item.time),
                     executedDateTime: formatOrderTime(item.time)
                 });

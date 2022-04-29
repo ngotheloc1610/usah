@@ -1,6 +1,6 @@
 import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO, FORMAT_DATE_DOWLOAD } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
-import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory } from '../../../interfaces/order.interface'
+import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
@@ -90,7 +90,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
 
     const handleDownloadTradeHistory = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IFixListTradeHistory[] = []
+        const data: ITradeHistoryDownload[] = []
         listTradeSortDate.forEach((item) => {
             if (item) {
                 data.push({
@@ -99,14 +99,12 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     tickerName: getTickerName(item?.tickerCode),
                     orderSide: getSideName(item.side),
                     orderType: ORDER_TYPE_NAME.limit,
-                    orderQuatity: formatNumber(item.amount) || '',
-                    orderPrice: formatCurrency(item.price),
-                    executedQuatity: formatNumber(item.executedVolume),
-                    executedPrice: formatCurrency(item.executedPrice),
-                    matchedValue: formatCurrency(calcMatchedValue(item).toString()),
-                    executedDatetime: formatOrderTime(
-                        Number(item.executedDatetime)
-                    ),
+                    orderQuatity: convertNumber(item.amount),
+                    orderPrice: convertNumber(item.price),
+                    executedQuatity: convertNumber(item.executedVolume),
+                    executedPrice: convertNumber(item.executedPrice),
+                    matchedValue: convertNumber(calcMatchedValue(item).toString()),
+                    executedDatetime: formatOrderTime(Number(item.executedDatetime)),
                 })
             }
         })

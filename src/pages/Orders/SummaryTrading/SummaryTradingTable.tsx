@@ -235,14 +235,14 @@ function SummaryTradingTable() {
             if (item) {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
-                    ownedVol: formatNumber(item.ownedVolume.toString()),
-                    avgPrice: formatCurrency(calcAvgPrice(item).toString()),
-                    dayNotional: formatCurrency(calcInvestedValue(item).toString()),
-                    marketPrice: formatCurrency(item.marketPrice),
-                    currentPrice: formatCurrency(calcCurrentValue(item).toString()),
-                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
+                    ownedVol: convertNumber(item.ownedVolume.toString()),
+                    avgPrice: convertNumber(calcAvgPrice(item).toString()),
+                    dayNotional: convertNumber(calcInvestedValue(item).toString()),
+                    marketPrice: convertNumber(item.marketPrice),
+                    currentPrice: convertNumber(calcCurrentValue(item).toString()),
+                    unrealizedPl: convertNumber(formatCurrency(calcUnrealizedPL(item).toString())),
                     presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
-                    transactionVol: formatNumber(item.totalVolume.toString()),
+                    transactionVol: convertNumber(item.totalVolume.toString()),
                 })
             }
         })
