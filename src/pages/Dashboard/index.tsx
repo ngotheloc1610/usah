@@ -161,8 +161,8 @@ const Dashboard = () => {
                             marketPrice: item?.currentPrice
                         }
                     }
-                    item.symbolCode === symbolList[symbolList.length - 1].symbolCode && setIsLoading(false);
                 }
+                setIsLoading(false);
             });
             setPortfolio(temp);
         }
