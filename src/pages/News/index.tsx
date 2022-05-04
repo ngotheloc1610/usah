@@ -83,12 +83,12 @@ const News = () => {
             });
     }
 
-    const getParams = (isUnread: boolean) => {
+    const getParams = (isUnread: boolean, pageIndex: number) => {
         return isUnread ? {
             page_size: pageSize,
-            page: pageCurrent,
+            page: pageIndex,
             read_flag: false // read_flag = false --> news unread
-        } : { page_size: pageSize, page: pageCurrent }
+        } : { page_size: pageSize, page: pageIndex }
     }
 
     const getParamsTrading = (isUnreadTradingNotice: boolean, pageCurrentTrading) => {
@@ -114,7 +114,7 @@ const News = () => {
     }
 
     const getDataNews = (isUnread: boolean) => {
-        const param: IParamPagination = getParams(isUnread)
+        const param: IParamPagination = getParams(isUnread, pageCurrent)
         getNewsFromServer(param)
     }
 
@@ -131,7 +131,8 @@ const News = () => {
     }
 
     const handleShowUnread = (isCheck: boolean) => {
-        const param: IParamPagination = getParams(isCheck)
+        setPageCurrent(FIRST_PAGE);
+        const param: IParamPagination = getParams(isCheck, FIRST_PAGE);
         isNewsTab ? getNewsFromServer(param) : getDataTradingResult(param)
         isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
