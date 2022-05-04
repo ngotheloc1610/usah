@@ -194,9 +194,7 @@ function SummaryTradingTable() {
                 </div>
                 <div className="col-md-2 text-center">
                     <div>Total Unrealized PL:</div>
-                    {totalUnrealizedPL(portfolio) > 0 && <div className='fs-5 fw-bold text-success'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
-                    {totalUnrealizedPL(portfolio) < 0 && <div className='fs-5 fw-bold text-danger'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
-                    {totalUnrealizedPL(portfolio) === 0 && <div className='fs-5 fw-bold'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
+                    <div className={`fs-5 fw-bold ${getClassName(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
                 </div>
                 <div className="col-md-4 order-0 order-md-4">
                     <p className="text-end small opacity-50 mb-2">Currency: USD</p>
