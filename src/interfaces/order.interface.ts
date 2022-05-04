@@ -472,9 +472,9 @@ export interface IPortfolioDownLoad {
     avgPrice: number;
     dayNotional: number;
     marketPrice: number;
-    currentPrice: number;
+    currentValue: number;
     unrealizedPl: number;
-    presentUnrealizedPl: string;
+    percentUnrealizedPl: string;
     transactionVol: number;
 }
 export interface ITotalNetFollowAccountId {

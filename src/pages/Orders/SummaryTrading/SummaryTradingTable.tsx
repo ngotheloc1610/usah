@@ -239,9 +239,9 @@ function SummaryTradingTable() {
                     avgPrice: convertNumber(calcAvgPrice(item).toString()),
                     dayNotional: convertNumber(calcInvestedValue(item).toString()),
                     marketPrice: convertNumber(item.marketPrice),
-                    currentPrice: convertNumber(calcCurrentValue(item).toString()),
+                    currentValue: convertNumber(calcCurrentValue(item).toString()),
                     unrealizedPl: convertNumber(formatCurrency(calcUnrealizedPL(item).toString())),
-                    presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
+                    percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
                     transactionVol: convertNumber(item.totalVolume.toString()),
                 })
             }
