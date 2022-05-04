@@ -102,7 +102,6 @@ const Dashboard = () => {
 
         const listOrder = wsService.getListOrder().subscribe(res => {
             if (res && res.orderList) {
-                setIsLoading(false);
                 setPendingOrder(res.orderList.length)
             }
         });
@@ -163,6 +162,7 @@ const Dashboard = () => {
                         }
                     }
                 }
+                setIsLoading(false);
             });
             setPortfolio(temp);
         }
