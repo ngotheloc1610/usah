@@ -83,12 +83,12 @@ const News = () => {
             });
     }
 
-    const getParams = (isUnread: boolean, pageCurr: number) => {
+    const getParams = (isUnread: boolean, pageIndex: number) => {
         return isUnread ? {
             page_size: pageSize,
-            page: pageCurr,
+            page: pageIndex,
             read_flag: false // read_flag = false --> news unread
-        } : { page_size: pageSize, page: pageCurr }
+        } : { page_size: pageSize, page: pageIndex }
     }
 
     const getParamsTrading = (isUnreadTradingNotice: boolean, pageCurrentTrading) => {
