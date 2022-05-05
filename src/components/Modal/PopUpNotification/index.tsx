@@ -19,7 +19,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      const [currentPageTrading, setCurrentPageTrading] = useState(FIRST_PAGE)
      const api_url = process.env.REACT_APP_API_URL;
      const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
-     const [isCheckPageLast, setIsCheckPageLast] = useState(false);
+     const [isLastPage, setIsLastPage] = useState(false);
      
      const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
           setElTradingActive(index);
@@ -68,7 +68,7 @@ const PopUpNotification = (props: IPopsNotification) => {
                if(resp?.data?.data) {
                     const nextPage = resp?.data?.data?.next_page;
                     setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
-                    setIsCheckPageLast(nextPage === currentPageTrading);
+                    setIsLastPage(nextPage === currentPageTrading);
                     setCurrentPageTrading(currentPageTrading + 1)
                }
           }
@@ -79,7 +79,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      }
 
      const handleScrollToBottom = (event: any) => {
-          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight && !isCheckPageLast) {
+          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight && !isLastPage) {
                getDataTradingResult()
           }
      }
