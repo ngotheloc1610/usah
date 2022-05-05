@@ -48,10 +48,10 @@ const PopUpNotification = (props: IPopsNotification) => {
                     <div className="item-content">
                          <h5 className="item-title mb-0">Trading Results Information</h5>
                          <div className="item-summary opacity-75 fix-line-css">
-                         {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
+                              {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
                          </div>
                          <div className="item-summary opacity-75 fix-line-css">
-                         {moment(item.execTime).format(FORMAT_DATE_NEW_OR_RESULT)}
+                              {moment(item.execTime).format(FORMAT_DATE_NEW_OR_RESULT)}
                          </div>
                     </div>
                </div>
