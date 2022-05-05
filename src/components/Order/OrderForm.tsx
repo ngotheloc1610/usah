@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber } from '../../helper/utils';
-import CurrencyInput from 'react-currency-masked-input';
+import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
+import NumberFormat from 'react-number-format';
 
 toast.configure()
 interface IOrderForm {
@@ -83,7 +83,7 @@ const OrderForm = (props: IOrderForm) => {
         }
         setIsShowNotiErrorPrice(false);
         setInvalidPrice(Math.round(Number(price) * 100) % Math.round(tickSize * 100) !== 0);
-        setInvalidVolume(volume % lotSize !== 0);
+        setInvalidVolume(volume % lotSize !== 0 || volume < 1);
     }, [price, volume])
 
     useEffect(() => {
@@ -281,27 +281,28 @@ const OrderForm = (props: IOrderForm) => {
         setVolume(lotSize);
     }
     const handleChangeVolume = (value: string) => {
-        const convertValueToNumber = Number(value.replaceAll(',', ''));
-        if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
-            setVolume(convertValueToNumber);
-            setInvalidVolume(convertValueToNumber % lotSize !== 0)
+        const volume = convertNumber(value);
+        if ((volume || volume === 0) && volume > -1) {
+            setVolume(volume);
+            setInvalidVolume(volume % lotSize !== 0 || volume < 1);
         }
     }
 
-    const handleChangePrice = (value: string, maskedVal: number) => {
-        setPrice(+maskedVal);
+    const handleChangePrice = (value: string) => {
+        const price = convertNumber(value);
+        setPrice(price);
         if (ceilingPrice === 0 && floorPrice === 0) {
             setIsShowNotiErrorPrice(false);
             return;
         }
-        if (+maskedVal > ceilingPrice) {
+        if (+price > ceilingPrice) {
             setIsShowNotiErrorPrice(true);
-        } else if (+maskedVal < floorPrice) {
+        } else if (+price < floorPrice) {
             setIsShowNotiErrorPrice(true);
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(+maskedVal * 100);
+        const temp = Math.round(+price * 100);
         const tempTickeSize = Math.round(tickSize * 100);
         setInvalidPrice(temp % tempTickeSize !== 0);
     }
@@ -309,14 +310,16 @@ const OrderForm = (props: IOrderForm) => {
     const _renderNotiErrorPrice = () => (
         <div className='text-danger'>Order price is out of day's price range</div>
     )
+
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary">{title}</label>
-                    <CurrencyInput decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        thousandseparator="{true}" value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : formatNumber(value?.replaceAll(',', ''))} placeholder=""
-                        onChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any, maskedVal) => handleChangePrice(e?.target.value, maskedVal) : (e: any) => handleChangeVolume(e.target.value)} />
+                    <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        isAllowed={(values) => handleAllowedInput(values)}
+                        thousandSeparator="," value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : formatNumber(value?.replaceAll(',', ''))}
+                        onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)} />
                 </div>
                 <div className="border-start d-flex flex-column">
                     <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
