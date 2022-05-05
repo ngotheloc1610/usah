@@ -76,11 +76,11 @@ function OrderTable(props: IPropListOrderHistory) {
     const checkDisLastUpdatedTime = (item: IOrderHistory) => {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
         const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
-        const isVolume = convertNumber(item.filledAmount) === 0;
-        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && isVolume)) {
-            return true;
+        const isInvalidVol = convertNumber(item.filledAmount) === 0;
+        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && isInvalidVol)) {
+            return false;
         }
-        return false;
+        return true;
     }
     const checkDisLastPrice = (state, volume) => {
         if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
@@ -144,8 +144,8 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
-                    {!checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
-                    {checkDisLastUpdatedTime(item) && <div >-</div>}
+                    {checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    {!checkDisLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
                 <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
