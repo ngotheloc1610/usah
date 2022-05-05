@@ -241,6 +241,7 @@ const ListOrder = (props: IPropsListOrder) => {
             </>
         }
         if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
+            getOrderBooks();
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
