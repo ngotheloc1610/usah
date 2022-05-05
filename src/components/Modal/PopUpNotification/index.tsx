@@ -35,28 +35,28 @@ const PopUpNotification = (props: IPopsNotification) => {
      const convertTime = (item: string) => {
           return moment(item).format(FORMAT_DATE_TIME_MILLIS)
      }
-    const _renderTradingResultsItem = () => (
-        listTradingResults?.map((item: ITradingResult, idx: number) => (
-            <div className={!item.readFlg ? "notification-item unread" : "notification-item"
-                && elTradingActive === idx ? "notification-item active" : "notification-item"}
-                key={idx}
-                onClick={() => handleClickTradingResult(item, idx)}
-            >
-                <div className="item-icon">
-                    <i className="bi bi-cash-stack"></i>
-                </div>
-                <div className="item-content">
-                    <h5 className="item-title mb-0">Trading Results Information</h5>
-                    <div className="item-summary opacity-75 fix-line-css">
-                        {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
+     const _renderTradingResultsItem = () => (
+          listTradingResults?.map((item: ITradingResult, idx: number) => (
+               <div className={!item.readFlg ? "notification-item unread" : "notification-item"
+                    && elTradingActive === idx ? "notification-item active" : "notification-item"}
+                    key={idx}
+                    onClick={() => handleClickTradingResult(item, idx)}
+               >
+                    <div className="item-icon">
+                         <i className="bi bi-cash-stack"></i>
                     </div>
-                    <div className="item-summary opacity-75 fix-line-css">
-                        {moment(item.execTime).format(FORMAT_DATE_NEW_OR_RESULT)}
+                    <div className="item-content">
+                         <h5 className="item-title mb-0">Trading Results Information</h5>
+                         <div className="item-summary opacity-75 fix-line-css">
+                         {getSideName(Number(item.orderSide))} {item.execVolume} {item.symbolCode} price {item.execPrice.toFixed(2)}
+                         </div>
+                         <div className="item-summary opacity-75 fix-line-css">
+                         {moment(item.execTime).format(FORMAT_DATE_NEW_OR_RESULT)}
+                         </div>
                     </div>
-                </div>
-            </div>
-        ))
-    )
+               </div>
+          ))
+     )
      
      const getDataTradingResult = () => {
           const paramTrading = {   
