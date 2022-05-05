@@ -75,10 +75,17 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const checkDisLastUpdatedTime = (item: IOrderHistory) => {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
-        if (getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) {
+        const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
+        const isVolume = convertNumber(item.filledAmount) === 0;
+        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && isVolume)) {
             return true;
         }
         return false;
+    }
+    const checkDisLastPrice = (state, volume) => {
+        if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
+            return false;
+        } return true;
     }
     const _renderOrderHistoryTableHeader = () =>
     (
@@ -131,7 +138,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
-                    {item.lastPrice && <div>{formatCurrency(item.lastPrice)}</div>}
+                    {checkDisLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
                     {item.lastPrice === '' && <div>&nbsp;</div>}
                 </td>
 
