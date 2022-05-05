@@ -73,16 +73,15 @@ function OrderTable(props: IPropListOrderHistory) {
         setShowModalDetail(isShowDetail);
     }
 
-    const checkDisLastUpdatedTime = (item: IOrderHistory) => {
+    const checkDisplayLastUpdatedTime = (item: IOrderHistory) => {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
         const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
-        const isInvalidVol = convertNumber(item.filledAmount) === 0;
-        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && isInvalidVol)) {
+        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && !isCheckItemFilledAmount)) {
             return false;
         }
         return true;
     }
-    const checkDisLastPrice = (state, volume) => {
+    const checkDisplayLastPrice = (state, volume) => {
         if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
             return false;
         } return true;
@@ -138,14 +137,14 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
-                    {checkDisLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
-                    {item.lastPrice === '' && <div>&nbsp;</div>}
+                    {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
+                    {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
                 </td>
 
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
-                    {checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
-                    {!checkDisLastUpdatedTime(item) && <div >-</div>}
+                    {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
                 <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
