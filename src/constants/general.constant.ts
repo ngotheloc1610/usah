@@ -36,6 +36,10 @@ export const STATE = [
     {
         name: 'Rejected',
         code: tradingModelPb.OrderState.ORDER_STATE_REJECTED
+    },
+    {
+        name: "Amend Done",
+        code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
     }
 ];
 export const INVALID_DATE = 'Invalid date';
