@@ -66,8 +66,10 @@ const PopUpNotification = (props: IPopsNotification) => {
           axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
           if (resp.status === success) {
                if(resp?.data?.data) {
+                    if (currentPageTrading !== FIRST_PAGE) {
+                         setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
+                    }
                     const nextPage = resp?.data?.data?.next_page;
-                    setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
                     setIsLastPage(nextPage === currentPageTrading);
                     setCurrentPageTrading(currentPageTrading + 1)
                }
