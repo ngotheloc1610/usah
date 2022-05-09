@@ -185,7 +185,9 @@ proto.Order.toObject = function(includeInstance, msg) {
     externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, ""),
     currencyCode: jspb.Message.getFieldWithDefault(msg, 30, ""),
     totalFilledAmount: jspb.Message.getFieldWithDefault(msg, 31, ""),
-    comment: jspb.Message.getFieldWithDefault(msg, 32, "")
+    comment: jspb.Message.getFieldWithDefault(msg, 32, ""),
+    orderRef: jspb.Message.getFieldWithDefault(msg, 33, ""),
+    withdrawAmount: jspb.Message.getFieldWithDefault(msg, 34, "")
   };
 
   if (includeInstance) {
@@ -349,6 +351,14 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 32:
       var value = /** @type {string} */ (reader.readString());
       msg.setComment(value);
+      break;
+    case 33:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setOrderRef(value);
+      break;
+    case 34:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWithdrawAmount(value);
       break;
     default:
       reader.skipField();
@@ -600,6 +610,20 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       32,
+      f
+    );
+  }
+  f = message.getOrderRef();
+  if (f.length > 0) {
+    writer.writeString(
+      33,
+      f
+    );
+  }
+  f = message.getWithdrawAmount();
+  if (f.length > 0) {
+    writer.writeString(
+      34,
       f
     );
   }
@@ -1179,6 +1203,42 @@ proto.Order.prototype.getComment = function() {
  */
 proto.Order.prototype.setComment = function(value) {
   return jspb.Message.setProto3StringField(this, 32, value);
+};
+
+
+/**
+ * optional string order_ref = 33;
+ * @return {string}
+ */
+proto.Order.prototype.getOrderRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 33, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setOrderRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 33, value);
+};
+
+
+/**
+ * optional string withdraw_amount = 34;
+ * @return {string}
+ */
+proto.Order.prototype.getWithdrawAmount = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 34, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setWithdrawAmount = function(value) {
+  return jspb.Message.setProto3StringField(this, 34, value);
 };
 
 
