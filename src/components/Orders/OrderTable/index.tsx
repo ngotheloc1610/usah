@@ -39,6 +39,9 @@ function OrderTable(props: IPropListOrderHistory) {
                 item.time < Number(paramHistorySearch.toDate) ||
                 item.time === Number(paramHistorySearch.toDate));
         }
+        if (paramHistorySearch.fromDate > paramHistorySearch.toDate ) {
+            historySortDate = [];
+        }
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
