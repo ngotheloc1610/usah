@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
-import { calcPendingVolume, formatCurrency, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -228,9 +228,10 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
+    const _rendetMessageError = (message: string) => {
+        message = checkMessageError(message);
+        return <div>{toast.error(message)}</div>
+    }
 
     const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string) => {
         if (statusOrder === 0 && typeOrderRes === TYPE_ORDER_RES.Order) {

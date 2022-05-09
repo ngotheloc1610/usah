@@ -308,3 +308,8 @@ export const handleAllowedInput = (values) => {
     return true;
 }
 
+export const checkMessageError = (msg: string) => {
+    if (msg === 'Order not enough min order value') {
+        return 'The order is less than USD 20,000. Kindly revise the number of shares';
+    } return msg;
+}

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, checkMessageError, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 
@@ -136,9 +136,10 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
+    const _rendetMessageError = (message: string) => {
+        message = checkMessageError(message);
+        return <div>{toast.error(message)}</div>
+    }
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
