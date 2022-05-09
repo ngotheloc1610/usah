@@ -103,7 +103,7 @@ const News = () => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
             if (resp.status === success) {
                 const tmpResults = resp?.data?.data?.results;
-                const tmpResultActive = tmpResults?.filter(item => item?.newsStatus === NEWS_STATUS);
+                const tmpResultActive = tmpResults?.filter(item => item?.newsStatus === NEWS_STATUS.active);
                 setListDataNews(tmpResultActive);
                 setTotalItem(resp?.data?.data?.count);
             }
