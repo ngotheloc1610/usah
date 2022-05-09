@@ -318,7 +318,7 @@ const OrderForm = (props: IOrderForm) => {
                     <label className="text text-secondary">{title}</label>
                     <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         isAllowed={(values) => handleAllowedInput(values)}
-                        thousandSeparator="," value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : formatNumber(value?.replaceAll(',', ''))}
+                        thousandSeparator="," value={convertNumber(value) === 0 ? null : formatCurrency(value)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)} />
                 </div>
                 <div className="border-start d-flex flex-column">
@@ -346,9 +346,9 @@ const OrderForm = (props: IOrderForm) => {
         >Reset</button>
     )
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
 
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
 
     const _renderForm = () => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
