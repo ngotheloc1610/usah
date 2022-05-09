@@ -21,6 +21,8 @@ var global = (function() {
   return Function('return this')();
 }.call(null));
 
+var system_model_pb = require('./system_model_pb.js');
+goog.object.extend(proto, system_model_pb);
 goog.exportSymbol('proto.CallPut', null, global);
 goog.exportSymbol('proto.Contract', null, global);
 goog.exportSymbol('proto.ExchangeCode', null, global);
@@ -187,7 +189,9 @@ proto.Order.toObject = function(includeInstance, msg) {
     totalFilledAmount: jspb.Message.getFieldWithDefault(msg, 31, ""),
     comment: jspb.Message.getFieldWithDefault(msg, 32, ""),
     orderRef: jspb.Message.getFieldWithDefault(msg, 33, ""),
-    withdrawAmount: jspb.Message.getFieldWithDefault(msg, 34, "")
+    withdrawAmount: jspb.Message.getFieldWithDefault(msg, 34, ""),
+    submittedId: jspb.Message.getFieldWithDefault(msg, 35, ""),
+    msgCode: jspb.Message.getFieldWithDefault(msg, 36, 0)
   };
 
   if (includeInstance) {
@@ -359,6 +363,14 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 34:
       var value = /** @type {string} */ (reader.readString());
       msg.setWithdrawAmount(value);
+      break;
+    case 35:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSubmittedId(value);
+      break;
+    case 36:
+      var value = /** @type {!proto.MsgCode} */ (reader.readEnum());
+      msg.setMsgCode(value);
       break;
     default:
       reader.skipField();
@@ -624,6 +636,20 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       34,
+      f
+    );
+  }
+  f = message.getSubmittedId();
+  if (f.length > 0) {
+    writer.writeString(
+      35,
+      f
+    );
+  }
+  f = message.getMsgCode();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      36,
       f
     );
   }
@@ -1239,6 +1265,42 @@ proto.Order.prototype.getWithdrawAmount = function() {
  */
 proto.Order.prototype.setWithdrawAmount = function(value) {
   return jspb.Message.setProto3StringField(this, 34, value);
+};
+
+
+/**
+ * optional string submitted_id = 35;
+ * @return {string}
+ */
+proto.Order.prototype.getSubmittedId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 35, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setSubmittedId = function(value) {
+  return jspb.Message.setProto3StringField(this, 35, value);
+};
+
+
+/**
+ * optional MsgCode msg_code = 36;
+ * @return {!proto.MsgCode}
+ */
+proto.Order.prototype.getMsgCode = function() {
+  return /** @type {!proto.MsgCode} */ (jspb.Message.getFieldWithDefault(this, 36, 0));
+};
+
+
+/**
+ * @param {!proto.MsgCode} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setMsgCode = function(value) {
+  return jspb.Message.setProto3EnumField(this, 36, value);
 };
 
 
