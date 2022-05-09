@@ -216,7 +216,7 @@ function SummaryTradingTable() {
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
-        return calcCurrentValue(item) !== 0 ? calcCurrentValue(item) - calcInvestedValue(item) : 0;
+        return calcCurrentValue(item) - calcInvestedValue(item);
     }
 
     const calcPctUnrealizedPL = (item: IPortfolio) => {
