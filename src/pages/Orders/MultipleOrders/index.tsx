@@ -412,6 +412,7 @@ const MultipleOrders = () => {
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
+                    order.setSubmittedId(accountId);
                     multiOrder.addOrder(order);
                 }
             })
