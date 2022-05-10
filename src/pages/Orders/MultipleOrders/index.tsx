@@ -750,10 +750,7 @@ const MultipleOrders = () => {
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
             return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
         }
-        if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order.status?.toUpperCase()}</div>
-        }
-        return '';
+        return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
     }
 
     const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
