@@ -16,3 +16,19 @@ export const TYPE_ORDER_RES = {
     Order: 'Order',
     Modify: 'Modify',
 }
+
+export const MSG_ERROR = {
+    minValue: 'Order not enough min order value',
+    modifiedSuccess: 'Modified success',
+    cancelSuccess: 'Cancel success',
+    invalidPrice: 'Order invalid price range',
+    invalidTickSize: 'Order invalid tick size'
+}
+
+export const MSG_ERR_DIS = {
+    minValue: 'The order is less than USD 20,000. Kindly revise the number of shares',
+    modifiedSuccess: 'Modified successfully',
+    cancelSuccess: 'Cancelled successfully',
+    invalidPrice: 'Out of price range',
+    invalidTickSize: 'Invalid price'
+}

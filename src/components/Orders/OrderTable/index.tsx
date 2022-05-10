@@ -1,8 +1,8 @@
 import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
+import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber, getMessageDisplay } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory, IDataHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IOrderHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
@@ -89,6 +89,7 @@ function OrderTable(props: IPropListOrderHistory) {
             return false;
         } return true;
     }
+    
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
@@ -151,7 +152,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
-                <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
+                <td className="text-start fz-14 w-200">{item.comment ? getMessageDisplay(item.comment) : '-'}</td>
 
             </tr>
         ))

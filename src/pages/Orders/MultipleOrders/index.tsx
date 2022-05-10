@@ -4,7 +4,7 @@ import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, getMessageDisplay } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -102,7 +102,7 @@ const MultipleOrders = () => {
                         temps[el] = {
                             ...temps[el],
                             state: item.state,
-                            status: item.note
+                            status: getMessageDisplay(item.note)
                         }
                     });
                 }

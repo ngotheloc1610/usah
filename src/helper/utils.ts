@@ -4,6 +4,7 @@ import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWO
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
+import { MSG_ERROR, MSG_ERR_DIS } from '../constants/order.constant';
 
 export function formatOrderTime(date: number): string {
     // time
@@ -306,5 +307,27 @@ export const handleAllowedInput = (values) => {
         }
     }
     return true;
+}
+
+export const getMessageDisplay = (msg: string) => {
+    switch(msg) {
+        case(MSG_ERROR.minValue): {
+            return MSG_ERR_DIS.minValue;
+        }
+        case(MSG_ERROR.modifiedSuccess): {
+            return MSG_ERR_DIS.modifiedSuccess;
+        }
+        case (MSG_ERROR.cancelSuccess): {
+            return MSG_ERR_DIS.cancelSuccess;
+        }
+        case (MSG_ERROR.invalidPrice): {
+            return MSG_ERR_DIS.invalidPrice;
+        }
+        case (MSG_ERROR.invalidTickSize): {
+            return MSG_ERR_DIS.invalidTickSize;
+        }
+        default:
+            return msg;
+    }
 }
 
