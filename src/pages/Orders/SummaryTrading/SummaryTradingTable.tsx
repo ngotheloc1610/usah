@@ -26,7 +26,7 @@ function SummaryTradingTable() {
             market: 'US'
         }
         axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
-            if (resp.data.meta.code === success) {
+            if (resp?.data?.meta?.code === success) {
                 setListClientHoldingInfo(resp?.data?.data || []);
             }
         },
