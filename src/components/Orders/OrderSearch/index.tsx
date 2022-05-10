@@ -13,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IParamHistorySearch } from '../../../interfaces';
 import moment from 'moment';
+import { DEFAULT_SEARCH_HISTORY } from '../../../mocks';
 
 interface IPropsOrderSearchHistory {
     paramSearch: (param: IParamHistorySearch) => void;
@@ -117,11 +118,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const handleSearch = () => {
         // before the core handles the filter but now the font end handle filter
         // sendMessageOrderHistory();
-        if (fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime) {
-            setIsErrorDate(true);
-            return;
-        }
-        setIsErrorDate(false);
+        fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,

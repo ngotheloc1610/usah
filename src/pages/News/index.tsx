@@ -4,7 +4,7 @@ import './New.scss'
 import { useEffect, useState } from 'react'
 import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
 import axios from 'axios';
-import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, TAB_NEWS } from '../../constants/news.constant'
+import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, NEWS_STATUS, TAB_NEWS } from '../../constants/news.constant'
 import { success } from '../../constants';
 import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
@@ -103,7 +103,7 @@ const News = () => {
         axios.get<IReqNews, IReqNews>(urlGetNews, defindConfigGet(param)).then((resp) => {
             if (resp.status === success) {
                 const tmpResults = resp?.data?.data?.results;
-                const tmpResultActive = tmpResults?.filter(item => item?.active === true);
+                const tmpResultActive = tmpResults?.filter(item => item?.newsStatus === NEWS_STATUS.active);
                 setListDataNews(tmpResultActive);
                 setTotalItem(resp?.data?.data?.count);
             }

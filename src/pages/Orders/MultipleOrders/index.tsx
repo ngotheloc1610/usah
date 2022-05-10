@@ -352,7 +352,7 @@ const MultipleOrders = () => {
                         <NumberFormat
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandSeparator="," value={formatCurrency(item.price)} placeholder=""
+                            thousandSeparator="," value={convertNumber(item.price) === 0 ? null : formatCurrency(item.price)} placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
@@ -412,6 +412,7 @@ const MultipleOrders = () => {
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
+                    order.setSubmittedId(accountId);
                     multiOrder.addOrder(order);
                 }
             })
@@ -575,7 +576,7 @@ const MultipleOrders = () => {
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
                     <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(value?.replaceAll(',', '')) : formatNumber(value?.replaceAll(',', ''))}
+                        value={convertNumber(value) === 0 ? null : formatCurrency(value)}
                         thousandSeparator="," isAllowed={handleAllowedInput}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
                     />
@@ -756,9 +757,9 @@ const MultipleOrders = () => {
         return '';
     }
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
 
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
 
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >

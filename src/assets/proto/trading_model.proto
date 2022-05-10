@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "system_model.proto";
 
 message Order {
   string order_id 		= 1;
@@ -33,6 +34,12 @@ message Order {
   string currency_code				= 30;
   string total_filled_amount		= 31;
   string comment					= 32;
+  // Order Reference ID, E.g: place new order, id = 1 => order_ref = 1
+  // Modify order id = 1 => new order after modified, id = 2, ref = 1
+  string order_ref = 33; 
+  string withdraw_amount = 34; // Withdraw able amount or Withdrew amount
+  string submitted_id = 35;
+  MsgCode msg_code = 36;
 }
 
 message Trade {

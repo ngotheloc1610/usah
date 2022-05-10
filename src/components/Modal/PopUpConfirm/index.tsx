@@ -48,6 +48,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                 order.setSide(item.side);
+                order.setSubmittedId(uid);
                 cancelOrder.addOrder(order);
             });
             let rpcMsg = new rProtoBuff.RpcMessage();
