@@ -22,7 +22,8 @@ export const MSG_ERROR = {
     modifiedSuccess: 'Modified success',
     cancelSuccess: 'Cancel success',
     invalidPrice: 'Order invalid price range',
-    invalidTickSize: 'Order invalid tick size'
+    invalidTickSize: 'Order invalid tick size',
+    holidaySession: 'Order in holiday session'
 }
 
 export const MSG_ERR_DIS = {
@@ -30,5 +31,6 @@ export const MSG_ERR_DIS = {
     modifiedSuccess: 'Modified successfully',
     cancelSuccess: 'Cancelled successfully',
     invalidPrice: 'Out of price range',
-    invalidTickSize: 'Invalid price'
+    invalidTickSize: 'Invalid price',
+    holidaySession: 'Market is closed during holiday'
 }

@@ -326,6 +326,9 @@ export const getMessageDisplay = (msg: string) => {
         case (MSG_ERROR.invalidTickSize): {
             return MSG_ERR_DIS.invalidTickSize;
         }
+        case (MSG_ERROR.holidaySession): {
+            return MSG_ERR_DIS.holidaySession;
+        }
         default:
             return msg;
     }
