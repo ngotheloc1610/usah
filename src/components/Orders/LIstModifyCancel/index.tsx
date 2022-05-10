@@ -180,31 +180,31 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => {
-        message = checkMessageError(message);
-        return <div>{toast.error(message)}</div>
+    const _rendetMessageError = (message: string, msgCode: number) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.error(messageDis)}</div>
     }
 
-    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string) => {
+    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string, msgCode: number) => {
         if (typeOrderRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;

@@ -4,6 +4,9 @@ import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWO
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
+import * as smpb from '../models/proto/system_model_pb';
+
+const systemModel: any = smpb;
 
 export function formatOrderTime(date: number): string {
     // time
@@ -308,12 +311,12 @@ export const handleAllowedInput = (values) => {
     return true;
 }
 
-export const checkMessageError = (msg: string) => {
-    switch (msg) {
-        case 'Order not enough min order value': {
+export const checkMessageError = (msg: string, msgCode: number) => {
+    switch (msgCode) {
+        case systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE: {
             return 'The order is less than USD 20,000. Kindly revise the number of shares'; 
         }
-        case 'Order in holiday session': {
+        case systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION: {
             return 'Market is closed during holiday';
         }
         default:

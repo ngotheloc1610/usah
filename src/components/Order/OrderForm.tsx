@@ -136,9 +136,9 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => {
-        message = checkMessageError(message);
-        return <div>{toast.error(message)}</div>
+    const _rendetMessageError = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.error(messageDis)}</div>
     }
 
     const handleSide = (value: string) => {
@@ -216,26 +216,26 @@ const OrderForm = (props: IOrderForm) => {
         setIsShowNotiErrorPrice(false);
     }
 
-    const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string) => {
+    const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string, msgCode: number) => {
         if (typeStatusRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;

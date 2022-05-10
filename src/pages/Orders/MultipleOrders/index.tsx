@@ -58,7 +58,7 @@ const MultipleOrders = () => {
             } else {
                 tmp = RESPONSE_RESULT.error;
             }
-            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
+            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList, resp[MSG_CODE]);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
                 setStatusPlace(true);
@@ -425,7 +425,7 @@ const MultipleOrders = () => {
             setShowModalConfirmMultiOrders(false);
         }
     }
-    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[]) => {
+    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[], msgCode: number) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
             if (lstResponse && lstResponse?.length > 0) {
@@ -443,13 +443,13 @@ const MultipleOrders = () => {
             }
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;
     }
-    const _rendetMessageError = (message: string) => {
-        message = checkMessageError(message);
+    const _rendetMessageError = (message: string, msgCode: number) => {
+        const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(message)}</div>
     }
     const _rendetMessageSuccess = (message: string) => {
