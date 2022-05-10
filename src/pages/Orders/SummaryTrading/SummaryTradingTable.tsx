@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { checkValue, convertNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -7,14 +7,33 @@ import * as pspb from '../../../models/proto/pricing_service_pb';
 import * as rspb from '../../../models/proto/rpc_pb';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 import moment from 'moment';
+import axios from 'axios';
+import { IClientHoldingInforData, IClientHoldingInfoReq } from '../../../interfaces';
+import { API_CLIENT_HOLDING_INFO } from '../../../constants/api.constant';
+import { success } from '../../../constants';
 
 function SummaryTradingTable() {
+    // const api_url = process.env.REACT_APP_API_URL;
+    const urlPostHolding = `${'http://10.1.30.188:8762'}${API_CLIENT_HOLDING_INFO}`;
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [listClientHoldingInfo, setListClientHoldingInfo] = useState<IClientHoldingInforData[]>([]);
 
     useEffect(() => {
+        const param = {
+            market: 'US'
+        }
+        axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
+            if (resp.data.meta.code === success) {
+                setListClientHoldingInfo(resp?.data?.data || []);
+            }
+        },
+            (error) => {
+                console.log(error);
+            });
+
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
                 const portfolioInday = res.accountPortfolioList.filter(o => o.totalVolume !== 0);
@@ -226,6 +245,11 @@ function SummaryTradingTable() {
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
+    const calcOwnedVolume = (symbolCode, totalBuy, totalSell) => {
+        const ownQty = listClientHoldingInfo.find(item => item.symbol === symbolCode)?.symbolsfx;
+        return convertNumber(ownQty) + convertNumber(totalBuy) + convertNumber(totalSell);
+    }
+
     const handleDownLoadSummaryTrading = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: IPortfolioDownLoad[] = [];        
@@ -272,7 +296,7 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(item.ownedVolume.toString())}</td>
+                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode, item?.totalBuyVolume, item?.totalSellVolume).toString() || '0')}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
