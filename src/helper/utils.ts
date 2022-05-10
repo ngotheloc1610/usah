@@ -309,7 +309,14 @@ export const handleAllowedInput = (values) => {
 }
 
 export const checkMessageError = (msg: string) => {
-    if (msg === 'Order not enough min order value') {
-        return 'The order is less than USD 20,000. Kindly revise the number of shares';
-    } return msg;
+    switch (msg) {
+        case 'Order not enough min order value': {
+            return 'The order is less than USD 20,000. Kindly revise the number of shares'; 
+        }
+        case 'Order in holiday session': {
+            return 'Market is closed during holiday';
+        }
+        default:
+            return msg;
+    }
 }
