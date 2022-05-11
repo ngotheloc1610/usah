@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
+import { MESSAGE_ERROR } from '../constants/order.constant';
 
 const systemModel: any = smpb;
 
@@ -312,14 +313,6 @@ export const handleAllowedInput = (values) => {
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
-    switch (msgCode) {
-        case systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE: {
-            return 'The order is less than USD 20,000. Kindly revise the number of shares'; 
-        }
-        case systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION: {
-            return 'Market is closed during holiday';
-        }
-        default:
-            return msg;
-    }
+    const messageDisplay = MESSAGE_ERROR.find(item => item.code === msgCode);
+    return messageDisplay?.value || msg;
 }
