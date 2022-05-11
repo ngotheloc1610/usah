@@ -38,3 +38,15 @@ export interface IParamHistorySearch {
     fromDate: number;
     toDate: number;
 }
+
+export interface IClientHoldingInfoReq {
+    data: {
+        meta: IMeta;
+        data: IClientHoldingInforData[];
+    };
+}
+export interface IClientHoldingInforData {
+    symbol: string;
+    symbolsfx: string;
+    ownQty: number;
+}
