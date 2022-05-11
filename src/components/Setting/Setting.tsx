@@ -145,7 +145,7 @@ const Setting = (props: ISetting) => {
     const handleChangePassword = () => {
         const param = {
             password: password,
-            new_password: newPassword
+            newPassword: newPassword
         }
         axios.post<IReqChangePassword, IReqChangePassword>(urlPostChangePassword, param, defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
