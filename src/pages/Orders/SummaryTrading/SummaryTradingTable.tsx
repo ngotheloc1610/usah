@@ -11,10 +11,11 @@ import axios from 'axios';
 import { IClientHoldingInforData, IClientHoldingInfoReq } from '../../../interfaces';
 import { API_CLIENT_HOLDING_INFO } from '../../../constants/api.constant';
 import { success } from '../../../constants';
+import { MARKET } from '../../../constants/general.constant';
 
 function SummaryTradingTable() {
-    // const api_url = process.env.REACT_APP_API_URL;
-    const urlPostHolding = `${'http://10.1.30.188:8762'}${API_CLIENT_HOLDING_INFO}`;
+    const api_url = process.env.REACT_APP_API_URL;
+    const urlPostHolding = `${api_url}${API_CLIENT_HOLDING_INFO}`;
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
@@ -23,11 +24,12 @@ function SummaryTradingTable() {
 
     useEffect(() => {
         const param = {
-            market: 'US'
+            market: MARKET
         }
         axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
-                setListClientHoldingInfo(resp?.data?.data || []);
+                const resultData = resp?.data?.data;
+                setListClientHoldingInfo(resultData || []);
             }
         },
             (error) => {
@@ -246,8 +248,8 @@ function SummaryTradingTable() {
     }
 
     const calcOwnedVolume = (symbolCode, totalBuy, totalSell) => {
-        const ownQty = listClientHoldingInfo.find(item => item.symbol === symbolCode)?.symbolsfx;
-        return convertNumber(ownQty) + convertNumber(totalBuy) + convertNumber(totalSell);
+        const ownQty = listClientHoldingInfo.find(item => item.symbol === symbolCode)?.ownQty;
+        return convertNumber(ownQty) + convertNumber(totalBuy) - convertNumber(totalSell);
     }
 
     const handleDownLoadSummaryTrading = () => {
@@ -296,7 +298,7 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode, item?.totalBuyVolume, item?.totalSellVolume).toString() || '0')}</td>
+                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode, item?.totalBuyVolume, item?.totalSellVolume).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
