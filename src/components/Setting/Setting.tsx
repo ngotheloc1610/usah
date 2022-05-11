@@ -118,25 +118,9 @@ const Setting = (props: ISetting) => {
     )
 
     const handleSubmit = () => {
-        if (password === newPassword) {
-            setCheckPass(true);
-        }
-        if (password !== newPassword) {
-            setCheckPass(false);
-        }
-        if (newPassword !== confirmPassword) {
-            setCheckConfirm(true);
-        }
-        if (!validationPassword(newPassword)) {
-            setCheckNewPass(true);
-            setCheckConfirm(false);
-        }
-        if (validationPassword(newPassword)) {
-            setCheckNewPass(false);
-        }
-        if (newPassword === confirmPassword) {
-            setCheckConfirm(false);
-        }
+        setCheckPass(password === newPassword);
+        setCheckConfirm(newPassword !== confirmPassword || validationPassword(newPassword));
+        setCheckNewPass(!validationPassword(newPassword));
         if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
             handleChangePassword();
         }
