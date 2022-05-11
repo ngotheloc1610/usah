@@ -21,6 +21,8 @@ var global = (function() {
   return Function('return this')();
 }.call(null));
 
+var system_model_pb = require('./system_model_pb.js');
+goog.object.extend(proto, system_model_pb);
 goog.exportSymbol('proto.CallPut', null, global);
 goog.exportSymbol('proto.Contract', null, global);
 goog.exportSymbol('proto.ExchangeCode', null, global);
@@ -185,7 +187,11 @@ proto.Order.toObject = function(includeInstance, msg) {
     externalOrderId: jspb.Message.getFieldWithDefault(msg, 29, ""),
     currencyCode: jspb.Message.getFieldWithDefault(msg, 30, ""),
     totalFilledAmount: jspb.Message.getFieldWithDefault(msg, 31, ""),
-    comment: jspb.Message.getFieldWithDefault(msg, 32, "")
+    comment: jspb.Message.getFieldWithDefault(msg, 32, ""),
+    orderRef: jspb.Message.getFieldWithDefault(msg, 33, ""),
+    withdrawAmount: jspb.Message.getFieldWithDefault(msg, 34, ""),
+    submittedId: jspb.Message.getFieldWithDefault(msg, 35, ""),
+    msgCode: jspb.Message.getFieldWithDefault(msg, 36, 0)
   };
 
   if (includeInstance) {
@@ -349,6 +355,22 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 32:
       var value = /** @type {string} */ (reader.readString());
       msg.setComment(value);
+      break;
+    case 33:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setOrderRef(value);
+      break;
+    case 34:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWithdrawAmount(value);
+      break;
+    case 35:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSubmittedId(value);
+      break;
+    case 36:
+      var value = /** @type {!proto.MsgCode} */ (reader.readEnum());
+      msg.setMsgCode(value);
       break;
     default:
       reader.skipField();
@@ -600,6 +622,34 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       32,
+      f
+    );
+  }
+  f = message.getOrderRef();
+  if (f.length > 0) {
+    writer.writeString(
+      33,
+      f
+    );
+  }
+  f = message.getWithdrawAmount();
+  if (f.length > 0) {
+    writer.writeString(
+      34,
+      f
+    );
+  }
+  f = message.getSubmittedId();
+  if (f.length > 0) {
+    writer.writeString(
+      35,
+      f
+    );
+  }
+  f = message.getMsgCode();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      36,
       f
     );
   }
@@ -1179,6 +1229,78 @@ proto.Order.prototype.getComment = function() {
  */
 proto.Order.prototype.setComment = function(value) {
   return jspb.Message.setProto3StringField(this, 32, value);
+};
+
+
+/**
+ * optional string order_ref = 33;
+ * @return {string}
+ */
+proto.Order.prototype.getOrderRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 33, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setOrderRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 33, value);
+};
+
+
+/**
+ * optional string withdraw_amount = 34;
+ * @return {string}
+ */
+proto.Order.prototype.getWithdrawAmount = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 34, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setWithdrawAmount = function(value) {
+  return jspb.Message.setProto3StringField(this, 34, value);
+};
+
+
+/**
+ * optional string submitted_id = 35;
+ * @return {string}
+ */
+proto.Order.prototype.getSubmittedId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 35, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setSubmittedId = function(value) {
+  return jspb.Message.setProto3StringField(this, 35, value);
+};
+
+
+/**
+ * optional MsgCode msg_code = 36;
+ * @return {!proto.MsgCode}
+ */
+proto.Order.prototype.getMsgCode = function() {
+  return /** @type {!proto.MsgCode} */ (jspb.Message.getFieldWithDefault(this, 36, 0));
+};
+
+
+/**
+ * @param {!proto.MsgCode} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setMsgCode = function(value) {
+  return jspb.Message.setProto3EnumField(this, 36, value);
 };
 
 
@@ -2550,6 +2672,7 @@ proto.OrderState = {
   ORDER_STATE_FILLED: 4,
   ORDER_STATE_REJECTED: 5,
   ORDER_STATE_EXPIRED: 6,
+  ORDER_STATE_MODIFIED: 7,
   ORDER_STATE_MATCHED: 10,
   ORDER_STATE_STARTED: 11
 };

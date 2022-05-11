@@ -69,6 +69,8 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const sendMessageTradeSearch = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        const todate = convertDatetoTimeStamp(moment().format(FORMAT_DATE), TO_DATE_TIME);
+
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -79,7 +81,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             tradeHistoryRequest.setSymbolCode(symbolCode);
             tradeHistoryRequest.setSide(side);
             convertNumber(fromDatetime.toString()) !== 0 && tradeHistoryRequest.setFromDatetime(fromDatetime);
-            convertNumber(toDatetime.toString()) !== 0 && tradeHistoryRequest.setToDatetime(toDatetime);
+            convertNumber(toDatetime.toString()) !== 0 ? tradeHistoryRequest.setToDatetime(toDatetime) : tradeHistoryRequest.setToDatetime(todate);
 
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();

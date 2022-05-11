@@ -12,10 +12,12 @@ import { Autocomplete, TextField } from '@mui/material';
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { toast } from "react-toastify";
+import { DEFAULT_DATA_TICKER } from "../../../mocks";
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
     msgSuccess?: string;
+    getSymbolCodeRemove: (item: string) => void;
 }
 
 const defaultProps = {
@@ -25,7 +27,7 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote, msgSuccess, handleSide } = props;
+    const { getTicerLastQuote, msgSuccess, handleSide, getSymbolCodeRemove } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
@@ -47,7 +49,6 @@ const ListTicker = (props: IListTickerProps) => {
     }, [pageShowCurrentLastQuote])
 
     useEffect(() => {
-
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 getOrderBooks();
@@ -87,16 +88,33 @@ const ListTicker = (props: IListTickerProps) => {
         processLastQuote(lastQoutes)
     }, [lastQoutes, currentPage])
 
+    useEffect(() => {
+        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+        const quotesDefault: ILastQuote[] = [];
+        ownWatchList.forEach(item => {
+            if (item) {
+                const lastQuoteDefault: ILastQuote = {
+                    ...DEFAULT_DATA_TICKER,
+                    symbolCode: item.symbolCode,
+                }
+                quotesDefault.push(lastQuoteDefault);
+            }
+        });
+        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+        setPageShowCurrentLastQuote(temp);
+    }, [])
+
     const processLastQuote = (lastQoutes: ILastQuote[]) => {
         const quotes: ILastQuote[] = [];
         const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const ownWatchList = watchList.filter((o: IWatchList) => o?.accountId === currentAccId);
-        lastQoutes.forEach(item => {
+        ownWatchList.forEach(item => {
             if (item) {
-                const idx = ownWatchList.findIndex(o => o?.symbolCode === item?.symbolCode);
-                const idxQuote = quotes.findIndex(e => e?.symbolCode === item?.symbolCode);
-                if (idx >= 0 && idxQuote < 0) {
-                    quotes.push(item)
+                const idxQuote = lastQoutes.findIndex(e => e?.symbolCode === item?.symbolCode);
+                if (idxQuote >= 0) {
+                    quotes.push(lastQoutes[idxQuote]);
                 }
             }
         });
@@ -133,7 +151,6 @@ const ListTicker = (props: IListTickerProps) => {
             // setLastQoutes(tempLastQuote);
             setPageShowCurrentLastQuote(tmpList);
         }
-
     }
 
     const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
@@ -244,7 +261,6 @@ const ListTicker = (props: IListTickerProps) => {
         <div>{toast.error(MESSAGE_TOAST.ERROR_ADD)}</div>
     )
 
-
     const btnAddTicker = (symbolCodeAdd) => {
         if (symbolCodeAdd) {
             const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
@@ -258,9 +274,38 @@ const ListTicker = (props: IListTickerProps) => {
                 const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
                 const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
                 setCurrentPage(currentPage);
+
+                const quotesDefault: ILastQuote[] = [];
+                ownWatchList.forEach((item, index) => {
+                    if (item) {
+                        const lastQuoteDefault: ILastQuote = {
+                            asksList: pageShowCurrentLastQuote[index]?.asksList || [],
+                            bidsList: pageShowCurrentLastQuote[index]?.bidsList || [],
+                            close: pageShowCurrentLastQuote[index]?.close || '',
+                            currentPrice: pageShowCurrentLastQuote[index]?.currentPrice || '',
+                            high: pageShowCurrentLastQuote[index]?.high || '',
+                            low: pageShowCurrentLastQuote[index]?.low || '',
+                            netChange: pageShowCurrentLastQuote[index]?.netChange || '',
+                            open: pageShowCurrentLastQuote[index]?.open || '',
+                            pctChange: pageShowCurrentLastQuote[index]?.pctChange || '',
+                            quoteTime: pageShowCurrentLastQuote[index]?.quoteTime || 0,
+                            scale: pageShowCurrentLastQuote[index]?.scale || 0,
+                            symbolCode: pageShowCurrentLastQuote[index]?.symbolCode || item.symbolCode,
+                            symbolId: pageShowCurrentLastQuote[index]?.symbolId || 0,
+                            tickPerDay: pageShowCurrentLastQuote[index]?.tickPerDay || 0,
+                            volumePerDay: pageShowCurrentLastQuote[index]?.volumePerDay || '',
+                            volume: pageShowCurrentLastQuote[index]?.volume || ''
+                        }
+                        quotesDefault.push(lastQuoteDefault);
+                    }
+                });
+                const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotesDefault);
+                temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
+                setPageShowCurrentLastQuote(temp);
+
                 getOrderBooks();
                 _rendetMessageSuccess();
-    
+
             } else {
                 _renderMessageExist();
             }
@@ -368,6 +413,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const removeTicker = (itemLstQuote: ILastQuote) => {
         unSubscribeQuoteEvent([itemLstQuote]);
+        getSymbolCodeRemove(itemLstQuote.symbolCode);
         const currentWactchList: IWatchList[] = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const idx = currentWactchList.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode && o?.accountId === currentAccId);
         if (idx >= 0) {
@@ -381,10 +427,9 @@ const ListTicker = (props: IListTickerProps) => {
         if (idxQuote >= 0) {
             temps.splice(idxQuote, 1)
             if (temps.length === 0) {
-                setCurrentPage(currentPage - 1);
-            } else {
-                setPageShowCurrentLastQuote(temps);
+                currentPage === pageFirst ? setCurrentPage(pageFirst) : setCurrentPage(currentPage - 1);
             }
+            setPageShowCurrentLastQuote(temps);
         }
     }
 

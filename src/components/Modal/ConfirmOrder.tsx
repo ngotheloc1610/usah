@@ -9,9 +9,10 @@ import * as rpc from '../../models/proto/rpc_pb';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as smpb from '../../models/proto/system_model_pb';
 import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber } from '../../helper/utils';
-import CurrencyInput from 'react-currency-masked-input';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
+import NumberFormat from 'react-number-format';
+
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
@@ -77,6 +78,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+            order.setSubmittedId(uid);
             modifyOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
@@ -125,6 +127,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             order.setCurrencyCode(CURRENCY.usd);
+            order.setSubmittedId(uid);
             singleOrder.setOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.NEW_ORDER_SINGLE_REQ);
@@ -165,6 +168,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+            order.setSubmittedId(uid);
             cancelOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
@@ -284,16 +288,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
-    const onChangePrice = (maskedVal: string) => {
+    const onChangePrice = (value: string) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
         const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
         const tickSize = symbolInfo?.tickSize ? symbolInfo?.tickSize : 1;
-        setOutOfPrice(+maskedVal < +floorPrice || +maskedVal > +ceilingPrice);
+        setOutOfPrice(+value < +floorPrice || +value > +ceilingPrice);
         const newTickSize = Math.round(convertNumber(tickSize) * Math.pow(10, 2));
-        const newPrice = Math.round(+maskedVal * Math.pow(10, 2));
+        const newPrice = Math.round(+value * Math.pow(10, 2));
         setInvalidPrice(newPrice % newTickSize !== 0);
-        setPriceModify(+maskedVal);
+        setPriceModify(+value);
     }
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
@@ -304,11 +308,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <div className="border d-flex h-46">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
                             {(title === TITLE_ORDER_CONFIRM.QUANLITY) ?
-                                <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{0}" thousandseparator="{true}"
-                                    onChange={(e) => handleVolumeModify(e.target.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                                <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" 
+                                decimalScale={0} thousandSeparator="," isAllowed={handleAllowedInput}
+                                onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                                 :
-                                <CurrencyInput type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" decimalscale="{2}" thousandseparator="{true}"
-                                    onChange={(e, maskedVal) => onChangePrice(maskedVal)} value={formatCurrency(priceModify.toString())} />
+                                <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
+                                decimalScale={2} thousandSeparator="," isAllowed={handleAllowedInput}
+                                onValueChange={(e) => onChangePrice(e.value)} value={convertNumber(priceModify) === 0 ? null : formatCurrency(priceModify.toString())} />
                             }
                         </div>
                         <div className="border-start d-flex flex-column">
@@ -356,7 +362,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, `${formatCurrency(params.price.toString())}`, handleUpperPrice, handleLowerPrice)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString())}`)}
                 </tbody>
             </table>

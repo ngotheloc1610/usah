@@ -39,6 +39,7 @@ message AdminSettings {
 	int64 gross_buy_limit	= 1;
 	int64 gross_sell_limit	= 2;
 	repeated SessionSettings session_settings = 3;
+	repeated Holiday holiday_settings = 4;
 }
 
 message GroupAccount {
@@ -62,6 +63,19 @@ message SessionSettings {
 	int64 pre_order_time	= 4; // Minutes couting from 00:00 
 }
 
+message Holiday {
+	int64 holiday_id		= 1;
+	HolidayStatus holiday_status		= 2;
+	int64 timestamp_from		= 3; // Unix timestamp in milliseconds, e.g: 1651131000000
+	int64 timestamp_to		= 4; // Unix timestamp in milliseconds, e.g: 1651159800000
+}
+
+enum HolidayStatus {
+	HS_NONE 				= 0;
+	HS_ACTIVE				= 1;
+	HS_DEACTIVE				= 2;
+}
+
 message AccountBalance {
 	int64 account_id 			= 1;
 	string balance				= 2;
@@ -83,10 +97,10 @@ message AccountPortfolio {
 	string symbol_code			= 2;
 	
 	int64 total_buy_volume = 3;
-	string avg_buy_price = 4;
+	string total_buy_amount = 4;
 
 	int64 total_sell_volume = 5;
-	string avg_sell_price = 6;
+	string total_sell_amount = 6;
 	
 	string market_price			= 7;
 	string invested_value		= 8;
@@ -94,8 +108,8 @@ message AccountPortfolio {
 	string realized_pl			= 10;
 	string unrealized_pl 		= 11;
 	string currency_code		= 12;
-	string owned_volume			= 13;
-	string avg_price			= 14;
+	int64 owned_volume			= 13;
+	string owned_amount			= 14;
 	int64 total_volume			= 15;
 }
 
@@ -148,8 +162,17 @@ enum MsgCode {
 	MT_RET_REQUEST_PROHIBITED_OPEN_ORDER = 10038;
 	MT_RET_REQUEST_PROHIBITED_CLOSE_ORDER = 10039;
 	MT_RET_MARKET_CLOSED			= 10040;
-
-
+	MT_RET_INVALID_TICK_SIZE		= 10041;
+	MT_RET_INVALID_PRICE_RANGE		= 10042;
+	MT_RET_INVALID_MIN_LOT			= 10043; // Order qty is smaller than min lot
+	MT_RET_INVALID_LOT_SIZE			= 10044;
+	MT_RET_NEGATIVE_QTY				= 10045;
+	MT_RET_EXCEED_MAX_ORDER_VOLUME	= 10046; // Order qty is out of range with max order volume
+	MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE			= 10047; // Order value is smaller than min order value
+	MT_RET_INVALID_HOLIDAY_SESSION	= 10048; // Order in holiday session
+	MT_RET_INVALID_PASSWORD			= 10049;
+	MT_RET_TOKEN_EXPIRED			= 10050;
+	MT_RET_CHANGE_PASSWORD_FAILED	= 10051;
 }
 
 

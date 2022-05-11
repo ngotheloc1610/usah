@@ -2,7 +2,7 @@ import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYP
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory, IDataHistory } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IOrderHistory, IDataHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
@@ -11,7 +11,6 @@ function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory, paramHistorySearch } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
-    const statusPartial = tradingModelPb.OrderState.ORDER_STATE_PARTIAL;
     const [showModalDetail, setShowModalDetail] = useState(false)
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
@@ -24,10 +23,7 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.symbolCode) {
             historySortDate = historySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
         }
-        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
-            historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState || item.state === tradingModelPb.OrderState.ORDER_STATE_PARTIAL);
-        }
-        if (paramHistorySearch.orderState > 0 && paramHistorySearch.orderState !== tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+        if (paramHistorySearch.orderState > 0) {
             historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState);
         }
         if (paramHistorySearch.orderSide > 0) {
@@ -42,6 +38,9 @@ function OrderTable(props: IPropListOrderHistory) {
             historySortDate = historySortDate.filter(item =>
                 item.time < Number(paramHistorySearch.toDate) ||
                 item.time === Number(paramHistorySearch.toDate));
+        }
+        if (paramHistorySearch.fromDate > paramHistorySearch.toDate ) {
+            historySortDate = [];
         }
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
@@ -70,19 +69,25 @@ function OrderTable(props: IPropListOrderHistory) {
     }
 
     const getStateName = (state: number) => {
-        return STATE.find(item => item.code === state)?.title;
+        return STATE.find(item => item.code === state)?.name;
     }
 
     const getStatusFromModal = (isShowDetail: boolean) => {
         setShowModalDetail(isShowDetail);
     }
 
-    const checkDisLastUpdatedTime = (item: IOrderHistory) => {
+    const checkDisplayLastUpdatedTime = (item: IOrderHistory) => {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
-        if (getStateName(item?.state) === STATE[0].title && !isCheckItemFilledAmount) {
-            return true;
+        const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
+        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && !isCheckItemFilledAmount)) {
+            return false;
         }
-        return false;
+        return true;
+    }
+    const checkDisplayLastPrice = (state, volume) => {
+        if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
+            return false;
+        } return true;
     }
     const _renderOrderHistoryTableHeader = () =>
     (
@@ -90,7 +95,7 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
             <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
             <th className="text-center fz-14 w-120" >Order Side</th>
-            <th className="text-center fz-14 w-120" > Order Status</th>
+            <th className="text-start fz-14 w-120" > Order Status</th>
             <th className="text-center fz-14 w-120" >Order Type</th>
             <th className="text-ellipsis text-end fz-14 w-140">
                 <div>Order Quantity</div>
@@ -101,6 +106,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <div>Order Price</div>
                 <div>Executed Price</div>
             </th>
+            <th className="text-end text-nowrap fz-14 w-120" >Withdraw Quantity</th>
             <th className="text-ellipsis text-end fz-14 w-200">
                 <div className="mg-right-24"> Order Datetime </div>
                 <div className="mg-right-24"> Last Updated time </div>
@@ -108,7 +114,7 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-ellipsis fz-14 w-200">Comment</th>
         </tr>
     )
-    
+
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
@@ -120,8 +126,8 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
                 </td>
 
-                <td className="text-center w-120">
-                    <span className={`${item.state === statusPlace || item.state === statusPartial ? 'text-info' : ''}`}>{getStateName(item.state)}</span>
+                <td className="text-start w-120">
+                    <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
                 </td>
 
                 <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>
@@ -135,14 +141,14 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
-                    {item.lastPrice && <div>{formatCurrency(item.lastPrice)}</div>}
-                    {item.lastPrice === '' && <div>&nbsp;</div>}
+                    {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
+                    {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
                 </td>
-
+                <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_FILLED ? formatNumber(item.amount) : '-'}</td>
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
-                    {!checkDisLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
-                    {checkDisLastUpdatedTime(item) && <div >-</div>}
+                    {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
                 <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
@@ -153,21 +159,21 @@ function OrderTable(props: IPropListOrderHistory) {
 
     const handleDownload = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IDataHistory[] = [];
+        const data: IDataHistoryDownload[] = [];
         dataCurrent.forEach(item => {
             if (item) {
                 data.push({
-                    orderId: Number(item?.orderId),
+                    orderId: item?.orderId,
                     tickerCode: item?.symbolCode,
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
                     orderStatus: getStateName(item.state) || '',
                     orderType: ORDER_TYPE_NAME.limit,
-                    orderVolume: formatNumber(item.amount) || '',
-                    remainingVolume: formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString()) || '',
-                    executedVolume: formatNumber(item.filledAmount),
-                    orderPrice: formatCurrency(item.price),
-                    lastPrice: formatCurrency(item.lastPrice),
+                    orderVolume: convertNumber(item.amount),
+                    remainingVolume: convertNumber(calcPendingVolume(item.amount, item.filledAmount).toString()),
+                    executedVolume: convertNumber(item.filledAmount),
+                    orderPrice: convertNumber(item.price),
+                    lastPrice: convertNumber(item.lastPrice),
                     orderDateTime: formatOrderTime(item.time),
                     executedDateTime: formatOrderTime(item.time)
                 });

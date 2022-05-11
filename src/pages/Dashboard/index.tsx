@@ -14,7 +14,7 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
 import moment from 'moment-timezone'
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -39,6 +39,7 @@ const Dashboard = () => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -137,7 +138,7 @@ const Dashboard = () => {
     }, [])
 
     useEffect(() => {
-        setMatchedOrder(matchedOrder + 1)
+        setMatchedOrder(matchedOrder + tradeEvent.length)
     }, [tradeEvent])
 
     useEffect(() => {
@@ -161,6 +162,7 @@ const Dashboard = () => {
                         }
                     }
                 }
+                setIsLoading(false);
             });
             setPortfolio(temp);
         }
@@ -343,18 +345,16 @@ const Dashboard = () => {
         return 0;
     }
 
-    const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item?.totalBuyVolume;
-        const sellVolume = item?.totalSellVolume;
-        return (buyVolume - sellVolume > 0) ? (buyVolume - sellVolume) : 0
+    const calcAvgPrice = (item: IPortfolio) => {
+        return convertNumber(item.totalBuyVolume) !== 0 && convertNumber(item.ownedVolume) > 0 ? convertNumber(item.totalBuyAmount) / convertNumber(item.totalBuyVolume) : 0;
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.avgBuyPrice);
+        return convertNumber(item.ownedVolume) * calcAvgPrice(item);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcTransactionVolume(item) * convertNumber(item?.marketPrice);
+        return convertNumber(item.ownedVolume.toString()) * convertNumber(item.marketPrice);
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -363,20 +363,20 @@ const Dashboard = () => {
 
     const setGeneralTemplate = () => (
         <div className="mb-3 row">
-            <div className="d-flex justify-content-center align-items-center col-md-4">
-                <div className="text-center flex-grow-1 px-3 border-end">
-                    <div className="small fw-bold">Matched Orders</div>
-                    <div className="fw-600">{formatNumber(matchedOrder.toString())}</div>
-                </div>
-                <div className="text-center flex-grow-1 px-3 border-end">
-                    <div className="small fw-bold">Pending Orders</div>
-                    <div className="fw-600">{formatNumber(pendingOrder.toString())}</div>
-                </div>
-                <div className="text-center flex-grow-1 px-3">
-                    <div className="small fw-bold">% P/L</div>
-                    {totalPctUnrealizedPL(portfolio) > 0 && <div className="text-success fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
-                    {totalPctUnrealizedPL(portfolio) < 0 && <div className="text-danger fx-600">{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
-                    {totalPctUnrealizedPL(portfolio) === 0 && <div>{formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2))}%</div>}
+            <div className="col-md-4">
+                <div className="row d-flex justify-content-center align-items-center">
+                    <div className="text-center px-3 border-end col-md-4">
+                        <div className="small fw-bold">Matched Orders</div>
+                        <div className="fw-600">{isLoading ? '-' : formatNumber(matchedOrder.toString())}</div>
+                    </div>
+                    <div className="text-center px-3 border-end col-md-4">
+                        <div className="small fw-bold">Pending Orders</div>
+                        <div className="fw-600">{isLoading ? '-' : formatNumber(pendingOrder.toString())}</div>
+                    </div>
+                    <div className="text-center px-3 col-md-4">
+                        <div className="small fw-bold">% P/L</div>
+                        <div className={`${getClassName(totalPctUnrealizedPL(portfolio))} fx-600`}>{isLoading ? '-' : formatCurrency(totalPctUnrealizedPL(portfolio).toFixed(2)) + '%'}</div>
+                    </div>
                 </div>
             </div>
             <div className="col-md-4"></div>

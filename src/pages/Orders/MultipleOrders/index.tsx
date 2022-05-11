@@ -4,8 +4,7 @@ import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber } from "../../../helper/utils";
-import CurrencyInput from 'react-currency-masked-input';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -17,6 +16,7 @@ import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
+import NumberFormat from "react-number-format";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -64,7 +64,7 @@ const MultipleOrders = () => {
                 setStatusPlace(true);
                 setListSelected([]);
             }
-            
+
         });
 
         return () => {
@@ -144,15 +144,14 @@ const MultipleOrders = () => {
     }
 
 
-    const changePrice = (value: string, maskedVal: number, itemSymbol: ISymbolMultiOrder, index: number) => {
+    const changePrice = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
+        const price = convertNumber(value)
         const tickSize = getTickSize(itemSymbol.ticker);
         let newValue = '';
-        if (!isNaN(Number(maskedVal))) {
-            if (Number(maskedVal) > 0) {
-                newValue = Number(maskedVal).toString();
-            } else {
-                newValue = tickSize.toString();
-            }
+        if (price > 0) {
+            newValue = price.toString();
+        } else {
+            newValue = tickSize.toString();
         }
         listTickers[index].price = newValue;
         const listOrder = [...listTickers];
@@ -338,9 +337,9 @@ const MultipleOrders = () => {
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <CurrencyInput decimalscale={0} type="text" className="form-control text-end border-1 py-0 px-10"
-                            onChange={(e) => changeVolume(e.target.value, item, index)}
-                            thousandseparator="{true}" value={formatNumber(item.volume)} placeholder=""
+                        <NumberFormat decimalScale={0} type="text" className="form-control text-end border-1 py-0 px-10"
+                            onValueChange={(e) => changeVolume(e.value, item, index)} isAllowed={handleAllowedInput}
+                            thousandSeparator="," value={formatNumber(item.volume)} placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increaseVolume(item, index)}></i>
@@ -350,29 +349,29 @@ const MultipleOrders = () => {
                 </td>
                 <td className="text-end">
                     <div className="d-flex">
-                        <CurrencyInput
-                            onChange={(e, maskedVal) => changePrice(e.target.value, maskedVal, item, index)}
-                            decimalscale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandseparator="{true}" value={formatCurrency(item.price)} placeholder=""
+                        <NumberFormat
+                            onValueChange={(e) => changePrice(e.value, item, index)}
+                            decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
+                            thousandSeparator="," value={convertNumber(item.price) === 0 ? null : formatCurrency(item.price)} placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
-                                <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
-                                <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreasePrice(item, index)}></i>
+                            <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
+                            <i className="bi bi-caret-down-fill line-height-16" onClick={() => decreasePrice(item, index)}></i>
                         </div>
                     </div>
                 </td>
-                {statusPlace && <td className="text-end w-140">{defindStatusOrder(item)}</td>}
+                {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
             </tr>
         })
     )
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Ticker Code</span></th>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Order Type</span></th>
-            <th className="text-center text-center text-nowrap" style={{ width: '20%' }}><span>Order Side</span></th>
-            <th className="text-center text-nowrap " style={{ width: '20%' }}><span>Quantity</span></th>
-            <th className="text-center text-nowrap" style={{ width: '20%' }}><span>Price</span></th>
+            <th className="text-center text-nowrap"><span>Ticker Code</span></th>
+            <th className="text-center text-nowrap"><span>Order Type</span></th>
+            <th className="text-center text-center text-nowrap"><span>Order Side</span></th>
+            <th className="text-center text-nowrap"><span>Quantity</span></th>
+            <th className="text-center text-nowrap"><span>Price</span></th>
         </tr>
     )
     const _renderDataMultipleOrdersConfirm = () => (
@@ -413,6 +412,7 @@ const MultipleOrders = () => {
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
+                    order.setSubmittedId(accountId);
                     multiOrder.addOrder(order);
                 }
             })
@@ -436,7 +436,7 @@ const MultipleOrders = () => {
                 if (lengItemSuccess !== lstResponse.length) {
                     return <div>{toast.warning(`${ORDER_RESPONSE.SUCCESS}: ${lengItemSuccess}, ${ORDER_RESPONSE.REJECT}: ${lstResponse?.length - lengItemSuccess}`)}</div>
                 }
-                
+
                 if (lengItemSuccess === lstResponse.length) {
                     return <div>{toast.success(`${ORDER_RESPONSE.SUCCESS}: ${lengItemSuccess}`)}</div>
                 }
@@ -532,44 +532,37 @@ const MultipleOrders = () => {
         </button>
     )
 
-    const handleChangeValue = (value: string, maskedVal: number, title: string) => {
-        if (ticker) {
-            const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-            if (item) {
-                const floorPrice = item.floor;
-                const ceilingPrice = item.ceiling;
-                const tickSize = convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
-                const lotSize = convertNumber(item.lotSize) !== 0 ? convertNumber(item.lotSize) : 1;
-                if (title.toLocaleLowerCase() === 'price') {
-                    setPrice(+maskedVal);
-                    const valueCurrent = (+maskedVal).toString();
-                    const temp = Math.round(Number(valueCurrent.replaceAll(',', '')) * 100);
-                    const tempTickeSize = Math.round(tickSize * 100);
-                    setInvalidPrice(temp % tempTickeSize !== 0);
-                    if (convertNumber(valueCurrent) > convertNumber(ceilingPrice)) {
-                        setIsShowNotiErrorPrice(true);
-                        return;
-                    }
-                    if (convertNumber(valueCurrent) < convertNumber(floorPrice)) {
-                        setIsShowNotiErrorPrice(true);
-                        return;
-                    }
-                    setIsShowNotiErrorPrice(false);
-                } else {
-                    const convertValueToNumber = Number(value.replaceAll(',', ''));
-                    if ((convertValueToNumber || convertValueToNumber === 0) && convertValueToNumber > -1) {
-                        setVolume(Number(value.replaceAll(',', '')));
-                        if (convertNumber(value) < lotSize || convertNumber(value) % lotSize !== 0) {
-                            setInvalidVolume(true);
-                            return;
-                        }
-                        setInvalidVolume(false);
-                    }
-                }
-            }
+    const handleChangeVolume = (value: string) => {
+        const symbolCode = getSymbolCode(ticker);
+        const lotSize = getLotSize(symbolCode);
+        const volume = convertNumber(value);
+        if ((volume || volume === 0) && volume > -1) {
+            setVolume(volume);
+            setInvalidVolume(volume % lotSize !== 0 || volume < 1);
         }
+    }
+
+    const handleChangePrice = (value: string) => {
+        const symbolCode = getSymbolCode(ticker);
+        const floorPrice = getFloor(symbolCode);
+        const ceilingPrice = getCelling(symbolCode);
+        const tickSize = getTickSize(symbolCode);
+        const price = convertNumber(value);
+        setPrice(price);
+        if (ceilingPrice === 0 && floorPrice === 0) {
+            setIsShowNotiErrorPrice(false);
+            return;
+        }
+        if (+price > ceilingPrice) {
+            setIsShowNotiErrorPrice(true);
+        } else if (+price < floorPrice) {
+            setIsShowNotiErrorPrice(true);
+        } else {
+            setIsShowNotiErrorPrice(false);
+        }
+        const temp = Math.round(+price * 100);
+        const tempTickeSize = Math.round(tickSize * 100);
+        setInvalidPrice(temp % tempTickeSize !== 0);
     }
 
     const _renderNotiErrorPrice = () => (
@@ -581,10 +574,10 @@ const MultipleOrders = () => {
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                    <CurrencyInput disabled={disableControl()} decimalscale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        value={title === TITLE_ORDER_CONFIRM.PRICE ? formatCurrency(price.toString()) : formatNumber(volume.toString())}
-                        thousandseparator="{true}" placeholder=""
-                        onChange={(e, maskedVal) => handleChangeValue(e.target.value, maskedVal, title)}
+                    <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        value={convertNumber(value) === 0 ? null : formatCurrency(value)}
+                        thousandSeparator="," isAllowed={handleAllowedInput}
+                        onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
@@ -754,18 +747,18 @@ const MultipleOrders = () => {
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
-        if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED ) {
-            return <div title={STATUS_ORDER.success} className="text-success text-truncate max-width-150">{STATUS_ORDER.success}</div>
+        if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+            return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
         }
         if (order.state === tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
-            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate max-width-150">{order.status?.toUpperCase()}</div>
+            return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order.status?.toUpperCase()}</div>
         }
         return '';
     }
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, formatCurrency(price.toString()), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
 
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, formatNumber(volume.toString()), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
 
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
@@ -774,7 +767,7 @@ const MultipleOrders = () => {
                 <span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
-                <form action="#" className="order-form p-2 border shadow my-3">
+                <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
@@ -849,14 +842,16 @@ const MultipleOrders = () => {
     const _renderDataTableListOrder = () => (
         <div className="card-modify mb-3">
             <div className="card-body p-0 mb-3 table table-responsive mh-500 tableFixHead">
-                <table className="table table-sm table-hover mb-0 dataTable no-footer">
-                    <thead>
-                        {_renderHearderMultipleOrders()}
-                    </thead>
-                    <tbody>
-                        {_renderDataMultipleOrders()}
-                    </tbody>
-                </table>
+                <form noValidate={true}>
+                    <table className="table table-sm table-hover mb-0 dataTable no-footer">
+                        <thead>
+                            {_renderHearderMultipleOrders()}
+                        </thead>
+                        <tbody>
+                            {_renderDataMultipleOrders()}
+                        </tbody>
+                    </table>
+                </form>
             </div>
         </div>
     )

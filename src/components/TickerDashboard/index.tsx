@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from "../../helper/utils"
+import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
@@ -226,20 +226,14 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
                 <td className="text-end w-header fw-600">
-                    {Number(item.lastPrice) > Number(item.open) && <span className="text-danger">{formatCurrency(item.lastPrice)}</span>}
-                    {Number(item.lastPrice) < Number(item.open) && <span className="text-success">{formatCurrency(item.lastPrice)}</span>}
-                    {Number(item.lastPrice) === Number(item.open) && <span>{formatCurrency(item.lastPrice)}</span>}
+                     <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.open))}>{formatCurrency(item.lastPrice)}</span>
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                    {calcChange(item.lastPrice, item.open || '') > 0 && <span className="text-danger">{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>}
-                    {calcChange(item.lastPrice, item.open || '') < 0 && <span className="text-success">{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>}
-                    {calcChange(item.lastPrice, item.open || '') === 0 && <span>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>}
+                     <span className={getClassName(calcChange(item.lastPrice, item.open))}>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    {calcPctChange(item.lastPrice, item.open || '') > 0 && <span className="text-danger">{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>}
-                    {calcPctChange(item.lastPrice, item.open || '') < 0 && <span className="text-success">{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>}
-                    {calcPctChange(item.lastPrice, item.open || '') === 0 && <span>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>}
+                    <span className={getClassName(calcPctChange(item.lastPrice, item.open))}>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
                 </td>
             </tr>
         ))

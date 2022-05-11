@@ -447,29 +447,35 @@ export interface ITradingAccountVertical {
 
 export interface IPortfolio {
     accountId: number;
+    avgBuyPrice: string;
+    avgPrice: string;
+    avgSellPrice: string
+    currencyCode: string
+    currentValue: string;
+    investedValue: string;
+    marketPrice: string;
+    ownedAmount: string;
+    ownedVolume: number;
+    realizedPl: string;
     symbolCode: string;
     totalBuyVolume: number;
-    avgBuyPrice: string;
     totalSellVolume: number;
-    avgSellPrice: string;
-    marketPrice: string;
-    investedValue: string;
-    currentValue: string;
-    realizedPl: string;
+    totalBuyAmount: string;
+    totalSellAmount: string;
+    totalVolume: number;
     unrealizedPl: string;
-    currencyCode: string;
 }
 
 export interface IPortfolioDownLoad {
     tickerCode: string;
-    ownedVol: string;
-    avgPrice: string;
-    dayNotional: string;
-    marketPrice: string;
-    currentPrice: string;
-    unrealizedPl: string;
-    presentUnrealizedPl: string;
-    transactionVol: string;
+    ownedVol: number;
+    avgPrice: number;
+    dayNotional: number;
+    marketPrice: number;
+    currentValue: number;
+    unrealizedPl: number;
+    percentUnrealizedPl: string;
+    transactionVol: number;
 }
 export interface ITotalNetFollowAccountId {
     title: string;
@@ -571,4 +577,35 @@ export interface IDataHistory {
     lastPrice: string;
     orderDateTime: string;
     executedDateTime: string;
+}
+
+
+export interface IDataHistoryDownload {
+    orderId: string;
+    tickerCode: string;
+    tickerName: string;
+    orderSide: string;
+    orderStatus: string;
+    orderType: string;
+    orderVolume: number;
+    remainingVolume: number;
+    executedVolume: number;
+    orderPrice: number;
+    lastPrice: number;
+    orderDateTime: string;
+    executedDateTime: string;
+}
+
+export interface ITradeHistoryDownload {
+    orderQuatity: number;
+    executedDatetime: string;
+    executedPrice: number;
+    executedQuatity: number;
+    matchedValue: number;
+    orderId: string;
+    orderType: string;
+    orderPrice: number;
+    orderSide?: string;
+    tickerCode: string;
+    tickerName: string;
 }

@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber } from '../../../helper/utils'
+import { checkValue, convertNumber, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -17,10 +17,10 @@ function SummaryTradingTable() {
     useEffect(() => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
-                const portfolioList = res.accountPortfolioList.filter(item => item.totalBuyVolume - item.totalSellVolume !== 0)
-                setPortfolio(portfolioList);
-                callLastQuoteReq(portfolioList);
-                subscribeQuoteEvent(portfolioList);
+                const portfolioInday = res.accountPortfolioList.filter(o => o.totalVolume !== 0);
+                setPortfolio(portfolioInday);
+                callLastQuoteReq(res.accountPortfolioList);
+                subscribeQuoteEvent(res.accountPortfolioList);
             }
         });
 
@@ -194,9 +194,7 @@ function SummaryTradingTable() {
                 </div>
                 <div className="col-md-2 text-center">
                     <div>Total Unrealized PL:</div>
-                    {totalUnrealizedPL(portfolio) > 0 && <div className='fs-5 fw-bold text-success'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
-                    {totalUnrealizedPL(portfolio) < 0 && <div className='fs-5 fw-bold text-danger'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
-                    {totalUnrealizedPL(portfolio) === 0 && <div className='fs-5 fw-bold'>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>}
+                    <div className={`fs-5 fw-bold ${getClassName(totalUnrealizedPL(portfolio))}`}>{formatCurrency(totalUnrealizedPL(portfolio).toFixed(2))}</div>
                 </div>
                 <div className="col-md-4 order-0 order-md-4">
                     <p className="text-end small opacity-50 mb-2">Currency: USD</p>
@@ -204,25 +202,17 @@ function SummaryTradingTable() {
             </div>
         </div>
     )
-
-    const calcTransactionVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
-        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
-        return buyVolume + sellVolume;
-    }
-
-    const calcOwnedVolume = (item: IPortfolio) => {
-        const buyVolume = item.totalBuyVolume ? item.totalBuyVolume : 0;
-        const sellVolume = item.totalSellVolume ? item.totalSellVolume : 0;
-        return buyVolume < sellVolume ? 0 : buyVolume - sellVolume;
+    
+    const calcAvgPrice = (item: IPortfolio) => {
+        return convertNumber(item.totalBuyVolume) !== 0 && convertNumber(item.ownedVolume) > 0 ? convertNumber(item.totalBuyAmount) / convertNumber(item.totalBuyVolume) : 0;
     }
 
     const calcInvestedValue = (item: IPortfolio) => {
-        return calcOwnedVolume(item) * Number(convertNumber(item.avgBuyPrice).toFixed(2));
+        return convertNumber(item.ownedVolume) * calcAvgPrice(item);
     }
 
     const calcCurrentValue = (item: IPortfolio) => {
-        return calcOwnedVolume(item) * convertNumber(item.marketPrice);
+        return  convertNumber(item.ownedVolume) * convertNumber(formatCurrency(item.marketPrice));
     }
 
     const calcUnrealizedPL = (item: IPortfolio) => {
@@ -238,19 +228,19 @@ function SummaryTradingTable() {
 
     const handleDownLoadSummaryTrading = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IPortfolioDownLoad[] = [];
+        const data: IPortfolioDownLoad[] = [];        
         portfolio.forEach((item) => {
             if (item) {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
-                    ownedVol: formatNumber(calcOwnedVolume(item).toString()),
-                    avgPrice: (item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : '0',
-                    dayNotional: formatCurrency(calcInvestedValue(item).toString()),
-                    marketPrice: formatCurrency(item.marketPrice),
-                    currentPrice: formatCurrency(calcCurrentValue(item).toString()),
-                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
-                    presentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
-                    transactionVol: formatNumber(calcTransactionVolume(item).toString()),
+                    ownedVol: convertNumber(item.ownedVolume.toString()),
+                    avgPrice: convertNumber(calcAvgPrice(item).toString()),
+                    dayNotional: convertNumber(calcInvestedValue(item).toString()),
+                    marketPrice: convertNumber(item.marketPrice),
+                    currentValue: convertNumber(calcCurrentValue(item).toString()),
+                    unrealizedPl: convertNumber(formatCurrency(calcUnrealizedPL(item).toString())),
+                    percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
+                    transactionVol: convertNumber(item.totalVolume.toString()),
                 })
             }
         })
@@ -274,7 +264,7 @@ function SummaryTradingTable() {
             <th className="text-end fz-14 w-s" >Unrealized PL</th>
             <th className="text-end fz-14 w-s" >% Unrealized PL</th>
             <th className="text-end fz-14 w-s" >Transaction Volume</th>
-            {portfolio.length > 16 && <th className='w-17'></th>}
+            {portfolio.length > 16 && <th className='w-5'></th>}
         </tr>
     )
 
@@ -282,22 +272,18 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item).toString())}</td>
-                <td className="text-end w-s td" >{(item.totalBuyVolume - item.totalSellVolume > 0) ? formatCurrency(item.avgBuyPrice) : 0}</td>
+                <td className='text-end w-s td'>{formatNumber(item.ownedVolume.toString())}</td>
+                <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
                 <td className="text-end w-s td"  >{formatCurrency(calcCurrentValue(item).toString())}</td>
                 <td className="text-end w-s td fw-600" >
-                    {calcUnrealizedPL(item) > 0 && <span className='text-success'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
-                    {calcUnrealizedPL(item) < 0 && <span className='text-danger'>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
-                    {calcUnrealizedPL(item) === 0 && <span>{formatCurrency(calcUnrealizedPL(item).toString())}</span>}
+                    <span className={getClassName(calcUnrealizedPL(item))}>{formatCurrency(calcUnrealizedPL(item).toString())}</span>
                 </td>
                 <td className="text-end w-s td fw-600">
-                    {calcPctUnrealizedPL(item) > 0 && <span className='text-success'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
-                    {calcPctUnrealizedPL(item) < 0 && <span className='text-danger'>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
-                    {calcPctUnrealizedPL(item) === 0 && <span>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>}
+                    <span className={getClassName(calcPctUnrealizedPL(item))}>{calcPctUnrealizedPL(item).toFixed(2) + '%'}</span>
                 </td>
-                <td className="text-end w-s">{formatNumber(calcTransactionVolume(item).toString())}</td>
+                <td className="text-end w-s">{formatNumber(item.totalVolume.toString())}</td>
             </tr>
         ))
 

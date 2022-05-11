@@ -180,9 +180,9 @@ export const defindConfigPost = () => {
     return data;
 }
 
-export const convertNumber = (value: string) => {
-    const tmpValue = value?.replaceAll(',', '');
-    if (!isNaN(Number(tmpValue))) {
+export const convertNumber = (value: any) => {
+    const tmpValue = value?.toString().replaceAll(',', '');
+    if (tmpValue && !isNaN(Number(tmpValue))) {
         return Number(tmpValue);
     }
     return 0;
@@ -285,3 +285,24 @@ export const getRandomNumbers = () => {
 
     return textContent;
 }
+
+export const getClassName = (item: number) => {
+    if (item > 0) {
+        return 'text-danger';
+    }
+    if (item < 0) {
+        return 'text-success';
+    }
+    return '';
+}
+
+export const handleAllowedInput = (values) => {
+    const { value, floatValue } = values;
+    if (value.charAt(0) === '0' || value.charAt(0) === '-') {
+        if (value.charAt(1) && value.charAt(1) != '.') {
+            return false;
+        }
+    }
+    return true;
+}
+

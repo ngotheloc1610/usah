@@ -7,4 +7,9 @@ export const TAB_NEWS = {
 
 export const DEFAULT_PAGE_SIZE_FOR_NEWS = 5;
 
-export const FIRST_PAGE = 1
+export const FIRST_PAGE = 1;
+
+export enum NEWS_STATUS {
+    active = '1',
+    deActive = '2'
+};

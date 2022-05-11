@@ -19,6 +19,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      const [currentPageTrading, setCurrentPageTrading] = useState(FIRST_PAGE)
      const api_url = process.env.REACT_APP_API_URL;
      const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
+     const [isLastPage, setIsLastPage] = useState(false);
      
      const handleClickTradingResult = (itemTrading: ITradingResult, index: number) => {
           setElTradingActive(index);
@@ -65,7 +66,11 @@ const PopUpNotification = (props: IPopsNotification) => {
           axios.get<IReqTradingResult, IReqTradingResult>(urlGetTradingResult, defindConfigGet(paramTrading)).then((resp) => {
           if (resp.status === success) {
                if(resp?.data?.data) {
-                    setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
+                    if (currentPageTrading !== FIRST_PAGE) {
+                         setListTradingResults(prev => [...prev,...resp?.data?.data?.results]);
+                    }
+                    const nextPage = resp?.data?.data?.next_page;
+                    setIsLastPage(nextPage === currentPageTrading);
                     setCurrentPageTrading(currentPageTrading + 1)
                }
           }
@@ -76,7 +81,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      }
 
      const handleScrollToBottom = (event: any) => {
-          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight) {
+          if (event.target.offsetHeight + event.target.scrollTop >= event.target.scrollHeight && !isLastPage) {
                getDataTradingResult()
           }
      }
