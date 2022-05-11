@@ -247,9 +247,9 @@ function SummaryTradingTable() {
         return calcUnrealizedPL(item) / calcInvestedValue(item) * 100;
     }
 
-    const calcOwnedVolume = (symbolCode, totalBuy, totalSell) => {
+    const calcOwnedVolume = (symbolCode: string) => {
         const ownQty = listClientHoldingInfo.find(item => item.symbol === symbolCode)?.ownQty;
-        return convertNumber(ownQty) + convertNumber(totalBuy) - convertNumber(totalSell);
+        return ownQty ? ownQty : 0;
     }
 
     const handleDownLoadSummaryTrading = () => {
@@ -298,7 +298,7 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode, item?.totalBuyVolume, item?.totalSellVolume).toString())}</td>
+                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
