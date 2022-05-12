@@ -46,12 +46,10 @@ export function formatIdNumber(item: string) {
 export function validationPassword(newPassword: string) {
     const isUpperCase = newPassword.match(/[A-Z]/g);
     const isNumber = /\d/.test(newPassword);
-    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
-    const specialCharacter = format.test(newPassword);
-    if (newPassword.length < LENGTH_PASSWORD || isUpperCase === null || isNumber === false || specialCharacter === false) {
-        return false
+    if (newPassword.length < LENGTH_PASSWORD || isUpperCase === null || isNumber === false) {
+        return false;
     } else {
-        return true
+        return true;
     }
 }
 
