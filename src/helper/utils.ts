@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
-import { MESSAGE_ERROR } from '../constants/order.constant';
+import { MESSAGE_ERROR } from '../constants/message.constant';
 
 const systemModel: any = smpb;
 
