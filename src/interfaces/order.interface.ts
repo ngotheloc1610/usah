@@ -248,6 +248,7 @@ export interface IOrderHistory {
     triggerPrice: string;
     uid: string;
     filledAmount: string;
+    msgCode: number;
 }
 
 export interface ITradeHistory {
