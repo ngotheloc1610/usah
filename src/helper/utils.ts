@@ -312,7 +312,7 @@ export const handleAllowedInput = (values) => {
     }
     return true;
 }
-
+// Bug 54570, change message text display in multi order response 
 export const getMessageDisplay = (msg: string) => {
     switch(msg) {
         case(MSG_ERROR.minValue): {
