@@ -15,7 +15,7 @@ import NumberFormat from 'react-number-format';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
-    handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
+    handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
     handleStatusModifyCancel?: (value: boolean) => void;
     params: IParamOrderModifyCancel;
     isModify?: boolean;
@@ -101,7 +101,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Modify);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Modify, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
         }
@@ -141,7 +141,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Order);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Order, resp[MSG_CODE]);
             });
 
             handleCloseConfirmPopup(true);
@@ -190,7 +190,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
         }

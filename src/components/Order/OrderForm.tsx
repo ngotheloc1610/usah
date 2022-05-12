@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, checkMessageError, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 
@@ -136,9 +136,10 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
+    const _rendetMessageError = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.error(messageDis)}</div>
+    }
 
     const handleSide = (value: string) => {
         setCurrentSide(value);
@@ -215,26 +216,26 @@ const OrderForm = (props: IOrderForm) => {
         setIsShowNotiErrorPrice(false);
     }
 
-    const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string) => {
+    const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string, msgCode: number) => {
         if (typeStatusRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;
