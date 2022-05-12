@@ -313,6 +313,6 @@ export const handleAllowedInput = (values) => {
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
-    const messageDisplay = MESSAGE_ERROR.find(item => item.code === msgCode);
-    return messageDisplay?.value || msg;
+    const messageDisplay = MESSAGE_ERROR.get(msgCode);
+    return messageDisplay || msg;
 }
