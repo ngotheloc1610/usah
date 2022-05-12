@@ -23,12 +23,16 @@ const OrderTradeHistory = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendTradeHistoryReq();
+                sendTradeHistoryReq(symbolCode, fromDate, toDate);
             }
         });
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            setDataTradeHistoryRes(res?.tradeList);
+            let resTradeList = res?.tradeList;
+            if (orderSide !== 0) {
+                resTradeList = resTradeList.filter(item => item.side === orderSide);
+            }
+            setDataTradeHistory(resTradeList);
         });
 
         return () => {
@@ -37,16 +41,7 @@ const OrderTradeHistory = () => {
         };
     }, [])
 
-    useEffect(() => {
-        sendTradeHistoryReq();
-        let tmpDataTradeHistory = [...getDataTradeHistoryRes];
-        if (orderSide !== 0) {
-            tmpDataTradeHistory = tmpDataTradeHistory.filter(item => item.side === orderSide);
-        }
-        setDataTradeHistory(tmpDataTradeHistory);
-    }, [orderSide, symbolCode, fromDate, toDate, getDataTradeHistoryRes])
-
-    const sendTradeHistoryReq = () => {
+    const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
 
         const queryServicePb: any = qspb;
@@ -55,9 +50,9 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(symbolCode);
-            tradeHistoryRequest.setFromDatetime(fromDate);
-            tradeHistoryRequest.setToDatetime(toDate);
+            tradeHistoryRequest.setSymbolCode(symbolCodeSeach);
+            tradeHistoryRequest.setFromDatetime(fromDateSearch);
+            tradeHistoryRequest.setToDatetime(toDateSearch);
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
@@ -68,10 +63,8 @@ const OrderTradeHistory = () => {
     }
 
     const getParamSearch = (param: IParamSearchTradeHistory) => {
-        setSymbolCode(param.symbolCode);
-        setFromDate(param.fromDate);
-        setToDate(param.toDate);
         setOrderSide(param.side);
+        sendTradeHistoryReq(param.symbolCode, param.fromDate, param.toDate);
     }
     const _renderTradeHistory = () => {
         return (
