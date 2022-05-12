@@ -2,10 +2,12 @@ import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYP
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory, IDataHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
+import { IPropListOrderHistory, IOrderHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
 import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
+import * as stpb from '../../../models/proto/system_model_pb';
+import { MESSAGE_ERROR } from "../../../constants/message.constant";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory, paramHistorySearch } = props;
@@ -17,6 +19,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const [totalItem, setTotalItem] = useState<number>(0);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
+    const systemModelPb: any = stpb;
 
     useEffect(() => {
         let historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
@@ -89,6 +92,14 @@ function OrderTable(props: IPropListOrderHistory) {
             return false;
         } return true;
     }
+
+    const getMessageDisplay = (msgCode: number, state: number) => {
+        if (state !== tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
+            return '-';
+        }
+        return MESSAGE_ERROR.get(msgCode) || '-';
+    }
+    
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
@@ -151,7 +162,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
-                <td className="text-ellipsis text-start fz-14 w-200">{item.comment ? item.comment : '-'}</td>
+                <td className="text-start fz-14 w-200">{getMessageDisplay(item.msgCode, item.state)}</td>
 
             </tr>
         ))

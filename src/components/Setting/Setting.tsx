@@ -230,7 +230,7 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0">
                     <label className="text-secondary">Confirm Password</label>
                 </div>
-                <div className="col-md-6 col-lg-5 col-xl-4">
+                <div className="col-md-6 mb-3 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
                         <input type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
                             value={confirmPassword}
@@ -243,14 +243,6 @@ const Setting = (props: ISetting) => {
                                 className={`bi ${isOpenEyeConfirm ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`}
                             />
                         </button>
-                    </div>
-                </div>
-            </div>
-            <div className="row mb-3 align-items-center">
-                <div className="col-md-3  mb-1 mb-md-0"></div>
-                <div className="col-md-6 col-lg-5 col-xl-4">
-                    <div className='confirm-password'>
-                        {isChangePassword && checkConfirm ? ERROR_MSG_VALIDATE.PASSORD_INCORRECT : ''}
                     </div>
                 </div>
             </div>
