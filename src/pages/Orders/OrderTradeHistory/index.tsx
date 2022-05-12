@@ -38,20 +38,12 @@ const OrderTradeHistory = () => {
     }, [])
 
     useEffect(() => {
-        let tmpLstTradeHistory = [...getDataTradeHistoryRes];
+        sendTradeHistoryReq();
+        let tmpDataTradeHistory = [...getDataTradeHistoryRes];
         if (orderSide !== 0) {
-            tmpLstTradeHistory = tmpLstTradeHistory.filter(item => item.side === orderSide);
+            tmpDataTradeHistory = tmpDataTradeHistory.filter(item => item.side === orderSide);
         }
-        if (symbolCode) {
-            tmpLstTradeHistory = tmpLstTradeHistory.filter(item => item.tickerCode === symbolCode);
-        }
-        if (convertNumber(fromDate) > 0) {
-            tmpLstTradeHistory = tmpLstTradeHistory.filter(item => Number(item.executedDatetime) >= fromDate);
-        }
-        if (convertNumber(toDate) > 0) {
-            tmpLstTradeHistory = tmpLstTradeHistory.filter(item => Number(item.executedDatetime) <= toDate);
-        }
-        setDataTradeHistory(tmpLstTradeHistory);
+        setDataTradeHistory(tmpDataTradeHistory);
     }, [orderSide, symbolCode, fromDate, toDate, getDataTradeHistoryRes])
 
     const sendTradeHistoryReq = () => {
@@ -63,9 +55,9 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
-            // Front-end is doing filter so fromDate = 0 to get all data
-            tradeHistoryRequest.setFromDatetime(0);
-            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME));
+            tradeHistoryRequest.setSymbolCode(symbolCode);
+            tradeHistoryRequest.setFromDatetime(fromDate);
+            tradeHistoryRequest.setToDatetime(toDate);
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
