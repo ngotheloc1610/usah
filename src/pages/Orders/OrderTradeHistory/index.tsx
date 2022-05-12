@@ -63,6 +63,7 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
+            // Front-end is doing filter so fromDate = 0 to get all data
             tradeHistoryRequest.setFromDatetime(0);
             tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME));
             const rpcPb: any = rpcpb;
