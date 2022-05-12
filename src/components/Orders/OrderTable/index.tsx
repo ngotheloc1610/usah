@@ -47,7 +47,6 @@ function OrderTable(props: IPropListOrderHistory) {
         }
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
-        console.log(47, historySortDate)
         setDataCurrent(currentList);
     }, [listOrderHistory, itemPerPage, currentPage, paramHistorySearch]);
 
