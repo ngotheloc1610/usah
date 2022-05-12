@@ -532,6 +532,7 @@ export interface ISymbolQuote {
 }
 
 export interface IOrderListResponse {
+    msgCode: number;
     amount: string;
     currencyCode: string;
     entry: number;

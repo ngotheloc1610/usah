@@ -6,7 +6,6 @@ import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
-import { MSG_ERROR, MSG_ERR_DIS } from '../constants/order.constant';
 
 const systemModel: any = smpb;
 
@@ -309,31 +308,6 @@ export const handleAllowedInput = (values) => {
         }
     }
     return true;
-}
-// Bug 54570, change message text display in multi order response 
-export const getMessageDisplay = (msg: string) => {
-    switch(msg) {
-        case(MSG_ERROR.minValue): {
-            return MSG_ERR_DIS.minValue;
-        }
-        case(MSG_ERROR.modifiedSuccess): {
-            return MSG_ERR_DIS.modifiedSuccess;
-        }
-        case (MSG_ERROR.cancelSuccess): {
-            return MSG_ERR_DIS.cancelSuccess;
-        }
-        case (MSG_ERROR.invalidPrice): {
-            return MSG_ERR_DIS.invalidPrice;
-        }
-        case (MSG_ERROR.invalidTickSize): {
-            return MSG_ERR_DIS.invalidTickSize;
-        }
-        case (MSG_ERROR.holidaySession): {
-            return MSG_ERR_DIS.holidaySession;
-        }
-        default:
-            return msg;
-    }
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
