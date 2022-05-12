@@ -131,11 +131,11 @@ const OrderBook = (props: IOrderBookProps) => {
         return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
-                    <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
+                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                    <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
                 <td className="fw-bold text-center">
-                    {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
+                    {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className="text-end fw-600" >&nbsp;</td>
             </tr>
         ));
@@ -169,10 +169,10 @@ const OrderBook = (props: IOrderBookProps) => {
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL)}>
                 <td className="text-end fw-600">&nbsp;</td>
                 <td className="fw-bold text-center fw-600">
-                    {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
+                    {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className="text-end bg-danger-light fw-600 d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
-                    <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
+                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                    <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
             </tr>
         ));
@@ -201,6 +201,18 @@ const OrderBook = (props: IOrderBookProps) => {
             itemTickerSearch('');
         }
     }
+
+    const renderOptionSearchBox = (ticker: string) => {
+        if (listTickerSearch) {
+            if (ticker?.trim()) {
+                const item = listTickerSearch?.filter(strItem => strItem.includes(ticker.trim().toUpperCase()));
+                return item;
+            }
+            return listTickerSearch;
+        }
+        return [];
+    }
+
     const _renderSearchBox = () => (
         <div className="card-header-style">
             <div className="input-group input-group-sm dark">
@@ -211,7 +223,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     value={ticker ? ticker : null}
                     disablePortal
                     sx={{ width: 300 }}
-                    options={listTickerSearch ? listTickerSearch.filter(tickerSearch => tickerSearch.includes(ticker?.toUpperCase())) : []}
+                    options={renderOptionSearchBox(ticker)}
                     renderInput={(params) => <TextField {...params} placeholder="Search" />}
                 />
             </div>
@@ -241,7 +253,7 @@ const OrderBook = (props: IOrderBookProps) => {
                             {_renderAskPrice(quote)}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
-                                    <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '') ? formatCurrency(quote.currentPrice) : '-'}</span>
+                                    <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '' && symbolCode) ? formatCurrency(quote.currentPrice) : '-'}</span>
                                 </td>
                             </tr>
                             {_renderBidPrice(quote)}

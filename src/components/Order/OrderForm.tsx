@@ -277,8 +277,13 @@ const OrderForm = (props: IOrderForm) => {
     )
 
     const resetFormNewOrder = () => {
-        setPrice(floorPrice);
-        setVolume(lotSize);
+        if (symbolCode) {
+            setPrice(floorPrice);
+            setVolume(lotSize);
+            return;
+        }
+        setPrice(0);
+        setVolume(0);
     }
     const handleChangeVolume = (value: string) => {
         const volume = convertNumber(value);
@@ -311,26 +316,32 @@ const OrderForm = (props: IOrderForm) => {
         <div className='text-danger'>Order price is out of day's price range</div>
     )
 
+    const disableChangeValueBtn = (symbolCode: string | undefined) => {
+        if (symbolCode) {
+            return false;
+        }
+        return true;
+    }
+
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
                 <div className="flex-grow-1 py-1 px-2">
                     <label className="text text-secondary">{title}</label>
                     <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        isAllowed={(values) => handleAllowedInput(values)}
-                        thousandSeparator="," value={convertNumber(value) === 0 ? null : formatCurrency(value)}
+                        thousandSeparator="," value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)} />
                 </div>
                 <div className="border-start d-flex flex-column">
-                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                    <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && _renderNotiErrorPrice()}
             <div>
-                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && <span className='text-danger'>Invalid Price</span>}
+                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger'>Invalid Price</span>}
             </div>
-            {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && <span className='text-danger'>Invalid volume</span>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
         </>
     }
     // TODO: The type button has no default behavior, and does nothing when pressed by default

@@ -9,3 +9,5 @@ export const API_POST_TRADING_RESULT = '/v1/market/trading-results';
 export const API_GET_TRADING_RESULT = '/v1/market/trading-results';
 
 export const API_GET_TOTAL_UNREAD = '/v1/market/account/summary';
+
+export const API_CLIENT_HOLDING_INFO = '/v1/market/pspl/client-holding-info';
