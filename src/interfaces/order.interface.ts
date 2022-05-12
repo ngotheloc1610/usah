@@ -611,3 +611,12 @@ export interface ITradeHistoryDownload {
     tickerCode: string;
     tickerName: string;
 }
+export interface IParamSearchTradeHistory {
+    symbolCode: string;
+    side: number;
+    fromDate: number;
+    toDate: number;
+}
+export interface IPropsSearchTradeHistory {
+    getParamSearch: (item: IParamSearchTradeHistory) => void
+}

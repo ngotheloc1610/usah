@@ -6,42 +6,43 @@ import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp } from '../../../helper/utils';
-import { IListTradeHistory } from "../../../interfaces/order.interface";
+import { convertDatetoTimeStamp, convertNumber } from '../../../helper/utils';
+import { IListTradeHistory, IParamSearchTradeHistory } from "../../../interfaces/order.interface";
 
 const OrderTradeHistory = () => {
-    const [getDataTradeHistory, setGetDataTradeHistory] = useState<IListTradeHistory[]>([]);
+    const [getDataTradeHistory, setDataTradeHistory] = useState<IListTradeHistory[]>([]);
+    const [getDataTradeHistoryRes, setDataTradeHistoryRes] = useState<IListTradeHistory[]>([]);
     const [orderSide, setOrderSide] = useState(0);
+    const [symbolCode, setSymbolCode] = useState('');
+    
+    const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+
+    const [fromDate, setFromDate] = useState(convertDatetoTimeStamp(today, FROM_DATE_TIME));
+    const [toDate, setToDate] = useState(convertDatetoTimeStamp(today, TO_DATE_TIME));
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendTradeHistoryReq();
+                sendTradeHistoryReq(symbolCode, fromDate, toDate);
             }
         });
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
+            let resTradeList = res?.tradeList;
             if (orderSide !== 0) {
-                const tradeListFilter = res.tradeList.filter(item => item.side === orderSide)
-                setGetDataTradeHistory(tradeListFilter)
-                return
-            };
-            setGetDataTradeHistory(res.tradeList)
+                resTradeList = resTradeList.filter(item => item.side === orderSide);
+            }
+            setDataTradeHistory(resTradeList);
         });
 
         return () => {
             ws.unsubscribe();
             tradeHistoryRes.unsubscribe();
         };
-    }, [orderSide])
+    }, [])
 
-    const getOrderSide = (item: number) => {
-        setOrderSide(item)
-    }
-
-    const sendTradeHistoryReq = () => {
+    const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
 
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -49,8 +50,9 @@ const OrderTradeHistory = () => {
             let currentDate = new Date();
             let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
             tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME))
-            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME))
+            tradeHistoryRequest.setSymbolCode(symbolCodeSeach);
+            tradeHistoryRequest.setFromDatetime(fromDateSearch);
+            tradeHistoryRequest.setToDatetime(toDateSearch);
             const rpcPb: any = rpcpb;
             let rpcMsg = new rpcPb.RpcMessage();
             rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
@@ -60,12 +62,16 @@ const OrderTradeHistory = () => {
         }
     }
 
+    const getParamSearch = (param: IParamSearchTradeHistory) => {
+        setOrderSide(param.side);
+        sendTradeHistoryReq(param.symbolCode, param.fromDate, param.toDate);
+    }
     const _renderTradeHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <SearchTradeHistory getOrderSide={getOrderSide} />
+                        <SearchTradeHistory getParamSearch={getParamSearch}/>
                         <TableTradeHistory getDataTradeHistory={getDataTradeHistory} />
                     </div>
                 </div>

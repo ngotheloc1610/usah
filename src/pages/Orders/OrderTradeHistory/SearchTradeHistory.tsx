@@ -11,13 +11,10 @@ import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
-
-interface IPropsSearchTradeHistory {
-    getOrderSide: (item: number) => void
-}
+import { IParamSearchTradeHistory, IPropsSearchTradeHistory } from '../../../interfaces/order.interface';
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
-    const { getOrderSide } = props
+    const { getParamSearch } = props
     const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
@@ -67,31 +64,6 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
 
-    const sendMessageTradeSearch = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const todate = convertDatetoTimeStamp(moment().format(FORMAT_DATE), TO_DATE_TIME);
-
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
-
-            tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(symbolCode);
-            tradeHistoryRequest.setSide(side);
-            convertNumber(fromDatetime.toString()) !== 0 && tradeHistoryRequest.setFromDatetime(fromDatetime);
-            convertNumber(toDatetime.toString()) !== 0 ? tradeHistoryRequest.setToDatetime(toDatetime) : tradeHistoryRequest.setToDatetime(todate);
-
-            const rpcPb: any = rpcpb;
-            let rpcMsg = new rpcPb.RpcMessage();
-            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
-            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
@@ -104,15 +76,25 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
 
     const handleSearch = () => {
         fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
-        sendMessageTradeSearch();
-        getOrderSide(side);
+        const param: IParamSearchTradeHistory = {
+            side: side,
+            symbolCode: symbolCode,
+            fromDate: fromDatetime,
+            toDate: toDatetime
+        }
+        getParamSearch(param);
     }
 
     const handlKeyDown = (event: any) => {
         if (symbolCode !== '' || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
             if (event.key === 'Enter') {
-                sendMessageTradeSearch();
-                getOrderSide(side);
+                const param: IParamSearchTradeHistory = {
+                    side: side,
+                    symbolCode: symbolCode,
+                    fromDate: fromDatetime,
+                    toDate: toDatetime
+                }
+                getParamSearch(param);
                 const el: any = document.querySelectorAll('.input-select');
                 removeFocusInput(el);
             }
