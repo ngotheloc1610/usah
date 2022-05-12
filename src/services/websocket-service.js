@@ -39,7 +39,7 @@ const startWs = async () => {
     if (!token) {
         return;
     }
-    const socket_url = `${url}?token=${token}`;
+    const socket_url = `${url}?token=${token}&account_type=lp`;
     socket = new WebSocket(socket_url);
     socket.binaryType = "arraybuffer";
     socket.onopen = () =>{
