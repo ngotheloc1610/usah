@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { validationPassword } from '../../helper/utils'
-import { MSG_CODE, ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
+import { defindConfigPost, validationPassword } from '../../helper/utils'
+import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
-import * as smpb from '../../models/proto/system_model_pb';
-import * as sspb from '../../models/proto/system_service_pb'
+import * as sspb from '../../models/proto/system_service_pb';
 import * as rspb from "../../models/proto/rpc_pb";
-import { wsService } from '../../services/websocket-service'
-import ReduxPersist from '../../config/ReduxPersist'
-import queryString from 'query-string';
+import { wsService } from '../../services/websocket-service';
 import { IAccountDetail } from '../../interfaces/customerInfo.interface'
+import { API_POST_CHANGE_PASSWORD } from '../../constants/api.constant';
+import axios from 'axios';
+import { IReqChangePassword } from '../../interfaces';
+import { success } from '../../constants';
 
 interface ISetting {
     isChangePassword: boolean;
@@ -22,6 +23,9 @@ const defaultProps = {
 }
 
 const Setting = (props: ISetting) => {
+    const api_url = process.env.REACT_APP_API_URL;
+    const urlPostChangePassword = `${api_url}${API_POST_CHANGE_PASSWORD}`;
+
     const { isChangePassword, isNotification, customerInfoDetail } = props
     const systemServicePb: any = sspb
     const [password, setPassword] = useState('')
@@ -57,45 +61,6 @@ const Setting = (props: ISetting) => {
         setCheckNewPass(false)
         setCheckConfirm(false)
     }, [isChangePassword])
-
-    useEffect(() => {
-        const systemModelPb: any = smpb
-        const renderDataCustomInfoToScreen = wsService.getCustomerSettingSubject().subscribe(res => {
-            if (res[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                setCustomerInfoSetting(res)
-                _renderMessageSuccess();
-            } else {
-                _renderMessageError();
-            }
-            return;
-        });
-
-        return () => renderDataCustomInfoToScreen.unsubscribe();
-    }, [])
-
-    const buildMessagePassword = (accountId: string) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setPassword(password);
-            customerInfoRequest.setNewPassword(newPassword);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendMessageSettingPass = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        buildMessagePassword(accountId);
-    }
 
     const buildMessageAdNewsNoti = (accountId: string, newsAdmin: number) => {
         const SystemServicePb: any = sspb;
@@ -145,54 +110,40 @@ const Setting = (props: ISetting) => {
         <>
             New password must contain:
             <ul>
-                <li> from 8-30 character </li>
+                <li> from 8-20 character </li>
                 <li> at least one uppercase letter </li>
                 <li> at least one number </li>
-                <li> at least one special character (e.g ! @ # ...) </li>
             </ul>
         </>
     )
 
     const handleSubmit = () => {
-        if (password === newPassword) {
-            setCheckPass(true)
-        }
-        if (password !== newPassword) {
-            setCheckPass(false)
-        }
-        if (newPassword !== confirmPassword) {
-            setCheckConfirm(true)
-        }
-        if (!validationPassword(newPassword)) {
-            setCheckNewPass(true)
-            setCheckConfirm(false)
-        }
-        if (validationPassword(newPassword)) {
-            setCheckNewPass(false)
-        }
-        if (newPassword === confirmPassword) {
-            setCheckConfirm(false)
-        }
+        setCheckPass(password === newPassword);
+        setCheckConfirm(newPassword !== confirmPassword || validationPassword(newPassword));
+        setCheckNewPass(!validationPassword(newPassword));
         if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
-            sendMsgUpdatePassword()
+            handleChangePassword();
         }
     }
 
-    const sendMsgUpdatePassword = () => {
-        sendMessageSettingPass()
-        setPassword('')
-        setNewPassword('')
-        setConfirmPassword('')
+    const handleChangePassword = () => {
+        const param = {
+            password: password,
+            newPassword: newPassword
+        }
+        axios.post<IReqChangePassword, IReqChangePassword>(urlPostChangePassword, param, defindConfigPost()).then((resp) => {
+            if (resp?.data?.meta?.code === success) {
+                {toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE)}
+                setPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                {toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE)}
+            }
+        }, (error) => {
+            {toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE)}
+        });
     }
-
-    const _renderMessageError = () => (
-        <div>{toast.error(MESSAGE_TOAST.ERROR_UPDATE)}</div>
-    )
-
-    const _renderMessageSuccess = () => {
-        return <div>{toast.success(MESSAGE_TOAST.SUCCESS_UPDATE)}</div>
-    }
-
     const changeNewsAdmin = (checked: boolean) => {
         let newsAdmin: number = 0
         checked ? newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
@@ -263,7 +214,7 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0"></div>
                 <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className='trading password'>
-                        {isChangePassword && checkPass ? ERROR_MSG_VALIDATE.PASSWORD_EXIST : ''}
+                        {isChangePassword && checkPass ? ERROR_MSG_VALIDATE.DUPPLICATE_PASSWORD : ''}
                     </div>
                     <div className='new-password'>
                         {isChangePassword && checkNewPass ? _renderMsgError() : ''}
