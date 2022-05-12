@@ -88,7 +88,7 @@ function OrderTable(props: IPropListOrderHistory) {
         return true;
     }
     const checkDisplayLastPrice = (state, volume) => {
-        if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+        if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
             return false;
         } return true;
     }
