@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime } from "../../../helper/utils";
+import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -180,30 +180,31 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
     }
 
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
+    const _rendetMessageError = (message: string, msgCode: number) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.error(messageDis)}</div>
+    }
 
-    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string) => {
+    const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string, msgCode: number) => {
         if (typeOrderRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;

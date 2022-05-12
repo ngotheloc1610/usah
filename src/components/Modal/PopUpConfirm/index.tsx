@@ -12,7 +12,7 @@ interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
     totalOrder: number;
     listOrder: IListOrderModifyCancel[];
-    handleOrderResponse: (value: number, content: string, typeOrderRes: string) => void;
+    handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
     handleStatusCancelAll?: (value: boolean) => void;
 }
 
@@ -72,7 +72,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                     }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel);
+                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
                 handleCloseConfirmPopup(false);
             });
         }

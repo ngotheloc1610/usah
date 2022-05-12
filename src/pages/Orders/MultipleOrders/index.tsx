@@ -4,7 +4,7 @@ import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, getMessageDisplay } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, getMessageDisplay, checkMessageError } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -58,7 +58,7 @@ const MultipleOrders = () => {
             } else {
                 tmp = RESPONSE_RESULT.error;
             }
-            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList);
+            getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList, resp[MSG_CODE]);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
                 setStatusPlace(true);
@@ -425,7 +425,7 @@ const MultipleOrders = () => {
             setShowModalConfirmMultiOrders(false);
         }
     }
-    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[]) => {
+    const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[], msgCode: number) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
             if (lstResponse && lstResponse?.length > 0) {
@@ -443,14 +443,15 @@ const MultipleOrders = () => {
             }
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
             </>
         }
         return <></>;
     }
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
+    const _rendetMessageError = (message: string, msgCode: number) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.error(message)}</div>
+    }
     const _rendetMessageSuccess = (message: string) => {
         return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
     }

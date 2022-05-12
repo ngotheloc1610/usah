@@ -4,7 +4,11 @@ import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWO
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
+import * as smpb from '../models/proto/system_model_pb';
+import { MESSAGE_ERROR } from '../constants/message.constant';
 import { MSG_ERROR, MSG_ERR_DIS } from '../constants/order.constant';
+
+const systemModel: any = smpb;
 
 export function formatOrderTime(date: number): string {
     // time
@@ -334,3 +338,7 @@ export const getMessageDisplay = (msg: string) => {
     }
 }
 
+export const checkMessageError = (msg: string, msgCode: number) => {
+    const messageDisplay = MESSAGE_ERROR.get(msgCode);
+    return messageDisplay || msg;
+}
