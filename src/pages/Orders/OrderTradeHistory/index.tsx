@@ -1,6 +1,7 @@
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb"
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
@@ -28,11 +29,7 @@ const OrderTradeHistory = () => {
         });
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            let resTradeList = res?.tradeList;
-            if (orderSide !== 0) {
-                resTradeList = resTradeList.filter(item => item.side === orderSide);
-            }
-            setDataTradeHistory(resTradeList);
+            setDataTradeHistoryRes(res?.tradeList);
         });
 
         return () => {
@@ -40,6 +37,19 @@ const OrderTradeHistory = () => {
             tradeHistoryRes.unsubscribe();
         };
     }, [])
+
+    useEffect(() => {
+        processTradeHistory(getDataTradeHistoryRes);
+    }, [getDataTradeHistoryRes, orderSide])
+
+    const processTradeHistory = (tradeList: IListTradeHistory[]) => {
+        const tradingModelPb: any = tmpb;
+        let tradeListFilter = tradeList;
+        if ([tradingModelPb.Side.BUY, tradingModelPb.Side.SELL].includes(orderSide)) {
+            tradeListFilter = tradeListFilter.filter(item => item.side === orderSide);
+        }
+        setDataTradeHistory(tradeListFilter);
+    }
 
     const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
