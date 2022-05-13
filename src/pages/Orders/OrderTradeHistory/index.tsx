@@ -46,12 +46,7 @@ const OrderTradeHistory = () => {
         const tradingModelPb: any = tmpb;
         let tradeListFilter = tradeList;
         if ([tradingModelPb.Side.BUY, tradingModelPb.Side.SELL].includes(orderSide)) {
-            if (orderSide === tradingModelPb.Side.BUY) {
-                tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.BUY);
-            }
-            if (orderSide === tradingModelPb.Side.SELL) {
-                tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.SELL);
-            }
+            tradeListFilter = tradeListFilter.filter(item => item.side === orderSide);
         }
         setDataTradeHistory(tradeListFilter);
     }
