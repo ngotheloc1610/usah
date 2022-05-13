@@ -28,18 +28,25 @@ const OrderTradeHistory = () => {
         });
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            let resTradeList = res?.tradeList;
-            if (orderSide !== 0) {
-                resTradeList = resTradeList.filter(item => item.side === orderSide);
-            }
-            setDataTradeHistory(resTradeList);
+            setDataTradeHistory(res?.tradeList);
         });
 
         return () => {
             ws.unsubscribe();
             tradeHistoryRes.unsubscribe();
         };
-    }, [orderSide])
+    }, [])
+
+    useEffect(() => {
+        processTradeHistory(getDataTradeHistory);
+    }, [getDataTradeHistory, orderSide])
+
+    const processTradeHistory = (tradeList: IListTradeHistory[]) => {
+        if (orderSide !== 0) {
+            tradeList = tradeList.filter(item => item.side === orderSide);
+        }
+        setDataTradeHistory(tradeList);
+    }
 
     const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
