@@ -29,7 +29,7 @@ const OrderTradeHistory = () => {
         });
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            setDataTradeHistory(res?.tradeList);
+            setDataTradeHistoryRes(res?.tradeList);
         });
 
         return () => {
@@ -39,17 +39,19 @@ const OrderTradeHistory = () => {
     }, [])
 
     useEffect(() => {
-        processTradeHistory(getDataTradeHistory);
-    }, [getDataTradeHistory, orderSide])
+        processTradeHistory(getDataTradeHistoryRes);
+    }, [getDataTradeHistoryRes, orderSide])
 
     const processTradeHistory = (tradeList: IListTradeHistory[]) => {
         const tradingModelPb: any = tmpb;
         let tradeListFilter = tradeList;
-        if (orderSide === tradingModelPb.Side.BUY) {
-            tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.BUY);
-        }
-        if (orderSide === tradingModelPb.Side.SELL) {
-            tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.SELL);
+        if ([tradingModelPb.Side.BUY, tradingModelPb.Side.SELL].includes(orderSide)) {
+            if (orderSide === tradingModelPb.Side.BUY) {
+                tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.BUY);
+            }
+            if (orderSide === tradingModelPb.Side.SELL) {
+                tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.SELL);
+            }
         }
         setDataTradeHistory(tradeListFilter);
     }
