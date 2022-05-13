@@ -1,6 +1,7 @@
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb"
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
@@ -42,10 +43,15 @@ const OrderTradeHistory = () => {
     }, [getDataTradeHistory, orderSide])
 
     const processTradeHistory = (tradeList: IListTradeHistory[]) => {
-        if (orderSide !== 0) {
-            tradeList = tradeList.filter(item => item.side === orderSide);
+        const tradingModelPb: any = tmpb;
+        let tradeListFilter = tradeList;
+        if (orderSide === tradingModelPb.Side.BUY) {
+            tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.BUY);
         }
-        setDataTradeHistory(tradeList);
+        if (orderSide === tradingModelPb.Side.SELL) {
+            tradeListFilter = tradeListFilter.filter(item => item.side === tradingModelPb.Side.SELL);
+        }
+        setDataTradeHistory(tradeListFilter);
     }
 
     const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
