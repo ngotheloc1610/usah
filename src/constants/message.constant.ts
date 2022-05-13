@@ -25,8 +25,8 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_REQUEST_PROHIBITED_CLOSE_ORDER, 'Request prohibited close order'],
 
     [systemModel.MsgCode.MT_RET_MARKET_CLOSED, 'Market closed'],
-    [systemModel.MsgCode.MT_RET_INVALID_TICK_SIZE, 'Invalid Tick Size'],
-    [systemModel.MsgCode.MT_RET_INVALID_PRICE_RANGE, 'Invalid price range'],
+    [systemModel.MsgCode.MT_RET_INVALID_TICK_SIZE, 'Invalid price'],
+    [systemModel.MsgCode.MT_RET_INVALID_PRICE_RANGE, 'Out of price range'],
     [systemModel.MsgCode.MT_RET_INVALID_MIN_LOT, 'Invalid min lot'],
 
     [systemModel.MsgCode.MT_RET_INVALID_LOT_SIZE, 'Invalid lot size'],
@@ -37,3 +37,4 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_TOKEN_EXPIRED, 'Token expired'],
   ]);
   
+  export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = 'The order is less than USD 20,000';
