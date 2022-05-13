@@ -22,7 +22,7 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
+            if (resp === SOCKET_CONNECTED) {
                 sendTradeHistoryReq(symbolCode, fromDate, toDate);
             }
         });
@@ -59,6 +59,7 @@ const OrderTradeHistory = () => {
             rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log(63, 'SendMessage')
         }
     }
 
