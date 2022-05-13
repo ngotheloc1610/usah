@@ -311,6 +311,9 @@ export const handleAllowedInput = (values) => {
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
+    if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY) {
+        return msg;
+    }
     const messageDisplay = MESSAGE_ERROR.get(msgCode);
     return messageDisplay || msg;
 }
