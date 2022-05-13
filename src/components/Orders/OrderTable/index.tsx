@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
-import { MESSAGE_ERROR } from "../../../constants/message.constant";
+import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory, paramHistorySearch } = props;
@@ -96,6 +96,9 @@ function OrderTable(props: IPropListOrderHistory) {
     const getMessageDisplay = (msgCode: number, state: number) => {
         if (state !== tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
             return '-';
+        }
+        if (msgCode === systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE) {
+            return MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY;
         }
         return MESSAGE_ERROR.get(msgCode) || '-';
     }
