@@ -39,7 +39,7 @@ const OrderTradeHistory = () => {
             ws.unsubscribe();
             tradeHistoryRes.unsubscribe();
         };
-    }, [])
+    }, [orderSide])
 
     const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
