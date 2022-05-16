@@ -411,7 +411,11 @@ proto.NewOrderSingleRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     order: (f = msg.getOrder()) && trading_model_pb.Order.toObject(includeInstance, f),
     secretKey: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -458,6 +462,22 @@ proto.NewOrderSingleRequest.deserializeBinaryFromReader = function(msg, reader) 
       msg.setSecretKey(value);
       break;
     case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRandomNumber(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPassword(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPasswordOnly8(value);
+      break;
+    case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
       break;
@@ -505,10 +525,38 @@ proto.NewOrderSingleRequest.serializeBinaryToWriter = function(message, writer) 
       f
     );
   }
+  f = message.getSessionId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRandomNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHashPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getHashPasswordOnly8();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
   f = message.getHiddenConfirmFlg();
   if (f) {
     writer.writeBool(
-      3,
+      7,
       f
     );
   }
@@ -571,11 +619,83 @@ proto.NewOrderSingleRequest.prototype.setSecretKey = function(value) {
 
 
 /**
- * optional bool hidden_confirm_flg = 3;
+ * optional string session_id = 3;
+ * @return {string}
+ */
+proto.NewOrderSingleRequest.prototype.getSessionId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderSingleRequest} returns this
+ */
+proto.NewOrderSingleRequest.prototype.setSessionId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string random_number = 4;
+ * @return {string}
+ */
+proto.NewOrderSingleRequest.prototype.getRandomNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderSingleRequest} returns this
+ */
+proto.NewOrderSingleRequest.prototype.setRandomNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string hash_password = 5;
+ * @return {string}
+ */
+proto.NewOrderSingleRequest.prototype.getHashPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderSingleRequest} returns this
+ */
+proto.NewOrderSingleRequest.prototype.setHashPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string hash_password_only8 = 6;
+ * @return {string}
+ */
+proto.NewOrderSingleRequest.prototype.getHashPasswordOnly8 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderSingleRequest} returns this
+ */
+proto.NewOrderSingleRequest.prototype.setHashPasswordOnly8 = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional bool hidden_confirm_flg = 7;
  * @return {boolean}
  */
 proto.NewOrderSingleRequest.prototype.getHiddenConfirmFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
 
@@ -584,7 +704,7 @@ proto.NewOrderSingleRequest.prototype.getHiddenConfirmFlg = function() {
  * @return {!proto.NewOrderSingleRequest} returns this
  */
 proto.NewOrderSingleRequest.prototype.setHiddenConfirmFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
@@ -840,7 +960,11 @@ proto.NewOrderMultiRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     orderList: jspb.Message.toObjectList(msg.getOrderList(),
     trading_model_pb.Order.toObject, includeInstance),
-    secretKey: jspb.Message.getFieldWithDefault(msg, 2, "")
+    secretKey: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -886,6 +1010,22 @@ proto.NewOrderMultiRequest.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setSecretKey(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRandomNumber(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPassword(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPasswordOnly8(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -927,6 +1067,34 @@ proto.NewOrderMultiRequest.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getSessionId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRandomNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHashPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getHashPasswordOnly8();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -986,6 +1154,78 @@ proto.NewOrderMultiRequest.prototype.getSecretKey = function() {
  */
 proto.NewOrderMultiRequest.prototype.setSecretKey = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string session_id = 3;
+ * @return {string}
+ */
+proto.NewOrderMultiRequest.prototype.getSessionId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderMultiRequest} returns this
+ */
+proto.NewOrderMultiRequest.prototype.setSessionId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string random_number = 4;
+ * @return {string}
+ */
+proto.NewOrderMultiRequest.prototype.getRandomNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderMultiRequest} returns this
+ */
+proto.NewOrderMultiRequest.prototype.setRandomNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string hash_password = 5;
+ * @return {string}
+ */
+proto.NewOrderMultiRequest.prototype.getHashPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderMultiRequest} returns this
+ */
+proto.NewOrderMultiRequest.prototype.setHashPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string hash_password_only8 = 6;
+ * @return {string}
+ */
+proto.NewOrderMultiRequest.prototype.getHashPasswordOnly8 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderMultiRequest} returns this
+ */
+proto.NewOrderMultiRequest.prototype.setHashPasswordOnly8 = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -1251,7 +1491,11 @@ proto.CloseOrderRequest.toObject = function(includeInstance, msg) {
     orderList: jspb.Message.toObjectList(msg.getOrderList(),
     trading_model_pb.Order.toObject, includeInstance),
     secretKey: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -1298,6 +1542,22 @@ proto.CloseOrderRequest.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSecretKey(value);
       break;
     case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRandomNumber(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPassword(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPasswordOnly8(value);
+      break;
+    case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
       break;
@@ -1345,10 +1605,38 @@ proto.CloseOrderRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getSessionId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRandomNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHashPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getHashPasswordOnly8();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
   f = message.getHiddenConfirmFlg();
   if (f) {
     writer.writeBool(
-      3,
+      7,
       f
     );
   }
@@ -1412,11 +1700,83 @@ proto.CloseOrderRequest.prototype.setSecretKey = function(value) {
 
 
 /**
- * optional bool hidden_confirm_flg = 3;
+ * optional string session_id = 3;
+ * @return {string}
+ */
+proto.CloseOrderRequest.prototype.getSessionId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CloseOrderRequest} returns this
+ */
+proto.CloseOrderRequest.prototype.setSessionId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string random_number = 4;
+ * @return {string}
+ */
+proto.CloseOrderRequest.prototype.getRandomNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CloseOrderRequest} returns this
+ */
+proto.CloseOrderRequest.prototype.setRandomNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string hash_password = 5;
+ * @return {string}
+ */
+proto.CloseOrderRequest.prototype.getHashPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CloseOrderRequest} returns this
+ */
+proto.CloseOrderRequest.prototype.setHashPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string hash_password_only8 = 6;
+ * @return {string}
+ */
+proto.CloseOrderRequest.prototype.getHashPasswordOnly8 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CloseOrderRequest} returns this
+ */
+proto.CloseOrderRequest.prototype.setHashPasswordOnly8 = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional bool hidden_confirm_flg = 7;
  * @return {boolean}
  */
 proto.CloseOrderRequest.prototype.getHiddenConfirmFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
 
@@ -1425,7 +1785,7 @@ proto.CloseOrderRequest.prototype.getHiddenConfirmFlg = function() {
  * @return {!proto.CloseOrderRequest} returns this
  */
 proto.CloseOrderRequest.prototype.setHiddenConfirmFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
@@ -1691,7 +2051,11 @@ proto.ModifyOrderRequest.toObject = function(includeInstance, msg) {
     orderList: jspb.Message.toObjectList(msg.getOrderList(),
     trading_model_pb.Order.toObject, includeInstance),
     secretKey: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -1738,6 +2102,22 @@ proto.ModifyOrderRequest.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSecretKey(value);
       break;
     case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRandomNumber(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPassword(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPasswordOnly8(value);
+      break;
+    case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
       break;
@@ -1785,10 +2165,38 @@ proto.ModifyOrderRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getSessionId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRandomNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHashPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getHashPasswordOnly8();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
   f = message.getHiddenConfirmFlg();
   if (f) {
     writer.writeBool(
-      3,
+      7,
       f
     );
   }
@@ -1852,11 +2260,83 @@ proto.ModifyOrderRequest.prototype.setSecretKey = function(value) {
 
 
 /**
- * optional bool hidden_confirm_flg = 3;
+ * optional string session_id = 3;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getSessionId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setSessionId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string random_number = 4;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getRandomNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setRandomNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string hash_password = 5;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getHashPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setHashPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string hash_password_only8 = 6;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getHashPasswordOnly8 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setHashPasswordOnly8 = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional bool hidden_confirm_flg = 7;
  * @return {boolean}
  */
 proto.ModifyOrderRequest.prototype.getHiddenConfirmFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
 
@@ -1865,7 +2345,7 @@ proto.ModifyOrderRequest.prototype.getHiddenConfirmFlg = function() {
  * @return {!proto.ModifyOrderRequest} returns this
  */
 proto.ModifyOrderRequest.prototype.setHiddenConfirmFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
@@ -2131,7 +2611,11 @@ proto.CancelOrderRequest.toObject = function(includeInstance, msg) {
     orderList: jspb.Message.toObjectList(msg.getOrderList(),
     trading_model_pb.Order.toObject, includeInstance),
     secretKey: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -2178,6 +2662,22 @@ proto.CancelOrderRequest.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSecretKey(value);
       break;
     case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRandomNumber(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPassword(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHashPasswordOnly8(value);
+      break;
+    case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
       break;
@@ -2225,10 +2725,38 @@ proto.CancelOrderRequest.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getSessionId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getRandomNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHashPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getHashPasswordOnly8();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
   f = message.getHiddenConfirmFlg();
   if (f) {
     writer.writeBool(
-      3,
+      7,
       f
     );
   }
@@ -2292,11 +2820,83 @@ proto.CancelOrderRequest.prototype.setSecretKey = function(value) {
 
 
 /**
- * optional bool hidden_confirm_flg = 3;
+ * optional string session_id = 3;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getSessionId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setSessionId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string random_number = 4;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getRandomNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setRandomNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string hash_password = 5;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getHashPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setHashPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string hash_password_only8 = 6;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getHashPasswordOnly8 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setHashPasswordOnly8 = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional bool hidden_confirm_flg = 7;
  * @return {boolean}
  */
 proto.CancelOrderRequest.prototype.getHiddenConfirmFlg = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
 
@@ -2305,7 +2905,7 @@ proto.CancelOrderRequest.prototype.getHiddenConfirmFlg = function() {
  * @return {!proto.CancelOrderRequest} returns this
  */
 proto.CancelOrderRequest.prototype.setHiddenConfirmFlg = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
