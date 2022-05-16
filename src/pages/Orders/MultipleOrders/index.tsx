@@ -43,6 +43,7 @@ const MultipleOrders = () => {
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
+    const [isAllowed, setIsAllowed] = useState(false);
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -319,6 +320,10 @@ const MultipleOrders = () => {
         }
         return 0;
     }
+    
+    const handleKeyDown = (e) => {
+        e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false)
+    }
 
     const _renderDataMultipleOrders = () => (
         listTickers.map((item: ISymbolMultiOrder, index: number) => {
@@ -336,9 +341,9 @@ const MultipleOrders = () => {
                     </select>
                 </td>
                 <td className="text-end">
-                    <div className="d-flex">
+                    <div className="d-flex" onKeyDown={handleKeyDown}>
                         <NumberFormat decimalScale={0} type="text" className="form-control text-end border-1 py-0 px-10"
-                            onValueChange={(e) => changeVolume(e.value, item, index)} isAllowed={handleAllowedInput}
+                            onValueChange={(e) => changeVolume(e.value, item, index)} isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                             thousandSeparator="," value={formatNumber(item.volume)} placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
@@ -573,11 +578,11 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                <div className="flex-grow-1 py-1 px-2">
+                <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
                     <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         value={convertNumber(value) === 0 ? null : formatCurrency(value)}
-                        thousandSeparator="," isAllowed={handleAllowedInput}
+                        thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
                     />
                 </div>
@@ -754,9 +759,9 @@ const MultipleOrders = () => {
         return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
     }
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed])
 
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume])
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
 
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >

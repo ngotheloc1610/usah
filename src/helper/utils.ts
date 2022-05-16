@@ -300,11 +300,12 @@ export const getClassName = (item: number) => {
     return '';
 }
 
-export const handleAllowedInput = (values) => {
-    const { value, floatValue } = values;
-    if (value.charAt(0) === '0' || value.charAt(0) === '-') {
-        if (value.charAt(1) && value.charAt(1) != '.') {
-            return false;
+export const handleAllowedInput = (value: string, isAllowed: boolean) => {
+    if (isAllowed) { 
+        if (value.charAt(0) === '0' || value.charAt(0) === '-') {
+            if (value.charAt(1) && value.charAt(1) != '.') {
+                return false;
+            }
         }
     }
     return true;
