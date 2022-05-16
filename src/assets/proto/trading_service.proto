@@ -6,7 +6,11 @@ import "system_model.proto";
 message NewOrderSingleRequest {
   Order order = 1;
   string secret_key	= 2;	//trading pin
-  bool hidden_confirm_flg = 3; //True -> hide confirm screen
+  string session_id = 3; // E2EE SessionID
+  string random_number = 4; // E2EE RandomNumber
+  string hash_password = 5; // E2EE password encrypted value from client side
+  string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
+  bool hidden_confirm_flg = 7; //True -> hide confirm screen
 }
 
 message NewOrderSingleResponse {
@@ -19,6 +23,10 @@ message NewOrderSingleResponse {
 message NewOrderMultiRequest {
   	repeated Order order = 1;
 	string secret_key	= 2;	//trading pin
+	string session_id = 3; // E2EE SessionID
+	string random_number = 4; // E2EE RandomNumber
+	string hash_password = 5; // E2EE password encrypted value from client side
+	string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
 }
 
 message NewOrderMultiResponse {
@@ -31,7 +39,11 @@ message NewOrderMultiResponse {
 message CloseOrderRequest {
   	repeated Order order = 1;
 	string secret_key	= 2;		//trading pin
-	bool hidden_confirm_flg = 3; 	//True -> hide confirm screen
+	string session_id = 3; // E2EE SessionID
+	string random_number = 4; // E2EE RandomNumber
+	string hash_password = 5; // E2EE password encrypted value from client side
+	string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
+	bool hidden_confirm_flg = 7; 	//True -> hide confirm screen
 }
 
 message CloseOrderResponse {
@@ -44,7 +56,11 @@ message CloseOrderResponse {
 message ModifyOrderRequest {
   repeated Order order = 1;
   string secret_key	= 2;			//trading pin
-  bool hidden_confirm_flg = 3; 		//True -> hide confirm screen
+  string session_id = 3; // E2EE SessionID
+  string random_number = 4; // E2EE RandomNumber
+  string hash_password = 5; // E2EE password encrypted value from client side
+  string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
+  bool hidden_confirm_flg = 7; 	//True -> hide confirm screen
 }
 
 message ModifyOrderResponse {
@@ -57,7 +73,11 @@ message ModifyOrderResponse {
 message CancelOrderRequest {
   repeated Order order = 1;
   string secret_key	= 2;			//trading pin
-  bool hidden_confirm_flg = 3; 		//True -> hide confirm screen
+  string session_id = 3; // E2EE SessionID
+  string random_number = 4; // E2EE RandomNumber
+  string hash_password = 5; // E2EE password encrypted value from client side
+  string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
+  bool hidden_confirm_flg = 7; 	//True -> hide confirm screen
 }
 
 message CancelOrderResponse {
