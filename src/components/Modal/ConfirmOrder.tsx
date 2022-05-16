@@ -35,8 +35,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [lotSize, setLotSize] = useState(100);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
-
     const [outOfPrice, setOutOfPrice] = useState(false);
+    const [isAllowed, setIsAllowed] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
@@ -299,6 +299,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setInvalidPrice(newPrice % newTickSize !== 0);
         setPriceModify(+value);
     }
+    
+    const handleKeyDown = (e) => {
+        e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
+    }
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
@@ -306,14 +310,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-end'>
                 {isModify ? <>
                     <div className="border d-flex h-46">
-                        <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column">
+                        <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             {(title === TITLE_ORDER_CONFIRM.QUANLITY) ?
                                 <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" 
-                                decimalScale={0} thousandSeparator="," isAllowed={handleAllowedInput}
+                                decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                                 :
                                 <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
-                                decimalScale={2} thousandSeparator="," isAllowed={handleAllowedInput}
+                                decimalScale={2} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                                 onValueChange={(e) => onChangePrice(e.value)} value={convertNumber(priceModify) === 0 ? null : formatCurrency(priceModify.toString())} />
                             }
                         </div>
