@@ -22,7 +22,7 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED) {
+            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendTradeHistoryReq(symbolCode, fromDate, toDate);
             }
         });
