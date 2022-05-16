@@ -36,7 +36,7 @@ const OrderTradeHistory = () => {
             ws.unsubscribe();
             tradeHistoryRes.unsubscribe();
         };
-    }, [])
+    }, [symbolCode, orderSide, fromDate, toDate])
 
     useEffect(() => {
         processTradeHistory(getDataTradeHistoryRes);
@@ -74,6 +74,9 @@ const OrderTradeHistory = () => {
 
     const getParamSearch = (param: IParamSearchTradeHistory) => {
         setOrderSide(param.side);
+        setFromDate(param.fromDate);
+        setToDate(param.toDate);
+        setSymbolCode(param.symbolCode);
         sendTradeHistoryReq(param.symbolCode, param.fromDate, param.toDate);
     }
     const _renderTradeHistory = () => {
