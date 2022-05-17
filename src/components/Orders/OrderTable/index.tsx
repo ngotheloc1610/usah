@@ -158,7 +158,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
                     {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
                 </td>
-                <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.amount) : '-'}</td>
+                <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-'}</td>
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.time)}</div>
                     {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}

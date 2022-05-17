@@ -249,6 +249,7 @@ export interface IOrderHistory {
     uid: string;
     filledAmount: string;
     msgCode: number;
+    withdrawAmount: string;
 }
 
 export interface ITradeHistory {

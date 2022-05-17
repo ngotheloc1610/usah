@@ -157,7 +157,7 @@ const News = () => {
             {isNewsTab ? <li className="nav-item" onClick={() => onChangeTab(TAB_NEWS.news)}>
                 <a className={`nav-link ${isNewsTab ? 'active' : ''}`} aria-current="page" href="#">
                     Admin News
-                    <span className="badge bg-secondary rounded ml-4">{totalNewsUnread}</span>
+                    {totalNewsUnread > 0 && <span className="badge bg-secondary rounded ml-4">{totalNewsUnread}</span>}
                 </a>
             </li> :
             <li className='nav-item' onClick={() => onChangeTab(TAB_NEWS.trading)}>
