@@ -44,6 +44,11 @@ const App = () => {
       <>
         <Header />
         <RouterDom />
+        <div className="container fz-14 mb-1">
+          Notes: 
+          <br/>
+          Phillip Securities Pte Ltd. acts as principal and is the contractual counterparty with investors in the trades.
+        </div>
         <Footer />
       </>
     )
