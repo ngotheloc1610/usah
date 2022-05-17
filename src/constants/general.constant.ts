@@ -194,3 +194,5 @@ export const REMEMBER_KEY = 'remember_key';
 export const IS_REMEMBER_ME = 'isRememberMe';
 
 export const MARKET = 'US';
+
+export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as principal and is the contractual counterparty with investors in the trades.';
