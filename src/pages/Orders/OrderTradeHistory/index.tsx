@@ -74,10 +74,12 @@ const OrderTradeHistory = () => {
 
     const getParamSearch = (param: IParamSearchTradeHistory) => {
         setOrderSide(param.side);
-        setFromDate(param.fromDate);
-        setToDate(param.toDate);
+        const tmpFromDate = param.fromDate ? param.fromDate : 0;
+        const tmpToDate = param.toDate ? param.toDate : convertDatetoTimeStamp(today, TO_DATE_TIME);
+        setFromDate(tmpFromDate);
+        setToDate(tmpToDate);
         setSymbolCode(param.symbolCode);
-        sendTradeHistoryReq(param.symbolCode, param.fromDate, param.toDate);
+        sendTradeHistoryReq(param.symbolCode, tmpFromDate, tmpToDate);
     }
     const _renderTradeHistory = () => {
         return (
