@@ -8,7 +8,7 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, POEM_ID, ROLE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 
@@ -44,6 +44,11 @@ const App = () => {
       <>
         <Header />
         <RouterDom />
+        <div className="container fz-14 mb-1">
+          Notes: 
+          <br/>
+          {NOTE_RISK}
+        </div>
         <Footer />
       </>
     )
