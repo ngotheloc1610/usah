@@ -54,9 +54,8 @@ const Login = () => {
     const requestLogin = () => {
         const url = `${api_url}${API_LOGIN}`;
         const param = {
-            poem_id: email.trim(),
+            account_id: email.trim(),
             password: password.trim(),
-            account_type: 'lp'
         }
         const secretKey = getRandomNumbers();
         dispatch(setSecretKey(secretKey));
