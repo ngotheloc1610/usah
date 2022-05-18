@@ -108,6 +108,7 @@ function OrderTable(props: IPropListOrderHistory) {
             case tradingModelPb.OrderState.ORDER_STATE_CANCELED:
             case tradingModelPb.OrderState.ORDER_STATE_REJECTED:
             case tradingModelPb.OrderState.ORDER_STATE_FILLED:
+            case tradingModelPb.OrderState.ORDER_STATE_PARTIAL:
                 return 0;
             default:
                 return convertNumber(originQty) - convertNumber(execQty);
