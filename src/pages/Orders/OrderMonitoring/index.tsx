@@ -33,31 +33,29 @@ const OrderMonitoring = () => {
     }
 
     return (
-        <div className="site">
-            <div className="site-main">
-                <div className="container">
-                    <div className="row align-items-stretch g-2 mb-3">
-                        <div className="col-lg-9">
-                            <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} getSymbolCodeRemove={handleSymbolCodeRemove} />
-                        </div>
-                        <div className="col-lg-3 d-flex">
-                            <div className="card flex-grow-1 card-order-form mb-2">
-                                <div className="card-header">
-                                    <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
-                                </div>
-                                <div className="card-body">
-                                    <OrderForm symbolCode={symbolCode}
-                                            side={side}
-                                            isDashboard={false}
-                                            messageSuccess={messageSuccess}
-                                            quoteInfo={quoteInfo}
-                                    />
-                                </div>
+        <div className="site-main">
+            <div className="container">
+                <div className="row align-items-stretch g-2 mb-3">
+                    <div className="col-lg-9">
+                        <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} getSymbolCodeRemove={handleSymbolCodeRemove} />
+                    </div>
+                    <div className="col-lg-3 d-flex">
+                        <div className="card flex-grow-1 card-order-form mb-2">
+                            <div className="card-header">
+                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                            </div>
+                            <div className="card-body">
+                                <OrderForm symbolCode={symbolCode}
+                                    side={side}
+                                    isDashboard={false}
+                                    messageSuccess={messageSuccess}
+                                    quoteInfo={quoteInfo}
+                                />
                             </div>
                         </div>
                     </div>
-                    <ListOrder getMsgSuccess={msgSuccess} setMessageSuccess={messageSuccess} />
                 </div>
+                <ListOrder getMsgSuccess={msgSuccess} setMessageSuccess={messageSuccess} />
             </div>
         </div>
     )

@@ -44,7 +44,7 @@ const App = () => {
       <>
         <Header />
         <RouterDom />
-        <div className="container fz-14 mb-1">
+        <div className="container note_risk fz-14 mb-1">
           Notes: 
           <br/>
           {NOTE_RISK}

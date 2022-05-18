@@ -91,3 +91,8 @@
 .mw-all {
   max-width: calc(100% - 115px);
 }
+
+.note_risk {
+  font-style: italic;
+  color: #296dc2;
+}
