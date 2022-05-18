@@ -26,6 +26,10 @@ export const STATE = [
         code: tradingModelPb.OrderState.ORDER_STATE_PARTIAL
     },
     {
+        name: 'Partially Done',
+        code: tradingModelPb.OrderState.ORDER_STATE_MATCHED
+    },
+    {
         name: 'Withdraw Done ',
         code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
     },
