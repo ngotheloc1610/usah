@@ -22,6 +22,7 @@ import moment from 'moment-timezone';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
+  const [poemId, setPoemId] = useState('');
   const roleAccount = localStorage.getItem(ROLE);
   const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
   const menus = (roleAccount === ROLE_ACCOUNT_DETAIL.monitor && subAccount.length > 0) ? ROUTER_MONITORING : ROUTER_TRADER;
@@ -87,9 +88,13 @@ const Header = () => {
 
 
   const _renderAccountId = () => {
-    const accountIdCurrent = localStorage.getItem(POEM_ID);
+    const poemIdCurrent = localStorage.getItem(POEM_ID);
+    const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
     if (accountIdCurrent) {
       setAccountId(accountIdCurrent);
+    }
+    if (poemIdCurrent) {
+      setPoemId(poemIdCurrent);
     }
   }
 
@@ -213,8 +218,15 @@ const Header = () => {
 
             </div>
           </li>
-          <li className="nav-item dropdown">
-            <a href="#" className="nav-link dropdown-toggle pl-0" role="button" data-bs-toggle="dropdown" aria-expanded="false">{accountId}</a>
+          <li className="nav-item dropdown d-flex">
+          <div className="small text-end mr-px-20">
+          <div><span title='Account' className="ms-2">{accountId}</span></div>
+          <div className="d-flex align-items-center justify-content-between">
+            <div></div>
+            <span title='Poem'>{poemId}</span>
+          </div>
+          </div>
+            <a href="#" className="nav-link dropdown-toggle pl-0 nav-link-header" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" onClick={handleDisplaySetting}>Setting</a></li>
               <li><a className="dropdown-item" onClick={handleLogout}>Logout</a></li>

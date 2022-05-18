@@ -91,3 +91,8 @@
 .mw-all {
   max-width: calc(100% - 115px);
 }
+
+.nav-link-header {
+  padding-top: 0.5rem !important;
+  line-height: 0rem !important;
+}
