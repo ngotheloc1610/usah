@@ -220,10 +220,10 @@ const Header = () => {
           </li>
           <li className="nav-item dropdown d-flex">
           <div className="small text-end mr-px-20">
-          <div><span title='Account' className="ms-2">{accountId}</span></div>
+          <div><span title='Account ID' className="ms-2">{accountId}</span></div>
           <div className="d-flex align-items-center justify-content-between">
             <div></div>
-            <span title='Poem'>{poemId}</span>
+            <span>{poemId}</span>
           </div>
           </div>
             <a href="#" className="nav-link dropdown-toggle pl-0 nav-link-header" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
