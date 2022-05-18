@@ -240,7 +240,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     )
 
     const _renderTableData = () => (
-        <div className="tableFixHead" style={{ maxHeight: '56vh' }}>
+        <div className="tableFixHead max_height_60">
             <table id="table" className="table table-sm table-hover mb-0" >
                 <thead>
                     {headerTable()}
