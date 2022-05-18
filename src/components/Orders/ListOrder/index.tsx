@@ -75,25 +75,23 @@ const ListOrder = (props: IPropsListOrder) => {
             }
         });
 
-        return () => ws.unsubscribe()
-    }, []);
-
-    useEffect(() => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
         });
-        return () => listOrder.unsubscribe();
-    }, []);
 
-    useEffect(() => {
-        sendListOrder();
-        const listOrder = wsService.getListOrder().subscribe(response => {
-            const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
-            setDataOrder(listOrderSortDate);
-        });
-        return () => listOrder.unsubscribe();
-    }, [getMsgSuccess]);
+        const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
+            if (resp && resp.quoteList) {
+                sendListOrder()
+            }
+        })
+
+        return () => {
+            ws.unsubscribe();
+            quoteEvent.unsubscribe();
+            listOrder.unsubscribe();
+        }
+    }, []);
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
@@ -260,10 +258,10 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const getStatusModifyCancel = (value: boolean) => {
-        if (value) {
-            sendListOrder();
-            getOrderBooks();
-        }
+        // if (value) {
+        //     sendListOrder();
+        //     getOrderBooks();
+        // }
     }
 
     const btnCancelAllConfirm = () => {
