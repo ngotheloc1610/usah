@@ -102,6 +102,17 @@ function OrderTable(props: IPropListOrderHistory) {
         }
         return MESSAGE_ERROR.get(msgCode) || '-';
     }
+
+    const calcRemainQty = (state: number, execQty: string, originQty: string) => {
+        switch (state) {
+            case tradingModelPb.OrderState.ORDER_STATE_CANCELED:
+            case tradingModelPb.OrderState.ORDER_STATE_REJECTED:
+            case tradingModelPb.OrderState.ORDER_STATE_FILLED:
+                return 0;
+            default:
+                return convertNumber(originQty) - convertNumber(execQty);
+        }
+    }
     
     const _renderOrderHistoryTableHeader = () =>
     (
@@ -148,7 +159,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-140">
                     <div>{formatNumber(item.amount)}</div>
-                    <div>{formatNumber(calcPendingVolume(item.amount, item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? item.amount : item.filledAmount).toString())}</div>
+                    <div>{formatNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString())}</div>
                 </td>
 
                 <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
