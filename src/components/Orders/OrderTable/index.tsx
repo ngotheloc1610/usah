@@ -88,9 +88,12 @@ function OrderTable(props: IPropListOrderHistory) {
         return true;
     }
     const checkDisplayLastPrice = (state, volume) => {
-        if (state === tradingModelPb.OrderState.ORDER_STATE_PLACED && convertNumber(volume) === 0) {
+        const orderStatePlaced = tradingModelPb.OrderState.ORDER_STATE_PLACED;
+        const orderStateCancel = tradingModelPb.OrderState.ORDER_STATE_CANCELED;
+        if ((state === orderStatePlaced || state === orderStateCancel) && convertNumber(volume) === 0) {
             return false;
-        } return true;
+        }
+        return true;
     }
 
     const getMessageDisplay = (msgCode: number, state: number) => {
