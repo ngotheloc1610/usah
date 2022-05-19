@@ -133,6 +133,10 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }, [])
 
+    useEffect(() => {
+        window.scrollTo(position.x, position.y)
+    }, [position])
+
     const getOrderBooks = () => {
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
@@ -149,10 +153,6 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
-    const getTickerName = (symbolId: string): string => {
-        return symbolList.find(item => item.symbolId.toString() === symbolId)?.symbolName || '';
-    }
-
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
@@ -164,10 +164,6 @@ const ListOrder = (props: IPropsListOrder) => {
             y: myRef.current.getBoundingClientRect().top
         })
     }
-
-    useEffect(() => {
-        window.scrollTo(position.x, position.y)
-    }, [position])
 
     const getTicker = (symbolCode: string) => {
         const ticker = symbolList.find(item => item.symbolCode === symbolCode);
@@ -255,13 +251,6 @@ const ListOrder = (props: IPropsListOrder) => {
             </>
         }
         return <></>;
-    }
-
-    const getStatusModifyCancel = (value: boolean) => {
-        // if (value) {
-        //     sendListOrder();
-        //     getOrderBooks();
-        // }
     }
 
     const btnCancelAllConfirm = () => {
@@ -388,12 +377,12 @@ const ListOrder = (props: IPropsListOrder) => {
                 handleCloseConfirmPopup={togglePopup}
                 handleOrderResponse={getStatusOrderResponse}
                 params={paramModifyCancel}
-                handleStatusModifyCancel={getStatusModifyCancel} />}
+                />}
             {isModify && <ConfirmOrder isModify={isModify}
                 handleCloseConfirmPopup={togglePopup}
                 handleOrderResponse={getStatusOrderResponse}
                 params={paramModifyCancel}
-                handleStatusModifyCancel={getStatusModifyCancel} />}
+                />}
             {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
                 totalOrder={totalOrder} listOrder={dataSelected}
                 handleOrderResponse={getStatusOrderResponse} />}
