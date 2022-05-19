@@ -309,10 +309,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <td className='text-left w-150'><b>{title}</b></td>
             <td className='text-end'>
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
-                    <div className="border d-flex h-46">
+                    <div className="border mb-1 d-flex h-46">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
-                                decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed) || convertNumber(e.value) > convertNumber(params.volume)}
+                                decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed) && convertNumber(e.value) <= convertNumber(params.volume) }
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
                         <div className="border-start d-flex flex-column">
@@ -321,7 +321,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                </> : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))}
+                </> 
+                    : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
+                }
             </td>
         </tr>
     )
