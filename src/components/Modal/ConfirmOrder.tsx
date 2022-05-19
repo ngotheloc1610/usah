@@ -299,11 +299,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setInvalidPrice(newPrice % newTickSize !== 0);
         setPriceModify(+value);
     }
-    
+
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
     }
-
+    
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
@@ -311,12 +311,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
                     <div className="border d-flex h-46">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
-                            <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline" 
-                            decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
-                            onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                            <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
+                                decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed) || convertNumber(e.value) > convertNumber(params.volume)}
+                                onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
                         <div className="border-start d-flex flex-column">
-                            <button disabled = {volumeModify >= params.volume ? true : false} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
+                            <button disabled={volumeModify >= params.volume ? true : false} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
                             <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
                         </div>
                     </div>
@@ -357,7 +357,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 <tbody>
                     {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(params.volume.toString())}`, handleUpperVolume, handleLowerVolume)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
                     {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString())}`)}
                 </tbody>
