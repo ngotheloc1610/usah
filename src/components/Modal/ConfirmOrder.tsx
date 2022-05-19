@@ -312,7 +312,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <div className="border mb-1 d-flex h-46">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
-                                decimalScale={0} thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed) && convertNumber(e.value) <= convertNumber(params.volume) }
+                                decimalScale={0} thousandSeparator="," 
+                                isAllowed={(e) => handleAllowedInput(e.value, isAllowed) && convertNumber(e.value) <= convertNumber(params.volume) }
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
                         <div className="border-start d-flex flex-column">
