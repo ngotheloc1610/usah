@@ -250,7 +250,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                             id="all" />
                     </div>
                 </td>
-                <td className="fm">{item.orderId}</td>
+                <td className="fm">{item.externalOrderId}</td>
                 <td title={getTickerName(item.symbolCode)}>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                 <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>

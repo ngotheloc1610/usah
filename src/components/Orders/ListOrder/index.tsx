@@ -335,7 +335,7 @@ const ListOrder = (props: IPropsListOrder) => {
                                 id="all" />
                         </div>
                     </td>
-                    <td className="fm">{item.orderId}</td>
+                    <td className="fm">{item.externalOrderId}</td>
                     <td title={getTicker(item.symbolCode)?.symbolName}>{getTicker(item.symbolCode)?.symbolCode}</td>
                     <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                     <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>

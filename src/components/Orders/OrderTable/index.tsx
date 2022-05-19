@@ -147,7 +147,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
-                <td className="w-180"><span className="text-ellipsis fm">{item.orderId}</span></td>
+                <td className="w-180"><span className="text-ellipsis fm">{item.externalOrderId}</span></td>
                 <td className="text-ellipsis text-start w-110">
                     <div title={getTickerName(item?.symbolCode)}>{item?.symbolCode}</div>
                 </td>
