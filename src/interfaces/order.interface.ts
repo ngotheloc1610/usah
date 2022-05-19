@@ -112,6 +112,7 @@ export interface IListOrder {
 }
 
 export interface IListOrderMonitoring {
+    externalOrderId: string;
     amount: string;
     entry: string;
     executeMode: string;
@@ -145,6 +146,7 @@ export interface IListOrderMonitoring {
 }
 
 export interface IListOrderModifyCancel {
+    externalOrderId: string;
     amount: string;
     entry: string;
     executeMode: string;
@@ -250,6 +252,7 @@ export interface IOrderHistory {
     filledAmount: string;
     msgCode: number;
     withdrawAmount: string;
+    externalOrderId: string;
 }
 
 export interface ITradeHistory {
@@ -277,6 +280,7 @@ export interface IListTradeHistory {
     side: number;
     tickerCode: string;
     tickerName: string;
+    externalOrderId: string;
 }
 
 export interface IFixListTradeHistory {

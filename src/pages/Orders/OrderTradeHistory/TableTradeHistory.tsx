@@ -54,7 +54,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const _renderTradeHistoryTableBody = () => (
         listTradeSortDate.map((item: IListTradeHistory, index: number) => (
             <tr className="align-middle" key={index}>
-                <td className="td w-160">{item.orderId}</td>
+                <td className="td w-160">{item.externalOrderId}</td>
                 <td className="td text-start w-120" title={getTickerName(item.tickerCode)}>{getTickerCode(item.tickerCode)}</td>
                 <td className="td text-center w-80">
                     <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>
