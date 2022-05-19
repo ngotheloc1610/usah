@@ -119,8 +119,8 @@ const Setting = (props: ISetting) => {
 
     const handleSubmit = () => {
         setCheckPass(password === newPassword);
-        setCheckConfirm(newPassword !== confirmPassword || validationPassword(newPassword));
         setCheckNewPass(!validationPassword(newPassword));
+        validationPassword(newPassword) && setCheckConfirm(newPassword !== confirmPassword || validationPassword(newPassword));
         if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
             handleChangePassword();
         }
@@ -133,15 +133,15 @@ const Setting = (props: ISetting) => {
         }
         axios.post<IReqChangePassword, IReqChangePassword>(urlPostChangePassword, param, defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
-                {toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE)}
+                { toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE) }
                 setPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
-                {toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE)}
+                { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
             }
         }, (error) => {
-            {toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE)}
+            { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
         });
     }
     const changeNewsAdmin = (checked: boolean) => {
@@ -230,7 +230,7 @@ const Setting = (props: ISetting) => {
                 <div className="col-md-3  mb-1 mb-md-0">
                     <label className="text-secondary">Confirm Password</label>
                 </div>
-                <div className="col-md-6 mb-3 col-lg-5 col-xl-4">
+                <div className="col-md-6 col-lg-5 col-xl-4">
                     <div className="input-group input-group-pw">
                         <input type={isOpenEyeConfirm ? "password" : "text"} className="form-control"
                             value={confirmPassword}
@@ -245,6 +245,15 @@ const Setting = (props: ISetting) => {
                         </button>
                     </div>
                 </div>
+
+                <div className="row mb-3 align-items-center">
+                    <div className="col-md-3  mb-1 mb-md-0"></div>
+                    <div className="col-md-6 col-lg-5 col-xl-4">
+                        <div>
+                            {checkConfirm && <label className='ms-2 new-password'>Passwords don’t match.</label>}
+                        </div>
+                    </div>
+                </div>            
             </div>
         </>
     )
