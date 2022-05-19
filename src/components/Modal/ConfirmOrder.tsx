@@ -37,6 +37,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [outOfPrice, setOutOfPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
+    const [isDisableInput, setIsDisableInput] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
@@ -55,6 +56,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (lotSize && convertNumber(lotSize) !== 0) {
             setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
         }
+        convertNumber(onlyNumberVolumeChange) > convertNumber(params.volume) ? setIsDisableInput(true) : setIsDisableInput(false);
         setVolumeModify(onlyNumberVolumeChange);
     }
 
@@ -313,7 +315,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
                                 decimalScale={0} thousandSeparator="," 
-                                isAllowed={(e) => handleAllowedInput(e.value, isAllowed) && convertNumber(e.value) <= convertNumber(params.volume) }
+                                isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
                         <div className="border-start d-flex flex-column">
@@ -322,6 +324,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
+                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Quantity is exceed order quantity.</div> }
                 </> 
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
@@ -341,7 +344,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderBtnConfirmModifyCancelOrder = () => (
         <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice}>CONFIRM</button>
+            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>CONFIRM</button>
             <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
         </div>
     );
