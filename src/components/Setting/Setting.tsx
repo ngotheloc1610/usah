@@ -279,35 +279,35 @@ const Setting = (props: ISetting) => {
             </div>
         </div>
     )
-
-    const _renderSettingNotification = () => (
-        <div className="card">
-            <div className="card-body border-top shadow-sm">
-                <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <div className="mb-4">
-                    <h6 className="c-title text-primary mb-3">Notification</h6>
-                    <div className="form-check form-switch mb-2">
-                        <input className="form-check-input" type="checkbox" role="switch" id="news_admin"
-                            checked={recvAdminNewsFlg === 1 ? true : false}
-                            onChange={(event) => changeNewsAdmin(event.target.checked)}
-                        />
-                        <label className="form-check-label" htmlFor="news_admin">Receive admin news</label>
-                    </div>
-                    <div className="form-check form-switch mb-2">
-                        <input className="form-check-input" type="checkbox" role="switch" id="news_notication"
-                            checked={recvMatchNotiFlg === 1 ? true : false}
-                            onChange={(event) => changeNewsNotication(event.target.checked)}
-                        />
-                        <label className="form-check-label" htmlFor="news_notication">Receive matched results notification</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+    // Bug 55562 Delete the Notification Setting screen
+    // const _renderSettingNotification = () => (
+    //     <div className="card">
+    //         <div className="card-body border-top shadow-sm">
+    //             <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
+    //             <div className="mb-4">
+    //                 <h6 className="c-title text-primary mb-3">Notification</h6>
+    //                 <div className="form-check form-switch mb-2">
+    //                     <input className="form-check-input" type="checkbox" role="switch" id="news_admin"
+    //                         checked={recvAdminNewsFlg === 1 ? true : false}
+    //                         onChange={(event) => changeNewsAdmin(event.target.checked)}
+    //                     />
+    //                     <label className="form-check-label" htmlFor="news_admin">Receive admin news</label>
+    //                 </div>
+    //                 <div className="form-check form-switch mb-2">
+    //                     <input className="form-check-input" type="checkbox" role="switch" id="news_notication"
+    //                         checked={recvMatchNotiFlg === 1 ? true : false}
+    //                         onChange={(event) => changeNewsNotication(event.target.checked)}
+    //                     />
+    //                     <label className="form-check-label" htmlFor="news_notication">Receive matched results notification</label>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     </div>
+    // )
 
     return <>
         {isChangePassword && _renderSettingTemplate()}
-        {isNotification && _renderSettingNotification()}
+        {/* {isNotification && _renderSettingNotification()} */}
     </>
 }
 
