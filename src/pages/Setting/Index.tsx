@@ -87,14 +87,15 @@ const SettingScreen = () => {
     const _renderNavSettingActive = () => (
         <ul className="nav page-nav flex-column mb-3">
             <li className="nav-item item-setting dropdown">
-                <a href="#" className="nav-link dropdown-toggle active" type="button" data-bs-toggle="dropdown" aria-expanded="false">Setting</a>
+                <a href="#" className="nav-link active" type="button" data-bs-toggle="dropdown" aria-expanded="false">Setting</a>
                 <ul className="dropdown-menu show">
                     <li><a className={isChangePassword ? 'dropdown-item item-setting-password active' : 'dropdown-item item-setting-password'} onClick={handleDisplayChangePassword}>
                         Change Password
                     </a></li>
-                    <li><a className={isNotification ? 'dropdown-item item-setting-notification active' : 'dropdown-item item-setting-notification'} onClick={handleDisplayNotification}>
+                    {/* Bug 55562 Delete the Notification Setting screen */}
+                    {/* <li><a className={isNotification ? 'dropdown-item item-setting-notification active' : 'dropdown-item item-setting-notification'} onClick={handleDisplayNotification}>
                         Notification
-                    </a></li>
+                    </a></li> */}
                 </ul>
             </li>
         </ul>
