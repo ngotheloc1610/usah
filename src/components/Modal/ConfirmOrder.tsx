@@ -305,7 +305,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
     }
-    
+    const btnDisableVolume = () => {
+        const isVolumeValue = convertNumber(volumeModify) >= convertNumber(params.volume)
+        return isVolumeValue ? true : false
+    }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
@@ -319,12 +322,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
                         <div className="border-start d-flex flex-column">
-                            <button disabled={volumeModify >= params.volume ? true : false} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
+                            <button disabled={btnDisableVolume()} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
                             <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Quantity is exceed order quantity.</div> }
+                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-nowrap'>Quantity is exceed order quantity.</div> }
                 </> 
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
