@@ -8,7 +8,7 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -40,6 +40,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [isDisableInput, setIsDisableInput] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
@@ -340,6 +341,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
         if (isModify) {
+            if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
+                return false;
+            }
             isDisable = isConditionPrice && isConditionVolume && isChangePriceOrModify;
         }
         return isDisable;
@@ -360,6 +364,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
 
+    const calValue = () => {
+        return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
+    }
+
+    const _renderErrorMinValue = () => (
+        <>
+            <div className='text-danger text-end'>{`The order is less than USD ${formatNumber(minOrderValue || '')}. `}</div>
+            <div className='text-danger text-end'>Kindly revise the number of shares.</div>
+        </>
+    )
+
     const _renderListConfirm = () => (
         <div>
             <table className='w-354'>
@@ -368,9 +383,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency((convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString())}`)}
+                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
                 </tbody>
             </table>
+            {isModify && (convertNumber(calValue()) < convertNumber(minOrderValue)) && _renderErrorMinValue()}
             <div className='mt-30'>
                 {!isModify && !isCancel && _renderBtnConfirmOrder()}
                 {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
