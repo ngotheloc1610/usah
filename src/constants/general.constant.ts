@@ -153,6 +153,8 @@ export const ACCOUNT_ID = 'account_id';
 
 export const POEM_ID = 'poem_id';
 
+export const MIN_ORDER_VALUE = 'min_order_value';
+
 export const EXPIRE_TIME = 'expire_time';
 
 export const SUB_ACCOUNTS = 'sub_accounts';

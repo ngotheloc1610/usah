@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
@@ -66,14 +66,16 @@ const Login = () => {
         }
         return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
             if (resp.status === success) {
-                if (resp.data.data) {
-                    localStorage.setItem(ACCOUNT_ID, resp.data.data.account_id.toString());
-                    localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, resp.data.data.access_token.toString());
-                    localStorage.setItem(EXPIRE_TIME, resp.data.data.expire_time);
-                    localStorage.setItem(ROLE, resp.data.data.role);
-                    localStorage.setItem(POEM_ID, resp.data.data.poem_id);
-                    if (resp.data.data.sub_accounts) {
-                        localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(resp.data.data.sub_accounts));
+                if (resp?.data?.data) {
+                    const data = resp.data.data;
+                    localStorage.setItem(ACCOUNT_ID, data.account_id.toString());
+                    localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
+                    localStorage.setItem(EXPIRE_TIME, data.expire_time);
+                    localStorage.setItem(ROLE, data.role);
+                    localStorage.setItem(POEM_ID, data.poem_id);
+                    localStorage.setItem(MIN_ORDER_VALUE, resp.data.data.min_order_value.toString())
+                    if (data.sub_accounts) {
+                        localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(data.sub_accounts));
                     } else {
                         localStorage.removeItem(SUB_ACCOUNTS);
                     }
