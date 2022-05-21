@@ -15,7 +15,8 @@ export interface IDataLoginResquest {
     access_token: string;
     sub_accounts?: string[];
     role: string;
-    poem_id: string
+    poem_id: string;
+    min_order_value: number;
 }
 export interface IDataLogin {
     meta: IMeta;

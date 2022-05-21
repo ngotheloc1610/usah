@@ -1,5 +1,7 @@
+import { formatCurrency } from '../helper/utils';
 import * as smpb from '../models/proto/system_model_pb';
 import * as tdpb from '../models/proto/trading_model_pb';
+import { MIN_ORDER_VALUE } from './general.constant';
 const systemModel: any = smpb;
 const tradingModel: any = tdpb;
 
@@ -32,9 +34,9 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_INVALID_LOT_SIZE, 'Invalid lot size'],
     [systemModel.MsgCode.MT_RET_NEGATIVE_QTY, 'Negative qty'],
     [systemModel.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME, 'Quantity is exceed max order quantity'],
-    [systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE, 'The order is less than USD 20,000. Kindly revise the number of shares'],
+    [systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE, `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}. Kindly revise the number of shares`],
     [systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION, 'Market is closed during holiday'],
     [systemModel.MsgCode.MT_RET_TOKEN_EXPIRED, 'Token expired'],
   ]);
   
-  export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = 'The order is less than USD 20,000';
+  export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}`;
