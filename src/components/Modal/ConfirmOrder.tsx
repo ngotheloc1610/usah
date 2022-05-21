@@ -205,6 +205,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             prepareMessageeCancel(accountId);
         }
         else if (isModify) {
+            if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
+                return;
+            }
             prepareMessageeModify(accountId);
         } else {
             callSigleOrderRequest(accountId);
