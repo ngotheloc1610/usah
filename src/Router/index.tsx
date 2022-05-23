@@ -15,7 +15,7 @@ import Login from "../pages/Authentication/Login";
 
 const RouterDom = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/orders/*" element={<OrderRouter />} />

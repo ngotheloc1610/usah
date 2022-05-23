@@ -66,7 +66,7 @@ const startWs = async () => {
         toast.error(INVALID_TOKEN);
         // Time to display notification error is 3s
         setTimeout(()=> {
-            window.location.href = '/login';
+            window.location.href = `${process.env.PUBLIC_URL}/login`;
         }, 3000);
     }
 
