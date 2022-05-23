@@ -105,13 +105,11 @@ const Header = () => {
     localStorage.removeItem(EXPIRE_TIME);
     localStorage.removeItem(POEM_ID);
     localStorage.removeItem(MIN_ORDER_VALUE);
-    const baseUrl = window.location.origin;
-    window.location.href = `${baseUrl}/login`;
+    window.location.href = `${process.env.PUBLIC_URL}/login`;
   }
 
   const handleDisplaySetting = () => {
-    const baseUrl = window.location.origin;
-    window.location.href = `${baseUrl}/setting`;
+    window.location.href = `${process.env.PUBLIC_URL}/setting`;
   }
 
   const showPopupNotification = (e) => {

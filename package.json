@@ -74,5 +74,6 @@
   },
   "devDependencies": {
     "@types/redux-logger": "^3.0.9"
-  }
+  },
+  "homepage": "https://pixstg.tdt.asia/lp"
 }

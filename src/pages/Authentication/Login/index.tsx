@@ -79,7 +79,7 @@ const Login = () => {
                     } else {
                         localStorage.removeItem(SUB_ACCOUNTS);
                     }
-                    window.location.href = '/';
+                    window.location.href = process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '/';
                 }
             }
         },

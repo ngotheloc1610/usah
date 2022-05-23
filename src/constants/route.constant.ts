@@ -1,35 +1,35 @@
 export const ROUTER_MONITORING = [
     {
-        navigation: '/',
+        navigation: process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '/',
         icon: 'icon bi bi-app-indicator me-1',
         title: 'Dashboard',
         subTab: []
     },
     {
-        navigation: '/news',
+        navigation: `${process.env.PUBLIC_URL}/news`,
         icon: 'icon bi bi-card-text me-1',
         title: 'News',
         subTab: []
     },
     {
-        navigation: '/orders',
+        navigation: `${process.env.PUBLIC_URL}/orders`,
         icon: 'icon bi bi-clipboard me-1',
         title: 'Order',
         subTab: [
             {
-                navigation: '/orders/monitoring',
+                navigation: `${process.env.PUBLIC_URL}/orders/monitoring`,
                 icon: '',
                 title: 'Order Monitoring',
                 subTab: []
             },
             {
-                navigation: '/orders/history',
+                navigation: `${process.env.PUBLIC_URL}/orders/history`,
                 icon: '',
                 title: 'Order History',
                 subTab: []
             },
             {
-                navigation: '/orders/tradeHistory',
+                navigation: `${process.env.PUBLIC_URL}/orders/tradeHistory`,
                 icon: '',
                 title: 'Trade History',
                 subTab: []
@@ -40,13 +40,13 @@ export const ROUTER_MONITORING = [
                 title: 'Summary',
                 subTab: [
                     {
-                        navigation: '/orders/summary-trading',
+                        navigation: `${process.env.PUBLIC_URL}/orders/summary-trading`,
                         icon: '',
                         title: 'Summary Trading',
                         subTab: [],
                     },
                     {
-                        navigation: '/orders/multi-trader-control',
+                        navigation: `${process.env.PUBLIC_URL}/orders/multi-trader-control`,
                         icon: '',
                         title: 'Multi Trader Control',
                         subTab: [],
@@ -54,7 +54,7 @@ export const ROUTER_MONITORING = [
                 ]
             },
             {
-                navigation: '/order-book',
+                navigation: `${process.env.PUBLIC_URL}/order-book`,
                 icon: '',
                 title: 'Order Book',
                 subTab: []
@@ -65,13 +65,13 @@ export const ROUTER_MONITORING = [
                 title: 'New Order',
                 subTab: [
                     {
-                        navigation: '/orders/new',
+                        navigation: `${process.env.PUBLIC_URL}/orders/new`,
                         icon: '',
                         title: 'Single Order',
                         subTab: [],
                     },
                     {
-                        navigation: '/order/multi-orders',
+                        navigation: `${process.env.PUBLIC_URL}/order/multi-orders`,
                         icon: '',
                         title: 'Multiple Order',
                         subTab: [],
@@ -79,7 +79,7 @@ export const ROUTER_MONITORING = [
                 ]
             },
             {
-                navigation: '/orders/modify-cancel',
+                navigation: `${process.env.PUBLIC_URL}/orders/modify-cancel`,
                 icon: '',
                 title: 'Modify - Cancel Order',
                 subTab: []
@@ -97,48 +97,48 @@ export const ROUTER_MONITORING = [
 
 export const ROUTER_TRADER = [
     {
-        navigation: '/',
+        navigation: process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '/',
         icon: 'icon bi bi-app-indicator me-1',
         title: 'Dashboard',
         subTab: []
     },
     {
-        navigation: '/news',
+        navigation: `${process.env.PUBLIC_URL}/news`,
         icon: 'icon bi bi-card-text me-1',
         title: 'News',
         subTab: []
     },
     {
-        navigation: '/orders',
+        navigation: `${process.env.PUBLIC_URL}/orders`,
         icon: 'icon bi bi-clipboard me-1',
         title: 'Order',
         subTab: [
             {
-                navigation: '/orders/monitoring',
+                navigation: `${process.env.PUBLIC_URL}/orders/monitoring`,
                 icon: '',
                 title: 'Order Monitoring',
                 subTab: []
             },
             {
-                navigation: '/orders/history',
+                navigation: `${process.env.PUBLIC_URL}/orders/history`,
                 icon: '',
                 title: 'Order History',
                 subTab: []
             },
             {
-                navigation: '/orders/tradeHistory',
+                navigation: `${process.env.PUBLIC_URL}/orders/tradeHistory`,
                 icon: '',
                 title: 'Trade History',
                 subTab: []
             },
             {
-                navigation: '/orders/summary-trading',
+                navigation: `${process.env.PUBLIC_URL}/orders/summary-trading`,
                 icon: '',
                 title: 'Summary Trading',
                 subTab: []
             },
             {
-                navigation: '/order-book',
+                navigation: `${process.env.PUBLIC_URL}/order-book`,
                 icon: '',
                 title: 'Order Book',
                 subTab: []
@@ -149,13 +149,13 @@ export const ROUTER_TRADER = [
                 title: 'New Order',
                 subTab: [
                     {
-                        navigation: '/orders/new',
+                        navigation: `${process.env.PUBLIC_URL}/orders/new`,
                         icon: '',
                         title: 'Single Order',
                         subTab: [],
                     },
                     {
-                        navigation: '/order/multi-orders',
+                        navigation: `${process.env.PUBLIC_URL}/order/multi-orders`,
                         icon: '',
                         title: 'Multiple Order',
                         subTab: [],
@@ -163,7 +163,7 @@ export const ROUTER_TRADER = [
                 ]
             },
             {
-                navigation: '/orders/modify-cancel',
+                navigation: `${process.env.PUBLIC_URL}/orders/modify-cancel`,
                 icon: '',
                 title: 'Modify - Cancel Order',
                 subTab: []
