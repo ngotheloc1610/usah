@@ -94,7 +94,7 @@ export const ORDER_TYPE_NAME = {
 };
 
 export const KEY_LOCAL_STORAGE = {
-    AUTHEN: 'objAuthen'
+    AUTHEN: 'lp_objAuthen'
 };
 
 export const MODIFY_CANCEL_STATUS = {
@@ -149,19 +149,19 @@ export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 
 export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
 
-export const ACCOUNT_ID = 'account_id';
+export const ACCOUNT_ID = 'lp_account_id';
 
-export const POEM_ID = 'poem_id';
+export const POEM_ID = 'lp_poem_id';
 
-export const MIN_ORDER_VALUE = 'min_order_value';
+export const MIN_ORDER_VALUE = 'lp_min_order_value';
 
-export const EXPIRE_TIME = 'expire_time';
+export const EXPIRE_TIME = 'lp_expire_time';
 
-export const SUB_ACCOUNTS = 'sub_accounts';
+export const SUB_ACCOUNTS = 'lp_sub_accounts';
 
 export const TIME_ZONE = 'time_zone'
 
-export const ROLE = 'role';
+export const ROLE = 'lp_role';
 
 export const START_PAGE = 1;
 
