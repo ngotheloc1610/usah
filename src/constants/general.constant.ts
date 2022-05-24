@@ -151,7 +151,7 @@ export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
 
 export const ACCOUNT_ID = 'account_id';
 
-export const POEM_ID = 'poem_id';
+export const POEM_ID = 'poem_id_lb';
 
 export const MIN_ORDER_VALUE = 'min_order_value';
 
