@@ -432,7 +432,7 @@ const OrderBookCommon = () => {
                         onKeyUp={handleKeyUp}
                         disablePortal
                         options={listSymbolCode}
-                        defaultValue={`${listTicker[0].symbolCode} - ${listTicker[0].symbolName}`}
+                        defaultValue={listTicker.length > 0 ? `${listTicker[0].symbolCode} - ${listTicker[0].symbolName}` : ''}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />
