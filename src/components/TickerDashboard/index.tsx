@@ -26,6 +26,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([]);
 
+    const queryModelPb: any = qmpb;
+
     useEffect(() => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
             console.log(resp);
@@ -33,7 +35,13 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         const symbols = wsService.getSymbolListSubject().subscribe(resp => {
             if (resp && resp.symbolList) {
-                setSymbolList(resp.symbolList);
+                const temp: any[] = [];
+                resp.symbolList.forEach(item => {
+                    if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                        temp.push(item);
+                    }
+                })
+                setSymbolList(temp);
             }
         })
 

@@ -66,9 +66,10 @@ const Dashboard = () => {
             if (res.symbolList && res.symbolList.length > 0) {
                 const symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
                 setSymbolList(symbolListActive);
+                localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                 localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList))
                 if (symbolListActive.length > 0) {
-                    localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
+                    // localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                     const temps: string[] = [];
                     symbolListActive.forEach(item => {
                         if (item) {
