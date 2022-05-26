@@ -572,7 +572,7 @@ const MultipleOrders = () => {
     }
 
     const _renderNotiErrorPrice = () => (
-        <div className='text-danger text-end'>Order price is out of day's price range</div>
+        <div className='text-danger text-end'>Out of daily price limits</div>
     )
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
