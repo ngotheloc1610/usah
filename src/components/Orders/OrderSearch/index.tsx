@@ -5,7 +5,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -161,14 +161,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const _renderListOrderState = () => {
-        let distinctState: IState[] = [];
-        STATE.forEach(itemState => {
-            const isCheckExist = distinctState?.find(item => item?.name === itemState.name);
-            if (!isCheckExist) {
-                distinctState.push(itemState);
-            }
-        })
-        return distinctState.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))
+        return STATE_HISTORY_SEARCH.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))
     }
 
     const _renderTicker = () => (
