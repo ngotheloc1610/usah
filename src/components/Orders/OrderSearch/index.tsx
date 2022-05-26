@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { IHistorySearchStatus, IState } from '../../../interfaces/order.interface'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -160,6 +160,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         setOrderState(parseInt(value));
     }
 
+    const _renderListOrderState = () => {
+        return STATE_HISTORY_SEARCH.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))
+    }
+
     const _renderTicker = () => (
         <div className="col-xl-3">
             <label className="d-block text-secondary mb-1">Ticker</label>
@@ -178,7 +182,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         <div className="col-xl-2">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderStatus(e.target.value)}>
-                {STATE.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))}
+                {_renderListOrderState()}
             </select>
         </div>
     )

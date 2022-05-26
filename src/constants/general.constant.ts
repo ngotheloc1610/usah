@@ -46,6 +46,36 @@ export const STATE = [
         code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
     }
 ];
+export const STATE_HISTORY_SEARCH = [
+    {
+        name: 'All',
+        code: tradingModelPb.OrderState.ORDER_STATE_NONE
+    },
+    {
+        name: 'Order Received',
+        code: tradingModelPb.OrderState.ORDER_STATE_PLACED
+    },
+    {
+        name: 'Partially Done',
+        code: tradingModelPb.OrderState.ORDER_STATE_PARTIAL
+    },
+    {
+        name: 'Withdraw Done ',
+        code: tradingModelPb.OrderState.ORDER_STATE_CANCELED
+    },
+    {
+        name: 'Done',
+        code: tradingModelPb.OrderState.ORDER_STATE_FILLED
+    },
+    {
+        name: 'Rejected',
+        code: tradingModelPb.OrderState.ORDER_STATE_REJECTED
+    },
+    {
+        name: "Amend Done",
+        code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
+    }
+];
 export const INVALID_DATE = 'Invalid date';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';

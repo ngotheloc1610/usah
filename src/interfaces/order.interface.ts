@@ -625,3 +625,8 @@ export interface IParamSearchTradeHistory {
 export interface IPropsSearchTradeHistory {
     getParamSearch: (item: IParamSearchTradeHistory) => void
 }
+
+export interface IState {
+    name: string;
+    code: number;
+}
