@@ -316,7 +316,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const _renderNotiErrorPrice = () => (
-        <div className='text-danger'>Order price is out of day's price range</div>
+        <div className='text-danger text-end'>Out of daily price limits</div>
     )
 
     const disableChangeValueBtn = (symbolCode: string | undefined) => {
