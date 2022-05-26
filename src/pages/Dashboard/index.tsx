@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -67,16 +67,26 @@ const Dashboard = () => {
                 const symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
                 setSymbolList(symbolListActive);
                 localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
-                localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList))
+                localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList));
                 if (symbolListActive.length > 0) {
-                    // localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                     const temps: string[] = [];
+                    const newWatchList: any[] = [];
+                    const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+                    watchList.forEach(item => {
+                        const idx = symbolListActive.findIndex(o => o?.symbolCode === item?.symbolCode);
+                        if (idx >= 0) {
+                            newWatchList.push(item);
+                        }
+                    });
+                    localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(newWatchList));
                     symbolListActive.forEach(item => {
                         if (item) {
                             temps.push(item?.symbolCode);
                         }
                     });
                     setListTickerSearch(temps);
+                } else {
+                    localStorage.removeItem(LIST_WATCHING_TICKERS);
                 }
                 if (symbolListActive[0] && isFirstTime) {
                     setSymbolCode(symbolListActive[0]?.symbolCode || '');
