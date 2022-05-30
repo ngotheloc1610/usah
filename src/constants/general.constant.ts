@@ -163,7 +163,7 @@ export enum MESSAGE_TOAST {
 
     SUCCESS_ADD = 'Add symbol successfully',
 
-    ERROR_PASSWORD_UPDATE = 'Update password error',
+    ERROR_PASSWORD_UPDATE = 'Incorrect current password',
     ERROR_ADD = 'Add symbol failed',
 
     EXIST_ADD = 'Symbol already existed'
