@@ -50,7 +50,8 @@ const News = () => {
     const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
     
     const isNewTabUrl = queryString.parse(window.location.search)?.isNewTab;
-    const [isNewsTab, setIsNewsTab] = useState(isNewTabUrl ? false : true)
+    const [isNewsTab, setIsNewsTab] = useState(isNewTabUrl ? false : true);
+    const [isShowNewsDetail, setIsShowNewsDetail] = useState(false)
 
     useEffect(() => {
         getDataNews(isUnread)
@@ -193,6 +194,7 @@ const News = () => {
 
     const handleClick = (itemNews: INews, index: number) => {
         setELActive(index);
+        setIsShowNewsDetail(true);
         if (itemNews) {
             setDataDetailNews(itemNews);
             if (!itemNews.read_flag) {
@@ -363,6 +365,7 @@ const News = () => {
 
     const closeDetailNews = () => {
         setDataDetailNews(DEFAULT_DETAIL_NEWS);
+        setIsShowNewsDetail(false);
     }
 
     // detail
@@ -389,7 +392,7 @@ const News = () => {
 
     const _renderNotificationDetail = () => (
         <div className="col-md-6">
-            {isNewsTab && _renderNewsNotificationDetailItem()}
+            {isNewsTab && isShowNewsDetail && _renderNewsNotificationDetailItem()}
             {!isNewsTab && _renderTradingNotificationDetailItem()}
         </div>
     )
