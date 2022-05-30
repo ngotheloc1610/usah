@@ -72,6 +72,8 @@ export interface IPropListOrderHistory {
 
 export interface IPropListTradeHistory {
     getDataTradeHistory: IListTradeHistory[];
+    isSearchData: boolean;
+    changeStatusSearch: (status: boolean) => void;
 }
 
 export interface IStateListOrder {

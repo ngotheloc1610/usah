@@ -20,6 +20,7 @@ const OrderTradeHistory = () => {
 
     const [fromDate, setFromDate] = useState(convertDatetoTimeStamp(today, FROM_DATE_TIME));
     const [toDate, setToDate] = useState(convertDatetoTimeStamp(today, TO_DATE_TIME));
+    const [isSearchData, setIsSearchData] = useState(false);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -78,16 +79,22 @@ const OrderTradeHistory = () => {
         const tmpToDate = param.toDate ? param.toDate : convertDatetoTimeStamp(today, TO_DATE_TIME);
         setFromDate(tmpFromDate);
         setToDate(tmpToDate);
+        setIsSearchData(true);
         setSymbolCode(param.symbolCode);
         sendTradeHistoryReq(param.symbolCode, tmpFromDate, tmpToDate);
     }
+
+    const changeStatusSearch = (value: boolean) => {
+        setIsSearchData(value);
+    }
+
     const _renderTradeHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
                         <SearchTradeHistory getParamSearch={getParamSearch}/>
-                        <TableTradeHistory getDataTradeHistory={getDataTradeHistory} />
+                        <TableTradeHistory getDataTradeHistory={getDataTradeHistory} isSearchData={isSearchData} changeStatusSearch={changeStatusSearch} />
                     </div>
                 </div>
             </div>

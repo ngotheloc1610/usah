@@ -16,10 +16,12 @@ import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 interface IPropsListModifyCancel {
     orderSide: number;
     symbolCode: string;
+    isSearch: boolean;
+    resetIsSearch: (value: boolean) => void;
 }
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
-    const { orderSide, symbolCode } = props;
+    const { orderSide, symbolCode, isSearch, resetIsSearch } = props;
     const [listOrderFull, setListOrderFull] = useState<IListOrderModifyCancel[]>([]);
     const [listOrder, setListOrder] = useState<IListOrderModifyCancel[]>([]);
     const [dataOrder, setDataOrder] = useState<IListOrderModifyCancel[]>([]);
@@ -54,9 +56,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
-        if (currentList.length <= 0) {
-            currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1)
-        }        
+        if (currentList.length <= 0 && isSearch) {
+            currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1);
+            if (resetIsSearch) {
+                resetIsSearch(false);
+            }
+        }
         setDataOrder(currentList);
     }, [listOrder, itemPerPage, currentPage])
 
