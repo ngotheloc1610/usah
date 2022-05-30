@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
-    const { getDataTradeHistory } = props
+    const { getDataTradeHistory, isSearchData, changeStatusSearch } = props
     const tradingModelPb: any = tspb;
     const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistory[]>([])
     const [currentPage, setCurrentPage] = useState(START_PAGE);
@@ -22,7 +22,12 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     }, [getDataTradeHistory, itemPerPage, currentPage])
 
     useEffect(() => {
-        setCurrentPage(START_PAGE)
+        if (isSearchData) {
+            setCurrentPage(START_PAGE);
+            if (changeStatusSearch) {
+                changeStatusSearch(false)
+            }
+        }
     }, [getDataTradeHistory])
 
     const getTickerCode = (symbolCode: string) => {

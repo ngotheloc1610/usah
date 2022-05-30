@@ -58,7 +58,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
     useEffect(() => {
         setCurrentPage(START_PAGE);
-    }, [listOrderHistory, paramHistorySearch])
+    }, [paramHistorySearch])
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
