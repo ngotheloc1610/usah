@@ -101,3 +101,7 @@
   font-style: italic;
   color: #296dc2;
 }
+
+input::-ms-clear, input::-ms-reveal {
+  display: none;
+}

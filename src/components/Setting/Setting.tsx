@@ -258,6 +258,10 @@ const Setting = (props: ISetting) => {
         </>
     )
 
+    const disabledButton = () => {
+        return password === '' || newPassword === '' || confirmPassword === '';
+    }
+
     const _renderSettingTemplate = () => (
         <div className="card">
             <div className="card-body border-top shadow-sm">
@@ -272,7 +276,7 @@ const Setting = (props: ISetting) => {
                             &nbsp;
                         </div>
                         <div className="col-md-4">
-                            <a href="#" className="btn btn-primary px-4" onClick={handleSubmit}>Save</a>
+                            <button disabled={disabledButton()} className="btn btn-primary px-4" onClick={handleSubmit}>Save</button>
                         </div>
                     </div>
                 </div>
