@@ -120,7 +120,7 @@ const Setting = (props: ISetting) => {
     const handleSubmit = () => {
         setCheckPass(password === newPassword);
         setCheckNewPass(!validationPassword(newPassword));
-        validationPassword(newPassword) && setCheckConfirm(newPassword !== confirmPassword || validationPassword(newPassword));
+        validationPassword(newPassword) && setCheckConfirm(newPassword !== confirmPassword);
         if (password !== newPassword && validationPassword(newPassword) && newPassword === confirmPassword) {
             handleChangePassword();
         }
@@ -137,6 +137,7 @@ const Setting = (props: ISetting) => {
                 setPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
+                setCheckConfirm(false);
             } else {
                 { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
             }
