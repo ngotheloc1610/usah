@@ -126,7 +126,7 @@ const MultiTraderTable = () => {
         setAllTotalNet(totalNet);
         setAllTotalGross(totalGross);
         setAllTotalPL(totalAllPL);
-        const listDataHasOwnedVolume = tmp.filter(el => el?.holdingVolume?.some(item => Number(item) !== 0));
+        const listDataHasOwnedVolume = tmp.filter(el => Number(el?.totalGrossTransactions) !== 0 || Number(el?.totalNetPosition) !== 0 || Number(el?.totalPl) !== 0);
         setDataHasOwnedVolume(listDataHasOwnedVolume);
 
         lstId.forEach(item => {
