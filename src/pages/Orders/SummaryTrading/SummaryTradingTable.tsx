@@ -259,7 +259,7 @@ function SummaryTradingTable() {
             if (item) {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
-                    ownedVol: convertNumber(item.ownedVolume.toString()),
+                    ownedVol: calcOwnedVolume(item?.symbolCode),
                     avgPrice: convertNumber(calcAvgPrice(item).toString()),
                     dayNotional: convertNumber(calcInvestedValue(item).toString()),
                     marketPrice: convertNumber(item.marketPrice),
