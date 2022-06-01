@@ -5,9 +5,11 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
+import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
 
 const systemModel: any = smpb;
+const tradingModel: any = tmpb;
 
 export function formatOrderTime(date: number): string {
     // time
@@ -317,4 +319,15 @@ export const checkMessageError = (msg: string, msgCode: number) => {
     }
     const messageDisplay = MESSAGE_ERROR.get(msgCode);
     return messageDisplay || msg;
+}
+
+export const renderSideText = (side: number) => {
+    switch (side) {
+        case tradingModel.Side.BUY: {
+            return 'Buy';
+        }
+        default: {
+            return 'Sell';
+        }
+    }
 }
