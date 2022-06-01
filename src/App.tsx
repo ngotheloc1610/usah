@@ -11,23 +11,34 @@ import ReduxPersist from './config/ReduxPersist';
 import { KEY_LOCAL_STORAGE, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
+import ResetPassword from './pages/Authentication/reset-password';
 
 const App = () => {
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+
+  console.log(20, window.location.pathname)
 
   useEffect(() => {
     checkLoginPage();
-  }, [isLogin])
+  }, [isLogin, isResetPassword])
 
   const checkLoginPage = () => {
-    if (window.location.pathname === '/login') {
+    const path = window.location.pathname;
+    if (path.includes('/login')) {
       setIsLogin(true);
+      setIsResetPassword(false);
       localStorage.removeItem(ACCOUNT_ID);
       localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
       localStorage.removeItem(EXPIRE_TIME);
       localStorage.removeItem(ROLE);
       localStorage.removeItem(POEM_ID);
       localStorage.removeItem(MIN_ORDER_VALUE);
+      return;
+    }
+    if (path.includes('/reset-password')) {
+      setIsLogin(false);
+      setIsResetPassword(true);
       return;
     }
     ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
@@ -57,8 +68,9 @@ const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {!isLogin && _renderMainPage()}
+        {!isLogin && !isResetPassword && _renderMainPage()}
         {isLogin && <Login />}
+        {isResetPassword && <ResetPassword />}
       </PersistGate>
     </Provider>
   );

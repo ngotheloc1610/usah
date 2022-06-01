@@ -12,6 +12,7 @@ import OrderBookCommon from "../pages/Orders/OrderBookCommon";
 import MultipleOrders from "../pages/Orders/MultipleOrders";
 import MultiTraderControl from "../pages/Orders/MultiTraderControl";
 import Login from "../pages/Authentication/Login";
+import ResetPassword from "../pages/Authentication/reset-password";
 
 const RouterDom = () => {
   return (
@@ -25,6 +26,7 @@ const RouterDom = () => {
         <Route path="/order-book" element={<OrderBookCommon />} />
         <Route path="/order/multi-orders" element={<MultipleOrders />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   )
