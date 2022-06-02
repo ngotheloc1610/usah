@@ -13,6 +13,7 @@ import MultipleOrders from "../pages/Orders/MultipleOrders";
 import MultiTraderControl from "../pages/Orders/MultiTraderControl";
 import Login from "../pages/Authentication/Login";
 import ResetPassword from "../pages/Authentication/reset-password";
+import ForgotPassword from "../pages/Authentication/forgot-password";
 
 const RouterDom = () => {
   return (
@@ -27,6 +28,7 @@ const RouterDom = () => {
         <Route path="/order/multi-orders" element={<MultipleOrders />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   )

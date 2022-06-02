@@ -72,7 +72,7 @@ const ResetPassword = () => {
         </>
     )
 
-    const _renderLoginTemplate = () => (
+    const _renderResetPasswordTemplate = () => (
         <div className="h-full page login">
             <div className="h-full site-main d-flex align-items-center">
                 <div className="container">
@@ -132,7 +132,7 @@ const ResetPassword = () => {
     )
 
     return <>
-        {_renderLoginTemplate()}
+        {_renderResetPasswordTemplate()}
     </>
 }
 
