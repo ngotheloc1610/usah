@@ -389,7 +389,7 @@ const MultipleOrders = () => {
                 <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
                     {item.orderSide.toUpperCase()}
                 </td>
-                <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
+                <td className="text-center text-nowrap">{formatNumber(item.volume?.replaceAll(',', ''))}</td>
                 <td className="text-center text-nowrap"> {formatCurrency(item.price?.replaceAll(',', ''))}</td>
             </tr>
         })
