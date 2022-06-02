@@ -163,7 +163,7 @@ const Login = () => {
                                     </div>
                                     <div className="mt-1">
                                         <a className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase btn-login mb-2 unclick" onClick={handleSubmit}><strong>Login</strong></a>
-                                        <p className="text-center"><a href="#">Forgot Password</a></p>
+                                        <p className="text-center"><a href={`${process.env.PUBLIC_URL}/forgot-password`}>Forgot Password</a></p>
                                     </div>
                                 </div>
                             </div>
