@@ -94,7 +94,7 @@ const MultipleOrders = () => {
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
                     const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
-                        if (order?.ticker === item?.symbolCode && order?.price === item.price)
+                        if (order?.ticker === item?.symbolCode && order?.price.replaceAll(',', '') === item.price)
                             listIndex.push(idx);
                         return listIndex;
                     }, []);
@@ -359,7 +359,7 @@ const MultipleOrders = () => {
                         <NumberFormat
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandSeparator="," value={convertNumber(item.price) === 0 ? null : formatCurrency(item.price)} placeholder=""
+                            thousandSeparator="," value={convertNumber(item.price?.replaceAll(',','')) === 0 ? null : formatCurrency(item.price?.replaceAll(',', ''))} placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
@@ -390,7 +390,7 @@ const MultipleOrders = () => {
                     {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume)}</td>
-                <td className="text-center text-nowrap"> {formatCurrency(item.price)}</td>
+                <td className="text-center text-nowrap"> {formatCurrency(item.price.replaceAll(',', ''))}</td>
             </tr>
         })
     )
