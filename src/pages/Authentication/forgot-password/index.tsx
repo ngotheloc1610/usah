@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { success } from '../../../constants';
 import { API_FORGOT_PASSWORD } from '../../../constants/api.constant';
 import '../Login/Login.scss';
 
@@ -21,7 +22,7 @@ const ForgotPassword = () => {
             account_id: accountId
         }
         axios.post(apiUrl, param).then(resp => {
-            if (resp?.data?.meta?.code === 200) {
+            if (resp?.data?.meta?.code === success) {
                 const messageSuccess = resp?.data?.meta?.message ? resp?.data?.meta?.message : 'Update password successfully';
                 toast.success(messageSuccess);
                 setAccountId('');
