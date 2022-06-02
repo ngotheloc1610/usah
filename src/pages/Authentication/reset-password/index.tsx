@@ -6,6 +6,7 @@ import axios from 'axios';
 import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
+import { success, unAuthorised } from '../../../constants';
 
 const ResetPassword = () => {
 
@@ -17,6 +18,7 @@ const ResetPassword = () => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true);
     const [isError, setIsError] = useState(false);
     const [errMess, setErrMess] = useState('');
+    const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
 
     const apiUrl = `${process.env.REACT_APP_API_URL}${API_RESET_PASSWORD}`;
     const paramStr = window.location.search;
@@ -40,11 +42,24 @@ const ResetPassword = () => {
             reset_token: queryParam?.reset_token
         }
         axios.post(apiUrl, param).then(resp => {
-            if (resp?.data?.meta?.code == 200) {
-                window.location.href = `${process.env.PUBLIC_URL}/login`;
-            } else {
-                setIsError(true);
-                setErrMess(resp?.data?.meta?.message);
+            switch (resp?.data?.meta?.code) {
+                case success: {
+                    setIsError(false);
+                    setIsExpiredResetToken(false);
+                    window.location.href = `${process.env.PUBLIC_URL}/login`;
+                    break;
+                }
+                case unAuthorised: {
+                    setIsError(false);
+                    setIsExpiredResetToken(true);
+                    break;
+                }
+                default: {
+                    setIsError(true);
+                    setIsExpiredResetToken(false);
+                    setErrMess(resp?.data?.meta?.message);
+                    break;
+                }
             }
         })
     }
@@ -69,6 +84,17 @@ const ResetPassword = () => {
                 <li> at least one uppercase letter </li>
                 <li> at least one number </li>
             </ul>
+        </>
+    )
+
+    const _renderResetTokenErrorMessage = () => (
+        <>
+        <span>Your password reset link is expired. Please email/contact support to receive the set password email again.
+        </span>
+        <br />
+        <span>Phillip SG Contact(English Speaking): +65 6212-1810</span>
+        <br />
+        <span>Phillip SG Email: <span className='link-custom'>cddesk@phillip.com.sg</span></span>
         </>
     )
 
@@ -111,6 +137,7 @@ const ResetPassword = () => {
                                         </div>
                                         {isNotMatch && <span className='text-danger'>Confirm Passworn don't match</span>}
                                         {isError && <span className='text-danger'>{errMess}</span>}
+                                        {isExpiredResetToken && <div className='text-danger'>{_renderResetTokenErrorMessage()}</div>}
                                     </div>
 
                                     <div className="row mb-3 align-items-center">
