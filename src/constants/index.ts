@@ -20,3 +20,5 @@ export const ORDER_RESPONSE = {
 };
 
 export const INVALID_TOKEN = 'Invalid Token';
+
+export const BAD_REQUEST_MESSAGE = 'Bad request';
