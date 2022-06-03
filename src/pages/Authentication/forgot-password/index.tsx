@@ -10,7 +10,7 @@ const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [accountId, setAccountId] = useState('');
 
-    const apiUrl = `${process.env.PUBLIC_URL}${API_FORGOT_PASSWORD}`;
+    const apiUrl = `${process.env.REACT_APP_API_URL}${API_FORGOT_PASSWORD}`;
 
     const disabledSubmitButton = () => {
         return email.trim() === '' || accountId.trim() === '';
@@ -31,6 +31,8 @@ const ForgotPassword = () => {
                 const messageError = resp?.data?.meta?.message ? resp?.data?.meta?.message : 'Update password faild';
                 toast.error(messageError);
             }
+        }).catch(error => {
+            toast.error(error?.response?.data?.data);
         })
     }
 
