@@ -7,6 +7,7 @@ import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { success, unAuthorised } from '../../../constants';
+import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
 
@@ -61,6 +62,8 @@ const ResetPassword = () => {
                     break;
                 }
             }
+        }).catch((error: any) => {
+            toast.error(error.response.data.data)
         })
     }
 
@@ -147,7 +150,10 @@ const ResetPassword = () => {
                                     </div>
 
                                     <div className="mt-1">
-                                        <button className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase margin-auto mb-2" disabled={disableButton()} onClick={handleSubmit}><strong>Reset</strong></button>
+                                        <button className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase margin-auto mb-2 w-100" disabled={disableButton()} 
+                                            onClick={handleSubmit}>
+                                            <strong>Reset</strong>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
