@@ -63,6 +63,11 @@ const ResetPassword = () => {
                 }
             }
         }).catch((error: any) => {
+            if (error.response.data?.meta?.code === unAuthorised) {
+                setIsError(false);
+                setIsExpiredResetToken(true);
+                return;
+            }
             toast.error(error.response.data.data)
         })
     }
