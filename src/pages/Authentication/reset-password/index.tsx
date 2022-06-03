@@ -6,7 +6,7 @@ import axios from 'axios';
 import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
-import { success, unAuthorised } from '../../../constants';
+import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
@@ -18,6 +18,7 @@ const ResetPassword = () => {
     const [isOpenEyeNew, setIsOpenEyeNew] = useState(true);
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true);
     const [isError, setIsError] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [errMess, setErrMess] = useState('');
     const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
 
@@ -37,6 +38,14 @@ const ResetPassword = () => {
         }
     }
 
+    const renderSuccessMessage = () => (
+        <>
+            <div className='text-success'>Password updated.</div>
+            <div className='text-success'>You can now use your new password to sign in</div>
+            <a href={`${process.env.PUBLIC_URL}/login`}>{`${process.env.PUBLIC_URL}/login`}</a>
+        </>
+    )
+
     const handleResetPassword = () => {
         const param = {
             new_password: newPassword,
@@ -47,17 +56,20 @@ const ResetPassword = () => {
                 case success: {
                     setIsError(false);
                     setIsExpiredResetToken(false);
-                    window.location.href = `${process.env.PUBLIC_URL}/login`;
+                    setIsSuccess(true);
+                    toast.success(RESET_PASSWORD_SUCCESS);
                     break;
                 }
                 case unAuthorised: {
                     setIsError(false);
+                    setIsSuccess(false);
                     setIsExpiredResetToken(true);
                     break;
                 }
                 default: {
                     setIsError(true);
                     setIsExpiredResetToken(false);
+                    setIsSuccess(false);
                     setErrMess(resp?.data?.meta?.message);
                     break;
                 }
@@ -65,6 +77,7 @@ const ResetPassword = () => {
         }).catch((error: any) => {
             if (error.response.data?.meta?.code === unAuthorised) {
                 setIsError(false);
+                setIsSuccess(false);
                 setIsExpiredResetToken(true);
                 return;
             }
@@ -146,6 +159,7 @@ const ResetPassword = () => {
                                         {isNotMatch && <span className='text-danger'>Confirm Passworn don't match</span>}
                                         {isError && <span className='text-danger'>{errMess}</span>}
                                         {isExpiredResetToken && <div className='text-danger'>{_renderResetTokenErrorMessage()}</div>}
+                                        {isSuccess && renderSuccessMessage()}
                                     </div>
 
                                     <div className="row mb-3 align-items-center">
