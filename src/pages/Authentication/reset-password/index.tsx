@@ -6,7 +6,7 @@ import axios from 'axios';
 import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
-import { success, unAuthorised } from '../../../constants';
+import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
@@ -47,7 +47,10 @@ const ResetPassword = () => {
                 case success: {
                     setIsError(false);
                     setIsExpiredResetToken(false);
-                    window.location.href = `${process.env.PUBLIC_URL}/login`;
+                    toast.success(RESET_PASSWORD_SUCCESS);
+                    setTimeout(() => {
+                        window.location.href = `${process.env.PUBLIC_URL}/login`;
+                    }, 3000);
                     break;
                 }
                 case unAuthorised: {
