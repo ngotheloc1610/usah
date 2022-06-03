@@ -31,6 +31,8 @@ const ForgotPassword = () => {
                 const messageError = resp?.data?.meta?.message ? resp?.data?.meta?.message : 'Update password faild';
                 toast.error(messageError);
             }
+        }).catch(error => {
+            toast.error(error?.response?.data?.data);
         })
     }
 
