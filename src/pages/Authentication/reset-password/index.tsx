@@ -6,7 +6,7 @@ import axios from 'axios';
 import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
-import { BAD_REQUEST_MESSAGE, success, unAuthorised } from '../../../constants';
+import { success, unAuthorised } from '../../../constants';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
@@ -62,9 +62,8 @@ const ResetPassword = () => {
                     break;
                 }
             }
-        }, err => {
-            console.log(err);
-            toast.error(BAD_REQUEST_MESSAGE);
+        }).catch((error: any) => {
+            toast.error(error.response.data.data)
         })
     }
 
