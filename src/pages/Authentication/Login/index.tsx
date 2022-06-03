@@ -17,6 +17,7 @@ const Login = () => {
     const [password, setPassword] = useState('')
     const [isRemeber, setIsRemeber] = useState(false)
     const [isMessErr, setIsMessErr] = useState(false);
+    const [isHiddenPassword, setIsHiddenPassword] = useState(true);
     const secretKey = useSelector((state: any) => state.auth.secretKey);
     const rememberKey = useSelector((state: any) => state.auth.rememberKey);
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
@@ -135,17 +136,20 @@ const Login = () => {
                                     <div className="mb-3">
                                         <label className="d-block mb-1 text-secondary">AccountNo</label>
                                         <div className="input-group">
-                                            <input type="text" className="form-control border-end-0" value={email} onChange={(event) => handleEmail(event.target.value)} />
+                                            <input type="text" className="form-control" value={email} onChange={(event) => handleEmail(event.target.value)} />
                                             <span className="input-group-text bg-transparent"><i className="bi bi-person-fill opacity-50"></i></span>
                                         </div>
                                     </div>
                                     <div className="mb-3">
                                         <label className="d-block mb-1 text-secondary">Password</label>
                                         <div className="input-group">
-                                            <input type="password" name="password" className="form-control border-end-0" value={password}
+                                            <input type={isHiddenPassword ? 'password' : 'text'} name="password" className="form-control border-end-0" value={password}
                                                 onChange={(event) => handlePassword(event.target.value)}
                                             />
-                                            <span className="input-group-text bg-transparent"><i className="bi bi-lock-fill opacity-50"></i></span>
+                                            <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" 
+                                                onClick={() => setIsHiddenPassword(!isHiddenPassword)} >
+                                                <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`} />
+                                            </button>
                                         </div>
                                     </div>
                                     {isMessErr && <div className='mb-3'>
