@@ -504,17 +504,17 @@ const MultipleOrders = () => {
                 }
 
                 if (isNaN(Number(obj.Quantity.replaceAll(',', '')))) {
-                    toast.error('Quantity invalid');
+                    toast.error('Invalid quantity');
                     return;
                 }
 
                 if (isNaN(Number(obj.Price.replaceAll(',', '')))) {
-                    toast.error('Price invalid');
+                    toast.error('Invalid price');
                     return;
                 }
 
                 if (!checkSideValid(obj.OrderSide)) {
-                    toast.error('Side invalid');
+                    toast.error('Invalid order side');
                     return;
                 }
 
@@ -858,6 +858,12 @@ const MultipleOrders = () => {
             </div>
         </div>
     }
+
+    const onInputClick = ( event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        const element = event.target as HTMLInputElement
+        element.value = ''
+    }
+
     const _renderElementImport = () => (
         <div className="w-persent-30 border-1 mt-30 mr mb-30">
             <div className="header-import">
@@ -871,7 +877,7 @@ const MultipleOrders = () => {
                 <div className="mb-30 mt-30">
                     <div className="upload-btn-wrapper">
                         <button className="btn btn-upload">Import File</button>
-                        <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
+                        <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} onClick={onInputClick} />
                     </div>
                 </div>
             </div>
@@ -909,7 +915,7 @@ const MultipleOrders = () => {
                         </div>}
                         {listTickers.length > 0 && <div className="upload-btn-wrapper">
                             <button className="btn btn-upload">Import</button>
-                            <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
+                            <input type="file" name="myfile" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} onClick={onInputClick} />
                         </div>}
 
                     </div>
