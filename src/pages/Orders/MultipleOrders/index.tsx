@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -8,6 +8,7 @@ import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, con
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
+import * as qmpb from '../../../models/proto/query_model_pb';
 import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
 import * as tdpb from '../../../models/proto/trading_model_pb';
@@ -24,6 +25,7 @@ const MultipleOrders = () => {
     const dispatch: any = useDispatch();
     const tradingModelPb: any = tspb;
     const tradingModel: any = tdpb;
+    const queryModel: any = qmpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
@@ -44,6 +46,9 @@ const MultipleOrders = () => {
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
+
+    const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
+    const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -463,6 +468,15 @@ const MultipleOrders = () => {
         return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
     }
 
+    const checkSymbol = (symbolCode: string) => {
+        const idx = symbolListActive.findIndex(o => o?.symbolCode === symbolCode);
+        return idx >= 0;
+    }
+
+    const checkSideValid = (side: string) => {
+        return side.toLowerCase().trim() === 'buy' || side.toLowerCase().trim() === 'sell';
+    }
+
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -483,6 +497,25 @@ const MultipleOrders = () => {
                     if (headers[j]) {
                         obj[headers[j]] = d;
                     }
+                }
+                if (!checkSymbol(obj.Ticker)) {
+                    toast.error("Symbol don't exist");
+                    return;
+                }
+
+                if (isNaN(Number(obj.Quantity.replaceAll(',', '')))) {
+                    toast.error('Quantity invalid');
+                    return;
+                }
+
+                if (isNaN(Number(obj.Price.replaceAll(',', '')))) {
+                    toast.error('Price invalid');
+                    return;
+                }
+
+                if (!checkSideValid(obj.OrderSide)) {
+                    toast.error('Side invalid');
+                    return;
                 }
 
                 if (Object.values(obj).filter(x => x).length > 0) {
