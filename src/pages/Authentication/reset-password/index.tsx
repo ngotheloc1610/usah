@@ -42,7 +42,7 @@ const ResetPassword = () => {
         <>
             <div className='text-success'>Password updated.</div>
             <div className='text-success'>You can now use your new password to sign in</div>
-            <a href={`${process.env.PUBLIC_URL}/login`}>{`${process.env.PUBLIC_URL}/login`}</a>
+            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login`}</a>
         </>
     )
 
