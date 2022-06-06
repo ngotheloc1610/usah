@@ -3,7 +3,7 @@ import { useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
+import { IAskAndBidPrice } from "../../../interfaces/order.interface";
 
 const OrderMonitoring = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');

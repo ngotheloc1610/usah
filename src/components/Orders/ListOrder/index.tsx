@@ -3,8 +3,6 @@ import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCK
 import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
-import * as pspb from "../../../models/proto/pricing_service_pb";
-import * as rpcpb from '../../../models/proto/rpc_pb';
 import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
@@ -19,18 +17,6 @@ import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 interface IPropsListOrder {
     getMsgSuccess: string;
     setMessageSuccess: (item: string) => void;
-}
-
-
-const paramModifiCancelDefault: IParamOrder = {
-    tickerCode: '',
-    tickerName: '',
-    orderType: '',
-    volume: '',
-    price: 0,
-    side: '',
-    confirmationConfig: false,
-    tickerId: ''
 }
 
 const defaultDataModiFyCancel: IParamOrderModifyCancel = {

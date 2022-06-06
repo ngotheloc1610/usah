@@ -34,7 +34,6 @@ const ListTicker = (props: IListTickerProps) => {
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
     const [quoteEvent, setQuoteEvent] = useState([]);
-    const [listSymbol, setListSymbol] = useState<string[]>([]);
     const [symbolCodeAdd, setSymbolCodeAdd] = useState<string>('');
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -47,7 +46,6 @@ const ListTicker = (props: IListTickerProps) => {
         pageShowCurrentLastQuote.map(item => {
             listSymbol.push(item.symbolCode)
         })
-        setListSymbol(listSymbol)
     }, [pageShowCurrentLastQuote])
 
     useEffect(() => {
