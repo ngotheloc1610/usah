@@ -136,7 +136,7 @@ const News = () => {
         const param: IParamPagination = getParams(isCheck, FIRST_PAGE);
         isNewsTab ? getNewsFromServer(param) : getDataTradingResult(param)
         isNewsTab ? setIsUnread(isCheck) : setIsUnreadTradingNotice(isCheck)
-        setDataDetailNews(DEFAULT_DETAIL_NEWS);
+        setIsShowNewsDetail(false);
     }
 
     const _renderNewsHeader = () => (
