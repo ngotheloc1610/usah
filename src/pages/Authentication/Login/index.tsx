@@ -31,7 +31,7 @@ const Login = () => {
                 if (bytes.toString(cryptoJS.enc.Utf8)) {
                     const decryptedData = JSON.parse(bytes.toString(cryptoJS.enc.Utf8));
                     if (decryptedData) {
-                        setEmail(decryptedData.poem_id);
+                        setEmail(decryptedData.account_id);
                         setPassword(decryptedData.password);
                     }
                 }
