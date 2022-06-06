@@ -137,22 +137,6 @@ const ListOrder = (props: IPropsListOrder) => {
         window.scrollTo(position.x, position.y)
     }, [position])
 
-    const getOrderBooks = () => {
-        const pricingServicePb: any = pspb;
-        const rpc: any = rpcpb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
-            symbolList.forEach(item => {
-                lastQoutes.addSymbolCode(item.symbolCode)
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.LAST_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQoutes.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
@@ -236,7 +220,6 @@ const ListOrder = (props: IPropsListOrder) => {
             </>
         }
         if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
-            getOrderBooks();
             setStatusCancel(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}

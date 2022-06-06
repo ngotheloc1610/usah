@@ -4,7 +4,6 @@ import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { IAskAndBidPrice, ITickerInfo } from "../../../interfaces/order.interface";
-import { DEFAULT_CURRENT_TICKER } from "../../../mocks";
 
 const OrderMonitoring = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
