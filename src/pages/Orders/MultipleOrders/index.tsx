@@ -522,7 +522,7 @@ const MultipleOrders = () => {
                     const tmp: ISymbolMultiOrder = {
                         no: (Number(obj.No) - 1).toString(),
                         orderSide: obj.OrderSide,
-                        price: obj.Price,
+                        price: formatCurrency(obj.Price),
                         ticker: obj.Ticker,
                         volume: obj.Quantity || obj.Volume
                     }
