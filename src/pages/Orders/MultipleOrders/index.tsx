@@ -95,7 +95,7 @@ const MultipleOrders = () => {
 
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
-            const temps = [...listTickers];
+            const temps = [...listSelected];
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
                     const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
@@ -115,8 +115,19 @@ const MultipleOrders = () => {
                     });
                 }
             });
-            setListTickers(temps);
-            dispatch(keepListOrder(temps));
+
+            const tickers: any[] = [];
+            listTickers.forEach(item => {
+                const idx = temps.findIndex(o => o?.no === item?.no);
+                if (idx >= 0) {
+                    tickers.push(temps[idx]);
+                } else {
+                    tickers.push(item);
+                }
+            })
+
+            setListTickers(tickers);
+            dispatch(keepListOrder(tickers));
         }
     }
 
@@ -536,7 +547,7 @@ const MultipleOrders = () => {
 
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
-                        no: (Number(obj.No) - 1).toString(),
+                        no: (list.length).toString(),
                         orderSide: obj.OrderSide,
                         price: formatCurrency(obj.Price.replaceAll(',', '')),
                         ticker: obj.Ticker,
