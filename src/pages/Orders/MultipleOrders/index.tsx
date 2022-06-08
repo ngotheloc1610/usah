@@ -263,7 +263,13 @@ const MultipleOrders = () => {
 
     const handleCheckedAll = (isChecked: boolean) => {
         if (isChecked) {
-            setListSelected(listTickers);
+            const temps: any[] = [];
+            listTickers.forEach(item => {
+                if (defindStatusOrder(item)?.props?.title === undefined) {
+                    temps.push(item);
+                }
+            });
+            setListSelected(temps);
         } else {
             setListSelected([]);
         }
@@ -289,13 +295,23 @@ const MultipleOrders = () => {
         setListSelected([]);
     }
 
+    const checkedAll = () => {
+        const temps: any[] = [];
+        listTickers.forEach(item => {
+            if (!defindStatusOrder(item)?.props?.title) {
+                temps.push(item);
+            }
+        });
+        return temps.length === listSelected.length && listSelected.length > 0;
+    }
+
     const _renderHearderMultipleOrders = () => (
         <tr>
             <th>
                 <input type="checkbox" value=""
                     name="allSelect"
                     onChange={(e: any) => handleCheckedAll(e.target.checked)}
-                    checked={listSelected.length === listTickers.length && listSelected.length > 0}
+                    checked={checkedAll()}
                 />
             </th>
             <th><span>No.</span></th>
@@ -335,7 +351,7 @@ const MultipleOrders = () => {
     const _renderDataMultipleOrders = () => (
         listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
-                <td><input type="checkbox" value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
+                <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-left">Limit</td>
@@ -522,7 +538,7 @@ const MultipleOrders = () => {
                     const tmp: ISymbolMultiOrder = {
                         no: (Number(obj.No) - 1).toString(),
                         orderSide: obj.OrderSide,
-                        price: formatCurrency(obj.Price),
+                        price: formatCurrency(obj.Price.replaceAll(',', '')),
                         ticker: obj.Ticker,
                         volume: obj.Quantity || obj.Volume
                     }
