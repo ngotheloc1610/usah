@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
+import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -7,6 +7,7 @@ import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
+import * as psbp from "../../../models/proto/pricing_service_pb";
 import { formatNumber } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -52,7 +53,10 @@ const ListOrder = (props: IPropsListOrder) => {
         y: 0
     })
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
-    const myRef: any = useRef()
+    const myRef: any = useRef();
+
+    const accId = localStorage.getItem(ACCOUNT_ID);
+    console.log(59, accId);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -64,10 +68,12 @@ const ListOrder = (props: IPropsListOrder) => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
+            processListOrder(response.orderList);
         });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
             if (resp && resp.quoteList) {
+                console.log(73, resp.quoteList)
                 sendListOrder()
             }
         })
@@ -82,6 +88,41 @@ const ListOrder = (props: IPropsListOrder) => {
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         prepareMessagee(accountId);
+    }
+
+    const processListOrder = (orderList: IListOrderMonitoring[]) => {
+        const temp: any[] = [];
+        const warchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = warchList.filter(o => o.accountId === accId);
+        orderList.forEach((item: IListOrderMonitoring) => {
+            const idx = temp.findIndex(o => o?.symbolCode === item?.symbolCode);
+            const idxWatchList = ownWatchList.findIndex(o => o?.symbolCode === item?.symbolCode);
+            if (idx < 0 && idxWatchList < 0) {
+                temp.push({
+                    symbolCode: item.symbolCode
+                });
+            }
+        });
+        console.log(100, temp);
+        if (temp.length > 0) {
+            subscribeQuoteEvent(temp);
+        }
+    }
+
+    const subscribeQuoteEvent = (symbolList: any[]) => {
+        const pricingServicePb: any = psbp;
+        const rpc: any = rspb;
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            symbolList.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            })
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
     const prepareMessagee = (accountId: string) => {

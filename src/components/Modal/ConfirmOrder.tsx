@@ -199,6 +199,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
+    // const unSubscribeQuoteEvent = () => {
+    //     const wsConnected = wsService.getWsConnected();
+    //     if (wsConnected) {
+    //         let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+    //         unsubscribeQuoteReq.addSymbolCode(params.tickerCode);
+    //         let rpcMsg = new rProtoBuff.RpcMessage();
+    //         rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+    //         rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+    //         wsService.sendMessage(rpcMsg.serializeBinary());
+    //     }
+    // }
+
     const sendOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
