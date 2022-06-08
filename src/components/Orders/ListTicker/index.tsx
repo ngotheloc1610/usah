@@ -27,32 +27,32 @@ const defaultProps = {
 const dafaultLastQuotesData: ILastQuote[] = [];
 
 const ListTicker = (props: IListTickerProps) => {
-    const { getTicerLastQuote, msgSuccess, handleSide, getSymbolCodeRemove } = props;
+    const { getTicerLastQuote, handleSide, getSymbolCodeRemove } = props;
     const [lastQoutes, setLastQoutes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [pageShowCurrentLastQuote, setPageShowCurrentLastQuote] = useState<ILastQuote[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
     const [quoteEvent, setQuoteEvent] = useState([]);
-    const [listSymbol, setListSymbol] = useState<string[]>([]);
     const [symbolCodeAdd, setSymbolCodeAdd] = useState<string>('');
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const currentAccId = localStorage.getItem(ACCOUNT_ID);
+    const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+    const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
 
     useEffect(() => {
         const listSymbol: string[] = []
         pageShowCurrentLastQuote.map(item => {
             listSymbol.push(item.symbolCode)
         })
-        setListSymbol(listSymbol)
     }, [pageShowCurrentLastQuote])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                getOrderBooks();
-                subscribeQuoteEvent(symbols);
+                getOrderBooks(ownWatchList);
+                subscribeQuoteEvent(ownWatchList);
             }
         });
 
@@ -70,8 +70,6 @@ const ListTicker = (props: IListTickerProps) => {
         });
 
         return () => {
-            const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-            const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
             unSubscribeQuoteEvent(ownWatchList);
             subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
@@ -89,8 +87,6 @@ const ListTicker = (props: IListTickerProps) => {
     }, [lastQoutes, currentPage])
 
     useEffect(() => {
-        const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-        const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
         const quotesDefault: ILastQuote[] = [];
         ownWatchList.forEach(item => {
             if (item) {
@@ -108,8 +104,6 @@ const ListTicker = (props: IListTickerProps) => {
 
     const processLastQuote = (lastQoutes: ILastQuote[]) => {
         const quotes: ILastQuote[] = [];
-        const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-        const ownWatchList = watchList.filter((o: IWatchList) => o?.accountId === currentAccId);
         ownWatchList.forEach(item => {
             if (item) {
                 const idxQuote = lastQoutes.findIndex(e => e?.symbolCode === item?.symbolCode);
@@ -148,18 +142,17 @@ const ListTicker = (props: IListTickerProps) => {
                 }
 
             });
-            // setLastQoutes(tempLastQuote);
             setPageShowCurrentLastQuote(tmpList);
         }
     }
 
-    const subscribeQuoteEvent = (quotes: ILastQuote[]) => {
+    const subscribeQuoteEvent = (ownWatchList: any[]) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            quotes.forEach(item => {
+            ownWatchList.forEach(item => {
                 subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
             })
             let rpcMsg = new rpc.RpcMessage();
@@ -169,13 +162,13 @@ const ListTicker = (props: IListTickerProps) => {
         }
     }
 
-    const unSubscribeQuoteEvent = (quotes: ILastQuote[]) => {
+    const unSubscribeQuoteEvent = (ownWatchList: any[]) => {
         const pricingServicePb: any = psbp;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            quotes.forEach(item => {
+            ownWatchList.forEach(item => {
                 unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
             });
             let rpcMsg = new rpc.RpcMessage();
@@ -197,13 +190,13 @@ const ListTicker = (props: IListTickerProps) => {
 
     }, []);
 
-    const getOrderBooks = () => {
+    const getOrderBooks = (ownWatchList: any) => {
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let lastQoutes = new pricingServicePb.GetLastQuotesRequest();
-            symbols.forEach(item => {
+            ownWatchList.forEach(item => {
                 lastQoutes.addSymbolCode(item.symbolCode)
             });
             let rpcMsg = new rpc.RpcMessage();
@@ -263,15 +256,17 @@ const ListTicker = (props: IListTickerProps) => {
 
     const btnAddTicker = (symbolCodeAdd) => {
         if (symbolCodeAdd) {
-            const watchLists = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-            const checkExist = watchLists.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
+            const currentWactchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+            const checkExist = currentWactchList.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
             if (!checkExist) {
-                watchLists.push({
+                const tempWatchList = {
                     accountId: currentAccId,
                     symbolCode: symbolCodeAdd
-                });
-                localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(watchLists));
-                const ownWatchList = watchLists.filter(o => o?.accountId === currentAccId);
+                };
+                currentWactchList.push(tempWatchList);
+                subscribeQuoteEvent([tempWatchList]);
+                localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
+                const ownWatchList = currentWactchList.filter(o => o?.accountId === currentAccId);
                 const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
                 setCurrentPage(currentPage);
 
@@ -303,7 +298,7 @@ const ListTicker = (props: IListTickerProps) => {
                 temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
                 setPageShowCurrentLastQuote(temp);
 
-                getOrderBooks();
+                getOrderBooks(ownWatchList);
                 _rendetMessageSuccess();
 
             } else {
@@ -420,8 +415,6 @@ const ListTicker = (props: IListTickerProps) => {
             currentWactchList.splice(idx, 1);
         }
         localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
-        const lstItem = currentWactchList.filter(o => o?.accountId === currentAccId);
-        const tempLstItem = lstItem.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
         const temps = [...pageShowCurrentLastQuote];
         const idxQuote = pageShowCurrentLastQuote?.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
         if (idxQuote >= 0) {
