@@ -56,7 +56,6 @@ const ListOrder = (props: IPropsListOrder) => {
     const myRef: any = useRef();
 
     const accId = localStorage.getItem(ACCOUNT_ID);
-    console.log(59, accId);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -73,7 +72,6 @@ const ListOrder = (props: IPropsListOrder) => {
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
             if (resp && resp.quoteList) {
-                console.log(73, resp.quoteList)
                 sendListOrder()
             }
         })
@@ -103,7 +101,6 @@ const ListOrder = (props: IPropsListOrder) => {
                 });
             }
         });
-        console.log(100, temp);
         if (temp.length > 0) {
             subscribeQuoteEvent(temp);
         }
