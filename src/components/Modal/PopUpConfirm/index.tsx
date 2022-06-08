@@ -4,9 +4,11 @@ import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as tspb from '../../../models/proto/trading_service_pb';
+import * as psbp from '../../../models/proto/pricing_service_pb';
 import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
+import { useEffect } from 'react';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -21,12 +23,54 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
-    
+    const systemModelPb: any = smpb;
     const rProtoBuff: any = rpc;
+    const pricingServicePb: any = psbp;
+
+    useEffect(() => {
+        const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
+            let tmp = 0;
+            if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                if (handleStatusCancelAll) {
+                    // Get status modify or cancel order response
+                    handleStatusCancelAll(MODIFY_CANCEL_STATUS.success);
+                    unSubscribeQuoteEvent();
+                }
+                tmp = RESPONSE_RESULT.success;
+            } else {
+                if (handleStatusCancelAll) {
+                    // Get status modify or cancel order response
+                    handleStatusCancelAll(MODIFY_CANCEL_STATUS.error)
+                }
+                tmp = RESPONSE_RESULT.error;
+            }
+            handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+            handleCloseConfirmPopup(false);
+        });
+
+        return () => {
+            multiCancelOrder.unsubscribe();
+        }
+
+    }, [])
 
     const sendRes = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         prepareMessageeCancelAll(accountId);
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            listOrder.forEach(item => {
+                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rProtoBuff.RpcMessage();
+            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
     }
 
     const prepareMessageeCancelAll = (accountId: string) => {
@@ -56,25 +100,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            const systemModelPb: any = smpb;
-            const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
-                let tmp = 0;
-                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    if (handleStatusCancelAll) {
-                        // Get status modify or cancel order response
-                        handleStatusCancelAll(MODIFY_CANCEL_STATUS.success)
-                    }
-                    tmp = RESPONSE_RESULT.success;
-                } else {
-                    if (handleStatusCancelAll) {
-                        // Get status modify or cancel order response
-                        handleStatusCancelAll(MODIFY_CANCEL_STATUS.error)
-                    }
-                    tmp = RESPONSE_RESULT.error;
-                }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-                handleCloseConfirmPopup(false);
-            });
         }
     }
     return <>

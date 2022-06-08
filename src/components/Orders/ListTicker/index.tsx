@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
-import { IAskAndBidPrice, ILastQuote, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
+import { IAskAndBidPrice, ILastQuote, IListOrderMonitoring, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as rpcpb from '../../../models/proto/rpc_pb';
 import { wsService } from "../../../services/websocket-service";
@@ -35,6 +35,7 @@ const ListTicker = (props: IListTickerProps) => {
     const [currentPage, setCurrentPage] = useState<number>(pageFirst);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [symbolCodeAdd, setSymbolCodeAdd] = useState<string>('');
+    const [orderList, setOrderList] = useState<IListOrderMonitoring[]>([]);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const currentAccId = localStorage.getItem(ACCOUNT_ID);
@@ -63,6 +64,10 @@ const ListTicker = (props: IListTickerProps) => {
         const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
         });
 
+        const listOrder = wsService.getListOrder().subscribe(response => {
+            setOrderList(response.orderList);
+        });
+
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
                 setQuoteEvent(quote.quoteList);
@@ -75,6 +80,7 @@ const ListTicker = (props: IListTickerProps) => {
             quoteEvent.unsubscribe();
             ws.unsubscribe();
             lastQuotesRes.unsubscribe();
+            listOrder.unsubscribe();
         }
     }, []);
 
@@ -407,7 +413,10 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const removeTicker = (itemLstQuote: ILastQuote) => {
-        unSubscribeQuoteEvent([itemLstQuote]);
+        const index = orderList.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
+        if (index < 0) {
+            unSubscribeQuoteEvent([itemLstQuote]);
+        }
         getSymbolCodeRemove(itemLstQuote.symbolCode);
         const currentWactchList: IWatchList[] = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
         const idx = currentWactchList.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode && o?.accountId === currentAccId);

@@ -1,13 +1,13 @@
 import './Modal.scss';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
-import { IParamOrder, IParamOrderModifyCancel } from '../../interfaces/order.interface';
+import { IParamOrderModifyCancel } from '../../interfaces/order.interface';
 import { useEffect, useState } from 'react';
 import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
-import * as sspb from '../../models/proto/system_service_pb'
 import * as smpb from '../../models/proto/system_model_pb';
+import * as psbp from '../../models/proto/pricing_service_pb';
 import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -25,7 +25,7 @@ interface IConfirmOrder {
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
-    const systemServicePb: any = sspb
+    const pricingServicePb: any = psbp;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
     const [currentSide, setCurrentSide] = useState(params.side);
@@ -184,6 +184,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     if (handleStatusModifyCancel) {
                         // Get status modify or cancel order response
                         handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success);
+                        unSubscribeQuoteEvent();
                     }
                     tmp = RESPONSE_RESULT.success;
                 } else {
@@ -196,6 +197,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            unsubscribeQuoteReq.addSymbolCode(params.tickerCode);
+            let rpcMsg = new rProtoBuff.RpcMessage();
+            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
