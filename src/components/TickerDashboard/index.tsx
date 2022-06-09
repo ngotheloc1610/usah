@@ -76,7 +76,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
-            const temp: ISymbolQuote[] = [];
+            let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
                 if (symbol) {
                     const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
@@ -101,9 +101,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     }
                 }
             });
+            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setListData(temp);
         } else {
-            const temp: ISymbolQuote[] = [];
+            let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
                 if (symbol) {
                     const symbolQuote: ISymbolQuote = {
@@ -125,6 +126,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     }
                 }
             });
+            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setListData(temp);
         }
     }

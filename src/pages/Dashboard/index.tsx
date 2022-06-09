@@ -64,7 +64,8 @@ const Dashboard = () => {
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList && res.symbolList.length > 0) {
-                const symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+                let symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+                symbolListActive = symbolListActive.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode))
                 setSymbolList(symbolListActive);
                 localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                 localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList));
