@@ -601,8 +601,10 @@ export interface IDataHistoryDownload {
     executedVolume: number;
     orderPrice: number;
     lastPrice: number;
+    withdrawQuantity: string;
     orderDateTime: string;
     executedDateTime: string;
+    comment: string;
 }
 
 export interface ITradeHistoryDownload {
