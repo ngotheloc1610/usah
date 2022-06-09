@@ -88,17 +88,6 @@ const ContentSearch = (props: IPropsContentSearch) => {
         getParamSearch(symbolCode, side);
     }
 
-    const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || side !== 0) {
-            if (event.key === 'Enter') {
-                // sendMessageSearch();
-                getParamSearch(symbolCode, side);
-                const el: any = document.querySelectorAll('.input-select');
-                removeFocusInput(el);
-            }
-        }
-    }
-
     const _rendetMessageError = (message: string) => (
         <div>{toast.error(message)}</div>
     )
@@ -149,7 +138,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const _renderTemplate = () => (
         <div>
-            <div className="card-body bg-gradient-light mb-3" onKeyDown={handlKeyDown}>
+            <div className="card-body bg-gradient-light mb-3">
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderSide()}

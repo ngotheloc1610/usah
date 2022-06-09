@@ -129,25 +129,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         paramSearch(paramSearchHistory);
     }
 
-    const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || orderState !== 0 || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
-            if (event.key === 'Enter') {
-                // before the core handles the filter but now the font end handle filter
-                // sendMessageOrderHistory();
-                const paramSearchHistory: IParamHistorySearch = {
-                    symbolCode: symbolCode,
-                    orderState: orderState,
-                    orderSide: side,
-                    fromDate: fromDatetime,
-                    toDate: toDatetime,
-                }
-                paramSearch(paramSearchHistory);
-                const el: any = document.querySelectorAll('.input-select');
-                removeFocusInput(el);
-            }
-        }
-    }
-
     const handleChangeTicker = (value: string) => {
         value ? setSymbolCode(getSymbolCode(value)) : setSymbolCode('');
     }
@@ -258,7 +239,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <div className="card-header">
                 <h6 className="card-title fs-6 mb-0">Order History</h6>
             </div>
-            <div className="card-body bg-gradient-light" onKeyDown={handlKeyDown}>
+            <div className="card-body bg-gradient-light">
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderStatus()}
