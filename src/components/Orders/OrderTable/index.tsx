@@ -209,8 +209,10 @@ function OrderTable(props: IPropListOrderHistory) {
                     executedVolume: convertNumber(item.filledAmount),
                     orderPrice: convertNumber(item.price),
                     lastPrice: convertNumber(item.lastPrice),
+                    withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
                     orderDateTime: formatOrderTime(item.time),
-                    executedDateTime: formatOrderTime(item.time)
+                    executedDateTime: formatOrderTime(item.time),
+                    comment: getMessageDisplay(item.msgCode, item.state)
                 });
             }
         });
