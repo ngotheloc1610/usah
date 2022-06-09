@@ -99,7 +99,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         listTradeSortDate.forEach((item) => {
             if (item) {
                 data.push({
-                    orderId: item.orderId,
+                    orderId: item.externalOrderId,
                     tickerCode: getTickerCode(item?.tickerCode),
                     tickerName: getTickerName(item?.tickerCode),
                     orderSide: getSideName(item.side),
