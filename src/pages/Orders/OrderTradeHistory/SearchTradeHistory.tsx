@@ -85,22 +85,6 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         getParamSearch(param);
     }
 
-    const handlKeyDown = (event: any) => {
-        if (symbolCode !== '' || side !== 0 || fromDatetime !== 0 || toDatetime !== 0) {
-            if (event.key === 'Enter') {
-                const param: IParamSearchTradeHistory = {
-                    side: side,
-                    symbolCode: symbolCode,
-                    fromDate: fromDatetime,
-                    toDate: toDatetime
-                }
-                getParamSearch(param);
-                const el: any = document.querySelectorAll('.input-select');
-                removeFocusInput(el);
-            }
-        }
-    }
-
     const getParamOrderSide = () => {
         const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
@@ -185,7 +169,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             <div className="card-header">
                 <h6 className="card-title fs-6 mb-0">Trade History</h6>
             </div>
-            <div className="card-body bg-gradient-light" onKeyDown={handlKeyDown}>
+            <div className="card-body bg-gradient-light">
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
                     {_renderOrderSide()}
