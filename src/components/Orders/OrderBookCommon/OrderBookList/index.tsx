@@ -562,7 +562,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                         </strong>
                     </td>
                     <td className="text-end">&nbsp;</td>
-                    <td className="text-end">OVER</td>
+                    <td className="text-end"><strong>OVER</strong></td>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
                 </tr>
                 <tr>
@@ -584,7 +584,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 </tr>
                 <tr>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
-                    <td className="text-end">UNDER</td>
+                    <td className="text-end"><strong>UNDER</strong></td>
                     <td className="text-end" colSpan={2}>
                         <strong>
                             {convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}
