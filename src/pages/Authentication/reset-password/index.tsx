@@ -3,7 +3,7 @@ import '../Login/Login.scss';
 import { useState } from 'react';
 import { API_RESET_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD } from '../../../constants/general.constant';
+import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
@@ -156,7 +156,7 @@ const ResetPassword = () => {
                                                 <i className={`bi ${isOpenEyeConfirm ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`} />
                                             </button>
                                         </div>
-                                        {isNotMatch && <span className='text-danger'>Confirm Passworn don't match</span>}
+                                        {isNotMatch && <span className='text-danger'>{NOT_MATCH_PASSWORD}</span>}
                                         {isError && <span className='text-danger'>{errMess}</span>}
                                         {isExpiredResetToken && <div className='text-danger'>{_renderResetTokenErrorMessage()}</div>}
                                         {isSuccess && renderSuccessMessage()}
