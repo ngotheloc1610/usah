@@ -9,6 +9,7 @@ import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
+import moment from 'moment';
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -53,6 +54,8 @@ const Login = () => {
     }
 
     const requestLogin = () => {
+        const expiredTime = moment('2022-06-13T17:01:00.227+00:00').valueOf();
+        console.log(64, expiredTime, moment().utc().valueOf());
         const url = `${api_url}${API_LOGIN}`;
         const param = {
             account_id: email.trim(),
