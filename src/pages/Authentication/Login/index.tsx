@@ -9,7 +9,6 @@ import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
-import moment from 'moment';
 
 const api_url = process.env.REACT_APP_API_URL;
 
