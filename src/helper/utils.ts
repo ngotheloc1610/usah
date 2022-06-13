@@ -45,7 +45,7 @@ export function formatIdNumber(item: string) {
 }
 
 export function validationPassword(newPassword: string) {
-    if (newPassword.length < 8) {
+    if (newPassword.length < LENGTH_PASSWORD) {
         return false;
     }
     if (!/[a-z]/.test(newPassword)) {
