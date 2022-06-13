@@ -116,10 +116,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
-        const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
+        const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
         if (convertNumber(maxOrderVolume) < convertNumber(params.volume)) {
             const errMess = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME);
-            toast.error(errMess);
+            toast.error(`${errMess}: ${formatNumber(maxOrderVolume)}`);
+            handleCloseConfirmPopup(true);
             return;
         }
 

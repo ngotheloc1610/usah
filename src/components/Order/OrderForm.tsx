@@ -22,17 +22,6 @@ interface IOrderForm {
     messageSuccess: (item: string) => void;
 }
 
-const defaultData: IParamOrder = {
-    tickerCode: '',
-    tickerName: '',
-    orderType: '',
-    volume: '',
-    price: 0,
-    side: '',
-    confirmationConfig: false,
-    tickerId: ''
-}
-
 const defaultDataModiFyCancel: IParamOrderModifyCancel = {
     tickerCode: '',
     tickerName: '',
@@ -149,10 +138,10 @@ const OrderForm = (props: IOrderForm) => {
 
     const handelUpperVolume = () => {
         const currentVol = Number(volume);
-        const nerwVol = currentVol + lotSize;
-        setVolume(nerwVol);
-        setInvalidVolume(nerwVol % lotSize !== 0);
-        setValidForm(price > 0 && nerwVol > 0);
+        const newVol = currentVol + lotSize;
+        setVolume(newVol);
+        setInvalidVolume(newVol % lotSize !== 0);
+        setValidForm(price > 0 && newVol > 0);
     }
 
     const handelLowerVolume = () => {
@@ -161,10 +150,10 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(lotSize);
             return;
         }
-        const nerwVol = currentVol - lotSize;
-        setVolume(nerwVol);
-        setInvalidVolume(nerwVol % lotSize !== 0);
-        setValidForm(price > 0 && nerwVol > 0);
+        const newVol = currentVol - lotSize;
+        setVolume(newVol);
+        setInvalidVolume(newVol % lotSize !== 0);
+        setValidForm(price > 0 && newVol > 0);
     }
 
     const handleUpperPrice = () => {
