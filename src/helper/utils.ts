@@ -45,8 +45,19 @@ export function formatIdNumber(item: string) {
 }
 
 export function validationPassword(newPassword: string) {
-    const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
-    return pattern.test(newPassword);
+    if (newPassword.length < 8) {
+        return false;
+    }
+    if (!/[a-z]/.test(newPassword)) {
+        return false;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+        return false;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+        return false;
+    }
+    return true;
 }
 
 export function convertDatetoTimeStamp(value: string, time: string) {
