@@ -101,8 +101,9 @@ const ResetPassword = () => {
         <>
             New password must contain:
             <ul>
-                <li> from 8-20 character </li>
-                <li> at least one uppercase letter </li>
+                <li> at least 8 character </li>
+                <li> at least one upper case letter (A, B, C...) </li>
+                <li> at least one lower case letter (a, b, c...) </li>
                 <li> at least one number </li>
             </ul>
         </>
@@ -139,7 +140,6 @@ const ResetPassword = () => {
                                         <div className="input-group">
                                             <input type={isOpenEyeNew ? 'password' : 'text'} className="form-control border-end-0" value={newPassword} onChange={handleNewPassword}
                                                 minLength={LENGTH_PASSWORD}
-                                                maxLength={MAX_LENGTH_PASSWORD}
                                             />
                                             <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button"
                                                 onClick={() => setIsOpenEyeNew(!isOpenEyeNew)} >
