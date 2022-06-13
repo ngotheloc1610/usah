@@ -54,8 +54,6 @@ const Login = () => {
     }
 
     const requestLogin = () => {
-        const expiredTime = moment('2022-06-13T17:01:00.227+00:00').valueOf();
-        console.log(64, expiredTime, moment().utc().valueOf());
         const url = `${api_url}${API_LOGIN}`;
         const param = {
             account_id: email.trim(),
