@@ -185,6 +185,8 @@ export const POEM_ID = 'lp_poem_id';
 
 export const MIN_ORDER_VALUE = 'lp_min_order_value';
 
+export const MAX_ORDER_VOLUME = 'lp_max_order_volume';
+
 export const EXPIRE_TIME = 'lp_expire_time';
 
 export const SUB_ACCOUNTS = 'lp_sub_accounts';

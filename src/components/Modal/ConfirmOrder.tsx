@@ -8,10 +8,12 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
 import * as psbp from '../../models/proto/pricing_service_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
+import { MESSAGE_ERROR } from '../../constants/message.constant';
+import { toast } from 'react-toastify';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -114,6 +116,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
+        const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
+        if (convertNumber(maxOrderVolume) < convertNumber(params.volume)) {
+            const errMess = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME);
+            toast.error(errMess);
+            return;
+        }
+
         if (wsConnected) {
             let currentDate = new Date();
             let singleOrder = new tradingServicePb.NewOrderSingleRequest();
