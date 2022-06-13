@@ -120,6 +120,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (convertNumber(maxOrderVolume) < convertNumber(params.volume)) {
             const errMess = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME);
             toast.error(errMess);
+            handleCloseConfirmPopup(true);
             return;
         }
 
