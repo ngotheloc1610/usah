@@ -110,8 +110,9 @@ const Setting = (props: ISetting) => {
         <>
             New password must contain:
             <ul>
-                <li> from 8-20 character </li>
-                <li> at least one uppercase letter </li>
+                <li> at least 8 character </li>
+                <li> at least one upper case letter (A, B, C...) </li>
+                <li> at least one lower case letter (a, b, c...) </li>
                 <li> at least one number </li>
             </ul>
         </>
