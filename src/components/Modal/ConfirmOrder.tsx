@@ -119,7 +119,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
         if (convertNumber(maxOrderVolume) < convertNumber(params.volume)) {
             const errMess = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME);
-            toast.error(errMess);
+            toast.error(`${errMess}: ${maxOrderVolume}`);
             handleCloseConfirmPopup(true);
             return;
         }

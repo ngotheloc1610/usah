@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_VALUE_INTEGER, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, checkMessageError, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -48,7 +48,6 @@ const OrderForm = (props: IOrderForm) => {
     const [statusOrder, setStatusOrder] = useState(0);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
-    const [isWrongVolumeType, setIsWrongVolumeType] = useState(false);
     const [floorPrice, setFloorPrice] = useState(0);
     const [ceilingPrice, setCeilingPrice] = useState(0);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
@@ -140,25 +139,21 @@ const OrderForm = (props: IOrderForm) => {
     const handelUpperVolume = () => {
         const currentVol = Number(volume);
         const newVol = currentVol + lotSize;
-        const vol = newVol > MAX_VALUE_INTEGER ? MAX_VALUE_INTEGER : newVol;
-        setVolume(vol);
-        setInvalidVolume(vol % lotSize !== 0);
-        setValidForm(price > 0 && vol > 0);
-        setIsWrongVolumeType(false);
+        setVolume(newVol);
+        setInvalidVolume(newVol % lotSize !== 0);
+        setValidForm(price > 0 && newVol > 0);
     }
 
     const handelLowerVolume = () => {
-        setIsWrongVolumeType(false);
         const currentVol = Number(volume);
         if (currentVol <= lotSize) {
             setVolume(lotSize);
             return;
         }
         const newVol = currentVol - lotSize;
-        const vol = newVol > MAX_VALUE_INTEGER ? MAX_VALUE_INTEGER : newVol;
-        setVolume(vol);
-        setInvalidVolume(vol % lotSize !== 0);
-        setValidForm(price > 0 && vol > 0);
+        setVolume(newVol);
+        setInvalidVolume(newVol % lotSize !== 0);
+        setValidForm(price > 0 && newVol > 0);
     }
 
     const handleUpperPrice = () => {
@@ -262,7 +257,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || isWrongVolumeType;
+        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice;
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
@@ -287,7 +282,6 @@ const OrderForm = (props: IOrderForm) => {
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
-            setIsWrongVolumeType(volume > MAX_VALUE_INTEGER);
         }
     }
 
@@ -345,7 +339,6 @@ const OrderForm = (props: IOrderForm) => {
                 {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger'>Invalid Price</span>}
             </div>
             {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && isWrongVolumeType && symbolCode && <span className='text-danger'>Invalid volume</span>}
         </>
     }
     // TODO: The type button has no default behavior, and does nothing when pressed by default
