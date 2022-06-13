@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
@@ -74,7 +74,8 @@ const Login = () => {
                     localStorage.setItem(EXPIRE_TIME, data.expire_time);
                     localStorage.setItem(ROLE, data.role);
                     localStorage.setItem(POEM_ID, data.poem_id);
-                    localStorage.setItem(MIN_ORDER_VALUE, resp.data.data.min_order_value.toString())
+                    localStorage.setItem(MIN_ORDER_VALUE, resp.data.data.min_order_value.toString());
+                    localStorage.setItem(MAX_ORDER_VOLUME, resp.data.data.max_order_volume.toString());
                     if (data.sub_accounts) {
                         localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(data.sub_accounts));
                     } else {

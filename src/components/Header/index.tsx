@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TIME_ZONE } from '../../constants/general.constant';
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TIME_ZONE } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
@@ -105,6 +105,7 @@ const Header = () => {
     localStorage.removeItem(EXPIRE_TIME);
     localStorage.removeItem(POEM_ID);
     localStorage.removeItem(MIN_ORDER_VALUE);
+    localStorage.removeItem(MAX_ORDER_VOLUME);
     window.location.href = `${process.env.PUBLIC_URL}/login`;
   }
 

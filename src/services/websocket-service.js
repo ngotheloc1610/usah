@@ -4,7 +4,7 @@ import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
-import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE } from '../constants/general.constant';
+import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from '../constants/general.constant';
 import { toast } from 'react-toastify';
 import { INVALID_TOKEN } from '../constants';
 
@@ -63,6 +63,7 @@ const startWs = async () => {
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
         localStorage.removeItem(MIN_ORDER_VALUE);
+        localStorage.removeItem(MAX_ORDER_VOLUME);
         toast.error(INVALID_TOKEN);
         // Time to display notification error is 3s
         setTimeout(()=> {
