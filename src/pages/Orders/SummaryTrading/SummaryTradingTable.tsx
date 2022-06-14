@@ -298,7 +298,7 @@ function SummaryTradingTable() {
         portfolio?.map((item: IPortfolio, index: number) => (
             <tr className="odd " key={index}>
                 <td className="text-start w-s td" title={getSymbol(item.symbolCode)?.symbolName}>{getSymbol(item.symbolCode)?.symbolCode}</td>
-                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode).toString())}</td>
+                <td className='text-end w-s td'>{formatNumber(calcOwnedVolume(item?.symbolCode.split('.')[0]).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcAvgPrice(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(calcInvestedValue(item).toString())}</td>
                 <td className="text-end w-s td" >{formatCurrency(item.marketPrice)}</td>
