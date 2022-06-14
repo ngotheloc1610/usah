@@ -45,13 +45,19 @@ export function formatIdNumber(item: string) {
 }
 
 export function validationPassword(newPassword: string) {
-    const isUpperCase = newPassword.match(/[A-Z]/g);
-    const isNumber = /\d/.test(newPassword);
-    if (newPassword.length < LENGTH_PASSWORD || isUpperCase === null || isNumber === false) {
+    if (newPassword.length < LENGTH_PASSWORD) {
         return false;
-    } else {
-        return true;
     }
+    if (!/[a-z]/.test(newPassword)) {
+        return false;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+        return false;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+        return false;
+    }
+    return true;
 }
 
 export function convertDatetoTimeStamp(value: string, time: string) {
