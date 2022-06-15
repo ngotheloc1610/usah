@@ -7,6 +7,7 @@ import { Subject } from 'rxjs';
 import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from '../constants/general.constant';
 import { toast } from 'react-toastify';
 import { INVALID_TOKEN } from '../constants';
+import moment from 'moment';
 
 const url = process.env.REACT_APP_BASE_URL;
 var socket = null;
@@ -56,19 +57,25 @@ const startWs = async () => {
     socket.onerror = () => {
         socket.close();
         wsConnected = false;
-        // TODO: navigate to login screen when expired token
-        localStorage.removeItem(ACCOUNT_ID);
-        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-        localStorage.removeItem(EXPIRE_TIME);
-        localStorage.removeItem(ROLE);
-        localStorage.removeItem(POEM_ID);
-        localStorage.removeItem(MIN_ORDER_VALUE);
-        localStorage.removeItem(MAX_ORDER_VOLUME);
-        toast.error(INVALID_TOKEN);
-        // Time to display notification error is 3s
-        setTimeout(()=> {
-            window.location.href = `${process.env.PUBLIC_URL}/login`;
-        }, 3000);
+
+        const tokenExpiredTime = localStorage.getItem(EXPIRE_TIME);
+        const currentTime = moment().utc().valueOf();
+        const expiredTime = moment(tokenExpiredTime).valueOf();
+        if (currentTime >= expiredTime) {
+            // TODO: navigate to login screen when expired token
+            localStorage.removeItem(ACCOUNT_ID);
+            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+            localStorage.removeItem(EXPIRE_TIME);
+            localStorage.removeItem(ROLE);
+            localStorage.removeItem(POEM_ID);
+            localStorage.removeItem(MIN_ORDER_VALUE);
+            localStorage.removeItem(MAX_ORDER_VOLUME);
+            toast.error(INVALID_TOKEN);
+            // Time to display notification error is 3s
+            setTimeout(()=> {
+                window.location.href = `${process.env.PUBLIC_URL}/login`;
+            }, 3000);
+        }
     }
 
     socket.onclose = () => {
