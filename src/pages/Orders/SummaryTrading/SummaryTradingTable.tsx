@@ -26,15 +26,17 @@ function SummaryTradingTable() {
         const param = {
             market: MARKET
         }
-        axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
-            if (resp?.data?.meta?.code === success) {
-                const resultData = resp?.data?.data;
-                setListClientHoldingInfo(resultData || []);
-            }
-        },
-            (error) => {
-                console.log(error);
+        if (process.env.REACT_APP_RMS_API === 'true') {
+            axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
+                if (resp?.data?.meta?.code === success) {
+                    const resultData = resp?.data?.data;
+                    setListClientHoldingInfo(resultData || []);
+                }
+            },
+                (error) => {
+                    console.log(error);
             });
+        }
 
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
