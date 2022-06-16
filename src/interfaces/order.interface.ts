@@ -590,7 +590,7 @@ export interface IDataHistory {
 
 
 export interface IDataHistoryDownload {
-    orderId: string;
+    orderNo: string;
     tickerCode: string;
     tickerName: string;
     orderSide: string;
@@ -613,7 +613,7 @@ export interface ITradeHistoryDownload {
     executedPrice: number;
     executedQuatity: number;
     matchedValue: number;
-    orderId: string;
+    orderNo: string;
     orderType: string;
     orderPrice: number;
     orderSide?: string;

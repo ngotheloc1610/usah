@@ -293,7 +293,7 @@ const ListOrder = (props: IPropsListOrder) => {
                             />
                         </th>
                         <th className="sorting_disabled">
-                            <span className="text-ellipsis">Order ID</span>
+                            <span className="text-ellipsis">Order No</span>
                         </th>
                         <th className="sorting_disabled">
                             <span className="text-ellipsis">Ticker</span>

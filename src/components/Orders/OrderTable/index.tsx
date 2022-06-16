@@ -127,7 +127,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
-            <th className="text-ellipsis-sp fz-14 w-180">Order ID</th>
+            <th className="text-ellipsis-sp fz-14 w-180">Order No</th>
             <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
             <th className="text-center fz-14 w-120" >Order Side</th>
             <th className="text-start fz-14 w-120" > Order Status</th>
@@ -198,7 +198,7 @@ function OrderTable(props: IPropListOrderHistory) {
         dataCurrent.forEach(item => {
             if (item) {
                 data.push({
-                    orderId: item?.externalOrderId,
+                    orderNo: item?.externalOrderId,
                     tickerCode: item?.symbolCode,
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
