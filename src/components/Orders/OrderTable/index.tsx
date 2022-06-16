@@ -198,7 +198,7 @@ function OrderTable(props: IPropListOrderHistory) {
         dataCurrent.forEach(item => {
             if (item) {
                 data.push({
-                    orderId: item?.externalOrderId,
+                    orderNo: item?.externalOrderId,
                     tickerCode: item?.symbolCode,
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
