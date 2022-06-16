@@ -32,7 +32,7 @@ const ModalMatching = (props: IPropsModalDetail) => {
     const _renderHeader = () =>
     (<tr>
         <th className="text-center fz-14 text-nowrap" > Sub No </th>
-        <th className="text-left fz-14 text-nowrap"> Order ID </th>
+        <th className="text-left fz-14 text-nowrap"> Order No </th>
         <th className="text-start fz-14 text-nowrap"> Ticker Code </th >
         <th className="text-start fz-14 text-nowrap" > Order Status </th>
         <th className="text-center fz-14 text-nowrap" > Side </th>
