@@ -22,7 +22,7 @@ const ResetPassword = () => {
     const [errMess, setErrMess] = useState('');
     const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
 
-    const apiUrl = `${process.env.REACT_APP_API_URL}${API_RESET_PASSWORD}`;
+    const apiUrl = `${window.globalThis.apiUrl}${API_RESET_PASSWORD}`;
     const paramStr = window.location.search;
     const queryParam = queryString.parse(paramStr);
 

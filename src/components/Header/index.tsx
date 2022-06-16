@@ -35,7 +35,7 @@ const Header = () => {
   const [paramTrading, setParamTrading] = useState({ page_size: PAGE_SIZE, page: 1 });
 
 
-  const api_url = process.env.REACT_APP_API_URL;
+  const api_url = window.globalThis.apiUrl;
   const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
   const urlGetTotalUnread = `${api_url}${API_GET_TOTAL_UNREAD}`;
   const urlPostTrading = `${api_url}${API_POST_TRADING_RESULT}`;
