@@ -44,7 +44,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
 
     const _renderTradeHistoryTableHeader = () =>
     (<tr>
-        <th className="text-left fz-14 w-160">Order ID</th>
+        <th className="text-left fz-14 w-160">Order No</th>
         <th className="text-start fz-14 w-120">Ticker Code</th >
         <th className="text-center fz-14 w-80" > Order Side </th>
         <th className="text-center fz-14 w-80" >Order Type </th>
@@ -99,7 +99,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         listTradeSortDate.forEach((item) => {
             if (item) {
                 data.push({
-                    orderId: item.externalOrderId,
+                    orderNo: item.externalOrderId,
                     tickerCode: getTickerCode(item?.tickerCode),
                     tickerName: getTickerName(item?.tickerCode),
                     orderSide: getSideName(item.side),
