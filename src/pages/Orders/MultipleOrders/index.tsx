@@ -119,7 +119,7 @@ const MultipleOrders = () => {
             const tickers: any[] = [];
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
-                if (idx >= 0) {
+                if (idx >= 0 && !item.status) {
                     tickers.push(temps[idx]);
                 } else {
                     tickers.push(item);
