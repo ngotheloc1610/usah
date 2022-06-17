@@ -38,23 +38,11 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.orderSide > 0) {
             historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
         }
-        if (paramHistorySearch.fromDate > 0) {
-            historySortDate = historySortDate.filter(item =>
-                item.time > Number(paramHistorySearch.fromDate) ||
-                item.time === Number(paramHistorySearch.fromDate));
-        }
-        if (paramHistorySearch.toDate > 0) {
-            historySortDate = historySortDate.filter(item =>
-                item.time < Number(paramHistorySearch.toDate) ||
-                item.time === Number(paramHistorySearch.toDate));
-        }
-        if (paramHistorySearch.fromDate > paramHistorySearch.toDate ) {
-            historySortDate = [];
-        }
+        
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
-    }, [listOrderHistory, itemPerPage, currentPage, paramHistorySearch]);
+    }, [listOrderHistory, itemPerPage, currentPage]);
 
     useEffect(() => {
         setCurrentPage(START_PAGE);
