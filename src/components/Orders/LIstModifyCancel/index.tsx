@@ -6,7 +6,7 @@ import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -51,7 +51,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listOrder.length;
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
 
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));

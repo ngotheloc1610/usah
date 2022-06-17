@@ -1,6 +1,6 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, LIST_TICKER_INFO, FORMAT_DATE_DOWLOAD } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
-import { IPropListTradeHistory, IListTradeHistory, IFixListTradeHistory, ITradeHistoryDownload } from '../../../interfaces/order.interface'
+import { IPropListTradeHistory, IListTradeHistory, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
@@ -13,7 +13,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = getDataTradeHistory.length;
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
         
     useEffect(() => {
         const tradeSortDate: IListTradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
