@@ -4,18 +4,26 @@ import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import { useEffect, useState } from 'react';
-import { ACCOUNT_ID, SOCKET_CONNECTED, SOCKET_RECONNECTED } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { IParamHistorySearch } from '../../../interfaces';
-import { DEFAULT_SEARCH_HISTORY } from '../../../mocks';
+import moment from 'moment';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 
 const OrderHistory = () => {
+    const currentDate = moment().format(FORMAT_DATE);
     const [listOrderHistory, setListOrderHistory] = useState([]);
-    const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>(DEFAULT_SEARCH_HISTORY);
+    const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>({
+        symbolCode: '',
+        orderState: 0,
+        orderSide: 0,
+        fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
+        toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
+    });
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendListOrder();
+            if (resp === SOCKET_CONNECTED) {
+                sendListOrder(paramHistorySearch.fromDate, paramHistorySearch.toDate);
             }
         });
 
@@ -29,7 +37,7 @@ const OrderHistory = () => {
         }
     }, [])
 
-    const sendListOrder = () => {
+    const sendListOrder = (timeFrom: number, timeTo: number) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
@@ -37,8 +45,8 @@ const OrderHistory = () => {
             let currentDate = new Date();
             let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
             orderHistoryRequest.setAccountId(Number(accountId));
-            orderHistoryRequest.setFromDatetime(paramHistorySearch.fromDate);
-            orderHistoryRequest.setToDatetime(paramHistorySearch.toDate);
+            orderHistoryRequest.setFromDatetime(timeFrom);
+            orderHistoryRequest.setToDatetime(timeTo);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
@@ -50,7 +58,7 @@ const OrderHistory = () => {
 
     const handleSearch = (item: IParamHistorySearch) => {
         setParamHistorySearch(item);
-        sendListOrder();
+        sendListOrder(item.fromDate, item.toDate);
     }
 
     const _renderOrderHistory = () => {

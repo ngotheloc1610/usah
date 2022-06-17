@@ -13,7 +13,6 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IParamHistorySearch } from '../../../interfaces';
 import moment from 'moment';
-import { DEFAULT_SEARCH_HISTORY } from '../../../mocks';
 
 interface IPropsOrderSearchHistory {
     paramSearch: (param: IParamHistorySearch) => void;
