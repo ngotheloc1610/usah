@@ -1,4 +1,4 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
@@ -17,7 +17,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const [totalItem, setTotalItem] = useState<number>(0);
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
     const systemModelPb: any = stpb;
 
