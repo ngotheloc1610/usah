@@ -1,5 +1,5 @@
 window.globalThis = {
-    "wsUrl": "wss://usasiahours.poems.com.sg/ws/api/v1/websocket",
-    "apiUrl": "https://usasiahours.poems.com.sg/api",
+    "wsUrl": "wss://pixstg.tdt.asia/ws/api/v1/websocket",
+    "apiUrl": "https://pixstg.tdt.asia/api",
     "flagRmsApi": "true"
 }

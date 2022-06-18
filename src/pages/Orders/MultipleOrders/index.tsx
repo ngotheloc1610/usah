@@ -99,7 +99,7 @@ const MultipleOrders = () => {
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
                     const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
-                        if (order?.ticker === item?.symbolCode && order?.price.replaceAll(',', '') === item.price)
+                        if (order?.ticker === item?.symbolCode && convertNumber(order?.price.replaceAll(',', '')) === convertNumber(item.price))
                             listIndex.push(idx);
                         return listIndex;
                     }, []);
@@ -754,18 +754,25 @@ const MultipleOrders = () => {
         }
     }
 
-    const handleChangeTicker = (value: string) => {
-        setTicker(value);
-        const symbolCode = value?.split('-')[0]?.trim();
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const item = symbols.find(o => o?.symbolCode === symbolCode);
-        if (item) {
-            setPrice(convertNumber(item.floor));
-            setVolume(convertNumber(item.lotSize));
-            setInvalidPrice(false);
-            setInvalidVolume(false);
-            setIsShowNotiErrorPrice(false);
+    const handleChangeTicker = (event: any) => {
+        const value = event.target.innerText || event.target.value;
+        if (value) {
+            setTicker(value);
+            const symbolCode = value?.split('-')[0]?.trim();
+            const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const item = symbols.find(o => o?.symbolCode === symbolCode);
+            if (item) {
+                setPrice(convertNumber(item.floor));
+                setVolume(convertNumber(item.lotSize));
+                setInvalidPrice(false);
+                setInvalidVolume(false);
+                setIsShowNotiErrorPrice(false);
+            }
+        } else {
+            setPrice(0);
+            setVolume(0);
         }
+        
     }
 
     const disableControl = () => {
@@ -780,8 +787,8 @@ const MultipleOrders = () => {
         });
         return <Autocomplete
             className='ticker-input w-100'
-            onChange={(event: any) => handleChangeTicker(event.target.innerText)}
-            onKeyUp={(event: any) => handleChangeTicker(event.target.value)}
+            onChange={(event: any) => handleChangeTicker(event)}
+            onKeyUp={(event: any) => handleChangeTicker(event)}
             disablePortal
             sx={{ width: 400 }}
             value={ticker}
@@ -821,10 +828,6 @@ const MultipleOrders = () => {
         return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
     }
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed])
-
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
-
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
             <div className="box d-flex">
@@ -845,8 +848,8 @@ const MultipleOrders = () => {
                     </div>
 
 
-                    {_renderPriceInput}
-                    {_renderVolumeInput}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume)}
 
                     <div className="border-top">
 
