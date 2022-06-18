@@ -20,7 +20,7 @@ interface IParamPagination {
 }
 
 const News = () => {
-    const api_url = process.env.REACT_APP_API_URL;
+    const api_url = window.globalThis.apiUrl;
     const [elActive, setELActive] = useState(0);
     const [elTradingActive, setElTradingActive] = useState(0);
     const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE_FOR_NEWS);

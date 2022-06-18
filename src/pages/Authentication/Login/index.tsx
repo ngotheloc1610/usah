@@ -10,7 +10,7 @@ import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
 
-const api_url = process.env.REACT_APP_API_URL;
+const api_url = window.globalThis.apiUrl;
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -23,6 +23,7 @@ const Login = () => {
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
     const cryptoJS = require("crypto-js");
     const dispatch = useDispatch();
+
     useEffect(() => {
         setIsRemeber(isRememberMe === 'true');
         if (isRememberMe && isRememberMe === 'true') {

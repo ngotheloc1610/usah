@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { INVALID_TOKEN } from '../constants';
 import moment from 'moment';
 
-const url = process.env.REACT_APP_BASE_URL;
+const url = window.globalThis.wsUrl;
 var socket = null;
 var wsConnected = false;
 // var dataLastQuotes = {quotesList: []};

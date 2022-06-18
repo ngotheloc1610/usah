@@ -23,7 +23,7 @@ const defaultProps = {
 }
 
 const Setting = (props: ISetting) => {
-    const api_url = process.env.REACT_APP_API_URL;
+    const api_url = window.globalThis.apiUrl;
     const urlPostChangePassword = `${api_url}${API_POST_CHANGE_PASSWORD}`;
 
     const { isChangePassword, isNotification, customerInfoDetail } = props

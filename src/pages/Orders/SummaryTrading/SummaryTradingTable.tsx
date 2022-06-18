@@ -14,7 +14,7 @@ import { success } from '../../../constants';
 import { MARKET } from '../../../constants/general.constant';
 
 function SummaryTradingTable() {
-    const api_url = process.env.REACT_APP_API_URL;
+    const api_url = window.globalThis.apiUrl;
     const urlPostHolding = `${api_url}${API_CLIENT_HOLDING_INFO}`;
     const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
@@ -26,7 +26,7 @@ function SummaryTradingTable() {
         const param = {
             market: MARKET
         }
-        if (process.env.REACT_APP_RMS_API === 'true') {
+        if (window.globalThis.flagRmsApi === 'true') {
             axios.post<IClientHoldingInfoReq, IClientHoldingInfoReq>(urlPostHolding, param, defindConfigPost()).then((resp) => {
                 if (resp?.data?.meta?.code === success) {
                     const resultData = resp?.data?.data;
