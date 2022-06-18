@@ -58,7 +58,10 @@ const OrderHistory = () => {
 
     const handleSearch = (item: IParamHistorySearch) => {
         setParamHistorySearch(item);
-        sendListOrder(item.fromDate, item.toDate);
+        const from = isNaN(item.fromDate) ? 0 : item.fromDate;
+        const currentDate = moment().format(FORMAT_DATE);
+        const to = isNaN(item.toDate) ? convertDatetoTimeStamp(currentDate, TO_DATE_TIME) : item.toDate;
+        sendListOrder(from, to);
     }
 
     const _renderOrderHistory = () => {
