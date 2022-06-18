@@ -639,24 +639,24 @@ const MultipleOrders = () => {
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <>
-        <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-            <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
-                <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                    value={convertNumber(value) === 0 ? null : formatCurrency(value)}
-                    thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
-                    onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
-                />
+            <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
+                <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
+                    <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
+                    <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                        value={convertNumber(value) === 0 ? null : formatCurrency(value)}
+                        thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
+                        onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
+                    />
+                </div>
+                <div className="border-start d-flex flex-column">
+                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                </div>
             </div>
-            <div className="border-start d-flex flex-column">
-                <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
-            </div>
-        </div>
-        {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-        {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-        {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid volume</div>}
-    </>
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
+            {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid volume</div>}
+        </>
 
     )
 
