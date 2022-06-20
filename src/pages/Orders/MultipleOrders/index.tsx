@@ -643,7 +643,7 @@ const MultipleOrders = () => {
                 <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
                     <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
-                        value={convertNumber(value) === 0 ? null : formatCurrency(value)}
+                        value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
                     />
@@ -654,8 +654,8 @@ const MultipleOrders = () => {
                 </div>
             </div>
             {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-            {invalidPrice && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-            {invalidVolume && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid volume</div>}
+            {invalidPrice && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
+            {invalidVolume && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid quantity</div>}
         </>
 
     )
@@ -756,8 +756,8 @@ const MultipleOrders = () => {
 
     const handleChangeTicker = (event: any) => {
         const value = event.target.innerText || event.target.value;
+        setTicker(value ? value : '');
         if (value) {
-            setTicker(value);
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const item = symbols.find(o => o?.symbolCode === symbolCode);
@@ -849,7 +849,7 @@ const MultipleOrders = () => {
 
 
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.VOLUME, volume.toString(), handelUpperVolume, handelLowerVolume)}
+                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume)}
 
                     <div className="border-top">
 
