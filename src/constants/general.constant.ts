@@ -219,7 +219,7 @@ export enum TITLE_ORDER_CONFIRM {
     VOLUME = 'Volume',
     QUANLITY = 'Quantity',
     PRICE = 'Price',
-    VALUE = 'Quan'
+    VALUE = 'Value'
 };
 
 export const CURRENCY = {
