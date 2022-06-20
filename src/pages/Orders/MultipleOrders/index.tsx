@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
+import { MESSAGE_ERROR } from "../../../constants/message.constant";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -37,8 +38,6 @@ const MultipleOrders = () => {
     const [ticker, setTicker] = useState('');
     const [sideAddNew, setSideAddNew] = useState('Sell');
     const [currentPage, setCurrentPage] = useState(START_PAGE);
-    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
-    const totalItem = listTickers.length;
     const [isDelete, setIsDelete] = useState(false);
     const [statusPlace, setStatusPlace] = useState(false);
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
@@ -49,6 +48,10 @@ const MultipleOrders = () => {
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
+    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
+
+    const systemModelPb: any = smpb;
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -57,7 +60,6 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
-            const systemModelPb: any = smpb;
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                 tmp = RESPONSE_RESULT.success;
@@ -105,7 +107,7 @@ const MultipleOrders = () => {
                     }, []);
                     const txtSide = renderSideText(item.side);
                     listIndex.forEach(el => {
-                        if (temps[el].orderSide.toLowerCase() === txtSide.toLowerCase() && convertNumber(temps[el].volume) === convertNumber(item.amount)) {
+                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim() && convertNumber(temps[el].volume) === convertNumber(item.amount)) {
                             temps[el] = {
                                 ...temps[el],
                                 state: item.state,
@@ -157,7 +159,27 @@ const MultipleOrders = () => {
                 newValue = lotSize.toString();
             }
         }
-        listTickers[index].volume = newValue;
+        listTickers[index] = {
+            ...listTickers[index],
+            volume: newValue,
+            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
+        };
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    volume: newValue
+                }
+                setListSelected(temps);
+            }
+        }
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
     }
@@ -172,9 +194,29 @@ const MultipleOrders = () => {
         } else {
             newValue = tickSize.toString();
         }
-        listTickers[index].price = newValue;
+
+        listTickers[index] = {
+            ...listTickers[index],
+            price: newValue.toString(),
+            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
+        };
         const listOrder = [...listTickers];
         setListTickers(listOrder);
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    price: newValue.toString()
+                }
+                setListSelected(temps);
+            }
+        }
     }
 
     const getLotSize = (ticker: string) => {
@@ -216,17 +258,57 @@ const MultipleOrders = () => {
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
-        listTickers[index].volume = newValue.toString();
+
+        listTickers[index] = {
+            ...listTickers[index],
+            volume: newValue.toString(),
+            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
+        };
         const listOrder = [...listTickers];
         setListTickers(listOrder);
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    volume: newValue.toString()
+                }
+                setListSelected(temps);
+            }
+        }
     }
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
-        listTickers[index].volume = newValue.toString();
+
+        listTickers[index] = {
+            ...listTickers[index],
+            volume: newValue.toString(),
+            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
+                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
+        };
         const listOrder = [...listTickers];
         setListTickers(listOrder);
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    volume: newValue.toString(),
+                }
+                setListSelected(temps);
+            }
+        }
     }
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
@@ -239,9 +321,28 @@ const MultipleOrders = () => {
         } else if (newValue < floorPrice) {
             newValue = floorPrice;
         }
-        listTickers[index].price = newValue.toString();
+        listTickers[index] = {
+            ...listTickers[index],
+            price: newValue.toString(),
+            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
+        };
         const listOrder = [...listTickers];
         setListTickers(listOrder);
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    price: newValue.toString()
+                }
+                setListSelected(temps);
+            }
+        }
     }
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
@@ -254,9 +355,29 @@ const MultipleOrders = () => {
         } else if (newValue < floorPrice) {
             newValue = floorPrice;
         }
-        listTickers[index].price = newValue.toString();
+
+        listTickers[index] = {
+            ...listTickers[index],
+            price: newValue.toString(),
+            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
+            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
+                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
+        };
         const listOrder = [...listTickers];
         setListTickers(listOrder);
+
+        if (listSelected.length > 0) {
+            const temps = [...listSelected];
+            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+            if (idx >= 0) {
+                temps[idx] = {
+                    ...temps[idx],
+                    price: newValue.toString()
+                }
+                setListSelected(temps);
+            }
+        }
     }
 
     const handleChecked = (isChecked: boolean, item: ISymbolMultiOrder) => {
@@ -331,7 +452,7 @@ const MultipleOrders = () => {
             <th className="text-left"><span>Order Side</span></th>
             <th className="text-end"><span>Quantity</span></th>
             <th className="text-end"><span>Price</span></th>
-            {statusPlace && <th className="text-end w-140"><span>Status</span></th>}
+            <th className="text-end w-140"><span>Status</span></th>
         </tr>
     )
 
@@ -359,10 +480,15 @@ const MultipleOrders = () => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false)
     }
 
-    const _renderDataMultipleOrders = () => (
-        listTickers.map((item: ISymbolMultiOrder, index: number) => {
+    const elementChecked = (item: ISymbolMultiOrder) => {
+        const idx = listSelected.findIndex(o => o?.no === item?.no);
+        return idx >= 0;
+    }
+
+    const _renderDataMultipleOrders = () => {
+        return listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
-                <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={listSelected.indexOf(item) >= 0} /></td>
+                <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={elementChecked(item)} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-left">Limit</td>
@@ -400,9 +526,12 @@ const MultipleOrders = () => {
                     </div>
                 </td>
                 {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
+                {!statusPlace && <td className="text-end">
+                    <div title={item?.message?.toUpperCase()} className="text-danger text-truncate">{item?.message?.toUpperCase()}</div>
+                </td>}
             </tr>
         })
-    )
+    }
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
@@ -452,9 +581,10 @@ const MultipleOrders = () => {
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
                     order.setSubmittedId(accountId);
+                    order.setMsgCode(item.msgCode ? item.msgCode : systemModelPb.MsgCode.MT_RET_OK);
                     multiOrder.addOrder(order);
                 }
-            })
+            });
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.NEW_ORDER_MULTI_REQ);
@@ -551,7 +681,9 @@ const MultipleOrders = () => {
                         orderSide: obj.OrderSide,
                         price: formatCurrency(obj.Price.replaceAll(',', '')),
                         ticker: obj.Ticker,
-                        volume: obj.Quantity || obj.Volume
+                        volume: obj.Quantity || obj.Volume,
+                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.msgCode : null,
+                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.message : ''
                     }
                     list.push(tmp);
                 }
@@ -559,6 +691,29 @@ const MultipleOrders = () => {
         }
         setListTickers(list);
         dispatch(keepListOrder(list));
+    }
+
+    const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
+        const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
+        if (convertNumber(symbol?.ceiling) < convertNumber(price) || convertNumber(symbol?.floor) > convertNumber(price)) {
+            return {
+                msgCode: systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE,
+                message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE)
+            };
+        }
+        if ((convertNumber(price) * convertNumber(volume)) < convertNumber(minOrderValue)) {
+            return {
+                msgCode: systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE,
+                message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE)
+            }
+        }
+        if (convertNumber(volume) > convertNumber(maxOrderVolume)) {
+            return {
+                msgCode: systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME,
+                message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME)
+            }
+        }
+        return null;
     }
 
     const handleFileUpload = (event: any) => {

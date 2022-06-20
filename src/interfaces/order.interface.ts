@@ -189,6 +189,8 @@ export interface ISymbolMultiOrder {
     volume: string;
     state?: number;
     status?: string;
+    msgCode?: number;
+    message?: string;
 }
 
 export interface IListOrderHistory {
