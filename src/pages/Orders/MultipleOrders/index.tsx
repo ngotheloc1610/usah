@@ -940,16 +940,17 @@ const MultipleOrders = () => {
     }
 
     const handlePlaceOrder = () => {
+        const tickerCode = ticker.split('-')[0]?.trim();
         const obj: ISymbolMultiOrder = {
             no: (convertNumber(listTickers[listTickers.length - 1].no) + 1).toString(),
             orderSide: sideAddNew,
             price: price.toString(),
             volume: volume.toString(),
-            ticker: ticker.split('-')[0]?.trim(),
-            msgCode: getStatusOrder(ticker.split('-')[0]?.trim(), volume, price) ? 
-                getStatusOrder(ticker.split('-')[0]?.trim(), volume, price)?.msgCode : null,
-            message: getStatusOrder(ticker.split('-')[0]?.trim(), volume, price) ? 
-                getStatusOrder(ticker.split('-')[0]?.trim(), volume, price)?.message : ''
+            ticker: tickerCode,
+            msgCode: getStatusOrder(tickerCode, volume, price) ? 
+                getStatusOrder(tickerCode, volume, price)?.msgCode : null,
+            message: getStatusOrder(tickerCode, volume, price) ? 
+                getStatusOrder(tickerCode, volume, price)?.message : ''
         }
 
         const tmp = [...listTickers];
