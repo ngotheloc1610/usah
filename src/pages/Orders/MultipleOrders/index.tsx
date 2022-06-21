@@ -111,6 +111,7 @@ const MultipleOrders = () => {
                             temps[el] = {
                                 ...temps[el],
                                 state: item.state,
+                                msgCode: item.msgCode,
                                 status: checkMessageError(item.note, item.msgCode)
                             }
                         }
@@ -509,7 +510,7 @@ const MultipleOrders = () => {
                     </div>
                 </td>
                 <td className="text-end">
-                    <div title={item?.message?.toUpperCase()} className={`${item.state === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>{item?.message?.toUpperCase()}</div>
+                    <div title={item?.message?.toUpperCase()} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>{item?.message?.toUpperCase()}</div>
                 </td>
             </tr>
         })
@@ -939,16 +940,21 @@ const MultipleOrders = () => {
     }
 
     const handlePlaceOrder = () => {
+        const tickerCode = ticker.split('-')[0]?.trim();
         const obj: ISymbolMultiOrder = {
-            no: (listTickers.length + 1).toString(),
+            no: (convertNumber(listTickers[listTickers.length - 1].no) + 1).toString(),
             orderSide: sideAddNew,
             price: price.toString(),
             volume: volume.toString(),
-            ticker: ticker.split('-')[0]?.trim()
+            ticker: tickerCode,
+            msgCode: getStatusOrder(tickerCode, volume, price) ? 
+                getStatusOrder(tickerCode, volume, price)?.msgCode : null,
+            message: getStatusOrder(tickerCode, volume, price) ? 
+                getStatusOrder(tickerCode, volume, price)?.message : ''
         }
 
         const tmp = [...listTickers];
-        tmp.unshift(obj);
+        tmp.push(obj);
         setListTickers(tmp);
         dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
