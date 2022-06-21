@@ -3,9 +3,9 @@ import * as smpb from '../models/proto/system_model_pb';
 import * as tdpb from '../models/proto/trading_model_pb';
 import { MIN_ORDER_VALUE } from './general.constant';
 const systemModel: any = smpb;
-const tradingModel: any = tdpb;
 
 export const MESSAGE_ERROR = new Map([
+    [systemModel.MsgCode.MT_RET_OK, 'Success'],
     [systemModel.MsgCode.MT_RET_ERROR, 'Internal Server Error'],
     [systemModel.MsgCode.MT_RET_ERR_PARAM, 'Invalid Format'],
     [systemModel.MsgCode.MT_RET_ERR_PERMISSIONS, 'Not authorized to access the resoures'],

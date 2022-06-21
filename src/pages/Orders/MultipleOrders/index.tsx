@@ -121,13 +121,18 @@ const MultipleOrders = () => {
             const tickers: any[] = [];
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
-                if (idx >= 0 && !item.status) {
-                    tickers.push(temps[idx]);
+                if (idx >= 0) {
+                    tickers.push({
+                        ...temps[idx],
+                        message:  temps[idx].msgCode ? MESSAGE_ERROR.get(temps[idx].msgCode) : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
+                    });
                 } else {
-                    tickers.push(item);
+                    tickers.push({
+                        ...item,
+                        message: item.message
+                    });
                 }
-            })
-
+            });
             setListTickers(tickers);
             dispatch(keepListOrder(tickers));
         }
@@ -466,7 +471,7 @@ const MultipleOrders = () => {
     const _renderDataMultipleOrders = () => {
         return listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
-                <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={elementChecked(item)} /></td>
+                <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined && item.state !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={elementChecked(item)} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
                 <td className="text-left">Limit</td>
@@ -503,10 +508,9 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                {statusPlace && <td className="text-end">{defindStatusOrder(item)}</td>}
-                {!statusPlace && <td className="text-end">
-                    <div title={item?.message?.toUpperCase()} className="text-danger text-truncate">{item?.message?.toUpperCase()}</div>
-                </td>}
+                <td className="text-end">
+                    <div title={item?.message?.toUpperCase()} className={`${item.state === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>{item?.message?.toUpperCase()}</div>
+                </td>
             </tr>
         })
     }
