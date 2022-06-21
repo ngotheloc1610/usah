@@ -148,6 +148,19 @@ const MultipleOrders = () => {
         setListTickers(orders);
     }
 
+    const updateTickerInfo = (currentTickerInfo: ISymbolMultiOrder, volume: string, price: string) => {
+        const temp = {
+            ...currentTickerInfo,
+            volume: volume,
+            price: price,
+            msgCode: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+                getStatusOrder(currentTickerInfo?.ticker, volume, price)?.msgCode : null,
+            message: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+                getStatusOrder(currentTickerInfo?.ticker, volume, price)?.message : ''
+        }
+        return temp;
+    }
+
     const changeVolume = (value: string, itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const val = value.replaceAll(',', '');
@@ -159,14 +172,8 @@ const MultipleOrders = () => {
                 newValue = lotSize.toString();
             }
         }
-        listTickers[index] = {
-            ...listTickers[index],
-            volume: newValue,
-            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
-        };
+
+        listTickers[index] = updateTickerInfo(listTickers[index], newValue, listTickers[index]?.price);
 
         if (listSelected.length > 0) {
             const temps = [...listSelected];
@@ -195,14 +202,8 @@ const MultipleOrders = () => {
             newValue = tickSize.toString();
         }
 
-        listTickers[index] = {
-            ...listTickers[index],
-            price: newValue.toString(),
-            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
-        };
+        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue);
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
 
@@ -259,14 +260,8 @@ const MultipleOrders = () => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
 
-        listTickers[index] = {
-            ...listTickers[index],
-            volume: newValue.toString(),
-            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
-        };
+        listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
 
@@ -287,14 +282,8 @@ const MultipleOrders = () => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
 
-        listTickers[index] = {
-            ...listTickers[index],
-            volume: newValue.toString(),
-            msgCode: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price) ? 
-                getStatusOrder(listTickers[index]?.ticker, newValue, listTickers[index]?.price)?.message : ''
-        };
+        listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
 
@@ -321,14 +310,9 @@ const MultipleOrders = () => {
         } else if (newValue < floorPrice) {
             newValue = floorPrice;
         }
-        listTickers[index] = {
-            ...listTickers[index],
-            price: newValue.toString(),
-            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
-        };
+
+        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
 
@@ -356,14 +340,8 @@ const MultipleOrders = () => {
             newValue = floorPrice;
         }
 
-        listTickers[index] = {
-            ...listTickers[index],
-            price: newValue.toString(),
-            msgCode: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.msgCode : null,
-            message: getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue) ? 
-                getStatusOrder(listTickers[index]?.ticker, listTickers[index]?.volume, newValue)?.message : ''
-        };
+        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+
         const listOrder = [...listTickers];
         setListTickers(listOrder);
 
