@@ -942,7 +942,7 @@ const MultipleOrders = () => {
     const handlePlaceOrder = () => {
         const tickerCode = ticker.split('-')[0]?.trim();
         const obj: ISymbolMultiOrder = {
-            no: (convertNumber(listTickers[listTickers.length - 1].no) + 1).toString(),
+            no: listTickers.length > 0 ? (convertNumber(listTickers[listTickers.length - 1].no) + 1).toString() : '0',
             orderSide: sideAddNew,
             price: price.toString(),
             volume: volume.toString(),
