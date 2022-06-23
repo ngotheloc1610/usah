@@ -437,8 +437,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderTamplate = () => (
         <div>
             <div className="box d-flex">
-                {isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}
-                <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
+                <div className='col-6'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</div>
+                <div className='col-6'><span className="close-icon f-right" onClick={() => handleCloseConfirmPopup(false)}>x</span></div>
             </div>
             <div className='content text-center'>
                 {_renderHeaderFormConfirm()}
