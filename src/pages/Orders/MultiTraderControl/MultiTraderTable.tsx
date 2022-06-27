@@ -224,7 +224,7 @@ const MultiTraderTable = () => {
                     </div>
                     <div className="col-md-2 text-center">
                         <div>Total Realized PL</div>
-                        {allTotalPL > 0 && <div className={`${getClassName(allTotalPL)} fs-5 fw-bold `}>{formatCurrency(allTotalPL.toString())}</div>}
+                        <div className={`${getClassName(allTotalPL)} fs-5 fw-bold `}>{formatCurrency(allTotalPL.toString())}</div>
                     </div>
                     <div className="col-md-4 order-0 order-md-4">
                         <p className="text-end small opacity-50 mb-2">Currency: USD</p>
