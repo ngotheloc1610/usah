@@ -1,7 +1,8 @@
 import PaginationComponent from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
-import * as rspb from "../../../models/proto/rpc_pb";
+import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as pspb from "../../../models/proto/pricing_service_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
@@ -53,6 +54,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const totalItem = listOrder.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
 
+    const pricingServicePb: any = pspb;
+    const rpc: any = rpcpb;
+
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
@@ -77,8 +81,15 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendListOrder();
+                subscribeQuoteEvent();
             }
         });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
+            if (resp && resp.quoteList) {
+                sendListOrder();
+            }
+        })
 
         const listOrder = wsService.getListOrder().subscribe(response => {
             setListOrderFull(response.orderList);
@@ -87,12 +98,42 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
+            quoteEvent.unsubscribe();
+            unsubscribeQuoteEvent();
         }
     }, []);
 
     useEffect(() => {
         processOrderList(listOrderFull);
     }, [listOrderFull, symbolCode, orderSide])
+
+    const subscribeQuoteEvent = () => {
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            symbolsList.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            })
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unsubscribeQuoteEvent = () => {
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            symbolsList.forEach((item: any) => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const processOrderList = (listOrder: IListOrderModifyCancel[]) => {
         let listOrderFilter: IListOrderModifyCancel[] = listOrder;
@@ -121,7 +162,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         if (wsConnected) {
             let currentDate = new Date();
             let orderRequest = new queryServicePb.GetOrderRequest();
-            const rpcModel: any = rspb;
+            const rpcModel: any = rpcpb;
             let rpcMsg = new rpcModel.RpcMessage();
 
             orderRequest.setAccountId(accountId);
