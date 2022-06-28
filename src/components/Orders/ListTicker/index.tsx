@@ -424,14 +424,10 @@ const ListTicker = (props: IListTickerProps) => {
             currentWactchList.splice(idx, 1);
         }
         localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
-        const temps = [...pageShowCurrentLastQuote];
-        const idxQuote = pageShowCurrentLastQuote?.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
+        const idxQuote = ownWatchList?.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
         if (idxQuote >= 0) {
-            temps.splice(idxQuote, 1)
-            if (temps.length === 0) {
-                currentPage === pageFirst ? setCurrentPage(pageFirst) : setCurrentPage(currentPage - 1);
-            }
-            setPageShowCurrentLastQuote(temps);
+            ownWatchList.splice(idxQuote, 1);
+            getOrderBooks(ownWatchList);
         }
     }
 
