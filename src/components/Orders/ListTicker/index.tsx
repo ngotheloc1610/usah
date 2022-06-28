@@ -465,10 +465,12 @@ const ListTicker = (props: IListTickerProps) => {
 
     const backPage = (currPage: number) => {
         setCurrentPage(currPage - pageFirst);
+        getOrderBooks(ownWatchList);
     }
 
     const nextPage = (currPage: number) => {
         setCurrentPage(currPage + pageFirst);
+        getOrderBooks(ownWatchList);
     }
 
     const _renderButtonBack = () => {
