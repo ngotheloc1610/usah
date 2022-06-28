@@ -118,7 +118,11 @@ const ListTicker = (props: IListTickerProps) => {
                 }
             }
         });
-        const temp = getDataCurrentPage(pageSizeTicker, currentPage, quotes);
+        let temp = getDataCurrentPage(pageSizeTicker, currentPage, quotes);
+        if (temp.length === 0 && currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+            temp = getDataCurrentPage(pageSizeTicker, currentPage - 1, quotes);
+        }
         temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
         setPageShowCurrentLastQuote(temp);
     }
