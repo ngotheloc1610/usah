@@ -974,8 +974,9 @@ const MultipleOrders = () => {
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
             <div className="box d-flex">
-                Add Order
-                <span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span>
+                <div className="col-6">Add Order
+                </div>
+                <div className="col-6 text-end"><span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
@@ -1038,7 +1039,7 @@ const MultipleOrders = () => {
     }
 
     const _renderElementImport = () => (
-        <div className="w-persent-30 border-1 mt-30 mr mb-30">
+        <div className="border-1 mt-30 mr mb-30" style={{width: "350px"}}>
             <div className="header-import">
                 <span className="m-3">Import</span>
             </div>
