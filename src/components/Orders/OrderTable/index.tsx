@@ -193,7 +193,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     orderStatus: getStateName(item.state) || '',
                     orderType: ORDER_TYPE_NAME.limit,
                     orderVolume: convertNumber(item.amount),
-                    remainingVolume: convertNumber(calcPendingVolume(item.amount, item.filledAmount).toString()),
+                    remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
                     executedVolume: convertNumber(item.filledAmount),
                     orderPrice: convertNumber(item.price),
                     lastPrice: convertNumber(item.lastPrice),
