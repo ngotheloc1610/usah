@@ -101,7 +101,7 @@ const ResetPassword = () => {
         <>
             New password must contain:
             <ul>
-                <li> at least 8 character </li>
+                <li> 8 - 20 character </li>
                 <li> at least one upper case letter (A, B, C...) </li>
                 <li> at least one lower case letter (a, b, c...) </li>
                 <li> at least one number </li>
