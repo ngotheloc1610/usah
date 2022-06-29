@@ -122,10 +122,12 @@ const MultipleOrders = () => {
             const tickers: any[] = [];
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
+                const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ? 
+                            temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
                 if (idx >= 0) {
                     tickers.push({
                         ...temps[idx],
-                        message:  temps[idx].msgCode ? MESSAGE_ERROR.get(temps[idx].msgCode) : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
+                        message:  temps[idx].msgCode ? msgErr : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
                     });
                 } else {
                     tickers.push({
@@ -1009,8 +1011,8 @@ const MultipleOrders = () => {
     const _renderPopupConfirm = () => {
         return <div className="popup-box multiple-Order" >
             <div className="box d-flex" style={{ width: '40%' }}>
-                Multiple Orders
-                <span className="close-icon position-close-popup" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span>
+                <div className="col-6">Multiple Orders</div>
+                <div className="col-6 text-end"><span className="close-icon position-close-popup" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span></div>
             </div>
             <div className='content text-center' style={{ width: '40%' }}>
                 <div className="table table-responsive mh-500 tableFixHead">
