@@ -122,9 +122,9 @@ const MultipleOrders = () => {
             const tickers: any[] = [];
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
-                const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ? 
-                            temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
                 if (idx >= 0) {
+                    const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ? 
+                            temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
                     tickers.push({
                         ...temps[idx],
                         message:  temps[idx].msgCode ? msgErr : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
