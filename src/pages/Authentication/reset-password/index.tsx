@@ -139,7 +139,7 @@ const ResetPassword = () => {
                                         <label className="d-block mb-1 text-secondary">New Password</label>
                                         <div className="input-group">
                                             <input type={isOpenEyeNew ? 'password' : 'text'} className="form-control border-end-0" value={newPassword} onChange={handleNewPassword}
-                                                minLength={LENGTH_PASSWORD}
+                                                minLength={LENGTH_PASSWORD} maxLength={MAX_LENGTH_PASSWORD}
                                             />
                                             <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button"
                                                 onClick={() => setIsOpenEyeNew(!isOpenEyeNew)} >
@@ -150,7 +150,8 @@ const ResetPassword = () => {
                                     <div className="mb-3">
                                         <label className="d-block mb-1 text-secondary">Confirm Password</label>
                                         <div className="input-group">
-                                            <input type={isOpenEyeConfirm ? 'password' : 'text'} name="password" className="form-control border-end-0" value={confirmPassword} onChange={handleConfirmPassword} />
+                                            <input type={isOpenEyeConfirm ? 'password' : 'text'} name="password" className="form-control border-end-0" value={confirmPassword}
+                                                 onChange={handleConfirmPassword} minLength={LENGTH_PASSWORD} maxLength={MAX_LENGTH_PASSWORD} />
                                             <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" 
                                                 onClick={() => setIsOpenEyeConfirm(!isOpenEyeConfirm)} >
                                                 <i className={`bi ${isOpenEyeConfirm ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`} />
