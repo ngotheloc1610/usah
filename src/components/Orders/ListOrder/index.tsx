@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
-import { IListOrderMonitoring, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
@@ -44,6 +44,8 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
+
+    const [selectedList, setSelectedList] = useState<any[]>([]);
 
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
@@ -261,25 +263,39 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => item.isChecked);
+        const dataSelected = dataOrder.filter(item => selectedList.includes(item.externalOrderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
     }
-    const handleChecked = (e) => {
-        const { name, checked } = e.target;
-        if (name === "allSelect") {
-            const isSelectAll = dataOrder.map((order) => {
-                return { ...order, isChecked: checked };
-            });
-            setDataOrder(isSelectAll);
-        } else {
-            let tempOrder = dataOrder.map((order, index) =>
-                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
-            );
-            setDataOrder(tempOrder);
+    const handleChecked = (event: any, item: any) => {
+        if (item) {
+            const temps = [...selectedList];
+            const idx = temps.findIndex(o => o === item.externalOrderId);
+            if (event.target.checked) {
+                if (idx < 0) {
+                    temps.push(item.externalOrderId);
+                }
+            } else {
+                if (idx >= 0) {
+                    temps.splice(idx, 1);
+                }
+            }
+            setSelectedList(temps);
         }
+
     }
+
+    const handleCheckedAll = (event: any) => {
+        let lst: string[] = [];
+        if (event.target.checked) {
+            dataOrder.forEach(item => {
+                lst.push(item.externalOrderId);
+            });
+        }
+        setSelectedList(lst);
+    }
+
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
@@ -288,8 +304,8 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th>
                             <input type="checkbox" value=""
                                 name="allSelect"
-                                onChange={handleChecked}
-                                checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
+                                onChange={handleCheckedAll}
+                                checked={selectedList.length === dataOrder.length && dataOrder.length > 0}
                             />
                         </th>
                         <th className="sorting_disabled">
@@ -318,7 +334,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         </th>
                         <th className="text-end sorting_disabled">
 
-                            {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                            {(selectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
 
                         </th>
                     </tr>
@@ -336,9 +352,9 @@ const ListOrder = (props: IPropsListOrder) => {
                     <td>
                         <div className="form-check">
                             <input className="form-check-input" type="checkbox" value=""
-                                checked={item?.isChecked || false}
+                                checked={selectedList.includes(item.externalOrderId)}
                                 name={index.toString()}
-                                onChange={handleChecked}
+                                onChange={(event) => handleChecked(event, item)}
                                 id="all" />
                         </div>
                     </td>

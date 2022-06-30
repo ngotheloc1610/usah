@@ -37,6 +37,8 @@ const ListTicker = (props: IListTickerProps) => {
     const [symbolCodeAdd, setSymbolCodeAdd] = useState<string>('');
     const [orderList, setOrderList] = useState<IListOrderMonitoring[]>([]);
 
+    const [isDeleteTicker, setIsDeleteTicker] = useState(false);
+
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const currentAccId = localStorage.getItem(ACCOUNT_ID);
     const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
@@ -119,11 +121,11 @@ const ListTicker = (props: IListTickerProps) => {
             }
         });
         let temp = getDataCurrentPage(pageSizeTicker, currentPage, quotes);
-        if (temp.length === 0 && currentPage > 1) {
+        if (temp.length === 0 && currentPage > 1 && isDeleteTicker) {
+            setIsDeleteTicker(false)
             setCurrentPage(currentPage - 1);
             temp = getDataCurrentPage(pageSizeTicker, currentPage - 1, quotes);
         }
-        temp.slice((currentPage - 1) * pageSizeTicker, currentPage * pageSizeTicker - 1);
         setPageShowCurrentLastQuote(temp);
     }
 
@@ -430,6 +432,7 @@ const ListTicker = (props: IListTickerProps) => {
         localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
         const idxQuote = ownWatchList?.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
         if (idxQuote >= 0) {
+            setIsDeleteTicker(true);
             ownWatchList.splice(idxQuote, 1);
             getOrderBooks(ownWatchList);
         }
