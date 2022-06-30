@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LIST_TICKER_INFO } from '../../constants/general.constant'
-import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber } from '../../helper/utils'
+import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber } from '../../helper/utils'
 import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
 import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
@@ -139,8 +139,8 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const _renderLastPriceTemplate = (lastPrice: string, change: string, changePercent: string) => {
         const lastPriceDisplay = lastPrice ? lastPrice : defaultTickerDetails.lastPrice;
-        const changeDisplay = formatNumber(calcChange(tickerInfo.lastPrice, tickerInfo.open || '').toString());
-        const changePercentDisplay = formatCurrency(calcPctChange(tickerInfo.lastPrice, tickerInfo.open || '').toString());
+        const changeDisplay = formatNumber(calcChange(tickerInfo.lastPrice, tickerInfo.prevClosePrice || '').toString());
+        const changePercentDisplay = formatCurrency(calcPctChange(tickerInfo.lastPrice, tickerInfo.prevClosePrice || '').toString());
         let textColor = '';
         if (Number(changeDisplay) === 0) {
             textColor = 'text-warning';
@@ -151,14 +151,15 @@ const TickerDetail = (props: ITickerDetailProps) => {
         }
         return (
             <td className="text-end w-precent-19">
-                <div className={`${textColor} fs-20 fw-bold lastPriceStyle fw-600`}>
-                    {Number(changeDisplay) !== 0 && _renderIconTicker(Number(changeDisplay))}
+                <div className={`${convertNumber(tickerInfo.lastPrice) !== 0 ? textColor : ''} fs-20 fw-bold lastPriceStyle fw-600`}>
+                    {Number(changeDisplay) !== 0 && convertNumber(tickerInfo.lastPrice) !== 0 && _renderIconTicker(Number(changeDisplay))}
                     {formatCurrency(lastPriceDisplay)}
                 </div>
-                <div className={`${textColor} fw-600`}>
+                {convertNumber(tickerInfo.lastPrice) !== 0 && <div className={`${textColor} fw-600`}>
                     {formatCurrency(changeDisplay)}
                     ({formatCurrency(changePercentDisplay)}%)
-                </div>
+                </div>}
+                {convertNumber(tickerInfo.lastPrice) === 0 && <div>- (-)</div>}
             </td>
         )
 
