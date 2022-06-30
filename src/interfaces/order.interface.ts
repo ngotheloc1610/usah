@@ -20,6 +20,7 @@ export interface ITickerInfo {
     asks?: IAskAndBidPrice[];
     bids?: IAskAndBidPrice[];
     volumeStock?: string;
+    prevClosePrice?: string;
 }
 export interface IDetailTickerInfo {
     symbolId: number;

@@ -236,14 +236,17 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
                 <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.open))}>{formatCurrency(item.lastPrice)}</span>
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{formatCurrency(item.lastPrice)}</span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{formatCurrency(item.lastPrice)}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getClassName(calcChange(item.lastPrice, item.open))}>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(calcChange(item.lastPrice, item.prevClosePrice))}>{formatCurrency(calcChange(item.lastPrice, item.prevClosePrice || '').toString())}</span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    <span className={getClassName(calcPctChange(item.lastPrice, item.open))}>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(calcPctChange(item.lastPrice, item.prevClosePrice))}>{formatCurrency(calcPctChange(item.lastPrice, item.prevClosePrice || '').toString())}%</span>}
+                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
             </tr>
         ))

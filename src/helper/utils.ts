@@ -143,21 +143,21 @@ export const checkValue = (preValue, currentValue) => {
     return preValue;
 }
 
-export const calcChange = (lastPrice: string, open: string) => {
-    if (!isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
-        return Number(lastPrice) - Number(open);
-    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
-        return 0 - Number(open);
-    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(open))) {
+export const calcChange = (lastPrice: string, prevClosePrice: string) => {
+    if (!isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
+        return Number(lastPrice) - Number(prevClosePrice);
+    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
+        return 0 - Number(prevClosePrice);
+    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(prevClosePrice))) {
         return Number(lastPrice);
     }
     return 0;
 }
 
-export const calcPctChange = (lastPrice: string, open: string) => {
-    const change = calcChange(lastPrice, open);
-    if (!isNaN(Number(open)) && Number(open) !== 0) {
-        return change / Number(open) * 100;
+export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
+    const change = calcChange(lastPrice, prevClosePrice);
+    if (!isNaN(Number(prevClosePrice)) && Number(prevClosePrice) !== 0) {
+        return change / Number(prevClosePrice) * 100;
     }
     return 0;
 }
