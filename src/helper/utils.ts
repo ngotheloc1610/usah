@@ -8,7 +8,9 @@ import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
 import JBC from "jsbi-calculator";
+import Decimal from 'decimal.js';
 
+Decimal.set({ precision: 9 });
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
 
@@ -145,13 +147,14 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    return convertNumber(lastPrice) - convertNumber(prevClosePrice)
+    const lastPriceValue = new Decimal(lastPrice);
+    return Number(lastPriceValue.minus(prevClosePrice));
 }
 
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
-    const change = Number(roundingCommon(lastPrice, prevClosePrice));
+    const change = new Decimal(calcChange(lastPrice, prevClosePrice));
     if (!isNaN(Number(prevClosePrice)) && Number(prevClosePrice) !== 0) {
-        return change / Number(prevClosePrice) * 100;
+        return Number(change.div(prevClosePrice).mul(100));
     }
     return 0;
 }
