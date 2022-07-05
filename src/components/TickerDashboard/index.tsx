@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName, roundingCommon } from "../../helper/utils"
+import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";

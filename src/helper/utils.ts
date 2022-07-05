@@ -7,7 +7,6 @@ import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
-import JBC from "jsbi-calculator";
 import Decimal from 'decimal.js';
 
 Decimal.set({ precision: 9 });
@@ -333,15 +332,4 @@ export const renderSideText = (side: number) => {
             return 'Sell';
         }
     }
-}
-
-export const roundingCommon = (lastPrice: string, closePrice: string) => {
-    const { calculator } = JBC;
-    const expressionOne = `${lastPrice} - ${closePrice}`;
-    
-    const result = Number(calculator(expressionOne)).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    return result;
 }
