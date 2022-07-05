@@ -144,14 +144,7 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    if (!isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
-        return Number(lastPrice) - Number(prevClosePrice);
-    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
-        return 0 - Number(prevClosePrice);
-    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(prevClosePrice))) {
-        return Number(lastPrice);
-    }
-    return 0;
+    return roundingCommon(lastPrice, 2) - roundingCommon(prevClosePrice, 2)
 }
 
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
@@ -336,4 +329,12 @@ export const renderSideText = (side: number) => {
             return 'Sell';
         }
     }
+}
+
+export const roundingCommon = (value: any, digit: number) => {
+    const numberOfDigits = 10 ** digit;
+    if (!isNaN(Number(value.toString()))) {
+        return (Math.round(Number(value.toString()) * numberOfDigits)) / numberOfDigits;
+    }
+    return 0;
 }
