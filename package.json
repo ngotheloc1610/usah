@@ -21,6 +21,7 @@
     "google-protobuf": "^3.19.1",
     "html-react-parser": "^1.4.8",
     "i18next": "^21.6.4",
+    "jsbi-calculator": "^0.3.4",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.34",
     "protobufjs": "^6.11.2",

@@ -7,6 +7,7 @@ import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
+import JBC from "jsbi-calculator";
 
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
@@ -144,11 +145,11 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    return roundingCommon(lastPrice, 2) - roundingCommon(prevClosePrice, 2)
+    return convertNumber(lastPrice) - convertNumber(prevClosePrice)
 }
 
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
-    const change = calcChange(lastPrice, prevClosePrice);
+    const change = Number(roundingCommon(lastPrice, prevClosePrice));
     if (!isNaN(Number(prevClosePrice)) && Number(prevClosePrice) !== 0) {
         return change / Number(prevClosePrice) * 100;
     }
@@ -331,10 +332,13 @@ export const renderSideText = (side: number) => {
     }
 }
 
-export const roundingCommon = (value: any, digit: number) => {
-    const numberOfDigits = 10 ** digit;
-    if (!isNaN(Number(value.toString()))) {
-        return (Math.round(Number(value.toString()) * numberOfDigits)) / numberOfDigits;
-    }
-    return 0;
+export const roundingCommon = (lastPrice: string, closePrice: string) => {
+    const { calculator } = JBC;
+    const expressionOne = `${lastPrice} - ${closePrice}`;
+    
+    const result = Number(calculator(expressionOne)).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    return result;
 }
