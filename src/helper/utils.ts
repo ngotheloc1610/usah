@@ -9,7 +9,6 @@ import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
 import Decimal from 'decimal.js';
 
-Decimal.set({ precision: MAX_PRECISION });
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
 
