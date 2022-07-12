@@ -334,7 +334,7 @@ export interface ILastQuote {
     low?: string;
     netChange?: string;
     open?: string;
-    pctChange: string;
+    pctChange?: string;
     quoteTime: number;
     scale: number;
     symbolCode: string;

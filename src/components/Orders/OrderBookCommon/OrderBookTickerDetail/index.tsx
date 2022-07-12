@@ -65,19 +65,17 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                 asksList: item.asksList,
                 bidsList: item.bidsList,
                 close: itemTickerInfor?.prevClosePrice,
-                currentPrice: checkValue(itemTickerInfor.currentPrice, item.currentPrice),
-                high: checkValue(itemTickerInfor.high, item.high),
-                low: checkValue(itemTickerInfor.low, item.low),
-                netChange: assignChangeValue(itemTickerInfor, item),
-                open: checkValue(itemTickerInfor.open, item.open),
-                pctChange: assignPctChangeValue(itemTickerInfor, item),
-                quoteTime: checkValue(itemTickerInfor.quoteTime, item.quoteTime),
-                scale: checkValue(itemTickerInfor.scale, item.scale),
+                currentPrice: item.currentPrice,
+                high: item.high,
+                low: item.low,
+                open: item.open,
+                quoteTime: item.quoteTime,
+                scale: item.scale,
                 symbolCode: itemTickerInfor.symbolCode,
                 symbolId: itemTickerInfor.symbolId,
-                tickPerDay: checkValue(itemTickerInfor.tickPerDay, item.tickPerDay),
-                volumePerDay: checkValue(itemTickerInfor.volumePerDay, item.volumePerDay),
-                volume: checkValue(itemTickerInfor.volume, item.volumePerDay)
+                tickPerDay: item.tickPerDay,
+                volumePerDay: item.volumePerDay,
+                volume: item.volumePerDay
             }
             item ? setTickerInfo(tmpItem) : setTickerInfo(DEFAULT_DATA_TICKER);
         }
@@ -130,18 +128,6 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
 
             calVWAP(quoteEvent)
         }
-    }
-
-    const assignChangeValue = (tickerInfo: ILastQuote, quote: ILastQuote) => {
-        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcChange(lastPrice, open);
-    }
-
-    const assignPctChangeValue = (tickerInfo: ILastQuote, quote: ILastQuote) => {
-        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcPctChange(lastPrice, open);
     }
 
     const calVWAP = (quoteEvent: IQuoteEvent[]) => {

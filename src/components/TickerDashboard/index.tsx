@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
+import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatCurrencyDecimal, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as psbp from "../../models/proto/pricing_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
@@ -218,15 +218,15 @@ const TickerDashboard = (props: ITickerDashboard) => {
         listData.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.ceiling)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.floor)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.open)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.high)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.low)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.prevClosePrice)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.ceiling)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.floor)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.open)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.high)}</td>
+                <td className="text-end w-header fw-600">{formatCurrencyDecimal(item.low)}</td>
                 <td className="text-end w-header fw-600">
                      {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{formatCurrency(item.lastPrice)}</span>}
-                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{formatCurrency(item.lastPrice)}</span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{formatCurrencyDecimal(item.lastPrice)}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
