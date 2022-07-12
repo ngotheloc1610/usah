@@ -145,16 +145,21 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    const lastPriceValue = new Decimal(lastPrice);
-    return Number(lastPriceValue.minus(prevClosePrice));
+    if (prevClosePrice) {
+        const lastPriceValue = new Decimal(lastPrice);
+        return lastPriceValue.minus(prevClosePrice).toDP(2, Decimal.ROUND_HALF_UP).toFixed(2);
+    }
+    return '';
 }
 
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
-    const change = new Decimal(calcChange(lastPrice, prevClosePrice));
-    if (!isNaN(Number(prevClosePrice)) && Number(prevClosePrice) !== 0) {
-        return Number(change.div(prevClosePrice).mul(100));
+    if (calcChange(lastPrice, prevClosePrice)) {
+        const change = new Decimal(calcChange(lastPrice, prevClosePrice));
+        if (convertNumber(prevClosePrice) !== 0) {
+            return change.div(prevClosePrice).mul(100).toDP(2, Decimal.ROUND_HALF_UP).toFixed(2);
+        }
     }
-    return 0;
+    return '';
 }
 
 export const toTimestamp = (strDate: string) => {

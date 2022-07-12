@@ -230,14 +230,14 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(calcChange(item.lastPrice, item.prevClosePrice))}>
-                        {formatCurrency(calcChange(item.lastPrice, item.prevClosePrice).toString())}
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
+                        {calcChange(item.lastPrice, item.prevClosePrice)}
                      </span>}
                      {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(calcPctChange(item.lastPrice, item.prevClosePrice))}>
-                        {formatCurrency(calcPctChange(item.lastPrice, item.prevClosePrice).toString())}%
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcPctChange(item.lastPrice, item.prevClosePrice)))}>
+                        {calcPctChange(item.lastPrice, item.prevClosePrice)}%
                     </span>}
                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
