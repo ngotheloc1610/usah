@@ -168,7 +168,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
     const getTicker = (symbolCode: string) => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         return tickerList.find(item => item.symbolCode === symbolCode);
-    }    
+    }
 
     return <>
         <div className="card-header">
