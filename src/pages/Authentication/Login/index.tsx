@@ -103,6 +103,7 @@ const Login = () => {
                     setIsMultiLoginFail(true);
                     return
                 }
+                setIsMultiLoginFail(false);
                 setIsMessErr(true);
             });
     }
