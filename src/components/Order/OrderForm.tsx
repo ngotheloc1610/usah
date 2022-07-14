@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IAskAndBidPrice, ILastQuote, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
@@ -9,7 +9,6 @@ import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, checkMessageError, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
-import { wsService } from '../../services/websocket-service';
 
 toast.configure()
 interface IOrderForm {
@@ -35,7 +34,7 @@ const defaultDataModiFyCancel: IParamOrderModifyCancel = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, symbolQuote } = props;
+    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
@@ -57,36 +56,6 @@ const OrderForm = (props: IOrderForm) => {
     const [statusModify, setStatusModify] = useState(0);
 
     const [isAllowed, setIsAllowed] = useState(false);
-    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-
-    useEffect(() => {
-        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
-            if (quote && quote.quotesList) {
-                setLastQuotes(quote.quotesList);
-            }
-        })
-
-        return () => {
-            lastQuote.unsubscribe();
-        }
-    }, [])
-
-    useEffect(() => {
-        processLastQuote(lastQuotes)
-    }, [lastQuotes, symbolCode])
-
-    const processLastQuote = (quotes: ILastQuote[]) => {
-        const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = symbolList.find(item => item.symbolCode === symbolCode)
-        if (quotes.length > 0) {
-                const element = quotes.find(o => o?.symbolCode === symbolCode);
-                console.log(88, element);
-                console.log(89, symbolList);
-                
-                convertNumber(element?.currentPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbol.prevClosePrice))) : setPrice(convertNumber(formatCurrency(element?.currentPrice || '')))
-        }
-    }
-
 
     useEffect(() => {
         if (side) {
@@ -116,7 +85,6 @@ const OrderForm = (props: IOrderForm) => {
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
-
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const floor = ticker?.floor;
@@ -124,11 +92,7 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            // if (convertNumber(symbolQuote?.lastPrice) === 0 ) {
-                
-            // }
-            // convertNumber(symbolQuote?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolQuote?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolQuote?.lastPrice || '')))
-            // setPrice(Number(floor));
+            setPrice(Number(floor));
             setVolume(convertNumber(lotSize));
         } else {
             setPrice(0);
@@ -136,16 +100,6 @@ const OrderForm = (props: IOrderForm) => {
         }
 
     }, [symbolCode])
-
-    console.log(111,quoteInfo);
-    useEffect(() => {
-        // if (isLoading) {
-            
-            convertNumber(symbolQuote?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolQuote?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolQuote?.lastPrice || '')))
-        // }
-        
-
-    }, [symbolQuote])
 
     useEffect(() => {
         if (quoteInfo) {
@@ -155,9 +109,7 @@ const OrderForm = (props: IOrderForm) => {
             const floor = ticker?.floor;
             const price = convertNumber(quoteInfo.price) === 0 ? floor : convertNumber(quoteInfo.price)
             const volume = convertNumber(quoteInfo.volume) === 0 ? lotSize : convertNumber(quoteInfo.volume)
-            // convertNumber(symbolQuote?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolQuote?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolQuote?.lastPrice || '')))
-
-            // setPrice(price);
+            setPrice(price);
             setVolume(volume);
         }
     }, [quoteInfo])
@@ -318,9 +270,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const resetFormNewOrder = () => {
         if (symbolCode) {
-            // setPrice(floorPrice);
-            // setVolume(lotSize);
-            convertNumber(symbolQuote?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolQuote?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolQuote?.lastPrice || '')))
+            setPrice(floorPrice);
+            setVolume(lotSize);
             return;
         }
         setPrice(0);
