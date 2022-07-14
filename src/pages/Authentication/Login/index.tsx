@@ -4,7 +4,7 @@ import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MAX_ORDER_V
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
-import { MULTIPLE_LOGIN_FAIL, success } from '../../../constants';
+import { multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -99,7 +99,7 @@ const Login = () => {
             }
         },
             (error) => {
-                if (error.response.data.meta.code === MULTIPLE_LOGIN_FAIL) {
+                if (error.response.data.meta.code === multipleLoginFail) {
                     setIsMultiLoginFail(true);
                     return
                 }
