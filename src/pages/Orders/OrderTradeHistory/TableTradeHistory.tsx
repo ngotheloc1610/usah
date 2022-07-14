@@ -12,11 +12,13 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistory[]>([])
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const [dataDownload, setDataDownload] = useState<IListTradeHistory[]>([]);
     const totalItem = getDataTradeHistory.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
         
     useEffect(() => {
         const tradeSortDate: IListTradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+        setDataDownload(tradeSortDate);
         const currentList = renderCurrentList(currentPage, itemPerPage, tradeSortDate);
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
@@ -96,7 +98,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const handleDownloadTradeHistory = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: ITradeHistoryDownload[] = []
-        listTradeSortDate.forEach((item) => {
+        dataDownload.forEach((item) => {
             if (item) {
                 data.push({
                     orderNo: item.externalOrderId,

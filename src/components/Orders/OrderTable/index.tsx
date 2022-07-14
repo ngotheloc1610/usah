@@ -19,8 +19,9 @@ function OrderTable(props: IPropListOrderHistory) {
     const [totalItem, setTotalItem] = useState<number>(0);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
+    const [dataDownload, setDataDownload] = useState<IOrderHistory[]>([]);
     const systemModelPb: any = stpb;
-
+    
     useEffect(() => {
         let historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         if (paramHistorySearch.symbolCode) {
@@ -38,7 +39,7 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.orderSide > 0) {
             historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
         }
-        
+        setDataDownload(historySortDate);
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
@@ -183,7 +184,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const handleDownload = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: IDataHistoryDownload[] = [];
-        dataCurrent.forEach(item => {
+        dataDownload.forEach(item => {
             if (item) {
                 data.push({
                     orderNo: item?.externalOrderId,
