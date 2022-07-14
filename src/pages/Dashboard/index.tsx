@@ -396,11 +396,13 @@ const Dashboard = () => {
     )
 
     const getTickerInfo = (value: ISymbolQuote) => {
+        // console.log(399, value);
+        
         setSymbolCode(value?.symbolCode);
         setSymbolQuote(value);
     }
 
-    const getPriceOrder = (value: IAskAndBidPrice) => {
+    const getPriceOrder = (value: IAskAndBidPrice) => {        
         setQuoteInfo(value);
     }
 

@@ -74,8 +74,16 @@ const TickerDashboard = (props: ITickerDashboard) => {
         processLastQuote(lastQuotes)
     }, [lastQuotes, symbolList])
 
+    useEffect(() => {
+        // console.log(79,listData[0]);
+        // handleTickerInfo(listData[0])
+        
+    },[listData])
+
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
+            console.log(1);
+            
             let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
                 if (symbol) {
@@ -103,7 +111,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
             });
             temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setListData(temp);
+            handleTickerInfo(temp[0])
         } else {
+            console.log(2);
+            
             let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
                 if (symbol) {
@@ -128,6 +139,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
             });
             temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setListData(temp);
+            // handleTickerInfo(temp[0])
         }
     }
 
