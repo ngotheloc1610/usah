@@ -23,11 +23,11 @@ const App = () => {
 
   const idleEvents = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
 
-   // Increment the idle time counter every minute.
+   // Increment the checking time counter every 5 seconds.
    useEffect(() => {
     const interval = setInterval(() => {
-      setIdleTime(prev => prev + 1)
-    }, window.globalThis.idleTime);
+      setIdleTime(prev => prev + 5)
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -44,7 +44,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!window.location.pathname.includes('/login') && window.globalThis.sessionTimeOut < (idleTime * 1000)) {
+    if (!window.location.pathname.includes('/login') && window.globalThis.idleTimeOut < (idleTime * 1000)) {
       setIsShowIdleTimeOut(true);
     }
   }, [idleTime])
