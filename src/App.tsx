@@ -108,6 +108,13 @@ const App = () => {
 
  const gotoLoginPage = () => {
   setIsShowIdleTimeOut(false);
+  localStorage.removeItem(ACCOUNT_ID);
+  localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+  localStorage.removeItem(EXPIRE_TIME);
+  localStorage.removeItem(ROLE);
+  localStorage.removeItem(POEM_ID);
+  localStorage.removeItem(MIN_ORDER_VALUE);
+  localStorage.removeItem(MAX_ORDER_VOLUME);
   window.location.href = '/login';
  }
 
