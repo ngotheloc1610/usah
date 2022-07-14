@@ -14,6 +14,8 @@ export const pageFirst = 1;
 export const success = 200;
 export const unAuthorised = 401;
 
+export const MULTIPLE_LOGIN_FAIL = 1200;
+
 export const ORDER_RESPONSE = {
     REJECT: 'Reject',
     SUCCESS: 'Success',
