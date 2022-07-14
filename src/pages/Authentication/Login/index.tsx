@@ -76,11 +76,8 @@ const Login = () => {
         if (encrypt) {
             dispatch(setRememberKey(encrypt));
         }
-        return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
-            if (resp.data.meta.code === MULTIPLE_LOGIN_FAIL) {
-                setIsMultiLoginFail(true);
-                return
-            }
+        return axios.post<IReqLogin, IReqLogin>(url, param)
+        .then((resp) => {
             if (resp.status === success) {
                 if (resp?.data?.data) {
                     setIsMultiLoginFail(false);
@@ -102,6 +99,10 @@ const Login = () => {
             }
         },
             (error) => {
+                if (error.response.data.meta.code === MULTIPLE_LOGIN_FAIL) {
+                    setIsMultiLoginFail(true);
+                    return
+                }
                 setIsMessErr(true);
             });
     }
