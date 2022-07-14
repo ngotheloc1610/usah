@@ -41,14 +41,6 @@ export function formatCurrency(item: string): string {
     return '-';
 }
 
-export const formatCurrencyDecimal = (item: string) => {
-    if (item) {
-        const value =  new Decimal(item).toFixed(2).toString();
-        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value));
-    }
-    return '-';
-}
-
 export function formatIdNumber(item: string) {
     return Number(item.slice(0, 6))
 }
