@@ -105,3 +105,8 @@
 input::-ms-clear, input::-ms-reveal {
   display: none;
 }
+
+.session-timeout-model {
+  border-radius: 3% !important;
+  margin-top: calc(40vh) !important;
+}
