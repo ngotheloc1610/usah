@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from "../../../constants/general.constant";
-import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tspb from '../../../models/proto/trading_model_pb';
+import * as pspb from '../../../models/proto/pricing_service_pb';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
@@ -45,6 +46,8 @@ const MultipleOrders = () => {
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
@@ -81,6 +84,64 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageQuotes();
+            }
+        });
+        
+        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
+            if (quote && quote.quotesList) {
+                setLastQuotes(quote.quotesList);
+            }
+        })        
+
+        return () => {
+            ws.unsubscribe();
+            lastQuote.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuotes)
+    }, [lastQuotes])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        console.log(103, quotes);
+        
+        
+        if (quotes.length > 0) {
+            let temp: ISymbolQuote[] = [];
+            symbols.forEach(symbol => {
+                if (symbol) {
+                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
+                    if (element) {
+                        const symbolQuote: ISymbolQuote = {
+                            symbolCode: symbol.symbolCode,
+                            symbolId: symbol.symbolId,
+                            symbolName: symbol.symbolName,
+                            prevClosePrice: symbol.prevClosePrice,
+                            high: element?.high || '0',
+                            low: element?.low || '0',
+                            lastPrice: element.currentPrice,
+                            open: element.open || '0',
+                            volume: element.volumePerDay,
+                            ceiling: symbol.ceiling,
+                            floor: symbol.floor
+                        };
+                        const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
+                        if (index < 0) {
+                            temp.push(symbolQuote);
+                        }
+                    }
+                }
+            });
+            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
+            setSymbolInfor(temp);
+        }
+    }
+
+    useEffect(() => {
         if (!ticker?.trim()) {
             setPrice(0)
             setVolume(0)
@@ -94,6 +155,25 @@ const MultipleOrders = () => {
     useEffect(() => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
+
+    const sendMessageQuotes = () => {
+        const pricingServicePb: any = pspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+
+            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            lastQuotesRequest.setSymbolCodeList(symbolCodes);
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
@@ -900,9 +980,10 @@ const MultipleOrders = () => {
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             if (item) {
-                setPrice(convertNumber(item.floor));
+                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolItem?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolItem?.lastPrice || '')));
                 setVolume(convertNumber(item.lotSize));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
