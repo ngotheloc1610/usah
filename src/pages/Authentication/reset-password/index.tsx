@@ -58,6 +58,9 @@ const ResetPassword = () => {
                     setIsExpiredResetToken(false);
                     setIsSuccess(true);
                     toast.success(RESET_PASSWORD_SUCCESS);
+                    setTimeout(()=> {
+                        window.location.href = `${process.env.PUBLIC_URL}/login`;
+                    }, 3000);
                     break;
                 }
                 case unAuthorised: {
@@ -160,7 +163,6 @@ const ResetPassword = () => {
                                         {isNotMatch && <span className='text-danger'>{NOT_MATCH_PASSWORD}</span>}
                                         {isError && <span className='text-danger'>{errMess}</span>}
                                         {isExpiredResetToken && <div className='text-danger'>{_renderResetTokenErrorMessage()}</div>}
-                                        {isSuccess && renderSuccessMessage()}
                                     </div>
 
                                     <div className="row mb-3 align-items-center">
