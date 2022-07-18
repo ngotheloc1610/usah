@@ -115,7 +115,7 @@ const App = () => {
   localStorage.removeItem(POEM_ID);
   localStorage.removeItem(MIN_ORDER_VALUE);
   localStorage.removeItem(MAX_ORDER_VOLUME);
-  window.location.href = '/login';
+  window.location.href = '/lp/login';
  }
 
   const renderIdleTimeOutModel = () => (
