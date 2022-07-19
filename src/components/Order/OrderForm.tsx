@@ -258,16 +258,16 @@ const OrderForm = (props: IOrderForm) => {
         return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice;
     }
 
-    const getClassNameSideBtn = (side: string, className: string, positionSelected1: string, positionSelected2: string) => {
-        if (convertNumber(side) !== 0) {
-          return side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`;
+    const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
+        if (convertNumber(side) !== tradingModel.Side.NONE) {
+          return side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionBuy}`;
         }
         return `btn text-white flex-grow-1 p-2 text-center `;
     }
 
-    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
+    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
         <button type="button"
-            className={getClassNameSideBtn(side, className, positionSelected1, positionSelected2)}
+            className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
