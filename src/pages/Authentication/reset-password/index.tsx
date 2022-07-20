@@ -30,7 +30,7 @@ const ResetPassword = () => {
     useEffect(() => {
         if (isSuccess) {
             if (countDown === 0) {
-                window.location.href = `${process.env.PUBLIC_URL}/login`;
+                window.location.href = `${process.env.PUBLIC_URL}/login/lp`;
             }
             const intervalId = setInterval(() => {
                 setCountDown(countDown - 1);
@@ -54,7 +54,7 @@ const ResetPassword = () => {
     const renderSuccessMessage = () => (
         <>
             <div className='text-success d-inline'>Password is updated and you can now use your new password to sign in </div>
-            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login/lp`}</a>.
+            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login/lp`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login/lp`}</a>.
             <div className='text-success mt-3'>You will be redirected to LOGIN page after <strong>{countDown}</strong> seconds.</div>
         </>
     )
