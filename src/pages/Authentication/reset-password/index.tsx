@@ -1,9 +1,9 @@
 import './ResetPassword.scss';
 import '../Login/Login.scss';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { API_RESET_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
+import { COUNT_DOWN_PASSWORD, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
@@ -21,10 +21,23 @@ const ResetPassword = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [errMess, setErrMess] = useState('');
     const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
+    const [countDown, setCountDown] = useState(COUNT_DOWN_PASSWORD);
 
     const apiUrl = `${window.globalThis.apiUrl}${API_RESET_PASSWORD}`;
     const paramStr = window.location.search;
     const queryParam = queryString.parse(paramStr);
+
+    useEffect(() => {
+        if (isSuccess) {
+            if (countDown === 0) {
+                window.location.href = `${process.env.PUBLIC_URL}/login`;
+            }
+            const intervalId = setInterval(() => {
+                setCountDown(countDown - 1);
+            }, 1000);
+            return () => clearInterval(intervalId);
+        }
+    }, [isSuccess, countDown]);
 
     const handleSubmit = () => {
         setIsNotMatch(newPassword !== confirmPassword);
@@ -40,9 +53,9 @@ const ResetPassword = () => {
 
     const renderSuccessMessage = () => (
         <>
-            <div className='text-success'>Password updated.</div>
-            <div className='text-success'>You can now use your new password to sign in</div>
-            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login`}</a>
+            <div className='text-success d-inline'>Password is updated and you can now use your new password to sign in </div>
+            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login`}</a>.
+            <div className='text-success mt-3'>You will be redirected to LOGIN page after <strong>{countDown}</strong> seconds.</div>
         </>
     )
 
@@ -58,9 +71,6 @@ const ResetPassword = () => {
                     setIsExpiredResetToken(false);
                     setIsSuccess(true);
                     toast.success(RESET_PASSWORD_SUCCESS);
-                    setTimeout(()=> {
-                        window.location.href = `${process.env.PUBLIC_URL}/login`;
-                    }, 3000);
                     break;
                 }
                 case unAuthorised: {
@@ -114,12 +124,12 @@ const ResetPassword = () => {
 
     const _renderResetTokenErrorMessage = () => (
         <>
-        <span>Your password reset link is expired. Please email/contact support to receive the set password email again.
-        </span>
-        <br />
-        <span>Phillip SG Contact(English Speaking): +65 6212-1810</span>
-        <br />
-        <span>Phillip SG Email: <span className='link-custom'>cddesk@phillip.com.sg</span></span>
+            <span>Your password reset link is expired. Please email/contact support to receive the set password email again.
+            </span>
+            <br />
+            <span>Phillip SG Contact(English Speaking): +65 6212-1810</span>
+            <br />
+            <span>Phillip SG Email: <span className='link-custom'>cddesk@phillip.com.sg</span></span>
         </>
     )
 
@@ -154,8 +164,8 @@ const ResetPassword = () => {
                                         <label className="d-block mb-1 text-secondary">Confirm Password</label>
                                         <div className="input-group">
                                             <input type={isOpenEyeConfirm ? 'password' : 'text'} name="password" className="form-control border-end-0" value={confirmPassword}
-                                                 onChange={handleConfirmPassword} minLength={LENGTH_PASSWORD} maxLength={MAX_LENGTH_PASSWORD} />
-                                            <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button" 
+                                                onChange={handleConfirmPassword} minLength={LENGTH_PASSWORD} maxLength={MAX_LENGTH_PASSWORD} />
+                                            <button className="btn btn-outline-secondary btn-pw-toggle no-pad" type="button"
                                                 onClick={() => setIsOpenEyeConfirm(!isOpenEyeConfirm)} >
                                                 <i className={`bi ${isOpenEyeConfirm ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12`} />
                                             </button>
@@ -163,6 +173,7 @@ const ResetPassword = () => {
                                         {isNotMatch && <span className='text-danger'>{NOT_MATCH_PASSWORD}</span>}
                                         {isError && <span className='text-danger'>{errMess}</span>}
                                         {isExpiredResetToken && <div className='text-danger'>{_renderResetTokenErrorMessage()}</div>}
+                                        {isSuccess && renderSuccessMessage()}
                                     </div>
 
                                     <div className="row mb-3 align-items-center">
@@ -172,7 +183,7 @@ const ResetPassword = () => {
                                     </div>
 
                                     <div className="mt-1">
-                                        <button className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase margin-auto mb-2 w-100" disabled={disableButton()} 
+                                        <button className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase margin-auto mb-2 w-100" disabled={disableButton()}
                                             onClick={handleSubmit}>
                                             <strong>Reset</strong>
                                         </button>
