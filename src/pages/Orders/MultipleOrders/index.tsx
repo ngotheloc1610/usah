@@ -946,7 +946,7 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice);
+        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide);
     }
 
     const handlePlaceOrder = () => {
