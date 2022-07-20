@@ -58,7 +58,8 @@ const OrderForm = (props: IOrderForm) => {
     const [isAllowed, setIsAllowed] = useState(false);
     
     useEffect(() => {
-        convertNumber(side) === 0 || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
+        // bug 60403
+        convertNumber(side) === tradingModel.Side.NONE || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
     }, [side, symbolCode, quoteInfo])
 
     useEffect(() => {
