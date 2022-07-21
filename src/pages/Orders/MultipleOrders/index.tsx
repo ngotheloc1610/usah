@@ -735,9 +735,9 @@ const MultipleOrders = () => {
 
     const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
         if (convertNumber(side) !== tradingModel.Side.NONE) {
-          return side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionBuy}`
+          return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`
         }
-        return `btn text-white flex-grow-1 p-2 text-center `
+        return `btn rounded text-white flex-grow-1 p-2 text-center `
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
@@ -992,7 +992,7 @@ const MultipleOrders = () => {
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
-                            &nbsp;
+                        <span className='w-2'></span>
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
                     </div>
                     <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
