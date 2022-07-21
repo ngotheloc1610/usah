@@ -3,7 +3,7 @@ import '../Login/Login.scss';
 import { useEffect, useState } from 'react';
 import { API_RESET_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { COUNT_DOWN_PASSWORD, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
+import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
@@ -21,7 +21,7 @@ const ResetPassword = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [errMess, setErrMess] = useState('');
     const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
-    const [countDown, setCountDown] = useState(COUNT_DOWN_PASSWORD);
+    const [countDown, setCountDown] = useState(RETURN_LOGIN_TIME);
 
     const apiUrl = `${window.globalThis.apiUrl}${API_RESET_PASSWORD}`;
     const paramStr = window.location.search;

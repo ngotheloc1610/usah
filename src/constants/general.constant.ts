@@ -237,4 +237,4 @@ export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as principal and is t
 
 export const NOT_MATCH_PASSWORD = "Passwords don't match";
 
-export const COUNT_DOWN_PASSWORD = 5;
+export const RETURN_LOGIN_TIME = 5;
