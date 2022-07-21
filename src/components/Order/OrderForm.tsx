@@ -174,7 +174,7 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolItem?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolItem?.lastPrice || '')));
+            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(convertNumber(lotSize));
         } else {
             setPrice(0);
@@ -359,7 +359,7 @@ const OrderForm = (props: IOrderForm) => {
     const resetFormNewOrder = () => {
         if (symbolCode) {
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
-            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolItem?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolItem?.lastPrice || '')));
+            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(lotSize);
             return;
         }

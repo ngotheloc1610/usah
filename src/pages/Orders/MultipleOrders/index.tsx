@@ -107,9 +107,6 @@ const MultipleOrders = () => {
     }, [lastQuotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
-        console.log(103, quotes);
-        
-        
         if (quotes.length > 0) {
             let temp: ISymbolQuote[] = [];
             symbols.forEach(symbol => {
@@ -983,7 +980,7 @@ const MultipleOrders = () => {
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             if (item) {
-                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(formatCurrency(symbolItem?.prevClosePrice || ''))) : setPrice(convertNumber(formatCurrency(symbolItem?.lastPrice || '')));
+                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 setVolume(convertNumber(item.lotSize));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
