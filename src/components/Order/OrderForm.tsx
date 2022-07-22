@@ -141,7 +141,7 @@ const OrderForm = (props: IOrderForm) => {
                 }
             });
             setSymbolInfor(tempSymbolsList);
-
+            // set lại last quote
             quotes.forEach(item => {
                 const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
                 if (index >= 0) {
