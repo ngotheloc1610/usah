@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IAskAndBidPrice, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, ILastQuote, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, checkMessageError, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
+import { wsService } from '../../services/websocket-service';
+import { IQuoteEvent } from '../../interfaces/quotes.interface';
 
 toast.configure()
 interface IOrderForm {
@@ -56,11 +58,103 @@ const OrderForm = (props: IOrderForm) => {
     const [statusModify, setStatusModify] = useState(0);
 
     const [isAllowed, setIsAllowed] = useState(false);
-    
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
+    const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+
     useEffect(() => {
         // bug 60403
         convertNumber(side) === tradingModel.Side.NONE || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
-    }, [side, symbolCode, quoteInfo])
+    }, [side,symbolCode, quoteInfo])
+
+    useEffect(() => {
+        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
+            if (quote && quote.quotesList) {
+                setLastQuotes(quote.quotesList);
+            }
+        })
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
+
+        return () => {
+            quoteEvent.unsubscribe();
+            lastQuote.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent);
+    }, [quoteEvent])
+
+    useEffect(() => {
+        processLastQuote(lastQuotes)
+    }, [lastQuotes, symbolCode])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        if (quotes.length > 0) {
+            let temp: ISymbolQuote[] = [];
+            symbolList.forEach(symbol => {
+                if (symbol) {
+                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
+                    if (element) {
+                        const symbolQuote: ISymbolQuote = {
+                            symbolCode: symbol.symbolCode,
+                            symbolId: symbol.symbolId,
+                            symbolName: symbol.symbolName,
+                            prevClosePrice: symbol.prevClosePrice,
+                            high: element?.high || '0',
+                            low: element?.low || '0',
+                            lastPrice: element.currentPrice,
+                            open: element.open || '0',
+                            volume: element.volumePerDay,
+                            ceiling: symbol.ceiling,
+                            floor: symbol.floor
+                        };
+                        const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
+                        if (index < 0) {
+                            temp.push(symbolQuote);
+                        }
+                    }
+                }
+            });
+            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
+            setSymbolInfor(temp);
+        }
+    }
+
+    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        const tempSymbolsList = [...symbolInfor];
+        const tempLastQuotes = [...lastQuotes];
+        if (quotes && quotes.length > 0) {
+            quotes.forEach(item => {
+                const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx >= 0) {
+                    tempSymbolsList[idx] = {
+                        ...tempSymbolsList[idx],
+                        lastPrice: checkValue(tempSymbolsList[idx].lastPrice, item.currentPrice),
+                    }
+                }
+            });
+            setSymbolInfor(tempSymbolsList);
+
+            quotes.forEach(item => {
+                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (index >= 0) {
+                    tempLastQuotes[index] = {
+                        ...tempLastQuotes[index],
+                        currentPrice: checkValue(tempLastQuotes[index]?.currentPrice, item?.currentPrice),
+                    }
+                }
+            });
+            setLastQuotes(tempLastQuotes);
+
+        }
+    }
 
     useEffect(() => {
         if (price > ceilingPrice) {
@@ -84,6 +178,7 @@ const OrderForm = (props: IOrderForm) => {
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const symbolItem = symbolInfor?.find(item => item.symbolCode === symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const floor = ticker?.floor;
@@ -91,24 +186,29 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            setPrice(Number(floor));
+            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(convertNumber(lotSize));
         } else {
             setPrice(0);
             setVolume(0);
         }
-
-    }, [symbolCode])
-
+    }, [symbolCode, symbolInfor])
+    
     useEffect(() => {
         if (quoteInfo) {
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const lotSize = ticker?.lotSize;
             const floor = ticker?.floor;
-            const price = convertNumber(quoteInfo.price) === 0 ? floor : convertNumber(quoteInfo.price)
             const volume = convertNumber(quoteInfo.volume) === 0 ? lotSize : convertNumber(quoteInfo.volume)
-            setPrice(price);
+            if (convertNumber(quoteInfo.price) === 0) {
+                const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
+                setPrice(convertNumber(price));
+            }
+            else {
+                setPrice(convertNumber(quoteInfo.price));
+            }
             setVolume(volume);
         }
     }, [quoteInfo])
@@ -208,6 +308,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string, msgCode: number) => {
         if (typeStatusRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
+            setCurrentSide(tradingModel.Side.NONE);
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
@@ -276,7 +377,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const resetFormNewOrder = () => {
         if (symbolCode) {
-            setPrice(floorPrice);
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(lotSize);
             return;
         }

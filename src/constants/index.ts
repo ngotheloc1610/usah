@@ -13,6 +13,7 @@ export const pageSizeTicker = 8;
 export const pageFirst = 1;
 export const success = 200;
 export const unAuthorised = 401;
+export const multipleLoginFail = 1200;
 
 export const ORDER_RESPONSE = {
     REJECT: 'Reject',

@@ -4,7 +4,7 @@ import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MAX_ORDER_V
 import { LOGO } from '../../../assets';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
-import { success } from '../../../constants';
+import { multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,7 @@ const Login = () => {
     const [isRemeber, setIsRemeber] = useState(false)
     const [isMessErr, setIsMessErr] = useState(false);
     const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+    const [isMultiLoginFail, setIsMultiLoginFail] = useState(false);
     const secretKey = useSelector((state: any) => state.auth.secretKey);
     const rememberKey = useSelector((state: any) => state.auth.rememberKey);
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
@@ -53,6 +54,15 @@ const Login = () => {
         setIsRemeber(checked)
     }
 
+    const _renderMsgSuspend = () => (
+        <div className='fz-14 text-danger '>
+            <p className='m-0'>This account has been suspended. </p>
+            <p className='m-0'>Please contact the hosting provider for more information:</p>
+            <p className='m-0'>Phillip SG Contact (English Speaking): +65 6212-1810</p>
+            <p className=''>Phillip SG Email: cddesk@phillip.com.sg</p>
+        </div>
+    )
+
     const requestLogin = () => {
         const url = `${api_url}${API_LOGIN}`;
         const param = {
@@ -66,9 +76,11 @@ const Login = () => {
         if (encrypt) {
             dispatch(setRememberKey(encrypt));
         }
-        return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
+        return axios.post<IReqLogin, IReqLogin>(url, param)
+        .then((resp) => {
             if (resp.status === success) {
                 if (resp?.data?.data) {
+                    setIsMultiLoginFail(false);
                     const data = resp.data.data;
                     localStorage.setItem(ACCOUNT_ID, data.account_id.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
@@ -87,6 +99,11 @@ const Login = () => {
             }
         },
             (error) => {
+                if (error.response.data.meta.code === multipleLoginFail) {
+                    setIsMultiLoginFail(true);
+                    return
+                }
+                setIsMultiLoginFail(false);
                 setIsMessErr(true);
             });
     }
@@ -154,6 +171,7 @@ const Login = () => {
                                             </button>
                                         </div>
                                     </div>
+                                    {isMultiLoginFail && _renderMsgSuspend()}
                                     {isMessErr && <div className='mb-3'>
                                         <label className="d-block mb-1 text-danger">Login ID and Password is NOT matching</label>
                                     </div>}
