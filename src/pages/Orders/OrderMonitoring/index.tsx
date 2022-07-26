@@ -47,6 +47,7 @@ const OrderMonitoring = () => {
                                 <OrderForm symbolCode={symbolCode}
                                     side={side}
                                     isDashboard={false}
+                                    isMonitoring={true}
                                     messageSuccess={messageSuccess}
                                     quoteInfo={quoteInfo}
                                 />

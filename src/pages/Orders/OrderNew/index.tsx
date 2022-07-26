@@ -267,6 +267,7 @@ const OrderNew = () => {
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
                                     <OrderForm isDashboard={false}
+                                               isMonitoring={false}
                                                messageSuccess={messageSuccess}
                                                symbolCode={symbolCode}
                                                quoteInfo={quoteInfo}

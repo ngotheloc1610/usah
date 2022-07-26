@@ -15,6 +15,7 @@ import { IQuoteEvent } from '../../interfaces/quotes.interface';
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
+    isMonitoring?: boolean;
     tickerCode?: string;
     isDashboard: boolean;
     symbolCode?: string;
@@ -36,7 +37,7 @@ const defaultDataModiFyCancel: IParamOrderModifyCancel = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
+    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
@@ -65,7 +66,12 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         // bug 60403
         convertNumber(side) === tradingModel.Side.NONE || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
-    }, [side,symbolCode, quoteInfo])
+    }, [side, symbolCode, quoteInfo])
+
+    useEffect(() => {
+        // các màn khác Monitoring khi chuyển symbol sẽ bỏ chọn side
+        !isMonitoring && setCurrentSide(tradingModel.Side.NONE);
+    }, [symbolCode, isMonitoring])
 
     useEffect(() => {
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
@@ -133,17 +139,15 @@ const OrderForm = (props: IOrderForm) => {
         if (quotes && quotes.length > 0) {
             quotes.forEach(item => {
                 const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
+                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
                 if (idx >= 0) {
                     tempSymbolsList[idx] = {
                         ...tempSymbolsList[idx],
                         lastPrice: checkValue(tempSymbolsList[idx].lastPrice, item.currentPrice),
                     }
                 }
-            });
-            setSymbolInfor(tempSymbolsList);
-            // set lại last quote
-            quotes.forEach(item => {
-                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+
+                // set lại last quote
                 if (index >= 0) {
                     tempLastQuotes[index] = {
                         ...tempLastQuotes[index],
@@ -151,8 +155,8 @@ const OrderForm = (props: IOrderForm) => {
                     }
                 }
             });
+            setSymbolInfor(tempSymbolsList);
             setLastQuotes(tempLastQuotes);
-
         }
     }
 
@@ -212,6 +216,28 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(volume);
         }
     }, [quoteInfo])
+
+    useEffect(() => {
+        if (quoteInfo) {
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+            //nếu ở dashboard di chuyển các symbol thì quoteInfo.price !== 0 => k set lại đc price 
+            if (!isDashboard) {
+                const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
+                if (convertNumber(quoteInfo.price) === 0) {
+                    setPrice(convertNumber(price));
+                }
+                else {
+                    setPrice(convertNumber(quoteInfo.price));
+                }
+            }
+        }
+    }, [symbolCode, symbolInfor, quoteInfo])
+
+    useEffect(() => {
+        // khi đặt lệnh xong set lại volume = lotSize
+        currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume)
+    }, [currentSide])
+    
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
