@@ -147,7 +147,7 @@ export const checkValue = (preValue, currentValue) => {
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
     if (prevClosePrice) {
         const lastPriceValue = new Decimal(lastPrice);
-        return lastPriceValue.minus(prevClosePrice).toDP(2, Decimal.ROUND_HALF_UP).toFixed(2);
+        return lastPriceValue.minus(prevClosePrice).toFixed(2);
     }
     return '';
 }
