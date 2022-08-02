@@ -156,7 +156,7 @@ export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
     if (calcChange(lastPrice, prevClosePrice)) {
         const change = new Decimal(calcChange(lastPrice, prevClosePrice));
         if (convertNumber(prevClosePrice) !== 0) {
-            return change.div(prevClosePrice).mul(100).toDP(2, Decimal.ROUND_HALF_UP).toFixed(2);
+            return change.div(prevClosePrice).mul(100).toFixed(2);
         }
     }
     return '';
