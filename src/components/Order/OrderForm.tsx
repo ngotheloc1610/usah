@@ -15,6 +15,7 @@ import { IQuoteEvent } from '../../interfaces/quotes.interface';
 toast.configure()
 interface IOrderForm {
     isOrderBook?: boolean;
+    isMonitoring?: boolean;
     tickerCode?: string;
     isDashboard: boolean;
     symbolCode?: string;
@@ -36,10 +37,10 @@ const defaultDataModiFyCancel: IParamOrderModifyCancel = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo } = props;
+    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
-    const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
+    const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(defaultDataModiFyCancel);
@@ -63,10 +64,14 @@ const OrderForm = (props: IOrderForm) => {
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     useEffect(() => {
-        if (side) {
-            setCurrentSide(side);
-        }
-    }, [side])
+        // bug 60403
+        convertNumber(side) === tradingModel.Side.NONE || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
+    }, [side, symbolCode, quoteInfo])
+
+    useEffect(() => {
+        // các màn khác Monitoring khi chuyển symbol sẽ bỏ chọn side
+        !isMonitoring && setCurrentSide(tradingModel.Side.NONE);
+    }, [symbolCode, isMonitoring])
 
     useEffect(() => {
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
@@ -130,17 +135,28 @@ const OrderForm = (props: IOrderForm) => {
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
         const tempSymbolsList = [...symbolInfor];
+        const tempLastQuotes = [...lastQuotes];
         if (quotes && quotes.length > 0) {
             quotes.forEach(item => {
                 const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
+                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
                 if (idx >= 0) {
                     tempSymbolsList[idx] = {
                         ...tempSymbolsList[idx],
                         lastPrice: checkValue(tempSymbolsList[idx].lastPrice, item.currentPrice),
                     }
                 }
+
+                // set lại last quote
+                if (index >= 0) {
+                    tempLastQuotes[index] = {
+                        ...tempLastQuotes[index],
+                        currentPrice: checkValue(tempLastQuotes[index]?.currentPrice, item?.currentPrice),
+                    }
+                }
             });
             setSymbolInfor(tempSymbolsList);
+            setLastQuotes(tempLastQuotes);
         }
     }
 
@@ -180,9 +196,8 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-
     }, [symbolCode, symbolInfor])
-
+    
     useEffect(() => {
         if (quoteInfo) {
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -201,6 +216,28 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(volume);
         }
     }, [quoteInfo])
+
+    useEffect(() => {
+        if (quoteInfo) {
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+            //nếu ở dashboard di chuyển các symbol thì quoteInfo.price !== 0 => k set lại đc price 
+            if (!isDashboard) {
+                const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
+                if (convertNumber(quoteInfo.price) === 0) {
+                    setPrice(convertNumber(price));
+                }
+                else {
+                    setPrice(convertNumber(quoteInfo.price));
+                }
+            }
+        }
+    }, [symbolCode, symbolInfor, quoteInfo])
+
+    useEffect(() => {
+        // khi đặt lệnh xong set lại volume = lotSize
+        currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume)
+    }, [currentSide])
+    
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
@@ -297,6 +334,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string, msgCode: number) => {
         if (typeStatusRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
+            setCurrentSide(tradingModel.Side.NONE);
             setStatusOrder(value);
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
@@ -345,12 +383,19 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice;
+        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || !currentSide;
     }
 
-    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
+    const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
+        if (convertNumber(side) !== tradingModel.Side.NONE) {
+          return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`;
+        }
+        return `btn text-white rounded flex-grow-1 p-2 text-center `;
+    }
+
+    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
         <button type="button"
-            className={side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+            className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -430,6 +475,7 @@ const OrderForm = (props: IOrderForm) => {
             {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
         </>
     }
+    
     // TODO: The type button has no default behavior, and does nothing when pressed by default
     const _renderPlaceButton = () => (
         <button type='button' className="btn btn-placeholder btn-primary-custom d-block fw-bold text-white mb-1 w-100"
@@ -454,6 +500,7 @@ const OrderForm = (props: IOrderForm) => {
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                 <div className="order-btn-group d-flex align-items-stretch mb-2">
                     {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
+                    <span className='w-2'></span>
                     {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', tradingModel.Side.BUY, '', 'selected')}
                 </div>
                 <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">

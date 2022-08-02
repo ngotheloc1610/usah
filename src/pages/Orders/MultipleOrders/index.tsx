@@ -32,7 +32,7 @@ const MultipleOrders = () => {
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
-    const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
+    const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
     const [price, setPrice] = useState(0);
     const [volume, setVolume] = useState(0);
     const [isAddOrder, setIsAddOrder] = useState(false);
@@ -144,6 +144,10 @@ const MultipleOrders = () => {
             setVolume(0)
         }
     }, [ticker])
+
+    useEffect(() => {
+        setCurrentSide(tradingModel.Side.NONE);
+    }, [ticker, isAddOrder])
 
     useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
@@ -809,9 +813,16 @@ const MultipleOrders = () => {
         }
     }
 
-    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
+    const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
+        if (convertNumber(side) !== tradingModel.Side.NONE) {
+          return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`
+        }
+        return `btn rounded text-white flex-grow-1 p-2 text-center `
+    }
+
+    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
         <button type="button"
-            className={side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+        className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -1016,7 +1027,7 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice);
+        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide);
     }
 
     const handlePlaceOrder = () => {
@@ -1062,6 +1073,7 @@ const MultipleOrders = () => {
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
+                        <span className='w-2'></span>
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
                     </div>
                     <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">

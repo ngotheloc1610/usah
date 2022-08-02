@@ -110,3 +110,7 @@ input::-ms-clear, input::-ms-reveal {
   border-radius: 3% !important;
   margin-top: calc(40vh) !important;
 }
+
+.w-2 {
+  width: 2px !important;
+}

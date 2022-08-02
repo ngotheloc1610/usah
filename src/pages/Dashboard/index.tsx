@@ -450,6 +450,7 @@ const Dashboard = () => {
                             </div>
                             <div className="card-body h-500" >
                                 <OrderForm isDashboard={isDashboard}
+                                    isMonitoring={false}
                                     messageSuccess={messageSuccess}
                                     symbolCode={symbolCode}
                                     symbolQuote={symbolQuote}
