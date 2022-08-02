@@ -137,7 +137,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
         <i className={changeDisplay < 0 ? 'bi bi-arrow-down' : 'bi bi-arrow-up'}></i>
     )
 
-    const _renderLastPriceTemplate = (lastPrice: string, change: string, changePercent: string) => {
+    const _renderLastPriceTemplate = (lastPrice: string) => {
         const lastPriceDisplay = lastPrice ? lastPrice : defaultTickerDetails.lastPrice;
         const changeDisplay = formatNumber(calcChange(tickerInfo.lastPrice, tickerInfo.prevClosePrice || '').toString());
         const changePercentDisplay = formatCurrency(calcPctChange(tickerInfo.lastPrice, tickerInfo.prevClosePrice || '').toString());
@@ -171,7 +171,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                 <div>Last Price</div>
                 <div className='mt-10'>Change</div>
             </th>
-            {_renderLastPriceTemplate(tickerInfo.lastPrice, tickerInfo.change, tickerInfo.changePrecent)}
+            {_renderLastPriceTemplate(tickerInfo.lastPrice)}
             <th className='w-precent-15'>Open</th>
             <td className="text-end fw-600">{tickerInfo.open ? formatNumber(tickerInfo.open) : defaultTickerDetails.open}</td>
         </tr>

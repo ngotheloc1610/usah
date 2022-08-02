@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { LIST_TICKER_INFO } from '../../../../constants/general.constant';
+import { LIST_PRICE_TYPE, LIST_TICKER_INFO } from '../../../../constants/general.constant';
 import { ItemsPage } from '../../../../constants/news.constant';
-import { calcChange, calcPctChange, checkValue, formatCurrency, formatNumber, getClassName } from '../../../../helper/utils';
+import { assignListPrice, calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from '../../../../helper/utils';
 import { ILastQuote, IPropsDetail } from '../../../../interfaces/order.interface';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
 import { DEFAULT_DATA_TICKER } from '../../../../mocks';
@@ -57,13 +57,33 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
     }, [quoteEvent])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
+        const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const itemTickerInfor = symbolLocalList.find(o => o?.symbolCode === symbolCode);
         if (quotes && quotes.length > 0) {
-            const item = quotes.find(o => o?.symbolCode === symbolCode);
-            item ? setTickerInfo(item) : setTickerInfo(DEFAULT_DATA_TICKER);
+            let item: ILastQuote = quotes.find(o => o?.symbolCode === symbolCode) || DEFAULT_DATA_TICKER;
+            const tmpItem: ILastQuote = {
+                asksList: item.asksList,
+                bidsList: item.bidsList,
+                close: itemTickerInfor?.prevClosePrice,
+                currentPrice: item.currentPrice,
+                high: item.high,
+                low: item.low,
+                open: item.open,
+                quoteTime: item.quoteTime,
+                scale: item.scale,
+                symbolCode: itemTickerInfor.symbolCode,
+                symbolId: itemTickerInfor.symbolId,
+                tickPerDay: item.tickPerDay,
+                volumePerDay: item.volumePerDay,
+                volume: item.volumePerDay
+            }
+            item ? setTickerInfo(tmpItem) : setTickerInfo(DEFAULT_DATA_TICKER);
         }
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const itemTickerInfor = symbolLocalList.find(o => o?.symbolCode === symbolCode);
         if (quotes && quotes.length > 0) {
             let temp = { ...tickerInfo };
             const index = quotes.findIndex(o => o?.symbolCode === temp?.symbolCode);
@@ -72,7 +92,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                     ...temp,
                     asksList: quotes[index]?.asksList,
                     bidsList: quotes[index]?.bidsList,
-                    close: checkValue(temp?.close, quotes[index]?.close),
+                    close: itemTickerInfor?.prevClosePrice,
                     currentPrice: checkValue(temp?.currentPrice, quotes[index]?.currentPrice),
                     high: checkValue(temp?.high, quotes[index]?.high),
                     low: checkValue(temp?.low, quotes[index]?.low),
@@ -93,7 +113,7 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         ...tempLastQuote[idx],
                         asksList: item?.asksList,
                         bidsList: item?.bidsList,
-                        close: checkValue(tempLastQuote[idx]?.close, item?.close),
+                        close: itemTickerInfor?.prevClosePrice,
                         currentPrice: checkValue(tempLastQuote[idx]?.currentPrice, item?.currentPrice),
                         high: checkValue(tempLastQuote[idx]?.high, item?.high),
                         low: checkValue(tempLastQuote[idx]?.low, item?.low),
@@ -174,13 +194,23 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                             <tr>
                                 <td><strong className="text-table">Change</strong></td>
                                 <td className="text-end">
-                                    <span className={`${getClassName(calcChange(tickerInfo.currentPrice, tickerInfo.open || ''))}`}>{formatCurrency(calcChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>
+                                    {convertNumber(tickerInfo.currentPrice) !== 0  
+                                        ? <span className={`${getClassName(convertNumber(calcChange(tickerInfo.currentPrice, tickerInfo.close || '')))}`}>
+                                                {calcChange(tickerInfo.currentPrice, tickerInfo.close || '')}
+                                            </span>
+                                        : <span className="text-center">{formatCurrency('0')}</span>
+                                    }
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong className="text-table">Change%</strong></td>
                                 <td className="text-end">
-                                    <span className={`${getClassName(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || ''))}`}>{formatCurrency(calcPctChange(tickerInfo.currentPrice, tickerInfo.open || '').toString())}</span>
+                                    {convertNumber(tickerInfo.currentPrice) !== 0  
+                                        ? <span className={`${getClassName(convertNumber(calcPctChange(tickerInfo.currentPrice, tickerInfo.close || '')))}`}>
+                                                {calcPctChange(tickerInfo.currentPrice, tickerInfo.close || '')}
+                                            </span>
+                                        : <span className="text-center">{formatCurrency('0')}</span>
+                                    }
                                 </td>
                             </tr>
                             <tr>

@@ -191,9 +191,7 @@ const OrderBookCommon = () => {
                 currentPrice: checkValue(itemTickerDetail.currentPrice, quote.currentPrice),
                 high: checkValue(itemTickerDetail.high, quote.high),
                 low: checkValue(itemTickerDetail.low, quote.low),
-                netChange: assignChangeValue(itemTickerDetail, quote).toFixed(2),
                 open: checkValue(itemTickerDetail.open, quote.open),
-                pctChange: assignPctChangeValue(itemTickerDetail, quote).toFixed(2),
                 quoteTime: checkValue(itemTickerDetail.quoteTime, quote.quoteTime),
                 scale: checkValue(itemTickerDetail.scale, quote.scale),
                 symbolCode: itemTickerDetail.symbolCode,
@@ -206,18 +204,6 @@ const OrderBookCommon = () => {
             setItemTickerDetail(tmpItem);
         }
 
-    }
-
-    const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcChange(lastPrice, open);
-    }
-
-    const assignPctChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.currentPrice, quote.currentPrice);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcPctChange(lastPrice, open);
     }
 
     const getTradeHistory = (symbolCode: string) => {

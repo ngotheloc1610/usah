@@ -185,11 +185,9 @@ const OrderNew = () => {
                 bidsList: assignListPrice(dataSearchTicker.bidsList, quote.bidsList, LIST_PRICE_TYPE.bidList),
                 high: checkValue(dataSearchTicker.high, quote.high),
                 low: checkValue(dataSearchTicker.low, quote.low),
-                change: assignChangeValue(dataSearchTicker, quote).toFixed(2),
                 open: checkValue(dataSearchTicker.open, quote.open),
                 lastPrice: checkValue(dataSearchTicker.currentPrice, quote.currentPrice),
                 volume: checkValue(dataSearchTicker.volumePerDay, quote.volumePerDay),
-                changePrecent: assignPctChangeValue(dataSearchTicker, quote).toFixed(2),
                 symbolId: Number(item.symbolId),
                 tickerName: item.symbolName,
                 ticker: item.symbolCode,
@@ -199,18 +197,6 @@ const OrderNew = () => {
             }
             setCurrentTicker(tmpItem);
         }
-    }
-
-    const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.netChange, quote.netChange);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcChange(lastPrice, open);
-    }
-
-    const assignPctChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.pctChange, quote.pctChange);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcPctChange(lastPrice, open);
     }
 
     const subscribeQuoteEvent = (symbolId: string) => {

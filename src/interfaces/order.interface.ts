@@ -11,8 +11,8 @@ export interface ITickerInfo {
     low?: string;
     lastPrice: string;
     volume: string;
-    change: string;
-    changePrecent: string;
+    change?: string;
+    changePrecent?: string;
     side?: string;
     tickSize?: string;
     minLot?: string;
@@ -334,7 +334,7 @@ export interface ILastQuote {
     low?: string;
     netChange?: string;
     open?: string;
-    pctChange: string;
+    pctChange?: string;
     quoteTime: number;
     scale: number;
     symbolCode: string;

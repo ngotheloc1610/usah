@@ -7,6 +7,7 @@ import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
+import Decimal from 'decimal.js';
 
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
@@ -144,22 +145,21 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    if (!isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
-        return Number(lastPrice) - Number(prevClosePrice);
-    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(prevClosePrice))) {
-        return 0 - Number(prevClosePrice);
-    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(prevClosePrice))) {
-        return Number(lastPrice);
+    if (prevClosePrice) {
+        const lastPriceValue = new Decimal(lastPrice);
+        return lastPriceValue.minus(prevClosePrice).toFixed(2);
     }
-    return 0;
+    return '';
 }
 
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
-    const change = calcChange(lastPrice, prevClosePrice);
-    if (!isNaN(Number(prevClosePrice)) && Number(prevClosePrice) !== 0) {
-        return change / Number(prevClosePrice) * 100;
+    if (calcChange(lastPrice, prevClosePrice)) {
+        const change = new Decimal(calcChange(lastPrice, prevClosePrice));
+        if (convertNumber(prevClosePrice) !== 0) {
+            return change.div(prevClosePrice).mul(100).toFixed(2);
+        }
     }
-    return 0;
+    return '';
 }
 
 export const toTimestamp = (strDate: string) => {
