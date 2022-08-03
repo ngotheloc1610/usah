@@ -164,6 +164,7 @@ export enum MESSAGE_TOAST {
     SUCCESS_ADD = 'Add symbol successfully',
 
     ERROR_PASSWORD_UPDATE = 'Incorrect current password',
+    ERROR_PASSWORD_SHOULD_DIFF = 'New Password should be different from past 6 passwords.',
     ERROR_ADD = 'Add symbol failed',
 
     EXIST_ADD = 'Symbol already existed'

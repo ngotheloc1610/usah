@@ -9,7 +9,7 @@ import { IAccountDetail } from '../../interfaces/customerInfo.interface'
 import { API_POST_CHANGE_PASSWORD } from '../../constants/api.constant';
 import axios from 'axios';
 import { IReqChangePassword } from '../../interfaces';
-import { success } from '../../constants';
+import { errorPastPassword, success } from '../../constants';
 
 interface ISetting {
     isChangePassword: boolean;
@@ -143,7 +143,12 @@ const Setting = (props: ISetting) => {
                 { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
             }
         }, (error) => {
-            { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
+            const code = error.response.data.meta?.code
+            if(code === errorPastPassword){
+                { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_SHOULD_DIFF) }
+            }else{
+                { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
+            }  
         });
     }
     const changeNewsAdmin = (checked: boolean) => {
