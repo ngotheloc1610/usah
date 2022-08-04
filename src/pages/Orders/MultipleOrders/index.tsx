@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
@@ -55,6 +55,8 @@ const MultipleOrders = () => {
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
 
     const systemModelPb: any = smpb;
+
+    const ref: any = useRef();
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -143,11 +145,15 @@ const MultipleOrders = () => {
             setPrice(0)
             setVolume(0)
         }
+        if (ref.current !== '') {
+            setCurrentSide(tradingModel.Side.NONE);
+        }
+        ref.current = ticker;
     }, [ticker])
 
     useEffect(() => {
         setCurrentSide(tradingModel.Side.NONE);
-    }, [ticker, isAddOrder])
+    }, [isAddOrder])
 
     useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
@@ -1067,7 +1073,10 @@ const MultipleOrders = () => {
             <div className="box d-flex">
                 <div className="col-6">Add Order
                 </div>
-                <div className="col-6 text-end"><span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span></div>
+                <div className="col-6 text-end"><span className="close-icon" onClick={() => {
+                    setIsAddOrder(false);
+                    setTicker("");
+                }}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
