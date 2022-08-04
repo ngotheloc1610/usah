@@ -190,7 +190,6 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(convertNumber(lotSize));
         } else {
             setPrice(0);
@@ -216,22 +215,6 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(volume);
         }
     }, [quoteInfo])
-
-    useEffect(() => {
-        if (quoteInfo) {
-            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
-            //nếu ở dashboard di chuyển các symbol thì quoteInfo.price !== 0 => k set lại đc price 
-            if (!isDashboard) {
-                const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
-                if (convertNumber(quoteInfo.price) === 0) {
-                    setPrice(convertNumber(price));
-                }
-                else {
-                    setPrice(convertNumber(quoteInfo.price));
-                }
-            }
-        }
-    }, [symbolCode, symbolInfor, quoteInfo])
 
     useEffect(() => {
         // khi đặt lệnh xong set lại volume = lotSize
