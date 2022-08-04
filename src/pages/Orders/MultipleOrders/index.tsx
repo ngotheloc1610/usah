@@ -1075,7 +1075,7 @@ const MultipleOrders = () => {
                 </div>
                 <div className="col-6 text-end"><span className="close-icon" onClick={() => {
                     setIsAddOrder(false);
-                    setTicker("");
+                    setTicker('');
                 }}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
