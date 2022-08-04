@@ -186,6 +186,9 @@ const OrderForm = (props: IOrderForm) => {
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const floor = ticker?.floor;
+            if (!quoteInfo) {
+                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+            }
             setFloorPrice(Number(ticker?.floor));
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
