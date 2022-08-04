@@ -3,10 +3,10 @@ import '../Login/Login.scss';
 import { useEffect, useState } from 'react';
 import { API_RESET_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD } from '../../../constants/general.constant';
+import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
-import { RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
+import { errorPastPassword, RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
 import { toast } from 'react-toastify';
 
 const ResetPassword = () => {
@@ -94,7 +94,9 @@ const ResetPassword = () => {
                 setIsExpiredResetToken(true);
                 return;
             }
-            toast.error(error.response.data.data)
+            if (error.response.data?.meta.code === errorPastPassword){
+                toast.error(MESSAGE_TOAST.ERROR_PASSWORD_SHOULD_DIFF)
+            }
         })
     }
 

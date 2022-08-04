@@ -9,7 +9,7 @@ import { IAccountDetail } from '../../interfaces/customerInfo.interface'
 import { API_POST_CHANGE_PASSWORD } from '../../constants/api.constant';
 import axios from 'axios';
 import { IReqChangePassword } from '../../interfaces';
-import { success } from '../../constants';
+import { errorPastPassword, success } from '../../constants';
 
 interface ISetting {
     isChangePassword: boolean;
@@ -131,19 +131,24 @@ const Setting = (props: ISetting) => {
         const param = {
             password: password,
             newPassword: newPassword
-        }
+        };
         axios.post<IReqChangePassword, IReqChangePassword>(urlPostChangePassword, param, defindConfigPost()).then((resp) => {
             if (resp?.data?.meta?.code === success) {
-                { toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE) }
+                toast.success(MESSAGE_TOAST.SUCCESS_PASSWORD_UPDATE);
                 setPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
                 setCheckConfirm(false);
             } else {
-                { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
+                toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE);
             }
         }, (error) => {
-            { toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE) }
+            const code = error.response.data.meta?.code;
+            if (code === errorPastPassword) {
+                toast.error(MESSAGE_TOAST.ERROR_PASSWORD_SHOULD_DIFF);
+            } else {
+                toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE);
+            }  
         });
     }
     const changeNewsAdmin = (checked: boolean) => {
