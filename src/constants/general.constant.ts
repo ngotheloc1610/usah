@@ -1,4 +1,4 @@
-import * as tspb from '../models/proto/trading_model_pb'
+import * as tspb from '../models/proto/trading_model_pb';
 const tradingModelPb: any = tspb;
 
 export const SIDE = [
@@ -153,21 +153,21 @@ export const FROM_DATE_TIME = '00:00:00';
 
 export const TO_DATE_TIME = '23:59:59';
 
-export enum MESSAGE_TOAST {
-    SUCCESS_SEARCH = 'Search successfully',
-    SUCCESS_PLACE = 'Place order successfully',
-    SUCCESS_PASSWORD_UPDATE = 'Update password successfully',
+export const MESSAGE_TOAST = {
+    SUCCESS_SEARCH: 'Search successfully',
+    SUCCESS_PLACE: 'Place order successfully',
+    SUCCESS_PASSWORD_UPDATE: 'Update password successfully',
 
-    SUCCESS_CANCEL = 'Cancel order successfully',
-    SUCCESS_MODIFY = 'Modify order successfully',
+    SUCCESS_CANCEL: 'Cancel order successfully',
+    SUCCESS_MODIFY: 'Modify order successfully',
 
-    SUCCESS_ADD = 'Add symbol successfully',
+    SUCCESS_ADD: 'Add symbol successfully',
 
-    ERROR_PASSWORD_UPDATE = 'Incorrect current password',
-    ERROR_PASSWORD_SHOULD_DIFF = 'New Password should be different from past 6 passwords.',
-    ERROR_ADD = 'Add symbol failed',
+    ERROR_PASSWORD_UPDATE: 'Incorrect current password',
+    ERROR_PASSWORD_SHOULD_DIFF: `New Password should be different from past ${window.globalThis.timesChangePassword} passwords.`,
+    ERROR_ADD: 'Add symbol failed',
 
-    EXIST_ADD = 'Symbol already existed'
+    EXIST_ADD: 'Symbol already existed'
 };
 
 export const LIST_TICKER_INFO = 'TICKER_LIST';
