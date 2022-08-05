@@ -185,9 +185,10 @@ const OrderForm = (props: IOrderForm) => {
             const symbolItem = symbolInfor?.find(item => item.symbolCode === symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
-            const floor = ticker?.floor;
-            if (!quoteInfo) {
+            if (isNaN(Number(quoteInfo?.price)) || symbolCode !== quoteInfo?.price) {
                 convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+            } else {
+                setPrice(convertNumber(quoteInfo?.price));
             }
             setFloorPrice(Number(ticker?.floor));
             setCeilingPrice(Number(ticker?.ceiling));
@@ -475,9 +476,9 @@ const OrderForm = (props: IOrderForm) => {
         >Reset</button>
     )
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price?.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed])
 
-    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
+    const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume?.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
 
     const _renderForm = () => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
