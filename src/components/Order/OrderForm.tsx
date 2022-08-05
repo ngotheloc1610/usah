@@ -37,7 +37,7 @@ const defaultDataModiFyCancel: IParamOrderModifyCancel = {
 }
 
 const OrderForm = (props: IOrderForm) => {
-    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring } = props;
+    const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring, isOrderBook } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
@@ -63,8 +63,23 @@ const OrderForm = (props: IOrderForm) => {
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
+    const [isRenderPrice, setIsRenderPrice] = useState(true);
+    const [isRenderVolume, setIsRenderVolume] = useState(true);
+
+    useEffect(() => {
+        setIsRenderPrice(true);
+        setIsRenderVolume(true);
+        if (symbolCode === '') {
+            setCurrentSide(tradingModel.Side.NONE);
+        }
+    }, [symbolCode])
+
     useEffect(() => {
         // bug 60403
+        if (symbolCode === '') {
+            setCurrentSide(tradingModel.Side.NONE);
+            return;
+        }
         convertNumber(side) === tradingModel.Side.NONE || convertNumber(quoteInfo?.price) === 0 ? setCurrentSide(tradingModel.Side.NONE) : setCurrentSide(side);
     }, [side, symbolCode, quoteInfo])
 
@@ -134,6 +149,8 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        setIsRenderPrice(false);
+        setIsRenderVolume(false);
         const tempSymbolsList = [...symbolInfor];
         const tempLastQuotes = [...lastQuotes];
         if (quotes && quotes.length > 0) {
@@ -185,21 +202,29 @@ const OrderForm = (props: IOrderForm) => {
             const symbolItem = symbolInfor?.find(item => item.symbolCode === symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
-            if (isNaN(Number(quoteInfo?.price)) || symbolCode !== quoteInfo?.price) {
-                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
-            } else {
-                setPrice(convertNumber(quoteInfo?.price));
+            if (isRenderPrice) {
+                if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
+                    convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+                } else {
+                    setPrice(convertNumber(quoteInfo?.price));
+                }
             }
             setFloorPrice(Number(ticker?.floor));
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
-            setVolume(convertNumber(lotSize));
+            if (isRenderVolume) {
+                if (symbolCode !== "") {
+                    setVolume(convertNumber(lotSize));
+                } else {
+                    setVolume(0);
+                }
+            }
         } else {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor])
+    }, [symbolCode, symbolInfor, quoteInfo])
     
     useEffect(() => {
         if (quoteInfo) {
@@ -207,7 +232,6 @@ const OrderForm = (props: IOrderForm) => {
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const lotSize = ticker?.lotSize;
-            const floor = ticker?.floor;
             const volume = convertNumber(quoteInfo.volume) === 0 ? lotSize : convertNumber(quoteInfo.volume)
             if (convertNumber(quoteInfo.price) === 0) {
                 const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
@@ -221,8 +245,14 @@ const OrderForm = (props: IOrderForm) => {
     }, [quoteInfo])
 
     useEffect(() => {
+        if (symbolCode === "") {
+            setVolume(0);
+            return;
+        }
         // khi đặt lệnh xong set lại volume = lotSize
-        currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume)
+        if (!isOrderBook) {
+            currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume);
+        }
     }, [currentSide])
     
 
@@ -249,6 +279,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handelUpperVolume = () => {
+        setIsRenderVolume(false);
         const currentVol = Number(volume);
         const newVol = currentVol + lotSize;
         setVolume(newVol);
@@ -257,6 +288,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handelLowerVolume = () => {
+        setIsRenderVolume(false);
         const currentVol = Number(volume);
         if (currentVol <= lotSize) {
             setVolume(lotSize);
@@ -269,6 +301,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleUpperPrice = () => {
+        setIsRenderPrice(false);
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
@@ -294,6 +327,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleLowerPrice = () => {
+        setIsRenderPrice(false);
         const currentPrice = Number(price);
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
@@ -399,6 +433,7 @@ const OrderForm = (props: IOrderForm) => {
         setVolume(0);
     }
     const handleChangeVolume = (value: string) => {
+        setIsRenderVolume(false);
         const volume = convertNumber(value);
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
@@ -407,6 +442,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handleChangePrice = (value: string) => {
+        setIsRenderPrice(false);
         const price = convertNumber(value);
         setPrice(price);
         if (ceilingPrice === 0 && floorPrice === 0) {
