@@ -40,10 +40,12 @@ const MultipleOrders = () => {
     const [sideAddNew, setSideAddNew] = useState('Sell');
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [isDelete, setIsDelete] = useState(false);
+    const [isSave, setIsSave] = useState(false);
     const [statusPlace, setStatusPlace] = useState(false);
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
+    const [isValidTicker, setIsValidTicker] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
@@ -145,7 +147,7 @@ const MultipleOrders = () => {
             setPrice(0)
             setVolume(0)
         }
-        if (ref.current !== '') {
+        if (ref.current !== ticker && ref.current !== '' && !isValidTicker ) {
             setCurrentSide(tradingModel.Side.NONE);
         }
         ref.current = ticker;
@@ -887,9 +889,9 @@ const MultipleOrders = () => {
                     <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-            {invalidPrice && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-            {invalidVolume && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid quantity</div>}
+            {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
+            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid quantity</div>}
         </>
 
     )
@@ -991,12 +993,15 @@ const MultipleOrders = () => {
     const handleChangeTicker = (event: any) => {
         const value = event.target.innerText || event.target.value;
         setTicker(value ? value : '');
+        const symbolCode = value?.split('-')[0]?.trim();
+        const symbolName = value?.split('-')[1]?.trim();
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const item = symbols.find(o => o?.symbolCode === symbolCode);
-            if (item) {
+            setIsSave(false)
+            if (item) {                
                 convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 setVolume(convertNumber(item.lotSize));
                 setInvalidPrice(false);
@@ -1007,11 +1012,20 @@ const MultipleOrders = () => {
             setPrice(0);
             setVolume(0);
         }
-        
+        const item = symbols.find(o => o?.symbolCode === symbolCode && o?.symbolName === symbolName);
+        if(item) {
+            setIsSave(true);
+            setIsValidTicker(false);
+        } else {
+            setIsValidTicker(true);
+            setPrice(0);
+            setVolume(0);
+        };    
     }
 
     const disableControl = () => {
-        return ticker?.trim() === '';
+        const isDisableInput = ticker?.trim() === '' || isValidTicker;
+        return isDisableInput;
     }
 
     const renderSymbolSelect = () => {
@@ -1033,7 +1047,7 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide);
+        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide || !isSave);
     }
 
     const handlePlaceOrder = () => {
@@ -1091,6 +1105,7 @@ const MultipleOrders = () => {
                             {renderSymbolSelect()}
                         </div>
                     </div>
+                    {isValidTicker && <div className='text-danger text-end'>Invalid Ticker</div>}
 
 
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
