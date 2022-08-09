@@ -71,8 +71,8 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                 open: item.open,
                 quoteTime: item.quoteTime,
                 scale: item.scale,
-                symbolCode: itemTickerInfor.symbolCode,
-                symbolId: itemTickerInfor.symbolId,
+                symbolCode: itemTickerInfor?.symbolCode,
+                symbolId: itemTickerInfor?.symbolId,
                 tickPerDay: item.tickPerDay,
                 volumePerDay: item.volumePerDay,
                 volume: item.volumePerDay

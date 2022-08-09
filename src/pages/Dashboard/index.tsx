@@ -148,19 +148,23 @@ const Dashboard = () => {
             lastQuote.unsubscribe();
         }
     }, [])
-
+    
     useEffect(() => {
         setMatchedOrder(matchedOrder + tradeEvent.length)
     }, [tradeEvent])
-
+    
     useEffect(() => {
         processLastQuote(lastQuotes, portfolio);
     }, [lastQuotes]);
-
+    
     useEffect(() => {
         processQuoteEvent(quoteEvent, portfolio);
     }, [quoteEvent]);
-
+    
+    useEffect(() => {
+        setQuoteInfo(undefined)
+    },[symbolCode]);
+    
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
             const temp = [...portfolio];
@@ -419,6 +423,7 @@ const Dashboard = () => {
     const getSide = (value: number) => {
         setSide(value);
     }
+
 
     return (
         <div className="site-main">
