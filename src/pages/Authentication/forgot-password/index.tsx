@@ -1,20 +1,26 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { success } from '../../../constants';
 import { API_FORGOT_PASSWORD } from '../../../constants/api.constant';
+import { MESSAGE_ERROR_API } from '../../../constants/message.constant';
 import '../Login/Login.scss';
 
 const ForgotPassword = () => {
 
     const [email, setEmail] = useState('');
     const [accountId, setAccountId] = useState('');
+    const [isSuspendAccount, setIsSuspendAccount] = useState(false);
 
     const apiUrl = `${window.globalThis.apiUrl}${API_FORGOT_PASSWORD}`;
 
     const disabledSubmitButton = () => {
         return email.trim() === '' || accountId.trim() === '';
     }
+
+    useEffect(() => {
+        setIsSuspendAccount(false);
+    }, [email, accountId])
 
     const handleForgotPassword = () => {
         const param = {
@@ -32,9 +38,23 @@ const ForgotPassword = () => {
                 toast.error(messageError);
             }
         }).catch(error => {
-            toast.error(error?.response?.data?.data);
+            const typeError = error?.response?.data?.data;
+            if(typeError === MESSAGE_ERROR_API.ERROR_SUSPEND_ACCOUNT){
+                setIsSuspendAccount(true);
+            }else{
+                toast.error(typeError);
+            }
         })
     }
+
+    const _renderNotiAccSuspend = () => (
+        <div className='fz-14 text-danger '>
+            <p className='m-0'>This account has been suspended. </p>
+            <p className='m-0'>Please contact the hosting provider for more information:</p>
+            <p className='m-0'>Phillip SG Contact (English Speaking): +65 6212-1810</p>
+            <p className=''>Phillip SG Email: cddesk@phillip.com.sg</p>
+        </div>  
+    )
 
     const _renderForgotPasswordTemplate = () => (
         <div className="h-full page login">
@@ -65,7 +85,8 @@ const ForgotPassword = () => {
                                              onChange={(event) => setAccountId(event.target.value)} />
                                         </div>
                                     </div>
-
+                                    
+                                    {isSuspendAccount && _renderNotiAccSuspend()}
                                     <div className="mt-1 d-flex justify-content-center">
                                         <div className='d-flex'>
                                             <button disabled={disabledSubmitButton()} style={{marginRight: '10px'}}
