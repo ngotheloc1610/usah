@@ -645,7 +645,7 @@ const MultipleOrders = () => {
                 if (symbol) {
                     let order = new tradingModelPb.Order();
                     order.setAmount(item.volume?.replaceAll(',', ''));
-                    order.setPrice(item.price.replaceAll(',', ''));
+                    order.setPrice(convertNumber(item.price.replaceAll(',', '')).toFixed(2));
                     order.setUid(accountId);
                     order.setSymbolCode(symbol?.symbolCode);
                     order.setSide(getOrderSideValue(item.orderSide));
