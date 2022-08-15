@@ -131,7 +131,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setAmount(`${params.volume}`);
-            order.setPrice(`${params.price}`);
+            order.setPrice(`${params.price.toFixed(2)}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
