@@ -1012,7 +1012,7 @@ const MultipleOrders = () => {
             setPrice(0);
             setVolume(0);
         }
-        const item = symbols.find(o => o?.symbolCode === symbolCode && o?.symbolName === symbolName);
+        const item = symbols.find(o => o?.symbolCode === symbolCode);
         if(item) {
             setIsSave(true);
             setIsValidTicker(false);
