@@ -127,6 +127,10 @@ export const KEY_LOCAL_STORAGE = {
     AUTHEN: 'lp_objAuthen'
 };
 
+export const KEY_SESSION_STORAGE = {
+    SESSION: 'lp_session'
+};
+
 export const MODIFY_CANCEL_STATUS = {
     success: true,
     error: false

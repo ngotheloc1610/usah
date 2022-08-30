@@ -1,0 +1,44 @@
+.h-content {
+    height: calc(75vh) !important;
+}
+
+.bodybox {
+    background-color: #fff;
+    position: absolute;
+    left: 50%;
+    height: auto;
+    clear: both;
+    box-shadow: 0px 0px 50px #ccc;
+    margin-left: -298px;
+    z-index: 6;
+    padding: 20px;
+    padding-top: 10px;
+    font-weight: 500;
+}
+
+.bodybox {
+    width: 600px;
+}
+
+.fLogout {
+    position: relative;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.box_middle {
+    width: auto;
+    margin-bottom: 20px;
+}
+
+.text_bottom {
+    margin-bottom: 50px;
+}
+
+.text {
+    text-align: center;
+}
