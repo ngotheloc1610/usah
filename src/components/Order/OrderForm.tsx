@@ -202,6 +202,7 @@ const OrderForm = (props: IOrderForm) => {
             const symbolItem = symbolInfor?.find(item => item.symbolCode === symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
+            const minLot = ticker?.minLot;
             if (isRenderPrice) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
@@ -215,7 +216,7 @@ const OrderForm = (props: IOrderForm) => {
             setLotSize(Number(lotSize));
             if (isRenderVolume) {
                 if (symbolCode !== "") {
-                    setVolume(convertNumber(lotSize));
+                    setVolume(convertNumber(minLot));
                 } else {
                     setVolume(0);
                 }
