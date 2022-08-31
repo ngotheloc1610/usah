@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -51,6 +51,7 @@ const OrderForm = (props: IOrderForm) => {
     const [statusOrder, setStatusOrder] = useState(0);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
+    const [isMaxOrderVol, setIsMaxOrderVol] = useState(false);
     const [floorPrice, setFloorPrice] = useState(0);
     const [ceilingPrice, setCeilingPrice] = useState(0);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
@@ -65,6 +66,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
+    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
 
     useEffect(() => {
         setIsRenderPrice(true);
@@ -189,12 +191,14 @@ const OrderForm = (props: IOrderForm) => {
         setIsShowNotiErrorPrice(false);
         setInvalidPrice(Math.round(Number(price) * 100) % Math.round(tickSize * 100) !== 0);
         setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+        setIsMaxOrderVol(volume >= maxOrderVolume);
     }, [price, volume])
 
     useEffect(() => {
         if (symbolCode) {
             setIsShowNotiErrorPrice(false);
             setInvalidVolume(false);
+            setIsMaxOrderVol(false);
             setInvalidPrice(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -284,6 +288,7 @@ const OrderForm = (props: IOrderForm) => {
         const newVol = currentVol + lotSize;
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
+        setIsMaxOrderVol(newVol >= Number(maxOrderVolume));
         setValidForm(price > 0 && newVol > 0);
     }
 
@@ -297,6 +302,7 @@ const OrderForm = (props: IOrderForm) => {
         const newVol = currentVol - lotSize;
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
+        setIsMaxOrderVol(newVol >= Number(maxOrderVolume));
         setValidForm(price > 0 && newVol > 0);
     }
 
@@ -404,7 +410,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const disableButtonPlace = (): boolean => {
         const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
-        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || !currentSide;
+        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || !currentSide || isMaxOrderVol;
     }
 
     const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
@@ -438,6 +444,7 @@ const OrderForm = (props: IOrderForm) => {
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+            setIsMaxOrderVol(volume >= maxOrderVolume);
         }
     }
 
@@ -495,7 +502,8 @@ const OrderForm = (props: IOrderForm) => {
             <div>
                 {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger'>Invalid Price</span>}
             </div>
-            {title === TITLE_ORDER_CONFIRM.QUANLITY &&  invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <span className='text-danger'>Quantity is exceed max order quantity: {maxOrderVolume}</span>}
         </>
     }
     
