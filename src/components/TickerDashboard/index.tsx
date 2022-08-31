@@ -236,7 +236,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                      {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcPctChange(item.lastPrice, item.prevClosePrice)))}>
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
                         {calcPctChange(item.lastPrice, item.prevClosePrice)}%
                     </span>}
                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
