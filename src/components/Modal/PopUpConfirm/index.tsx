@@ -9,6 +9,7 @@ import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 import { useEffect } from 'react';
+import './PopUpConfirm.scss';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -104,9 +105,9 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     }
     return <>
         <div className="popup-box">
-            <div className="box d-flex">
-                Cancel All Confirmation
-                <span className="close-icon" onClick={() => handleCloseConfirmPopup(false)}>x</span>
+            <div className="box">
+                <div className='confirm-head'>Cancel All Confirmation</div>          
+                <div className="close-icon confirm-close" onClick={() => handleCloseConfirmPopup(false)}>x</div>
             </div>
             <div className='content text-center'>
                 <div className='fs-18 fw-600'>Are you sure <span className="text-danger">Cancel</span> All Order?</div>
