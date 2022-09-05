@@ -191,7 +191,7 @@ const OrderForm = (props: IOrderForm) => {
         setIsShowNotiErrorPrice(false);
         setInvalidPrice(Math.round(Number(price) * 100) % Math.round(tickSize * 100) !== 0);
         setInvalidVolume(volume % lotSize !== 0 || volume < 1);
-        setIsMaxOrderVol(volume >= maxOrderVolume);
+        setIsMaxOrderVol(volume > maxOrderVolume);
     }, [price, volume])
 
     useEffect(() => {
@@ -289,7 +289,7 @@ const OrderForm = (props: IOrderForm) => {
         const newVol = currentVol + lotSize;
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
-        setIsMaxOrderVol(newVol >= Number(maxOrderVolume));
+        setIsMaxOrderVol(newVol > Number(maxOrderVolume));
         setValidForm(price > 0 && newVol > 0);
     }
 
@@ -303,7 +303,7 @@ const OrderForm = (props: IOrderForm) => {
         const newVol = currentVol - lotSize;
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
-        setIsMaxOrderVol(newVol >= Number(maxOrderVolume));
+        setIsMaxOrderVol(newVol > Number(maxOrderVolume));
         setValidForm(price > 0 && newVol > 0);
     }
 
@@ -445,7 +445,7 @@ const OrderForm = (props: IOrderForm) => {
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
-            setIsMaxOrderVol(volume >= maxOrderVolume);
+            setIsMaxOrderVol(volume > maxOrderVolume);
         }
     }
 
