@@ -14,6 +14,8 @@ import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
 import ForgotPassword from './pages/Authentication/forgot-password';
 import Blocked from './pages/Blocked';
+import { convertNumber } from './helper/utils';
+import { setLogin } from './redux/actions/auth';
 
 const App = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -24,6 +26,14 @@ const App = () => {
   const [isBlocked, setIsBlocked] = useState(false);
 
   const idleEvents = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
+
+  window.addEventListener("load", () => {
+    localStorage.setItem(KEY_LOCAL_STORAGE.START_LOAD, JSON.stringify(new Date().getTime()));
+  })
+
+  window.addEventListener("beforeunload", () => {
+    localStorage.setItem(KEY_LOCAL_STORAGE.END_LOAD, JSON.stringify(new Date().getTime()));
+  })
 
   useEffect(() => {
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
@@ -65,15 +75,21 @@ const App = () => {
 
   useEffect(() => {
     const session = sessionStorage.getItem(KEY_SESSION_STORAGE.SESSION);
+    const startLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.START_LOAD));
+    const endLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.END_LOAD));
     if (!session && !isForgotPassword && !isForgotPassword && !isLogin) {
-      setIsBlocked(true);
-      localStorage.removeItem(ACCOUNT_ID);
-      localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-      localStorage.removeItem(EXPIRE_TIME);
-      localStorage.removeItem(ROLE);
-      localStorage.removeItem(POEM_ID);
-      localStorage.removeItem(MIN_ORDER_VALUE);
-      localStorage.removeItem(MAX_ORDER_VOLUME);
+      if (endLoad - startLoad < 0) setIsBlocked(true);
+      else {
+        setIsBlocked(false);
+        setIsLogin(true);
+        localStorage.removeItem(ACCOUNT_ID);
+        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(EXPIRE_TIME);
+        localStorage.removeItem(ROLE);
+        localStorage.removeItem(POEM_ID);
+        localStorage.removeItem(MIN_ORDER_VALUE);
+        localStorage.removeItem(MAX_ORDER_VOLUME);
+      }
     }
   }, [isLogin])
 
