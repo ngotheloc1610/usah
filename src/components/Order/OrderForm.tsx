@@ -62,6 +62,10 @@ const OrderForm = (props: IOrderForm) => {
     const [bestAskPrice, setBestAskPrice] = useState(0);
     const [bestBidPrice, setBestBidPrice] = useState(0);
 
+    // NOTE: When change orderType from Market to Limit, set Price default is LastPrice or ClosePrice
+    // so state limitPrice use to set LastPrice or ClosePrice
+    const [limitPrice, setLimitPrice] = useState(0);
+
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
 
     useEffect(() => {
@@ -79,6 +83,8 @@ const OrderForm = (props: IOrderForm) => {
             if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
             if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
             setPrice(tempPrice);
+        } else {
+            setPrice(limitPrice);
         }
     }, [orderType, currentSide, bestBidPrice, bestAskPrice])
 
@@ -240,8 +246,10 @@ const OrderForm = (props: IOrderForm) => {
             if (isRenderPrice) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+                    convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
                 } else {
                     setPrice(convertNumber(quoteInfo?.price));
+                    setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
             setFloorPrice(Number(ticker?.floor));
@@ -271,9 +279,11 @@ const OrderForm = (props: IOrderForm) => {
             if (convertNumber(quoteInfo.price) === 0) {
                 const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
                 setPrice(convertNumber(price));
+                setLimitPrice(convertNumber(price))
             }
             else {
                 setPrice(convertNumber(quoteInfo.price));
+                setLimitPrice(convertNumber(quoteInfo.price))
             }
             setVolume(volume);
         }
