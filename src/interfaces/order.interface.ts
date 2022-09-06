@@ -52,7 +52,7 @@ export interface IParamOrderModifyCancel {
     orderId?: string;
     tickerCode: string;
     tickerName: string;
-    orderType: string;
+    orderType: number;
     volume: string;
     price: number;
     side: number;
@@ -192,6 +192,7 @@ export interface ISymbolMultiOrder {
     status?: string;
     msgCode?: number;
     message?: string;
+    orderType: number;
 }
 
 export interface IListOrderHistory {
@@ -602,8 +603,8 @@ export interface IDataHistoryDownload {
     orderVolume: number;
     remainingVolume: number;
     executedVolume: number;
-    orderPrice: number;
-    lastPrice: number;
+    orderPrice: string;
+    lastPrice: string;
     withdrawQuantity: string;
     orderDateTime: string;
     executedDateTime: string;
@@ -618,7 +619,7 @@ export interface ITradeHistoryDownload {
     matchedValue: number;
     orderNo: string;
     orderType: string;
-    orderPrice: number;
+    orderPrice: string;
     orderSide?: string;
     tickerCode: string;
     tickerName: string;

@@ -125,3 +125,16 @@ thead, tbody, tfoot, tr, td, th {
     display: flex;
     align-items: center;
 }
+
+.link-btn {
+    font-weight: bolder;
+    color: rgb(23, 191, 221);
+    text-decoration: underline;
+}
+
+.pointer:hover {
+    font-weight: bolder;
+    color: rgb(23, 191, 221);
+    text-decoration: underline;
+    cursor: pointer;
+}

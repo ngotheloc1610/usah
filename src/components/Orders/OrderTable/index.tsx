@@ -1,4 +1,4 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
@@ -154,7 +154,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
                 </td>
 
-                <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-center w-120">{ORDER_TYPE.get(item.orderType)}</td>
 
                 <td className="text-ellipsis text-end w-140">
                     <div>{formatNumber(item.amount)}</div>
@@ -164,8 +164,8 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
 
                 <td className="text-ellipsis text-end w-120">
-                    <div className="">{formatCurrency(item.price)}</div>
-                    {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
+                    <div className="">{item.orderType === tradingModelPb.OrderType.OP_LIMIT ? formatCurrency(item.price) : '-'}</div>
+                    {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{convertNumber(item?.lastPrice) > 0 ? formatCurrency(item?.lastPrice) : '-'}</div>}
                     {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
                 </td>
                 <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-'}</td>
@@ -192,12 +192,12 @@ function OrderTable(props: IPropListOrderHistory) {
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
                     orderStatus: getStateName(item.state) || '',
-                    orderType: ORDER_TYPE_NAME.limit,
+                    orderType: ORDER_TYPE.get(item.orderType) || '',
                     orderVolume: convertNumber(item.amount),
                     remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
                     executedVolume: convertNumber(item.filledAmount),
-                    orderPrice: convertNumber(item.price),
-                    lastPrice: convertNumber(item.lastPrice),
+                    orderPrice: item.orderType === tradingModelPb.OrderType.OP_LIMIT ? item.price : '-',
+                    lastPrice: convertNumber(item.lastPrice) > 0 ? item.lastPrice : '-',
                     withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
                     orderDateTime: formatOrderTime(item.time),
                     executedDateTime: formatOrderTime(item.time),

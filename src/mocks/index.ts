@@ -1,4 +1,4 @@
-import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid, IStyleBidsAsk } from "../interfaces/order.interface";
+import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid, IStyleBidsAsk, IParamOrderModifyCancel } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
@@ -280,4 +280,15 @@ export const DEFAULT_STYLE_LAYOUT: IStyleBidsAsk = {
     grid: false,
     columns: false,
     columnsGap: false,
+}
+
+export const DEFAULT_DATA_MODIFY_CANCEL: IParamOrderModifyCancel = {
+    tickerCode: '',
+    tickerName: '',
+    orderType: 0,
+    volume: '',
+    price: 0,
+    side: 0,
+    confirmationConfig: false,
+    tickerId: ''
 }

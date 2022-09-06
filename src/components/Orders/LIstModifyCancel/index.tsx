@@ -7,12 +7,13 @@ import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 import { TYPE_ORDER_RES } from "../../../constants/order.constant";
+import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
 
 interface IPropsListModifyCancel {
     orderSide: number;
@@ -32,19 +33,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [isCancel, setIsCancel] = useState<boolean>(false);
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
-
-    const defaultDataModiFyCancel: IParamOrderModifyCancel = {
-        tickerCode: '',
-        tickerName: '',
-        orderType: '',
-        volume: '',
-        price: 0,
-        side: 0,
-        confirmationConfig: false,
-        tickerId: ''
-    }
     
-    const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(defaultDataModiFyCancel);
+    const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(DEFAULT_DATA_MODIFY_CANCEL);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
@@ -191,7 +181,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             orderId: item.orderId.toString(),
             tickerCode: getTickerCode(item.symbolCode),
             tickerName: getTickerName(item.symbolCode),
-            orderType: ORDER_TYPE_NAME.limit,
+            orderType: item.orderType,
             volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
             side: item.side,
@@ -299,7 +289,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 <td className="fm">{item.externalOrderId}</td>
                 <td title={getTickerName(item.symbolCode)}>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
-                <td className="text-center ">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-center ">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="text-end ">{formatCurrency(item.price.toString())}</td>
                 <td className="text-end ">{formatNumber(item.amount.toString())}</td>
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>

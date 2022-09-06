@@ -8,7 +8,7 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
 import * as psbp from '../../models/proto/pricing_service_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -135,7 +135,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
+            order.setOrderType(params.orderType);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -317,6 +317,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </tr>
     )
 
+    const _renderOrderType = () => (
+        <tr className='mt-2'>
+            <td className='text-left w-150'><b>Order type</b></td>
+            <td className='text-end pt-1 pb-2'>
+                {ORDER_TYPE.get(params.orderType)}
+            </td>
+        </tr>
+    )
+
     const onChangePrice = (value: string) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
         const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
@@ -383,7 +392,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     );
 
     const _renderBtnConfirmOrder = () => (
-        <button className='btn btn-primary' onClick={sendOrder}>Place</button>
+        <button disabled={convertNumber(calValue()) === 0} className='btn btn-primary' onClick={sendOrder}>Place</button>
     )
 
     const getSideName = (sideId: number) => {
@@ -391,7 +400,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const calValue = () => {
-        return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
+        if (isModify) return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
+        return (convertNumber(params.volume) * convertNumber(params.price)).toFixed(2);
     }
 
     const _renderErrorMinValue = () => (
@@ -406,6 +416,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <table className='w-354'>
                 <tbody>
                     {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
+                    {_renderOrderType()}
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}

@@ -115,9 +115,10 @@ export const TITLE_CONFIRM = {
     newOrder: 'New Order Confirmation'
 };
 
-export const ORDER_TYPE = [
-    { id: 1, name: 'Limit' }
-];
+export const ORDER_TYPE = new Map([
+    [tradingModelPb.OrderType.OP_LIMIT, 'Limit' ],
+    [tradingModelPb.OrderType.OP_MARKET, 'Market']
+]);
 
 export const ORDER_TYPE_NAME = {
     limit: 'Limit'
@@ -220,7 +221,8 @@ export enum TITLE_ORDER_CONFIRM {
     VOLUME = 'Volume',
     QUANLITY = 'Quantity',
     PRICE = 'Price',
-    VALUE = 'Value'
+    VALUE = 'Value',
+    ORDER_TYPE = 'Order Type'
 };
 
 export const CURRENCY = {

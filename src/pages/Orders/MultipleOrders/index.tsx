@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED } from "../../../constants/general.constant";
+import { useEffect, useRef, useState } from "react";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -50,6 +50,9 @@ const MultipleOrders = () => {
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+
+    const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
+    const [marketPrice, setMarketPrice] = useState(0);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
@@ -566,7 +569,7 @@ const MultipleOrders = () => {
                 <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined && item.state !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={elementChecked(item)} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
-                <td className="text-left">Limit</td>
+                <td className="text-left">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
                     ${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
@@ -649,7 +652,7 @@ const MultipleOrders = () => {
                     order.setUid(accountId);
                     order.setSymbolCode(symbol?.symbolCode);
                     order.setSide(getOrderSideValue(item.orderSide));
-                    order.setOrderType(tradingModel.OrderType.OP_LIMIT);
+                    order.setOrderType(item.orderType);
                     order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                     order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                     order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -757,7 +760,8 @@ const MultipleOrders = () => {
                         ticker: obj.Ticker,
                         volume: obj.Quantity || obj.Volume,
                         msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.msgCode : null,
-                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.message : ''
+                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.message : '',
+                        orderType: obj.orderType
                     }
                     list.push(tmp);
                 }
@@ -876,17 +880,18 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
+                <div className={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET ? 'flex-grow-1 py-1 px-2 bg-disabled' : 'flex-grow-1 py-1 px-2'} onKeyDown={handleKeyDown}>
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                    <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                    <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
+                        disabled={disableControl() || (title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET)}
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
-                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                    <button disabled={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET} type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button disabled={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET} type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
@@ -994,11 +999,11 @@ const MultipleOrders = () => {
         const value = event.target.innerText || event.target.value;
         setTicker(value ? value : '');
         const symbolCode = value?.split('-')[0]?.trim();
-        const symbolName = value?.split('-')[1]?.trim();
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+            setMarketPrice(convertNumber(symbolItem?.lastPrice));
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             setIsSave(false)
             if (item) {                
@@ -1061,7 +1066,8 @@ const MultipleOrders = () => {
             msgCode: getStatusOrder(tickerCode, volume, price) ? 
                 getStatusOrder(tickerCode, volume, price)?.msgCode : null,
             message: getStatusOrder(tickerCode, volume, price) ? 
-                getStatusOrder(tickerCode, volume, price)?.message : ''
+                getStatusOrder(tickerCode, volume, price)?.message : '',
+            orderType: orderType
         }
 
         const tmp = [...listTickers];
@@ -1073,6 +1079,7 @@ const MultipleOrders = () => {
         const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
         setPrice(symbol ? symbol.floor : 0);
         setVolume(symbol ? symbol.lotSize : 0);
+        setOrderType(tradingModelPb.OrderType.OP_LIMIT);
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
@@ -1090,10 +1097,25 @@ const MultipleOrders = () => {
                 <div className="col-6 text-end"><span className="close-icon" onClick={() => {
                     setIsAddOrder(false);
                     setTicker('');
+                    setOrderType(tradingModelPb.OrderType.OP_LIMIT);
                 }}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
+                    <div className='row d-flex align-items-stretch mb-2'>
+                        <div className={orderType === tradingModel.OrderType.OP_LIMIT ? 
+                            'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                            onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
+                                Limit
+                            </div>
+                        <div className={orderType === tradingModel.OrderType.OP_MARKET ? 
+                            'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                            onClick={() => {
+                                setOrderType(tradingModel.OrderType.OP_MARKET);
+                                setPrice(marketPrice);
+                            }} >
+                                Market</div>
+                    </div>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
                         <span className='w-2'></span>
@@ -1195,8 +1217,6 @@ const MultipleOrders = () => {
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">Multiple Orders</h6>
                 </div>
-
-
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
