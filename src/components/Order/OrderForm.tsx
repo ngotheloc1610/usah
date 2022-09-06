@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IAskAndBidPrice, ILastQuote, IParamOrder, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
+import { IAskAndBidPrice, ILastQuote, IParamOrderModifyCancel, ISymbolQuote } from '../../interfaces/order.interface';
 import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, ORDER_TYPE_NAME, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, handleAllowedInput } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
 import { IQuoteEvent } from '../../interfaces/quotes.interface';
+import { DEFAULT_DATA_MODIFY_CANCEL } from '../../mocks';
 
 toast.configure()
 interface IOrderForm {
@@ -25,17 +26,6 @@ interface IOrderForm {
     messageSuccess: (item: string) => void;
 }
 
-const defaultDataModiFyCancel: IParamOrderModifyCancel = {
-    tickerCode: '',
-    tickerName: '',
-    orderType: '',
-    volume: '',
-    price: 0,
-    side: 0,
-    confirmationConfig: false,
-    tickerId: ''
-}
-
 const OrderForm = (props: IOrderForm) => {
     const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring, isOrderBook } = props;
     const [tickerName, setTickerName] = useState('');
@@ -43,7 +33,7 @@ const OrderForm = (props: IOrderForm) => {
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
-    const [paramOrder, setParamOrder] = useState(defaultDataModiFyCancel);
+    const [paramOrder, setParamOrder] = useState(DEFAULT_DATA_MODIFY_CANCEL);
     const [lotSize, setLotSize] = useState(100);
     const [tickSize, setTickSize] = useState(0.01)
     const [price, setPrice] = useState(0);
@@ -66,6 +56,12 @@ const OrderForm = (props: IOrderForm) => {
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
+
+    const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
+
+    const [bestAskPrice, setBestAskPrice] = useState(0);
+    const [bestBidPrice, setBestBidPrice] = useState(0);
+
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
 
     useEffect(() => {
@@ -74,7 +70,17 @@ const OrderForm = (props: IOrderForm) => {
         if (symbolCode === '') {
             setCurrentSide(tradingModel.Side.NONE);
         }
+        setOrderType(tradingModel.OrderType.OP_LIMIT);
     }, [symbolCode])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_MARKET) {
+            let tempPrice = 0;
+            if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
+            if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
+            setPrice(tempPrice);
+        }
+    }, [orderType, currentSide, bestBidPrice, bestAskPrice])
 
     useEffect(() => {
         // bug 60403
@@ -120,6 +126,17 @@ const OrderForm = (props: IOrderForm) => {
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         if (quotes.length > 0) {
+            const quote = quotes.find(o => o?.symbolCode === symbolCode);
+            if (quote) {
+                const bestAsk = quote.asksList.length > 0 ? convertNumber(quote.asksList[0]?.price) : 0;
+                const bestBid = quote.bidsList.length > 0 ? convertNumber(quote.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+                setParamOrder({
+                    ...paramOrder,
+                    price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
+                });
+            }
             let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
                 if (symbol) {
@@ -156,6 +173,17 @@ const OrderForm = (props: IOrderForm) => {
         const tempSymbolsList = [...symbolInfor];
         const tempLastQuotes = [...lastQuotes];
         if (quotes && quotes.length > 0) {
+            const quote = quotes.find(o => o?.symbolCode === symbolCode);
+            if (quote) {
+                const bestAsk = quote.asksList.length > 0 ? convertNumber(quote.asksList[0]?.price) : 0;
+                const bestBid = quote.bidsList.length > 0 ? convertNumber(quote.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+                setParamOrder({
+                    ...paramOrder,
+                    price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
+                });
+            }
             quotes.forEach(item => {
                 const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
                 const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
@@ -170,6 +198,8 @@ const OrderForm = (props: IOrderForm) => {
                 if (index >= 0) {
                     tempLastQuotes[index] = {
                         ...tempLastQuotes[index],
+                        asksList: item?.asksList,
+                        bidsList: item?.bidsList,
                         currentPrice: checkValue(tempLastQuotes[index]?.currentPrice, item?.currentPrice),
                     }
                 }
@@ -229,7 +259,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor, quoteInfo])
+    }, [symbolCode, symbolInfor, quoteInfo, orderType])
     
     useEffect(() => {
         if (quoteInfo) {
@@ -247,7 +277,7 @@ const OrderForm = (props: IOrderForm) => {
             }
             setVolume(volume);
         }
-    }, [quoteInfo])
+    }, [quoteInfo, orderType])
 
     useEffect(() => {
         if (symbolCode === "") {
@@ -259,6 +289,13 @@ const OrderForm = (props: IOrderForm) => {
             currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume);
         }
     }, [currentSide])
+
+    useEffect(() => {
+        setParamOrder({
+            ...paramOrder,
+            price: currentSide === tradingModel.Side.BUY ? bestAskPrice : bestBidPrice
+        })
+    }, [currentSide, bestAskPrice, bestBidPrice])
     
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
@@ -397,9 +434,9 @@ const OrderForm = (props: IOrderForm) => {
             const param = {
                 tickerCode: symbol.symbolCode,
                 tickerName: symbol.symbolName,
-                orderType: ORDER_TYPE_NAME.limit,
+                orderType: orderType,
                 volume: volume.toString(),
-                price: price,
+                price: orderType === tradingModel.OrderType.OP_LIMIT ? price : paramOrder.price,
                 side: currentSide,
                 confirmationConfig: false,
                 tickerId: symbol.symbolId?.toString()
@@ -410,7 +447,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const disableButtonPlace = (): boolean => {
-        const isDisable = (Number(price) === 0 || Number(volume) === 0 || tickerName === '');
+        const isDisable = ((Number(price) === 0 && orderType === tradingModel.OrderType.OP_LIMIT) || Number(volume) === 0 || tickerName === '');
         return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || !currentSide || isMaxOrderVol;
     }
 
@@ -487,19 +524,21 @@ const OrderForm = (props: IOrderForm) => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
+                <div className='flex-grow-1 py-1 px-2' onKeyDown={handleKeyDown}>
                     <label className="text text-secondary">{title}</label>
-                    <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                    <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" 
+                        className='form-control text-end border-0 p-0 fs-5 lh-1 fw-600'
                         thousandSeparator="," value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
-                        onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)} />
+                        onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
+                         />
                 </div>
                 <div className="border-start d-flex flex-column">
                     <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
                     <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && _renderNotiErrorPrice()}
+            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && _renderNotiErrorPrice()}
             <div>
                 {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger'>Invalid Price</span>}
             </div>
@@ -521,7 +560,7 @@ const OrderForm = (props: IOrderForm) => {
         >Reset</button>
     )
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price?.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price?.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed, orderType])
 
     const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume?.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
 
@@ -530,6 +569,19 @@ const OrderForm = (props: IOrderForm) => {
         const existSymbol = symbols.find(symbol => symbol.symbolCode === symbolCode);
         return (
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
+                <div className='row d-flex align-items-stretch mb-2'>
+                    <div className={orderType === tradingModel.OrderType.OP_LIMIT ? 
+                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
+                            Limit
+                        </div>
+                    <div className={orderType === tradingModel.OrderType.OP_MARKET ? 
+                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        onClick={() => {
+                            setOrderType(tradingModel.OrderType.OP_MARKET);
+                        }} >
+                            Market</div>
+                </div>
                 <div className="order-btn-group d-flex align-items-stretch mb-2">
                     {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', tradingModel.Side.SELL, 'selected', '')}
                     <span className='w-2'></span>
@@ -542,7 +594,7 @@ const OrderForm = (props: IOrderForm) => {
                     </div>
                 </div>
 
-                {_renderPriceInput}
+                {orderType === tradingModel.OrderType.OP_LIMIT && _renderPriceInput}
                 {_renderVolumeInput}
 
                 <div className="border-top">

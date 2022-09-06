@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
 import { wsService } from "../../../services/websocket-service";
-import * as tmpb from "../../../models/proto/trading_model_pb"
-import * as qspb from "../../../models/proto/query_service_pb"
-import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { convertDatetoTimeStamp, convertNumber, formatOrderTime, getSymbolCode, removeFocusInput } from '../../../helper/utils';
+import { convertDatetoTimeStamp, getSymbolCode } from '../../../helper/utils';
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
