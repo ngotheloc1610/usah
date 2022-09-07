@@ -8,11 +8,14 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
 import ForgotPassword from './pages/Authentication/forgot-password';
+import Blocked from './pages/Blocked';
+import { convertNumber } from './helper/utils';
+import { setLogin } from './redux/actions/auth';
 
 const App = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -20,8 +23,25 @@ const App = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [idleTime, setIdleTime] = useState(0);
   const [isShowIdleTimeOut, setIsShowIdleTimeOut] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const idleEvents = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
+
+  window.addEventListener("load", () => {
+    localStorage.setItem(KEY_LOCAL_STORAGE.START_LOAD, JSON.stringify(new Date().getTime()));
+  })
+
+  window.addEventListener("beforeunload", () => {
+    localStorage.setItem(KEY_LOCAL_STORAGE.END_LOAD, JSON.stringify(new Date().getTime()));
+  })
+
+  useEffect(() => {
+    const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
+    if (!token && !isForgotPassword && !isResetPassword && !isLogin) {
+      setIsBlocked(true);
+      sessionStorage.removeItem(KEY_SESSION_STORAGE.SESSION);
+    }
+  })
 
    // Increment the checking time counter every 5 seconds.
    useEffect(() => {
@@ -53,10 +73,31 @@ const App = () => {
     checkLoginPage();
   }, [isLogin, isResetPassword])
 
+  useEffect(() => {
+    const session = sessionStorage.getItem(KEY_SESSION_STORAGE.SESSION);
+    const startLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.START_LOAD));
+    const endLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.END_LOAD));
+    if (!session && !isForgotPassword && !isForgotPassword && !isLogin) {
+      if (endLoad - startLoad < 0) setIsBlocked(true);
+      else {
+        setIsBlocked(false);
+        setIsLogin(true);
+        localStorage.removeItem(ACCOUNT_ID);
+        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(EXPIRE_TIME);
+        localStorage.removeItem(ROLE);
+        localStorage.removeItem(POEM_ID);
+        localStorage.removeItem(MIN_ORDER_VALUE);
+        localStorage.removeItem(MAX_ORDER_VOLUME);
+      }
+    }
+  }, [isLogin])
+
   const checkLoginPage = () => {
     const path = window.location.pathname;
     if (path.includes('/login')) {
       setIsLogin(true);
+      setIsBlocked(false);
       setIsResetPassword(false);
       setIsForgotPassword(false);
       localStorage.removeItem(ACCOUNT_ID);
@@ -70,12 +111,14 @@ const App = () => {
     }
     if (path.includes('/reset-password')) {
       setIsLogin(false);
+      setIsBlocked(false);
       setIsResetPassword(true);
       setIsForgotPassword(false);
       return;
     }
     if (path.includes('/forgot-password')) {
       setIsLogin(false);
+      setIsBlocked(false);
       setIsResetPassword(false);
       setIsForgotPassword(true);
       return;
@@ -137,10 +180,11 @@ const App = () => {
     <>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {!isLogin && !isResetPassword && !isForgotPassword && _renderMainPage()}
+        {!isLogin && !isResetPassword && !isForgotPassword && !isBlocked && _renderMainPage()}
         {isLogin && <Login />}
         {isResetPassword && <ResetPassword />}
         {isForgotPassword && <ForgotPassword />}
+        {isBlocked && <Blocked />}
       </PersistGate>
     </Provider>
     {isShowIdleTimeOut && renderIdleTimeOutModel()}

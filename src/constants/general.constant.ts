@@ -125,7 +125,13 @@ export const ORDER_TYPE_NAME = {
 };
 
 export const KEY_LOCAL_STORAGE = {
-    AUTHEN: 'lp_objAuthen'
+    AUTHEN: 'lp_objAuthen',
+    START_LOAD: 'startLoad',
+    END_LOAD: 'endLoad'
+};
+
+export const KEY_SESSION_STORAGE = {
+    SESSION: 'lp_session'
 };
 
 export const MODIFY_CANCEL_STATUS = {
