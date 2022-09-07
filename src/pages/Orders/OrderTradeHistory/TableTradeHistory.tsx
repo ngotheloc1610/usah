@@ -1,4 +1,4 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
@@ -68,9 +68,9 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                         {getSideName(item.side)}
                     </span>
                 </td>
-                <td className="text-center w-80">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-center w-80">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="td text-end w-120">{formatNumber(item.amount)}</td>
-                <td className="td text-end w-80">{formatCurrency(item.price)}</td>
+                <td className="td text-end w-80">{item.orderType === tradingModelPb.OrderType.OP_LIMIT ? formatCurrency(item.price) : '-'}</td>
                 <td className="td text-end w-120" >{formatNumber(item.executedVolume)}</td>
                 <td className="td text-end w-120">{formatCurrency(item.executedPrice)}</td>
                 <td className="td text-end w-120">{formatCurrency(calcMatchedValue(item).toString())}</td>
@@ -105,9 +105,9 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     tickerCode: getTickerCode(item?.tickerCode),
                     tickerName: getTickerName(item?.tickerCode),
                     orderSide: getSideName(item.side),
-                    orderType: ORDER_TYPE_NAME.limit,
+                    orderType: ORDER_TYPE.get(item.orderType) || '-',
                     orderQuatity: convertNumber(item.amount),
-                    orderPrice: convertNumber(item.price),
+                    orderPrice: item.orderType === tradingModelPb.OrderType.OP_LIMIT ? item.price : '-',
                     executedQuatity: convertNumber(item.executedVolume),
                     executedPrice: convertNumber(item.executedPrice),
                     matchedValue: convertNumber(calcMatchedValue(item).toString()),
