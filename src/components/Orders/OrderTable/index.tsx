@@ -39,6 +39,11 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.orderSide > 0) {
             historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
         }
+
+        if (paramHistorySearch.orderType !== tradingModelPb.OrderType.OP_NONE) {
+            historySortDate = historySortDate.filter(item => item.orderType === paramHistorySearch.orderType);
+        }
+
         setDataDownload(historySortDate);
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);

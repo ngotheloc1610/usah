@@ -3,6 +3,7 @@ import OrderTable from '../../../components/Orders/OrderTable'
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb";
 import { useEffect, useState } from 'react';
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { IParamHistorySearch } from '../../../interfaces';
@@ -10,6 +11,7 @@ import moment from 'moment';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 
 const OrderHistory = () => {
+    const tradingModel: any = tmpb;
     const currentDate = moment().format(FORMAT_DATE);
     const [listOrderHistory, setListOrderHistory] = useState([]);
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>({
@@ -18,6 +20,7 @@ const OrderHistory = () => {
         orderSide: 0,
         fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
         toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
+        orderType: tradingModel.OrderType.OP_NONE
     });
 
     useEffect(() => {
