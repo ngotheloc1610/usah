@@ -3,7 +3,7 @@ import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS
 import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
-import * as tspb from '../../../models/proto/trading_model_pb';
+import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText } from "../../../helper/utils";
 import './multipleOrders.scss';
@@ -12,21 +12,19 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qmpb from '../../../models/proto/query_model_pb';
 import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
-import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
-import { MESSAGE_ERROR } from "../../../constants/message.constant";
+import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, MESSAGE_ERROR } from "../../../constants/message.constant";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
     // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
     const dispatch: any = useDispatch();
-    const tradingModelPb: any = tspb;
-    const tradingModel: any = tdpb;
+    const tradingModel: any = tmpb;
     const queryModel: any = qmpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
@@ -49,10 +47,16 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quotes, setQuotes] = useState([]);
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
-    const [marketPrice, setMarketPrice] = useState(0);
+
+    const [limitPrice, setLimitPrice] = useState(0);
+
+    const [bestAskPrice, setBestAskPrice] = useState(0);
+    const [bestBidPrice, setBestBidPrice] = useState(0);
+    const [symbolSelected, setSymbolSelected] = useState('');
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
@@ -62,11 +66,22 @@ const MultipleOrders = () => {
     const systemModelPb: any = smpb;
 
     const ref: any = useRef();
+    const pricingServicePb: any = pspb; 
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
     }, [])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_MARKET) {
+            currentSide === tradingModel.Side.BUY ? setPrice(bestAskPrice) : setPrice(bestBidPrice);
+            setIsSave(true);
+            setIsShowNotiErrorPrice(false);
+        } else {
+            setPrice(limitPrice);
+        }
+    }, [bestAskPrice, bestBidPrice, orderType, currentSide, limitPrice, symbolSelected])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -94,6 +109,7 @@ const MultipleOrders = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendMessageQuotes();
+                subscribeQuoteEvent();
             }
         });
         
@@ -101,17 +117,28 @@ const MultipleOrders = () => {
             if (quote && quote.quotesList) {
                 setLastQuotes(quote.quotesList);
             }
-        })        
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
+            if (quoteEvent && quoteEvent.quoteList) {
+                setQuotes(quoteEvent.quoteList);
+            }
+        })
 
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
+            quoteEvent.unsubscribe();
         }
     }, [])
 
     useEffect(() => {
         processLastQuote(lastQuotes)
     }, [lastQuotes])
+
+    useEffect(() => {
+        processQuoteEvent(quotes)
+    }, [quotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
@@ -131,7 +158,7 @@ const MultipleOrders = () => {
                             open: element.open || '0',
                             volume: element.volumePerDay,
                             ceiling: symbol.ceiling,
-                            floor: symbol.floor
+                            floor: symbol.floor,
                         };
                         const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
                         if (index < 0) {
@@ -142,6 +169,35 @@ const MultipleOrders = () => {
             });
             temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setSymbolInfor(temp);
+        }
+    }
+
+    const processQuoteEvent = (quotes: ILastQuote[]) => {
+        if (quotes && quotes.length > 0) {
+            let tempLastQuotes = [...lastQuotes];
+            quotes.forEach(item => {
+                const idx = tempLastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx && idx >= 0) {
+                    tempLastQuotes[idx] = {
+                        ...tempLastQuotes[idx],
+                        high: item?.high || '0',
+                        low: item?.low || '0',
+                        currentPrice: item.currentPrice,
+                        open: item.open || '0',
+                        volume: item.volumePerDay,
+                        asksList: item.asksList,
+                        bidsList: item.bidsList
+                    }
+                }
+            });
+            setLastQuotes(tempLastQuotes);
+            const quote = quotes.find(o => o?.symbolCode === symbolSelected);
+            if (quote) {
+                const bestAsk = quote?.asksList?.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
+                const bestBid = quote?.bidsList?.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+            }
         }
     }
 
@@ -169,7 +225,6 @@ const MultipleOrders = () => {
     }, [orderListResponse])
 
     const sendMessageQuotes = () => {
-        const pricingServicePb: any = pspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
@@ -181,6 +236,24 @@ const MultipleOrders = () => {
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const subscribeQuoteEvent = () => {
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+
+            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            lastQuotesRequest.setSymbolCodeList(symbolCodes);
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
@@ -235,7 +308,7 @@ const MultipleOrders = () => {
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
         switch (value) {
-            case tradingModelPb.Side.BUY.toString(): {
+            case tradingModel.Side.BUY.toString(): {
                 listTickers[index].orderSide = SIDE_NAME.buy;
                 break;
             }
@@ -544,10 +617,10 @@ const MultipleOrders = () => {
         if (orderSide) {
             switch (orderSide.toLocaleLowerCase()) {
                 case SIDE_NAME.buy.toLocaleLowerCase(): {
-                    return tradingModelPb.Side.BUY;
+                    return tradingModel.Side.BUY;
                 }
                 default: {
-                    return tradingModelPb.Side.SELL;
+                    return tradingModel.Side.SELL;
                 }
             }
         }
@@ -572,10 +645,10 @@ const MultipleOrders = () => {
                 <td className="text-left">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
-                    ${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
+                    ${(getOrderSideValue(item.orderSide) === tradingModel.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
                         onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
-                        <option value={tradingModelPb.Side.BUY} className="text-danger text-left">Buy</option>
-                        <option value={tradingModelPb.Side.SELL} className="text-success text-left">Sell</option>
+                        <option value={tradingModel.Side.BUY} className="text-danger text-left">Buy</option>
+                        <option value={tradingModel.Side.SELL} className="text-success text-left">Sell</option>
                     </select>
                 </td>
                 <td className="text-end">
@@ -593,9 +666,12 @@ const MultipleOrders = () => {
                 <td className="text-end">
                     <div className="d-flex">
                         <NumberFormat
+                            disabled={item.orderType === tradingModel.OrderType.OP_MARKET}
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandSeparator="," value={convertNumber(item.price?.replaceAll(',','')) === 0 ? null : formatCurrency(item.price?.replaceAll(',', ''))} placeholder=""
+                            thousandSeparator="," 
+                            value={(convertNumber(item.price?.replaceAll(',','')) === 0 || item.orderType === tradingModel.OrderType.OP_MARKET) ? null : formatCurrency(item.price?.replaceAll(',', ''))}
+                            placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
@@ -604,10 +680,22 @@ const MultipleOrders = () => {
                     </div>
                 </td>
                 <td className="text-end">
-                    <div title={item?.message?.toUpperCase()} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>{item?.message?.toUpperCase()}</div>
+                    <div title={item?.message?.toUpperCase()} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
+                        {_renderMessageError(item)}
+                    </div>
                 </td>
             </tr>
         })
+    }
+
+    const _renderMessageError = (item: any) => {
+        if (item?.msgCode === systemModelPb.MsgCode.MT_RET_REQUEST_INVALID_FILL && orderType === tradingModel.OrderType.OP_MARKET) {
+            return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
+        }
+        if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
+            return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
+        }
+        return item?.message?.toUpperCase();
     }
 
     const _renderHearderMultipleOrdersConfirm = () => (
@@ -623,12 +711,12 @@ const MultipleOrders = () => {
         listSelected.map((item, index) => {
             return <tr key={index}>
                 <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
-                <td className="text-center">Limit</td>
-                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
+                <td className="text-center">{ORDER_TYPE.get(item.orderType)}</td>
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModel.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
                     {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume?.replaceAll(',', ''))}</td>
-                <td className="text-center text-nowrap"> {formatCurrency(item.price?.replaceAll(',', ''))}</td>
+                <td className="text-center text-nowrap"> {item.orderType === tradingModel.OrderType.OP_MARKET ? null : formatCurrency(item.price?.replaceAll(',', ''))}</td>
             </tr>
         })
     )
@@ -638,7 +726,6 @@ const MultipleOrders = () => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();
-        const tradingModelPb: any = tspb;
         if (wsConnected) {
             let currentDate = new Date();
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
@@ -646,16 +733,16 @@ const MultipleOrders = () => {
             listSelected.forEach((item: ISymbolMultiOrder) => {
                 const symbol = symbols.find(o => o.symbolCode === item.ticker);
                 if (symbol) {
-                    let order = new tradingModelPb.Order();
+                    let order = new tradingModel.Order();
                     order.setAmount(item.volume?.replaceAll(',', ''));
                     order.setPrice(convertNumber(item.price.replaceAll(',', '')).toFixed(2));
                     order.setUid(accountId);
                     order.setSymbolCode(symbol?.symbolCode);
                     order.setSide(getOrderSideValue(item.orderSide));
                     order.setOrderType(item.orderType);
-                    order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
-                    order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
-                    order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+                    order.setExecuteMode(tradingModel.ExecutionMode.MARKET);
+                    order.setOrderMode(tradingModel.OrderMode.REGULAR);
+                    order.setRoute(tradingModel.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
                     order.setSubmittedId(accountId);
                     order.setMsgCode(item.msgCode ? item.msgCode : systemModelPb.MsgCode.MT_RET_OK);
@@ -711,6 +798,10 @@ const MultipleOrders = () => {
         return side.toLowerCase().trim() === 'buy' || side.toLowerCase().trim() === 'sell';
     }
 
+    const checkOrderTypeValid = (orderType: string) => {
+        return orderType.toLowerCase().trim() === 'market' || orderType.toLowerCase().trim() === 'limit';
+    }
+
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -729,7 +820,7 @@ const MultipleOrders = () => {
                             d = d.substring(d.length - 2, 1);
                     }
                     if (headers[j]) {
-                        obj[headers[j]] = d;
+                        obj[headers[j].replaceAll(' ', '')] = d;
                     }
                 }
                 if (!checkSymbol(obj.Ticker)) {
@@ -752,16 +843,32 @@ const MultipleOrders = () => {
                     return;
                 }
 
+                if (!checkOrderTypeValid(obj.OrderType)) {
+                    toast.error('Invalid order type');
+                    return;
+                }
+
+                let bestAsk = 0;
+                let bestBid = 0;
+                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj.Ticker);
+                if (tempQuote) {
+                    bestAsk = tempQuote?.asksList?.length > 0 ? convertNumber(tempQuote?.asksList[0]?.price) : 0;
+                    bestBid = tempQuote?.bidsList?.length > 0 ? convertNumber(tempQuote?.bidsList[0]?.price) : 0;
+                }
+                let tempPrice = obj.Price.replaceAll(',', '');
+                if (obj.OrderType.toLowerCase() === 'market') {
+                    tempPrice = obj.OrderSide.toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
+                }
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
                         no: (list.length).toString(),
                         orderSide: obj.OrderSide,
-                        price: formatCurrency(obj.Price.replaceAll(',', '')),
+                        price: formatCurrency(tempPrice),
                         ticker: obj.Ticker,
                         volume: obj.Quantity || obj.Volume,
-                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.msgCode : null,
-                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.message : '',
-                        orderType: obj.orderType
+                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
+                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.message : '',
+                        orderType: obj.OrderType.toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
                     }
                     list.push(tmp);
                 }
@@ -880,18 +987,18 @@ const MultipleOrders = () => {
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                <div className={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET ? 'flex-grow-1 py-1 px-2 bg-disabled' : 'flex-grow-1 py-1 px-2'} onKeyDown={handleKeyDown}>
+                <div className={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModel.OrderType.OP_MARKET ? 'flex-grow-1 py-1 px-2 bg-disabled' : 'flex-grow-1 py-1 px-2'} onKeyDown={handleKeyDown}>
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
                     <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
-                        disabled={disableControl() || (title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET)}
+                        disabled={disableControl()}
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
-                    <button disabled={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET} type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                    <button disabled={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModelPb.OrderType.OP_MARKET} type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
@@ -1003,11 +1110,26 @@ const MultipleOrders = () => {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
-            setMarketPrice(convertNumber(symbolItem?.lastPrice));
+
+            const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
+            if (lastQuoteInfo) {
+                const bestAsk = lastQuoteInfo?.asksList?.length > 0 ? convertNumber(lastQuoteInfo?.asksList[0]?.price) : 0;
+                const bestBid = lastQuoteInfo?.bidsList?.length > 0 ? convertNumber(lastQuoteInfo?.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+                if (orderType === tradingModel.OrderType.OP_MARKET) {
+                    currentSide === tradingModel.Side.BUY ? setPrice(bestAsk) : setPrice(bestBid);
+                }
+            }
+            
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             setIsSave(false)
-            if (item) {                
-                convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+            if (item) {   
+                setSymbolSelected(item?.symbolCode);             
+                if (orderType === tradingModel.OrderType.OP_LIMIT) {
+                    convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+                    convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
+                }
                 setVolume(convertNumber(item.lotSize));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
@@ -1015,6 +1137,7 @@ const MultipleOrders = () => {
             }
         } else {
             setPrice(0);
+            setLimitPrice(0);
             setVolume(0);
         }
         const item = symbols.find(o => o?.symbolCode === symbolCode);
@@ -1024,6 +1147,7 @@ const MultipleOrders = () => {
         } else {
             setIsValidTicker(true);
             setPrice(0);
+            setLimitPrice(0);
             setVolume(0);
         };    
     }
@@ -1079,11 +1203,11 @@ const MultipleOrders = () => {
         const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
         setPrice(symbol ? symbol.floor : 0);
         setVolume(symbol ? symbol.lotSize : 0);
-        setOrderType(tradingModelPb.OrderType.OP_LIMIT);
+        setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
-        if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+        if (order.state === tradingModel.OrderState.ORDER_STATE_PLACED) {
             return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
         }
         return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
@@ -1097,7 +1221,7 @@ const MultipleOrders = () => {
                 <div className="col-6 text-end"><span className="close-icon" onClick={() => {
                     setIsAddOrder(false);
                     setTicker('');
-                    setOrderType(tradingModelPb.OrderType.OP_LIMIT);
+                    setOrderType(tradingModel.OrderType.OP_LIMIT);
                 }}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px' }}>
@@ -1112,7 +1236,6 @@ const MultipleOrders = () => {
                             'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
                             onClick={() => {
                                 setOrderType(tradingModel.OrderType.OP_MARKET);
-                                setPrice(marketPrice);
                             }} >
                                 Market</div>
                     </div>
@@ -1130,7 +1253,7 @@ const MultipleOrders = () => {
                     {isValidTicker && <div className='text-danger text-end'>Invalid Ticker</div>}
 
 
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
+                    {orderType === tradingModel.OrderType.OP_LIMIT && _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume)}
 
                     <div className="border-top">
