@@ -39,7 +39,6 @@ const MultipleOrders = () => {
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [isDelete, setIsDelete] = useState(false);
     const [isSave, setIsSave] = useState(false);
-    const [statusPlace, setStatusPlace] = useState(false);
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
@@ -79,9 +78,9 @@ const MultipleOrders = () => {
             setIsSave(true);
             setIsShowNotiErrorPrice(false);
         } else {
-            setPrice(limitPrice);
+            setPrice(ticker !== '' ? limitPrice : 0);
         }
-    }, [bestAskPrice, bestBidPrice, orderType, currentSide, limitPrice, symbolSelected])
+    }, [bestAskPrice, bestBidPrice, orderType, currentSide, limitPrice, symbolSelected, ticker])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -94,7 +93,6 @@ const MultipleOrders = () => {
             getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList, resp[MSG_CODE]);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
-                setStatusPlace(true);
                 setListSelected([]);
             }
 
@@ -1201,10 +1199,9 @@ const MultipleOrders = () => {
         setListTickers(tmp);
         dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
-        const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
-        setPrice(symbol ? symbol.floor : 0);
-        setVolume(symbol ? symbol.lotSize : 0);
+        setPrice(0);
+        setVolume(0);
+        setTicker('');
         setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
@@ -1217,16 +1214,18 @@ const MultipleOrders = () => {
 
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
-            <div className="box d-flex">
+            <div className="box d-flex" style={{width: '450px'}}>
                 <div className="col-6">Add Order
                 </div>
                 <div className="col-6 text-end"><span className="close-icon" onClick={() => {
                     setIsAddOrder(false);
                     setTicker('');
                     setOrderType(tradingModel.OrderType.OP_LIMIT);
+                    setPrice(0);
+                    setVolume(0);
                 }}>x</span></div>
             </div>
-            <div className='content text-center' style={{ height: '600px' }}>
+            <div className='content text-center' style={{ height: '600px', width: '450px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className='row d-flex align-items-stretch mb-2'>
                         <div className={orderType === tradingModel.OrderType.OP_LIMIT ? 
@@ -1252,7 +1251,7 @@ const MultipleOrders = () => {
                             {renderSymbolSelect()}
                         </div>
                     </div>
-                    {isValidTicker && <div className='text-danger text-end'>Invalid Ticker</div>}
+                    {isValidTicker && ticker !== '' && <div className='text-danger text-end'>Invalid Ticker</div>}
 
 
                     {orderType === tradingModel.OrderType.OP_LIMIT && _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
