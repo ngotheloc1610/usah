@@ -70,7 +70,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 </td>
                 <td className="text-center w-80">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="td text-end w-120">{formatNumber(item.amount)}</td>
-                <td className="td text-end w-80">{item.orderType === tradingModelPb.OrderType.OP_LIMIT ? formatCurrency(item.price) : '-'}</td>
+                <td className="td text-end w-80">{formatCurrency(item.price)}</td>
                 <td className="td text-end w-120" >{formatNumber(item.executedVolume)}</td>
                 <td className="td text-end w-120">{formatCurrency(item.executedPrice)}</td>
                 <td className="td text-end w-120">{formatCurrency(calcMatchedValue(item).toString())}</td>

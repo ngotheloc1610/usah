@@ -169,7 +169,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
 
                 <td className="text-ellipsis text-end w-120">
-                    <div className="">{item.orderType === tradingModelPb.OrderType.OP_LIMIT ? formatCurrency(item.price) : '-'}</div>
+                    <div className="">{formatCurrency(item.price)}</div>
                     {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{convertNumber(item?.lastPrice) > 0 ? formatCurrency(item?.lastPrice) : '-'}</div>}
                     {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
                 </td>

@@ -305,7 +305,7 @@ const OrderForm = (props: IOrderForm) => {
             ...paramOrder,
             price: currentSide === tradingModel.Side.BUY ? bestAskPrice : bestBidPrice
         })
-    }, [currentSide, bestAskPrice, bestBidPrice])
+    }, [currentSide, bestAskPrice, bestBidPrice, orderType])
     
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
