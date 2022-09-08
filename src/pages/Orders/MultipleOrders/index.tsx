@@ -270,7 +270,9 @@ const MultipleOrders = () => {
                     }, []);
                     const txtSide = renderSideText(item.side);
                     listIndex.forEach(el => {
-                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim() && convertNumber(temps[el].volume) === convertNumber(item.amount)) {
+                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim() 
+                            && convertNumber(temps[el].volume) === convertNumber(item.amount)
+                            && temps[el].orderType === item.orderType) {
                             temps[el] = {
                                 ...temps[el],
                                 state: item.state,
