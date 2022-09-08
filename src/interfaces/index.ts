@@ -59,6 +59,7 @@ export interface IParamHistorySearch {
     orderSide: number;
     fromDate: number;
     toDate: number;
+    orderType: number;
 }
 
 export interface IClientHoldingInfoReq {

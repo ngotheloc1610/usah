@@ -5,8 +5,8 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, STATE, STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, getSymbolCode, removeFocusInput } from '../../../helper/utils';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, STATE, STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode, removeFocusInput } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
@@ -20,8 +20,10 @@ interface IPropsOrderSearchHistory {
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const { paramSearch } = props;
+    const tradingModelPb: any = tmpb;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
+    const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
@@ -43,6 +45,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             orderSide: side,
             fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
             toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
+            orderType: orderType
         };
         setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
@@ -124,6 +127,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             orderSide: side,
             fromDate: fromDatetime,
             toDate: toDatetime,
+            orderType: orderType
         }
         paramSearch(paramSearchHistory);
     }
@@ -140,8 +144,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         setOrderState(parseInt(value));
     }
 
+    const handleOrderType = (value) => {
+        setOrderType(convertNumber(value));
+    }
+
     const _renderListOrderState = () => {
         return STATE_HISTORY_SEARCH.map((item: IHistorySearchStatus) => (<option value={item.code} key={item.code}>{item.name}</option>))
+    }
+
+    const _renderListOrderType = () => {
+        return ORDER_TYPE_SEARCH.map(item => (<option value={item.code} key={item.code}>{item.name}</option>))
     }
 
     const _renderTicker = () => (
@@ -167,8 +179,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         </div>
     )
 
+    const _renderOrderType = () => (
+        <div className="col-xl-1">
+            <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
+            <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
+                {_renderListOrderType()}
+            </select>
+        </div>
+    )
+
     const getParamOrderSide = () => {
-        const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
             setSide(tradingModelPb.Side.SELL);
         }
@@ -206,10 +226,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const _renderDateTime = () => (
-        <div className="col-xl-4">
+        <div className="col-xl-3">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
-                <div className="col-md-5">
+                <div className="col-md-4">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             value={fromDatetime ? moment(fromDatetime).format(FORMAT_DATE) : ''}
@@ -219,7 +239,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                     </div>
                 </div>
                 <div className='col-md-1 seperate'>~</div>
-                <div className="col-md-5">
+                <div className="col-md-4">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
@@ -239,9 +259,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 <h6 className="card-title fs-6 mb-0">Order History</h6>
             </div>
             <div className="card-body bg-gradient-light">
-                <div className="row g-2 align-items-end">
+                <div className="row g-2 align-items-end d-fex">
                     {_renderTicker()}
                     {_renderOrderStatus()}
+                    {_renderOrderType()}
                     {_renderOrderSide()}
                     {_renderDateTime()}
                     <div className="col-xl-1 mb-2 mb-xl-0">

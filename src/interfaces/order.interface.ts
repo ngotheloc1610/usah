@@ -629,6 +629,7 @@ export interface IParamSearchTradeHistory {
     side: number;
     fromDate: number;
     toDate: number;
+    orderType: number;
 }
 export interface IPropsSearchTradeHistory {
     getParamSearch: (item: IParamSearchTradeHistory) => void

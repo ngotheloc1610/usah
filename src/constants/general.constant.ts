@@ -76,6 +76,22 @@ export const STATE_HISTORY_SEARCH = [
         code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
     }
 ];
+
+export const ORDER_TYPE_SEARCH = [
+    {
+        name: 'All',
+        code: tradingModelPb.OrderType.NONE
+    },
+    {
+        name: 'Market',
+        code: tradingModelPb.OrderType.OP_MARKET
+    },
+    {
+        name: 'Limit',
+        code: tradingModelPb.OrderType.OP_LIMIT
+    }
+]
+
 export const INVALID_DATE = 'Invalid date';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';

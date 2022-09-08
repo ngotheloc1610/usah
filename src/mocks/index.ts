@@ -252,6 +252,7 @@ export const DEFAULT_SEARCH_HISTORY: IParamHistorySearch = {
     orderSide: 0,
     fromDate: 0,
     toDate: 0,
+    orderType: 0
 }
 
 export const DEFAULT_ASK_BID_LIST: IAskAndBidPrice[] = [{

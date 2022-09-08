@@ -19,11 +19,12 @@ interface IPropsListModifyCancel {
     orderSide: number;
     symbolCode: string;
     isSearch: boolean;
+    orderType: number;
     resetIsSearch: (value: boolean) => void;
 }
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
-    const { orderSide, symbolCode, isSearch, resetIsSearch } = props;
+    const { orderSide, symbolCode, isSearch, orderType, resetIsSearch } = props;
     const [listOrderFull, setListOrderFull] = useState<IListOrderModifyCancel[]>([]);
     const [listOrder, setListOrder] = useState<IListOrderModifyCancel[]>([]);
     const [dataOrder, setDataOrder] = useState<IListOrderModifyCancel[]>([]);
@@ -95,7 +96,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     useEffect(() => {
         processOrderList(listOrderFull);
-    }, [listOrderFull, symbolCode, orderSide])
+    }, [listOrderFull, symbolCode, orderSide, orderType])
 
     const subscribeQuoteEvent = () => {
         const wsConnected = wsService.getWsConnected();
@@ -132,6 +133,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
         if (orderSide !== 0) {
             listOrderFilter = listOrderFilter.filter(item => item.side === orderSide);
+        }
+        if (orderType !== tradingModelPb.OrderType.OP_NONE) {
+            listOrderFilter = listOrderFilter.filter(item => item.orderType === orderType);
         }
         setListOrder(listOrderFilter);
     }
