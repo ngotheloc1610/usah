@@ -79,7 +79,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT);
+            order.setOrderType(params.orderType);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -177,7 +177,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
+            order.setOrderType(params.orderType)
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
