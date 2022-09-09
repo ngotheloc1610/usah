@@ -463,11 +463,14 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const disableButtonPlace = (): boolean => {
+        let isInvalidMarketPrice = true;
         if (orderType === tradingModel.OrderType.OP_MARKET) {
-            if (currentSide === tradingModel.Side.BUY) return bestAskPrice === 0;
-            if (currentSide === tradingModel.Side.SELL) return bestBidPrice === 0;
+            if (currentSide === tradingModel.Side.BUY) isInvalidMarketPrice = bestAskPrice === 0;
+            if (currentSide === tradingModel.Side.SELL) isInvalidMarketPrice = bestBidPrice === 0;
+        } else {
+            isInvalidMarketPrice = false;
         }
-        const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '';
+        const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '' || isInvalidMarketPrice;
         return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
 
