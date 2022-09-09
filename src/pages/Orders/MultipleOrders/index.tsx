@@ -307,16 +307,32 @@ const MultipleOrders = () => {
     }
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
+        const quote = lastQuotes.find(o => o?.symbolCode === itemSymbol.ticker);
+        let bestAsk = 0;
+        let bestBid = 0;
+        if (quote) {
+            bestAsk = quote?.asksList.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
+            bestBid = quote?.bidsList.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
+        }
         switch (value) {
             case tradingModel.Side.BUY.toString(): {
                 listTickers[index].orderSide = SIDE_NAME.buy;
+                if (listTickers[index].orderType === tradingModel.OrderType.OP_MARKET) {
+                    listTickers[index].price = bestAsk.toString();
+                }
                 break;
             }
             default: {
                 listTickers[index].orderSide = SIDE_NAME.sell;
+                if (listTickers[index].orderType === tradingModel.OrderType.OP_MARKET) {
+                    listTickers[index].price = bestBid.toString();
+                }
                 break;
             }
         }
+        const statusOrder = getStatusOrder(listTickers[index].ticker, listTickers[index].volume, listTickers[index].price);
+        listTickers[index].msgCode = statusOrder ? statusOrder?.msgCode : null;
+        listTickers[index].message = statusOrder ? statusOrder?.message : '';
         const orders = [...listTickers];
         setListTickers(orders);
     }
