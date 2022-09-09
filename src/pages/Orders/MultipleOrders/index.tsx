@@ -35,6 +35,7 @@ const MultipleOrders = () => {
     const [volume, setVolume] = useState(0);
     const [isAddOrder, setIsAddOrder] = useState(false);
     const [ticker, setTicker] = useState('');
+    const [symbolCode, setSymbolCode] = useState('');
     const [sideAddNew, setSideAddNew] = useState('Sell');
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [isDelete, setIsDelete] = useState(false);
@@ -50,8 +51,6 @@ const MultipleOrders = () => {
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
-
-    const [limitPrice, setLimitPrice] = useState(0);
 
     const [bestAskPrice, setBestAskPrice] = useState(0);
     const [bestBidPrice, setBestBidPrice] = useState(0);
@@ -77,10 +76,8 @@ const MultipleOrders = () => {
             currentSide === tradingModel.Side.BUY ? setPrice(bestAskPrice) : setPrice(bestBidPrice);
             setIsSave(true);
             setIsShowNotiErrorPrice(false);
-        } else {
-            setPrice(ticker !== '' ? limitPrice : 0);
         }
-    }, [bestAskPrice, bestBidPrice, orderType, currentSide, limitPrice, symbolSelected, ticker])
+    }, [bestAskPrice, bestBidPrice, orderType, currentSide, symbolSelected, ticker])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -1106,6 +1103,7 @@ const MultipleOrders = () => {
         const value = event.target.innerText || event.target.value;
         setTicker(value ? value : '');
         const symbolCode = value?.split('-')[0]?.trim();
+        setSymbolCode(symbolCode ? symbolCode : '');
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -1128,7 +1126,6 @@ const MultipleOrders = () => {
                 setSymbolSelected(item?.symbolCode);             
                 if (orderType === tradingModel.OrderType.OP_LIMIT) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
-                    convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
                 }
                 setVolume(convertNumber(item.lotSize));
                 setInvalidPrice(false);
@@ -1137,7 +1134,6 @@ const MultipleOrders = () => {
             }
         } else {
             setPrice(0);
-            setLimitPrice(0);
             setVolume(0);
         }
         const item = symbols.find(o => o?.symbolCode === symbolCode);
@@ -1147,7 +1143,6 @@ const MultipleOrders = () => {
         } else {
             setIsValidTicker(true);
             setPrice(0);
-            setLimitPrice(0);
             setVolume(0);
         };    
     }
@@ -1202,6 +1197,7 @@ const MultipleOrders = () => {
         setPrice(0);
         setVolume(0);
         setTicker('');
+        setSymbolCode('');
         setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
@@ -1220,6 +1216,7 @@ const MultipleOrders = () => {
                 <div className="col-6 text-end"><span className="close-icon" onClick={() => {
                     setIsAddOrder(false);
                     setTicker('');
+                    setSymbolCode('');
                     setOrderType(tradingModel.OrderType.OP_LIMIT);
                     setPrice(0);
                     setVolume(0);

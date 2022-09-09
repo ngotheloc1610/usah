@@ -123,11 +123,11 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
-    }, [quoteEvent])
+    }, [quoteEvent, orderType])
 
     useEffect(() => {
         processLastQuote(lastQuotes)
-    }, [lastQuotes, symbolCode])
+    }, [lastQuotes, symbolCode, orderType])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const symbolList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -138,10 +138,12 @@ const OrderForm = (props: IOrderForm) => {
                 const bestBid = quote.bidsList.length > 0 ? convertNumber(quote.bidsList[0]?.price) : 0;
                 setBestAskPrice(bestAsk);
                 setBestBidPrice(bestBid);
-                setParamOrder({
-                    ...paramOrder,
-                    price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
-                });
+                if (orderType === tradingModel.OrderType.OP_MARKET) {
+                    setParamOrder({
+                        ...paramOrder,
+                        price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
+                    });
+                }
             }
             let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
@@ -185,10 +187,12 @@ const OrderForm = (props: IOrderForm) => {
                 const bestBid = quote.bidsList.length > 0 ? convertNumber(quote.bidsList[0]?.price) : 0;
                 setBestAskPrice(bestAsk);
                 setBestBidPrice(bestBid);
-                setParamOrder({
-                    ...paramOrder,
-                    price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
-                });
+                if (orderType === tradingModel.OrderType.OP_MARKET) {
+                    setParamOrder({
+                        ...paramOrder,
+                        price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
+                    });
+                }
             }
             quotes.forEach(item => {
                 const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
@@ -301,10 +305,12 @@ const OrderForm = (props: IOrderForm) => {
     }, [currentSide])
 
     useEffect(() => {
-        setParamOrder({
-            ...paramOrder,
-            price: currentSide === tradingModel.Side.BUY ? bestAskPrice : bestBidPrice
-        })
+        if (orderType === tradingModel.OrderType.OP_MARKET) {
+            setParamOrder({
+                ...paramOrder,
+                price: currentSide === tradingModel.Side.BUY ? bestAskPrice : bestBidPrice
+            })
+        }
     }, [currentSide, bestAskPrice, bestBidPrice, orderType])
     
 
@@ -457,8 +463,12 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const disableButtonPlace = (): boolean => {
-        const isDisable = ((Number(price) === 0 && orderType === tradingModel.OrderType.OP_LIMIT) || Number(volume) === 0 || tickerName === '');
-        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || !currentSide || isMaxOrderVol;
+        if (orderType === tradingModel.OrderType.OP_MARKET) {
+            if (currentSide === tradingModel.Side.BUY) return bestAskPrice === 0;
+            if (currentSide === tradingModel.Side.SELL) return bestBidPrice === 0;
+        }
+        const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '';
+        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
 
     const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
