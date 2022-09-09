@@ -157,6 +157,10 @@ const OrderBookCommon = () => {
         processTradeEvent(tradeEvent);
     }, [tradeEvent])
 
+    useEffect(() => {
+        setQuoteInfo(undefined);
+    }, [tickerSelect])
+
     const assignTickerToOrderForm = (symbolCode: string) => {
         const element = listTicker.find(o => o?.symbolCode === symbolCode);
         const tradingModelPb: any = tmpb

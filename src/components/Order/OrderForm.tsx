@@ -67,6 +67,7 @@ const OrderForm = (props: IOrderForm) => {
     const [limitPrice, setLimitPrice] = useState(0);
 
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
+    const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         setIsRenderPrice(true);
@@ -75,18 +76,24 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(tradingModel.Side.NONE);
         }
         setOrderType(tradingModel.OrderType.OP_LIMIT);
+        const symbol = listSymbols.find(o => o?.symbolCode === symbolCode);
+        if (symbol) {
+            setVolume(convertNumber(symbol.minLot));
+        }
     }, [symbolCode])
 
     useEffect(() => {
-        if (orderType === tradingModel.OrderType.OP_MARKET) {
-            let tempPrice = 0;
-            if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
-            if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
-            setPrice(tempPrice);
-        } else {
-            setPrice(limitPrice);
+        if (symbolCode) {
+            if (orderType === tradingModel.OrderType.OP_MARKET) {
+                let tempPrice = 0;
+                if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
+                if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
+                setPrice(tempPrice);
+            } else {
+                setPrice(limitPrice);
+            }
         }
-    }, [orderType, currentSide, bestBidPrice, bestAskPrice])
+    }, [orderType, currentSide, bestBidPrice, bestAskPrice, symbolCode])
 
     useEffect(() => {
         // bug 60403
@@ -237,8 +244,6 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         if (symbolCode) {
             setIsShowNotiErrorPrice(false);
-            setInvalidVolume(false);
-            setIsMaxOrderVol(false);
             setInvalidPrice(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -290,6 +295,10 @@ const OrderForm = (props: IOrderForm) => {
                 setLimitPrice(convertNumber(quoteInfo.price))
             }
             setVolume(volume);
+            setInvalidPrice(false);
+            setInvalidVolume(false);
+            setIsMaxOrderVol(false);
+            setIsShowNotiErrorPrice(false);
         }
     }, [quoteInfo, orderType])
 
@@ -313,6 +322,13 @@ const OrderForm = (props: IOrderForm) => {
         }
     }, [currentSide, bestAskPrice, bestBidPrice, orderType])
     
+
+    useEffect(() => {
+        setIsShowNotiErrorPrice(false);
+        setInvalidVolume(false);
+        setIsMaxOrderVol(false);
+        setInvalidPrice(false);
+    }, [symbolCode, quoteInfo])
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
@@ -494,6 +510,10 @@ const OrderForm = (props: IOrderForm) => {
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(lotSize);
+            setIsShowNotiErrorPrice(false);
+            setInvalidVolume(false);
+            setIsMaxOrderVol(false);
+            setInvalidPrice(false);
             return;
         }
         setPrice(0);
