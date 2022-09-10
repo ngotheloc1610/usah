@@ -43,6 +43,7 @@ const MultipleOrders = () => {
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
+    const [isMaxOrderVol, setIsMaxOrderVol] = useState(false);
     const [isValidTicker, setIsValidTicker] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
@@ -51,6 +52,7 @@ const MultipleOrders = () => {
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
+    const [limitPrice, setLimitPrice] = useState(0);
 
     const [bestAskPrice, setBestAskPrice] = useState(0);
     const [bestBidPrice, setBestBidPrice] = useState(0);
@@ -78,6 +80,12 @@ const MultipleOrders = () => {
             setIsShowNotiErrorPrice(false);
         }
     }, [bestAskPrice, bestBidPrice, orderType, currentSide, symbolSelected, ticker])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_LIMIT) {
+            setPrice(limitPrice);
+        }
+    }, [orderType, limitPrice])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -964,6 +972,7 @@ const MultipleOrders = () => {
         const symbolCode = getSymbolCode(ticker);
         const lotSize = getLotSize(symbolCode);
         const volume = convertNumber(value);
+        setIsMaxOrderVol(volume > convertNumber(maxOrderVolume))
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
@@ -1016,7 +1025,8 @@ const MultipleOrders = () => {
             </div>
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
             {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid quantity</div>}
+            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end'>Invalid quantity</div>}
+            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <span className='text-danger'>Quantity is exceed max order quantity: {maxOrderVolume}</span>}
         </>
 
     )
@@ -1139,7 +1149,8 @@ const MultipleOrders = () => {
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             setIsSave(false)
             if (item) {   
-                setSymbolSelected(item?.symbolCode);             
+                setSymbolSelected(item?.symbolCode);  
+                convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));           
                 if (orderType === tradingModel.OrderType.OP_LIMIT) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 }
@@ -1187,7 +1198,12 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide || !isSave);
+        // NOTE: Button place order will be disabled when: 
+        // - Ticker is null
+        // - Price or volume invalid
+        // - Side is none
+        // - Volume lower or equal maxOrderVolume
+        return ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide || !isSave || isMaxOrderVol;
     }
 
     const handlePlaceOrder = () => {
