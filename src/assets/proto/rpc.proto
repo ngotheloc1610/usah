@@ -45,6 +45,9 @@ message RpcMessage {
 
     AUTHEN_RES		                            = 11;
     HEARTBEAT_RES								= 12;
+	
+	//Check session
+	CHECK_SESSION_RES							= 13;
 
 	//Pricing message (20~59)
     LAST_QUOTE_REQ                              = 20;
@@ -111,6 +114,7 @@ message RpcMessage {
 	TRADE_HISTORY_REQ							= 104;
 	ORDER_HISTORY_REQ							= 105;
 	SYMBOL_UPDATE_REQ							= 106;
+	ORDER_STATUS_REQ				= 107;
 
 	POSITION_RES                        		= 110;
 	ORDER_LIST_RES                         		= 111;
@@ -119,6 +123,7 @@ message RpcMessage {
 	TRADE_HISTORY_RES							= 114;
 	ORDER_HISTORY_RES							= 115;
 	SYMBOL_UPDATE_RES							= 116;
+	ORDER_STATUS_RES				= 117;
 
 	//SPAN message
 	SPAN_SIMULATE_REQ                      		= 120;
@@ -132,6 +137,7 @@ message RpcMessage {
 	OPEN_SESSION_REQ							= 143;
 	CLOSE_SESSION_REQ							= 144;
 	ADMIN_GET_PENDING_ORDER_REQ					= 145;
+	PRE_SESSION_REQ								= 146;
 
 	UPDATE_ADMIN_SETTINGS_RES					= 150;
 	GROUP_CREATE_RES							= 151;
@@ -139,5 +145,6 @@ message RpcMessage {
 	OPEN_SESSION_RES							= 153;
 	CLOSE_SESSION_RES							= 154;
 	ADMIN_GET_PENDING_ORDER_RES					= 155;
+	PRE_SESSION_RES								= 156;
   }
 }
