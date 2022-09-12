@@ -30,6 +30,12 @@ message HeartbeatResponse {
 	int64 sending_time = 1;
 }
 
+//Check session
+message CheckSessionResponse {
+	int64 account_id            = 1;
+	SessionStatusCode res_code  = 2;
+}
+
 //Balance update
 message BalanceUpdateRequest {
 	int64 account_id 	= 1;
@@ -182,6 +188,16 @@ message CloseTradingSessionRequest {
 
 // Close Trading Session
 message CloseTradingSessionResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
+
+// Pre Trading Session
+message PreTradingSessionRequest {
+}
+
+// Pre Trading Session
+message PreTradingSessionResponse {
 	MsgCode msg_code		= 1;
 	string msg_text			= 2;
 }

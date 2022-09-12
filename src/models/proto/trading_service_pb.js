@@ -415,7 +415,8 @@ proto.NewOrderSingleRequest.toObject = function(includeInstance, msg) {
     randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
     hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
     hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    psplAccountNo: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -480,6 +481,10 @@ proto.NewOrderSingleRequest.deserializeBinaryFromReader = function(msg, reader) 
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPsplAccountNo(value);
       break;
     default:
       reader.skipField();
@@ -557,6 +562,13 @@ proto.NewOrderSingleRequest.serializeBinaryToWriter = function(message, writer) 
   if (f) {
     writer.writeBool(
       7,
+      f
+    );
+  }
+  f = message.getPsplAccountNo();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
       f
     );
   }
@@ -705,6 +717,24 @@ proto.NewOrderSingleRequest.prototype.getHiddenConfirmFlg = function() {
  */
 proto.NewOrderSingleRequest.prototype.setHiddenConfirmFlg = function(value) {
   return jspb.Message.setProto3BooleanField(this, 7, value);
+};
+
+
+/**
+ * optional string pspl_account_no = 8;
+ * @return {string}
+ */
+proto.NewOrderSingleRequest.prototype.getPsplAccountNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.NewOrderSingleRequest} returns this
+ */
+proto.NewOrderSingleRequest.prototype.setPsplAccountNo = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 
