@@ -1240,19 +1240,26 @@ const MultipleOrders = () => {
         return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
     }
 
+    const resetOrderForm = () => {
+        setIsAddOrder(false);
+        setTicker('');
+        setSymbolCode('');
+        setOrderType(tradingModel.OrderType.OP_LIMIT);
+        setPrice(0);
+        setVolume(0);
+        setIsMaxOrderVol(false);
+        setInvalidPrice(false);
+        setInvalidVolume(false);
+        setIsValidTicker(false);
+        setIsShowNotiErrorPrice(false);
+    }
+
     const _renderOrderForm = () => (
         <div className="popup-box multiple-Order" >
             <div className="box d-flex" style={{width: '450px'}}>
                 <div className="col-6">Add Order
                 </div>
-                <div className="col-6 text-end"><span className="close-icon" onClick={() => {
-                    setIsAddOrder(false);
-                    setTicker('');
-                    setSymbolCode('');
-                    setOrderType(tradingModel.OrderType.OP_LIMIT);
-                    setPrice(0);
-                    setVolume(0);
-                }}>x</span></div>
+                <div className="col-6 text-end"><span className="close-icon" onClick={() => resetOrderForm()}>x</span></div>
             </div>
             <div className='content text-center' style={{ height: '600px', width: '450px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
