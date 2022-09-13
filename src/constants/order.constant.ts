@@ -17,4 +17,5 @@ export const TYPE_ORDER_RES = {
     Modify: 'Modify',
 }
 
-export const MESSAGE_EMPTY_ORDER_BOOK = 'No [Ask/Bid] Volume in queue, please use Limit order type';
+export const MESSAGE_EMPTY_ASK = 'No Ask Volume in queue, please use Limit order type';
+export const MESSAGE_EMPTY_BID = 'No Bid Volume in queue, please use Limit order type';
