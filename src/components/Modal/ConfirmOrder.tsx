@@ -313,7 +313,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderConfirmOrder = (title: string, value: string) => (
         <tr className='mt-2'>
             <td className='text-left w-150'><b>{title}</b></td>
-            {(isModify || isCancel) && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
+            {(isModify || isCancel) && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2 text-truncate' : 'text-success pt-1 pb-2 text-truncate'}`}>{value}</td> : <td className={`text-end text-truncate`}>{value}</td>}
         </tr>
     )
 
@@ -347,7 +347,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <tr className='mt-2'>
-            <td className='text-left w-150'><b>{title}</b></td>
+            <td className='text-left w-150'><b>{title === TITLE_ORDER_CONFIRM.PRICE && params.orderType === tradingModelPb.OrderType.OP_MARKET ? 'Market price' : title}</b></td>
             <td className='text-end'>
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
                     <div className="border mb-1 d-flex h-46">
@@ -420,7 +420,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
+                    {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
+                    {params.orderType === tradingModelPb.OrderType.OP_MARKET && 
+                        <>
+                            <tr className='mt-2'>
+                                <td className='text-left w-150'><b className='text-truncate'>Indicative Gross Value</b></td>
+                                <td className={`text-end `}>{formatCurrency(calValue())}</td>
+                            </tr>
+                            <span className='text-truncate fs-px-12 ml-px--10 text-danger'>(*Market prices may change)</span>
+                        </>
+                    }
                 </tbody>
             </table>
             {isModify && (convertNumber(calValue()) < convertNumber(minOrderValue)) && _renderErrorMinValue()}
