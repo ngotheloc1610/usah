@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, handleAllowedInput } from '../../helper/utils';
-import { TYPE_ORDER_RES } from '../../constants/order.constant';
+import { MESSAGE_EMPTY_ORDER_BOOK, TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
 import { IQuoteEvent } from '../../interfaces/quotes.interface';
@@ -56,6 +56,8 @@ const OrderForm = (props: IOrderForm) => {
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
+    
+    const [isEmptyOrderBook, setIsEmptyOrderBook] = useState(false);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
 
@@ -141,6 +143,7 @@ const OrderForm = (props: IOrderForm) => {
         if (quotes.length > 0) {
             const quote = quotes.find(o => o?.symbolCode === symbolCode);
             if (quote) {
+                setIsEmptyOrderBook(quote.asksList.length === 0 && quote.bidsList.length === 0 );
                 const bestAsk = quote.asksList.length > 0 ? convertNumber(quote.asksList[0]?.price) : 0;
                 const bestBid = quote.bidsList.length > 0 ? convertNumber(quote.bidsList[0]?.price) : 0;
                 setBestAskPrice(bestAsk);
@@ -151,6 +154,8 @@ const OrderForm = (props: IOrderForm) => {
                         price: currentSide === tradingModel.Side.BUY ? bestAsk : bestBid
                     });
                 }
+            } else {
+                setIsEmptyOrderBook(true);
             }
             let temp: ISymbolQuote[] = [];
             symbolList.forEach(symbol => {
@@ -638,6 +643,9 @@ const OrderForm = (props: IOrderForm) => {
                 </div>
 
                 {orderType === tradingModel.OrderType.OP_LIMIT && _renderPriceInput}
+                {orderType === tradingModel.OrderType.OP_MARKET && isEmptyOrderBook && 
+                    <span className='text-danger'>{MESSAGE_EMPTY_ORDER_BOOK}</span>
+                }
                 {_renderVolumeInput}
 
                 <div className="border-top">
