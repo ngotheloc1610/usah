@@ -646,13 +646,13 @@ const OrderForm = (props: IOrderForm) => {
                 </div>
 
                 {orderType === tradingModel.OrderType.OP_LIMIT && _renderPriceInput}
+                {_renderVolumeInput}
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
                     <span className='text-danger'>{MESSAGE_EMPTY_ASK}</span>
                 }
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
                     <span className='text-danger'>{MESSAGE_EMPTY_BID}</span>
                 }
-                {_renderVolumeInput}
 
                 <div className="border-top">
                     {_renderPlaceButton()}
