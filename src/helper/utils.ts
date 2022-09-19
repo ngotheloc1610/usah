@@ -337,3 +337,27 @@ export const renderSideText = (side: number) => {
         }
     }
 }
+
+//NOTE: Check invalid LotSize. VolumePlace must be divisible by LotSize
+// Eg: checkVolumeLotSize(100, 5) => true
+//     checkVolumeLotSize(101, 5) => false
+export const checkVolumeLotSize = (placeVol: any, lotSize: any) => {
+    const tempVol = new Decimal(placeVol);
+    return tempVol.modulo(lotSize).toString() === '0';
+}
+
+// NOTE: calc default volume input
+// Eg: calcDefaultVolumeInput(101, 5) => '105'
+//     calcDefaultVolumeInput(100, 5) => '100'
+export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
+    const tempMinLot = new Decimal(minLot);
+    return tempMinLot.dividedBy(lotSize).ceil().mul(lotSize).toString();
+}
+
+// NOTE: check invalid TickSize. PricePlace must be divisible by TickSize
+// Eg: checkPriceTickSize(182.31, 0.03) => true
+//     checkPriceTickSize(182.32, 0.03) => false
+export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
+    const tempPlacePrice = new Decimal(placePrice);
+    return tempPlacePrice.modulo(tickSize).toString() === '0';
+}

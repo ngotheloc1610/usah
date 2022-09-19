@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -19,6 +19,7 @@ import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
 import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, MESSAGE_ERROR } from "../../../constants/message.constant";
+import Decimal from "decimal.js";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -997,9 +998,7 @@ const MultipleOrders = () => {
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(+price * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        setInvalidPrice(temp % tempTickeSize !== 0);
+        setInvalidPrice(!checkPriceTickSize(price, tickSize));
     }
 
     const _renderNotiErrorPrice = () => (
@@ -1039,9 +1038,15 @@ const MultipleOrders = () => {
             if (item) {
                 const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
                 const currentVol = Number(volume);
-                const nerwVol = currentVol + lotSize;
-                setVolume(nerwVol);
-                setInvalidVolume(nerwVol % lotSize !== 0);
+                let newVol = currentVol + lotSize;
+                if (!checkVolumeLotSize(newVol, lotSize)) {
+                    const temp = new Decimal(newVol);
+        
+                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+                    const strVol = temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+                    newVol = convertNumber(strVol);
+                }
+                setVolume(newVol);
             }
         }
     }
@@ -1058,9 +1063,15 @@ const MultipleOrders = () => {
                     setVolume(lotSize);
                     return;
                 }
-                const nerwVol = currentVol - lotSize;
-                setVolume(nerwVol);
-                setInvalidVolume(nerwVol % lotSize !== 0);
+                let newVol = currentVol - lotSize;
+                if (!checkVolumeLotSize(newVol, lotSize)) {
+                    const temp = new Decimal(newVol);
+        
+                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+                    const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+                    newVol = convertNumber(strVol);
+                }
+                setVolume(newVol);
             }
         }
     }
@@ -1077,10 +1088,14 @@ const MultipleOrders = () => {
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+                if (!checkPriceTickSize(newPrice, tickSize)) {
+                    const temp = new Decimal(newPrice);
+
+                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
+                    const strPrice = temp.dividedBy(tickSize).floor().mul(tickSize).toString();
+                    newPrice = convertNumber(strPrice);
+                }
                 setPrice(newPrice);
-                const temp = Math.round(Number(newPrice) * 100);
-                const tempTickeSize = Math.round(tickSize * 100);
-                setInvalidPrice(temp % tempTickeSize !== 0);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
                     return;
@@ -1106,12 +1121,16 @@ const MultipleOrders = () => {
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+                if (!checkPriceTickSize(newPrice, tickSize)) {
+                    const temp = new Decimal(newPrice);
+
+                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+                    const strPrice = temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
+                    newPrice = convertNumber(strPrice);
+                }
                 if (newPrice > 0) {
                     setPrice(newPrice);
                 }
-                const temp = Math.round(Number(newPrice) * 100);
-                const tempTickeSize = Math.round(tickSize * 100);
-                setInvalidPrice(temp % tempTickeSize !== 0);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
                     return;
@@ -1154,7 +1173,7 @@ const MultipleOrders = () => {
                 if (orderType === tradingModel.OrderType.OP_LIMIT) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 }
-                setVolume(convertNumber(item.lotSize));
+                setVolume(convertNumber(calcDefaultVolumeInput(item.minLot, item.lotSize)));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
                 setIsShowNotiErrorPrice(false);

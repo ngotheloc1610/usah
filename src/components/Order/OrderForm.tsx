@@ -6,12 +6,13 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcPriceDecrease, calcPriceIncrease, checkMessageError, checkValue, convertNumber, formatCurrency, handleAllowedInput } from '../../helper/utils';
+import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
 import { IQuoteEvent } from '../../interfaces/quotes.interface';
 import { DEFAULT_DATA_MODIFY_CANCEL } from '../../mocks';
+import Decimal from 'decimal.js';
 
 toast.configure()
 interface IOrderForm {
@@ -34,8 +35,9 @@ const OrderForm = (props: IOrderForm) => {
     const [isConfirm, setIsConfirm] = useState(false);
     const [validForm, setValidForm] = useState(false);
     const [paramOrder, setParamOrder] = useState(DEFAULT_DATA_MODIFY_CANCEL);
-    const [lotSize, setLotSize] = useState(100);
-    const [tickSize, setTickSize] = useState(0.01)
+    const [lotSize, setLotSize] = useState(0);
+    const [minLot, setMinLot] = useState(0);
+    const [tickSize, setTickSize] = useState(0)
     const [price, setPrice] = useState(0);
     const [volume, setVolume] = useState(0);
     const [statusOrder, setStatusOrder] = useState(0);
@@ -81,7 +83,7 @@ const OrderForm = (props: IOrderForm) => {
         setOrderType(tradingModel.OrderType.OP_LIMIT);
         const symbol = listSymbols.find(o => o?.symbolCode === symbolCode);
         if (symbol) {
-            setVolume(convertNumber(symbol.minLot));
+            setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
         }
     }, [symbolCode])
 
@@ -244,7 +246,7 @@ const OrderForm = (props: IOrderForm) => {
             return;
         }
         setIsShowNotiErrorPrice(false);
-        setInvalidPrice(Math.round(Number(price) * 100) % Math.round(tickSize * 100) !== 0);
+        setInvalidPrice(!checkPriceTickSize(price, tickSize));
         setInvalidVolume(volume % lotSize !== 0 || volume < 1);
         setIsMaxOrderVol(volume > maxOrderVolume);
     }, [price, volume])
@@ -273,9 +275,10 @@ const OrderForm = (props: IOrderForm) => {
             setCeilingPrice(Number(ticker?.ceiling));
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
+            setMinLot(convertNumber(minLot));
             if (isRenderVolume) {
                 if (symbolCode !== "") {
-                    setVolume(convertNumber(minLot));
+                    setVolume(convertNumber(calcDefaultVolumeInput(minLot, lotSize)));
                 } else {
                     setVolume(0);
                 }
@@ -292,7 +295,8 @@ const OrderForm = (props: IOrderForm) => {
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             const lotSize = ticker?.lotSize;
-            const volume = convertNumber(quoteInfo.volume) === 0 ? lotSize : convertNumber(quoteInfo.volume)
+            const minLot = ticker?.minLot;
+            const volume = convertNumber(quoteInfo.volume) === 0 ? convertNumber(calcDefaultVolumeInput(minLot, lotSize)) : convertNumber(quoteInfo.volume)
             if (convertNumber(quoteInfo.price) === 0) {
                 const price = convertNumber(symbolItem?.lastPrice) === 0 ? formatCurrency(symbolItem?.prevClosePrice || '') : formatCurrency(symbolItem?.lastPrice || '');
                 setPrice(convertNumber(price));
@@ -317,7 +321,7 @@ const OrderForm = (props: IOrderForm) => {
         }
         // khi đặt lệnh xong set lại volume = lotSize
         if (!isOrderBook) {
-            currentSide === tradingModel.Side.NONE ? setVolume(lotSize) : setVolume(volume);
+            currentSide === tradingModel.Side.NONE ? setVolume(convertNumber(calcDefaultVolumeInput(minLot, lotSize))) : setVolume(volume);
         }
     }, [currentSide])
 
@@ -363,7 +367,14 @@ const OrderForm = (props: IOrderForm) => {
     const handelUpperVolume = () => {
         setIsRenderVolume(false);
         const currentVol = Number(volume);
-        const newVol = currentVol + lotSize;
+        let newVol = currentVol + lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+            const strVol = temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
         setIsMaxOrderVol(newVol > Number(maxOrderVolume));
@@ -377,7 +388,14 @@ const OrderForm = (props: IOrderForm) => {
             setVolume(lotSize);
             return;
         }
-        const newVol = currentVol - lotSize;
+        let newVol = currentVol - lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+            const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
         setIsMaxOrderVol(newVol > Number(maxOrderVolume));
@@ -389,10 +407,14 @@ const OrderForm = (props: IOrderForm) => {
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         const currentPrice = Number(price);
         let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+        if (!checkPriceTickSize(newPrice, tickSize)) {
+            const temp = new Decimal(newPrice);
+
+            // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
+            const strPrice = temp.dividedBy(tickSize).floor().mul(tickSize).toString();
+            newPrice = convertNumber(strPrice);
+        }
         setPrice(newPrice);
-        const temp = Math.round(Number(newPrice) * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
             setIsShowNotiErrorPrice(false);
@@ -415,12 +437,16 @@ const OrderForm = (props: IOrderForm) => {
         const currentPrice = Number(price);
         const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
         let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+        if (!checkPriceTickSize(newPrice, tickSize)) {
+            const temp = new Decimal(newPrice);
+
+            // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+            const strPrice = temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
+            newPrice = convertNumber(strPrice);
+        }
         if (newPrice > 0) {
             setPrice(newPrice);
         }
-        const temp = Math.round(Number(newPrice) * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        setInvalidPrice(temp % tempTickeSize !== 0);
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
             setIsShowNotiErrorPrice(false);
@@ -517,7 +543,7 @@ const OrderForm = (props: IOrderForm) => {
         if (symbolCode) {
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
-            setVolume(lotSize);
+            setVolume(convertNumber(calcDefaultVolumeInput(minLot, lotSize)));
             setIsShowNotiErrorPrice(false);
             setInvalidVolume(false);
             setIsMaxOrderVol(false);
@@ -552,9 +578,7 @@ const OrderForm = (props: IOrderForm) => {
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(+price * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        setInvalidPrice(temp % tempTickeSize !== 0);
+        setInvalidPrice(!checkPriceTickSize(price, tickSize));
     }
 
     const _renderNotiErrorPrice = () => (
