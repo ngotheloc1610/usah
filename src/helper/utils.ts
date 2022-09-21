@@ -343,7 +343,7 @@ export const renderSideText = (side: number) => {
 //     checkVolumeLotSize(101, 5) => false
 export const checkVolumeLotSize = (placeVol: any, lotSize: any) => {
     const tempVol = new Decimal(placeVol);
-    return tempVol.modulo(lotSize).toString() === '0';
+    return tempVol.modulo(lotSize).equals('0');
 }
 
 // NOTE: calc default volume input
@@ -359,5 +359,5 @@ export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
 //     checkPriceTickSize(182.32, 0.03) => false
 export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
     const tempPlacePrice = new Decimal(placePrice);
-    return tempPlacePrice.modulo(tickSize).toString() === '0';
+    return tempPlacePrice.modulo(tickSize).equals('0');
 }

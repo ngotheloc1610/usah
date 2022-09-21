@@ -582,7 +582,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const _renderNotiErrorPrice = () => (
-        <div className='text-danger text-end'>Out of daily price limits</div>
+        <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
     )
 
     const disableChangeValueBtn = (symbolCode: string | undefined) => {
@@ -615,10 +615,10 @@ const OrderForm = (props: IOrderForm) => {
             </div>
             {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && _renderNotiErrorPrice()}
             <div>
-                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger'>Invalid Price</span>}
+                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger fs-px-13'>Invalid Price</span>}
             </div>
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <span className='text-danger'>Invalid volume</span>}
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <span className='text-danger'>Quantity is exceed max order quantity: {maxOrderVolume}</span>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <div className='text-danger fs-px-13'>Invalid volume</div>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <div className='text-danger fs-px-13'>Quantity is exceed max order quantity: {maxOrderVolume}</div>}
         </>
     }
     
@@ -672,10 +672,10 @@ const OrderForm = (props: IOrderForm) => {
                 {orderType === tradingModel.OrderType.OP_LIMIT && _renderPriceInput}
                 {_renderVolumeInput}
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
-                    <span className='text-danger'>{MESSAGE_EMPTY_ASK}</span>
+                    <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_ASK}</div>
                 }
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
-                    <span className='text-danger'>{MESSAGE_EMPTY_BID}</span>
+                    <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_BID}</div>
                 }
 
                 <div className="border-top">
