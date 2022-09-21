@@ -107,7 +107,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     orderSide: getSideName(item.side),
                     orderType: ORDER_TYPE.get(item.orderType) || '-',
                     orderQuatity: convertNumber(item.amount),
-                    orderPrice: item.orderType === tradingModelPb.OrderType.OP_LIMIT ? item.price : '-',
+                    orderPrice: formatCurrency(item.price),
                     executedQuatity: convertNumber(item.executedVolume),
                     executedPrice: convertNumber(item.executedPrice),
                     matchedValue: convertNumber(calcMatchedValue(item).toString()),
