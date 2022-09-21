@@ -118,3 +118,11 @@ input::-ms-clear, input::-ms-reveal {
 .bg-disabled {
   background: #e9ecef !important;
 }
+
+.modal-dialog {
+  width: 400px !important;
+}
+
+.custom .modal-dialog {
+  width: 1000px !important;
+}
