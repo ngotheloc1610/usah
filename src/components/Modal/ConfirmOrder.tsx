@@ -368,7 +368,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-nowrap'>Quantity is exceed order quantity</div>}
+                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Quantity is exceed order quantity</div>}
                 </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
@@ -416,40 +416,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
-    const _renderListConfirm = () => (
-        <div>
-            <table className='w-354'>
-                <tbody>
-                    {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderOrderType()}
-                    {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
-                    {params.orderType === tradingModelPb.OrderType.OP_MARKET &&
-                        <>
-                            <tr className='mt-2'>
-                                <td className='text-left w-150'><b className='text-truncate'>Indicative Gross Value</b></td>
-                                <td className={`text-end `}>{formatCurrency(calValue())}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <div className='fs-px-12 text-danger text-left'>(*Market prices may change)</div>
-                                    <div className='fs-px-12 text-danger text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
-                                </td>
-                            </tr>
-                        </>
-                    }
-                </tbody>
-            </table>
-            {isModify && (convertNumber(calValue()) < convertNumber(minOrderValue)) && _renderErrorMinValue()}
-            <div className='mt-30'>
-                {!isModify && !isCancel && _renderBtnConfirmOrder()}
-                {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
-            </div>
-        </div>
-    )
-
     const _renderContentFormConfirm = () => (
         <>
             <div className='row'>
@@ -466,16 +432,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
             {params.orderType === tradingModelPb.OrderType.OP_MARKET &&
                 <>
-                    <tr className='mt-2'>
-                        <td className='text-left w-150'><b className='text-truncate'>Indicative Gross Value</b></td>
-                        <td className={`text-end `}>{formatCurrency(calValue())}</td>
-                    </tr>
-                    <tr>
-                        <td colSpan={2}>
-                            <div className='fs-px-12 text-left'>(*Market prices may change)</div>
-                            <div className='fs-px-12 text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
-                        </td>
-                    </tr>
+                    <div className='row'>
+                        <div className='col-6'><b className='text-truncate'>Indicative Gross Value</b></div>
+                        <div className='text-end col-6'>{formatCurrency(calValue())}</div>
+                    </div>
+                    <div className='fs-px-12 text-left'>(*Market prices may change)</div>
+                    <div className='fs-px-12 text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
                 </>
             }
         </>

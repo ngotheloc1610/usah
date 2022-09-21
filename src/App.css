@@ -119,6 +119,10 @@ input::-ms-clear, input::-ms-reveal {
   background: #e9ecef !important;
 }
 
+.fs-px-13 {
+  font-size: 13px !important;
+}
+
 .modal-dialog {
   width: 400px !important;
 }

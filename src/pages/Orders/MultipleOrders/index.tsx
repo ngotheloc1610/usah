@@ -1010,7 +1010,7 @@ const MultipleOrders = () => {
     }
 
     const _renderNotiErrorPrice = () => (
-        <div className='text-danger text-end'>Out of daily price limits</div>
+        <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
     )
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
@@ -1031,9 +1031,9 @@ const MultipleOrders = () => {
                 </div>
             </div>
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-            {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end'>Invalid quantity</div>}
-            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <span className='text-danger'>Quantity is exceed max order quantity: {maxOrderVolume}</span>}
+            {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end fs-px-13'>Invalid Price</div>}
+            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end fs-px-13'>Invalid quantity</div>}
+            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-13'>Quantity is exceed max order quantity: {maxOrderVolume}</div>}
         </>
 
     )
@@ -1296,17 +1296,17 @@ const MultipleOrders = () => {
                             {renderSymbolSelect()}
                         </div>
                     </div>
-                    {isValidTicker && ticker !== '' && <div className='text-danger text-end'>Invalid Ticker</div>}
+                    {isValidTicker && ticker !== '' && <div className='text-danger text-end fs-px-13'>Invalid Ticker</div>}
 
 
                     {orderType === tradingModel.OrderType.OP_LIMIT && _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume)}
 
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
-                        <span className='text-danger'>{MESSAGE_EMPTY_ASK}</span>
+                        <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_ASK}</div>
                     }
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
-                        <span className='text-danger'>{MESSAGE_EMPTY_BID}</span>
+                        <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_BID}</div>
                     }
 
                     <div className="border-top">
