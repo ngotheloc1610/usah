@@ -13,15 +13,16 @@ import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
-import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE, SOCKET_RECONNECTED } from '../../../constants/general.constant';
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE, SOCKET_RECONNECTED, FORMAT_DATE, FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
 import { ITickerDetail } from '../../../interfaces/ticker.interface';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_STYLE_LAYOUT, DEFAULT_TICKER_INFO } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
-import { assignListPrice, calcChange, calcPctChange, checkValue, getSymbolCode, toTimestamp } from '../../../helper/utils';
+import { assignListPrice, calcChange, calcPctChange, checkValue, convertDatetoTimeStamp, convertNumber, getSymbolCode, toTimestamp } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { chooseLayoutOrderBook } from '../../../redux/actions/User'
+import moment from 'moment';
 
 const OrderBookCommon = () => {
     // State nhận nhiều kiểu dữ liệu nên sẽ khai báo là any
@@ -58,12 +59,9 @@ const OrderBookCommon = () => {
     const [side, setSide] = useState(0);
     const [listStyleBidsAsk, setListStyleBidsAsk] = useState(DEFAULT_STYLE_LAYOUT);
 
-    const year = new Date().getFullYear();
-    // TODO: getMonth() return start 0 -> 11. We should +1 to convert timestamp
-    const month = new Date().getMonth() + 1;
-    const date = new Date().getDate();
-    const timeFrom = toTimestamp(`${month}/${date}/${year} 00:00:00`);
-    const timeTo = toTimestamp(`${month}/${date}/${year} 23:59:59`);
+    const currentDate = moment().format(FORMAT_DATE);
+    const timeFrom = convertDatetoTimeStamp(currentDate, FROM_DATE_TIME);
+    const timeTo = convertDatetoTimeStamp(currentDate, TO_DATE_TIME);
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -180,7 +178,9 @@ const OrderBookCommon = () => {
     const processTradeEvent = (trades: IListTradeHistory[]) => {
         const tmp = [...tradeHistory];
         trades.forEach(item => {
-            tmp.unshift(item);
+            if (item.tickerCode === tickerSelect) {
+                tmp.unshift(item);
+            }
         });
         setTradeHistory(tmp);
     }
