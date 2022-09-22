@@ -10,6 +10,7 @@ import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 import { useEffect } from 'react';
 import './PopUpConfirm.scss';
+import { Button, Modal } from 'react-bootstrap';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -104,30 +105,33 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         }
     }
     return <>
-        <div className="popup-box">
-            <div className="box">
-                <div className='confirm-head'>Cancel All Confirmation</div>          
-                <div className="close-icon confirm-close" onClick={() => handleCloseConfirmPopup(false)}>x</div>
-            </div>
-            <div className='content text-center'>
-                <div className='fs-18 fw-600'>Are you sure <span className="text-danger">Cancel</span> All Order?</div>
+        <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
+            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <span className='h5'>Cancel All Confirmation</span>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
+            <div className='fs-18 fw-600 text-center'>Are you sure <span className="text-danger">Cancel</span> All Order?</div>
 
-                <div className="container d-flex mt-30">
-                    <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <span className="label fs-18">Total order you have selected</span>
-                    </div>
-                    <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <span className="label fs-18">{totalOrder}</span>
-                    </div>
+            <div className="row" style={{marginTop: '20px'}}>
+                <div className="col-10 fs-18 text-center">
+                    Total order you have selected
                 </div>
-
-                <div className="d-flex justify-content-center mt-30">
-                    <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
-                    <button className="btn btn-primary" onClick={sendRes}>CONFIRM</button>
+                <div className="col-2 fs-18">
+                    {totalOrder}
                 </div>
             </div>
-
-        </div>
+            </Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                    DISCARD
+                </Button>
+                <Button variant="primary" onClick={sendRes}>
+                    CONFIRM
+                </Button>
+            </Modal.Footer>
+        </Modal>
     </>;
 }
 export default PopUpConfirm;
