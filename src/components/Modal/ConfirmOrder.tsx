@@ -445,8 +445,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const _renderTamplate = () => (
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
-            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
-                <Modal.Title style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
                 </Modal.Title>
             </Modal.Header>

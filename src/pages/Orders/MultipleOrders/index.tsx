@@ -1284,7 +1284,7 @@ const MultipleOrders = () => {
 
     const _renderOrderForm = () => (
         <Modal show={true} onHide={() => resetOrderForm()}>
-            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
                 <Modal.Title>
                     <h5>Add Order</h5>
                 </Modal.Title>
@@ -1336,14 +1336,14 @@ const MultipleOrders = () => {
                     </div>
                 </form>
             </Modal.Body>
-            <Modal.Footer className='justify-content-center'>
+            {/* <Modal.Footer className='justify-content-center'>
                 <Button variant="secondary" onClick={() => resetOrderForm()}>
                     CLOSE
                 </Button>
                 <Button variant="primary" onClick={handlePlaceOrder} disabled={disableButtonPlace()}>
                     SAVE
                 </Button>
-            </Modal.Footer>
+            </Modal.Footer> */}
         </Modal>
     )
 
