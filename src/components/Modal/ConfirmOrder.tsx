@@ -454,11 +454,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             <Modal.Footer className='justify-content-center'>
                 {!isModify && !isCancel &&
                     <>
-                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                        {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
-                        </Button>
-                        <Button variant="primary" onClick={sendOrder} disabled={convertNumber(calValue()) === 0}>
-                            Place
+                        </Button> */}
+                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={convertNumber(calValue()) === 0}>
+                            <b>Place</b>
                         </Button>
                     </>
                 }
