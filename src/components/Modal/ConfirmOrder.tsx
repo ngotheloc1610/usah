@@ -367,8 +367,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                             <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
                         </div>
                     </div>
-                    {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Quantity is exceed order quantity</div>}
+                    {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Invalid volume</div>}
+                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Quantity is exceed order quantity</div>}
                 </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
@@ -436,8 +436,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <div className='col-6'><b className='text-truncate'>Indicative Gross Value</b></div>
                         <div className='text-end col-6'>{formatCurrency(calValue())}</div>
                     </div>
-                    <div className='fs-px-12 text-left'>(*Market prices may change)</div>
-                    <div className='fs-px-12 text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
+                    <div className='fs-px-12 text-left mt-px-5'>(*Market prices may change)</div>
+                    <div className='fs-px-12 text-left text-danger mt-px-10'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
                 </>
             }
         </>

@@ -130,3 +130,11 @@ input::-ms-clear, input::-ms-reveal {
 .custom .modal-dialog {
   width: 1000px !important;
 }
+
+.mt-px-10 {
+  margin-top: 10px;
+}
+
+.mt-px-5 {
+  margin-top: 5px;
+}
