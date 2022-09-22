@@ -14,6 +14,7 @@ import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { MESSAGE_ERROR } from '../../constants/message.constant';
 import { toast } from 'react-toastify';
+import { Button, Modal } from 'react-bootstrap';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -311,10 +312,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const _renderConfirmOrder = (title: string, value: string) => (
-        <tr className='mt-2'>
-            <td className='text-left w-150'><b>{title}</b></td>
-            {(isModify || isCancel) && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2 text-truncate' : 'text-success pt-1 pb-2 text-truncate'}`}>{value}</td> : <td className={`text-end text-truncate`}>{value}</td>}
-        </tr>
+        <div className='row'>
+            <div className='col-6'><b>{title}</b></div>
+            {title === TITLE_ORDER_CONFIRM.SIDE ?
+                <div className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger text-uppercase col-6' : 'text-success text-uppercase col-6'}`}>{value}</div>
+                : <div className="text-end text-uppercase col-6">{value}</div>}
+        </div>
     )
 
     const _renderOrderType = () => (
@@ -346,14 +349,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isVolumeValue ? true : false
     }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
-        <tr className='mt-2'>
-            <td className='text-left w-150'><b>{title === TITLE_ORDER_CONFIRM.PRICE && params.orderType === tradingModelPb.OrderType.OP_MARKET ? 'Market price' : title}</b></td>
-            <td className='text-end'>
+        <div className='row'>
+            <div className='text-left col-5'>
+                <b>{title === TITLE_ORDER_CONFIRM.PRICE && params.orderType === tradingModelPb.OrderType.OP_MARKET ? 'Market price' : title}</b>
+            </div>
+            <div className='text-end col-7'>
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
-                    <div className="border mb-1 d-flex h-46">
+                    <div className="border mb-1 d-flex">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
-                                decimalScale={0} thousandSeparator="," 
+                                decimalScale={0} thousandSeparator=","
                                 isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
                         </div>
@@ -363,12 +368,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-nowrap'>Quantity is exceed order quantity.</div> }
-                </> 
+                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Quantity is exceed order quantity</div>}
+                </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
-            </td>
-        </tr>
+            </div>
+        </div>
     )
     const _disableBtnConfirm = () => {
         let isDisable = true;
@@ -411,67 +416,65 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
-    const _renderListConfirm = () => (
-        <div>
-            <table className='w-354'>
-                <tbody>
-                    {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
-                    {_renderOrderType()}
-                    {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
-                    {params.orderType === tradingModelPb.OrderType.OP_MARKET && 
-                        <>
-                            <tr className='mt-2'>
-                                <td className='text-left w-150'><b className='text-truncate'>Indicative Gross Value</b></td>
-                                <td className={`text-end `}>{formatCurrency(calValue())}</td>
-                            </tr>
-                            <tr>
-                                <td colSpan={2}>
-                                    <div className='fs-px-12 text-danger text-left'>(*Market prices may change)</div>
-                                    <div className='fs-px-12 text-danger text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
-                                </td>
-                            </tr>
-                        </>
-                    }
-                </tbody>
-            </table>
-            {isModify && (convertNumber(calValue()) < convertNumber(minOrderValue)) && _renderErrorMinValue()}
-            <div className='mt-30'>
-                {!isModify && !isCancel && _renderBtnConfirmOrder()}
-                {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
+    const _renderContentFormConfirm = () => (
+        <>
+            <div className='row'>
+                <div className='col-5'><b>Symbol Code</b></div>
+                <div className='col-7 text-end'>{`${params.tickerName} (${params.tickerCode})`}</div>
             </div>
-        </div>
-    )
-
-    const _renderHeaderFormConfirm = () => (
-        <div>
-            <span className='fs-18'>
-                {!isModify && !isCancel && <b>Would you like to place order&nbsp;</b>}
-                {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
-                {isModify && <b>Are you sure to <span className='text-primary'>Modify</span> order</b>}
-            </span>
-            {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.Side.BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === Number(tradingModelPb.Side.BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}
-            </b></span>} &nbsp;
-            <span className='fs-18'><b>?</b></span>
-        </div>
+            <div className='row'>
+                <div className='col-6'><b>Order Type</b></div>
+                <div className='col-6 text-end'>{ORDER_TYPE.get(params.orderType)}</div>
+            </div>
+            {_renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
+            {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
+            {params.orderType === tradingModelPb.OrderType.OP_MARKET &&
+                <>
+                    <div className='row'>
+                        <div className='col-6'><b className='text-truncate'>Indicative Gross Value</b></div>
+                        <div className='text-end col-6'>{formatCurrency(calValue())}</div>
+                    </div>
+                    <div className='fs-px-12 text-left'>(*Market prices may change)</div>
+                    <div className='fs-px-12 text-left'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
+                </>
+            }
+        </>
     )
 
     const _renderTamplate = () => (
-        <div>
-            <div className="box d-flex">
-                <div className='col-6'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</div>
-                <div className='col-6'><span className="close-icon f-right" onClick={() => handleCloseConfirmPopup(false)}>x</span></div>
-            </div>
-            <div className='content text-center'>
-                {_renderHeaderFormConfirm()}
-                <div className='table-content'>
-                    {_renderListConfirm()}
-                </div>
-            </div>
-        </div>
+        <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
+            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title style={{ background: "#16365c", color: "#fff" }}>
+                    <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>{_renderContentFormConfirm()}</Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                {!isModify && !isCancel &&
+                    <>
+                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={sendOrder} disabled={convertNumber(calValue()) === 0}>
+                            Place
+                        </Button>
+                    </>
+                }
+                {(isModify || isCancel) &&
+                    <>
+                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                            DISCARD
+                        </Button>
+                        <Button variant="primary" onClick={sendOrder}
+                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
+                            CONFIRM
+                        </Button>
+                    </>
+                }
+            </Modal.Footer>
+        </Modal>
     )
 
     return <div className="popup-box">

@@ -21,6 +21,7 @@ import NumberFormat from "react-number-format";
 import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, MESSAGE_ERROR } from "../../../constants/message.constant";
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
 import Decimal from "decimal.js";
+import { Button, Modal } from "react-bootstrap";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -71,7 +72,7 @@ const MultipleOrders = () => {
     const systemModelPb: any = smpb;
 
     const ref: any = useRef();
-    const pricingServicePb: any = pspb; 
+    const pricingServicePb: any = pspb;
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -120,7 +121,7 @@ const MultipleOrders = () => {
                 subscribeQuoteEvent();
             }
         });
-        
+
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
             if (quote && quote.quotesList) {
                 setLastQuotes(quote.quotesList);
@@ -282,7 +283,7 @@ const MultipleOrders = () => {
                     }, []);
                     const txtSide = renderSideText(item.side);
                     listIndex.forEach(el => {
-                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim() 
+                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim()
                             && convertNumber(temps[el].volume) === convertNumber(item.amount)
                             && temps[el].orderType === item.orderType) {
                             temps[el] = {
@@ -300,8 +301,8 @@ const MultipleOrders = () => {
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
                 if (idx >= 0) {
-                    const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ? 
-                            temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
+                    const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ?
+                        temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
                     tickers.push({
                         ...temps[idx],
                         message:  temps[idx].msgCode ? msgErr : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
@@ -354,9 +355,9 @@ const MultipleOrders = () => {
             ...currentTickerInfo,
             volume: volume,
             price: price,
-            msgCode: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+            msgCode: getStatusOrder(currentTickerInfo?.ticker, volume, price) ?
                 getStatusOrder(currentTickerInfo?.ticker, volume, price)?.msgCode : null,
-            message: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+            message: getStatusOrder(currentTickerInfo?.ticker, volume, price) ?
                 getStatusOrder(currentTickerInfo?.ticker, volume, price)?.message : ''
         }
         return temp;
@@ -654,7 +655,7 @@ const MultipleOrders = () => {
         }
         return 0;
     }
-    
+
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false)
     }
@@ -697,7 +698,7 @@ const MultipleOrders = () => {
                             disabled={item.orderType === tradingModel.OrderType.OP_MARKET}
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandSeparator="," 
+                            thousandSeparator=","
                             value={(convertNumber(item.price?.replaceAll(',','')) === 0 || item.orderType === tradingModel.OrderType.OP_MARKET) ? null : formatCurrency(item.price?.replaceAll(',', ''))}
                             placeholder=""
                         />
@@ -962,14 +963,14 @@ const MultipleOrders = () => {
 
     const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
         if (convertNumber(side) !== tradingModel.Side.NONE) {
-          return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`
+            return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`
         }
         return `btn rounded text-white flex-grow-1 p-2 text-center `
     }
 
     const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
         <button type="button"
-        className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
+            className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -1172,12 +1173,12 @@ const MultipleOrders = () => {
                     currentSide === tradingModel.Side.BUY ? setPrice(bestAsk) : setPrice(bestBid);
                 }
             }
-            
+
             const item = symbols.find(o => o?.symbolCode === symbolCode);
             setIsSave(false)
-            if (item) {   
-                setSymbolSelected(item?.symbolCode);  
-                convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));           
+            if (item) {
+                setSymbolSelected(item?.symbolCode);
+                convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
                 if (orderType === tradingModel.OrderType.OP_LIMIT) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 }
@@ -1198,7 +1199,7 @@ const MultipleOrders = () => {
             setIsValidTicker(true);
             setPrice(0);
             setVolume(0);
-        };    
+        };
     }
 
     const disableControl = () => {
@@ -1241,9 +1242,9 @@ const MultipleOrders = () => {
             price: price.toString(),
             volume: volume.toString(),
             ticker: tickerCode,
-            msgCode: getStatusOrder(tickerCode, volume, price) ? 
+            msgCode: getStatusOrder(tickerCode, volume, price) ?
                 getStatusOrder(tickerCode, volume, price)?.msgCode : null,
-            message: getStatusOrder(tickerCode, volume, price) ? 
+            message: getStatusOrder(tickerCode, volume, price) ?
                 getStatusOrder(tickerCode, volume, price)?.message : '',
             orderType: orderType
         }
@@ -1282,26 +1283,26 @@ const MultipleOrders = () => {
     }
 
     const _renderOrderForm = () => (
-        <div className="popup-box multiple-Order" >
-            <div className="box d-flex" style={{width: '450px'}}>
-                <div className="col-6">Add Order
-                </div>
-                <div className="col-6 text-end"><span className="close-icon" onClick={() => resetOrderForm()}>x</span></div>
-            </div>
-            <div className='content text-center' style={{ height: '600px', width: '450px' }}>
+        <Modal show={true} onHide={() => resetOrderForm()}>
+            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <h5>Add Order</h5>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                     <div className='row d-flex align-items-stretch mb-2'>
-                        <div className={orderType === tradingModel.OrderType.OP_LIMIT ? 
+                        <div className={orderType === tradingModel.OrderType.OP_LIMIT ?
                             'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
                             onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
-                                Limit
-                            </div>
-                        <div className={orderType === tradingModel.OrderType.OP_MARKET ? 
+                            Limit
+                        </div>
+                        <div className={orderType === tradingModel.OrderType.OP_MARKET ?
                             'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
                             onClick={() => {
                                 setOrderType(tradingModel.OrderType.OP_MARKET);
                             }} >
-                                Market</div>
+                            Market</div>
                     </div>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
@@ -1334,17 +1335,26 @@ const MultipleOrders = () => {
                             onClick={handlePlaceOrder} >Save</button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                <Button variant="secondary" onClick={() => resetOrderForm()}>
+                    CLOSE
+                </Button>
+                <Button variant="primary" onClick={handlePlaceOrder} disabled={disableButtonPlace()}>
+                    SAVE
+                </Button>
+            </Modal.Footer>
+        </Modal>
     )
 
     const _renderPopupConfirm = () => {
-        return <div className="popup-box multiple-Order" >
-            <div className="box d-flex" style={{ width: '40%' }}>
-                <div className="col-6">Multiple Orders</div>
-                <div className="col-6 text-end"><span className="close-icon position-close-popup" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span></div>
-            </div>
-            <div className='content text-center' style={{ width: '40%' }}>
+        return <Modal className="custom" show={true} onHide={() => setShowModalConfirmMultiOrders(false)}>
+            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <h5>Multiple Orders</h5>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <div className="table table-responsive mh-500 tableFixHead">
                     <table className="table table-sm table-hover mb-0 dataTable no-footer">
                         <thead>
@@ -1355,23 +1365,25 @@ const MultipleOrders = () => {
                         </tbody>
                     </table>
                 </div>
-
-
-                <div className="text-end mb-3 mt-10">
-                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Close</a>
-                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Submit</a>
-                </div>
-            </div>
-        </div>
+            </Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                <Button variant="secondary" onClick={() => setShowModalConfirmMultiOrders(false)}>
+                    CLOSE
+                </Button>
+                <Button variant="primary" onClick={callOrderRequest}>
+                    SUBMIT
+                </Button>
+            </Modal.Footer>
+        </Modal>
     }
 
-    const onInputClick = ( event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    const onInputClick = (event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         const element = event.target as HTMLInputElement
         element.value = ''
     }
 
     const _renderElementImport = () => (
-        <div className="border-1 mt-30 mr mb-30" style={{width: "350px"}}>
+        <div className="border-1 mt-30 mr mb-30" style={{ width: "350px" }}>
             <div className="header-import">
                 <span className="m-3">Import</span>
             </div>

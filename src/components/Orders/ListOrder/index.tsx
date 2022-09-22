@@ -194,7 +194,7 @@ const ListOrder = (props: IPropsListOrder) => {
             tickerCode: item.symbolCode.split('-')[0]?.trim(),
             tickerName: symbolName || '',
             orderType: item.orderType,
-            volume: item.amount,
+            volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
             price: Number(item.price),
             side: item.side,
             confirmationConfig: false,

@@ -122,3 +122,11 @@ input::-ms-clear, input::-ms-reveal {
 .fs-px-13 {
   font-size: 13px !important;
 }
+
+.modal-dialog {
+  width: 400px !important;
+}
+
+.custom .modal-dialog {
+  width: 1000px !important;
+}
