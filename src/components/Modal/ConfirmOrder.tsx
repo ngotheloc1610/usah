@@ -9,12 +9,13 @@ import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
 import * as psbp from '../../models/proto/pricing_service_pb';
 import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { MESSAGE_ERROR } from '../../constants/message.constant';
 import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
+import Decimal from 'decimal.js';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -42,8 +43,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [isAllowed, setIsAllowed] = useState(false);
     const [isDisableInput, setIsDisableInput] = useState(false);
 
+    const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
+    const [isInvalidMinOrderValue, setIsInvalidMinOrderValue] = useState(false);
+
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
+
+    const maxQty = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
@@ -58,10 +64,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
         if (lotSize && convertNumber(lotSize) !== 0) {
-            setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
+            setInvalidVolume(!checkVolumeLotSize(valueVolume, lotSize));
         }
         convertNumber(onlyNumberVolumeChange) > convertNumber(params.volume) ? setIsDisableInput(true) : setIsDisableInput(false);
         setVolumeModify(onlyNumberVolumeChange);
+
+        setIsInvalidMaxQty(new Decimal(maxQty).lt(new Decimal(onlyNumberVolumeChange)));
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -242,8 +250,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleUpperVolume = () => {
         const currentVol = convertNumber(volumeModify);
-        let nerwVol = currentVol + lotSize;
-        setVolumeModify(nerwVol.toString());
+        let newVol = currentVol + lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+            const strVol = temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
+        setVolumeModify(newVol.toString());
 
     }
 
@@ -252,8 +267,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (currentVol <= lotSize) {
             return;
         }
-        const nerwVol = currentVol - lotSize;
-        setVolumeModify(nerwVol.toString());
+        let newVol = currentVol - lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+            const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
+        setVolumeModify(newVol.toString());
     }
 
     useEffect(() => {
@@ -350,10 +372,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <div className='row'>
-            <div className='text-left col-5'>
+            <div className='text-left col-4'>
                 <b>{title === TITLE_ORDER_CONFIRM.PRICE && params.orderType === tradingModelPb.OrderType.OP_MARKET ? 'Market price' : title}</b>
             </div>
-            <div className='text-end col-7'>
+            <div className='text-end col-8'>
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
                     <div className="border mb-1 d-flex">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
@@ -368,7 +390,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Quantity is exceed order quantity</div>}
+                    {isInvalidMaxQty && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>{`Quantity is exceed order quantity: ${formatNumber(maxQty)}`}</div>}
+                    {(new Decimal(calValue()).lt(new Decimal(minOrderValue))) && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='fs-px-12'>{_renderErrorMinValue()}</div>}
                 </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
@@ -381,7 +404,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
         if (isModify) {
-            if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
+            if (new Decimal(calValue()).lt(new Decimal(minOrderValue))) {
                 return false;
             }
             isDisable = isConditionPrice && isConditionVolume && isChangePriceOrModify;
@@ -412,7 +435,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const _renderErrorMinValue = () => (
         <>
             <div className='text-danger text-end'>{`The order is less than USD ${formatNumber(minOrderValue || '')}. `}</div>
-            <div className='text-danger text-end'>Kindly revise the number of shares.</div>
+            <div className='text-danger text-end text-nowrap'>Kindly revise the number of shares.</div>
         </>
     )
 

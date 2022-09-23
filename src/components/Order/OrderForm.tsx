@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, handleAllowedInput } from '../../helper/utils';
+import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
@@ -614,11 +614,9 @@ const OrderForm = (props: IOrderForm) => {
                 </div>
             </div>
             {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && _renderNotiErrorPrice()}
-            <div>
-                {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <span className='text-danger fs-px-13'>Invalid Price</span>}
-            </div>
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <div className='text-danger fs-px-13'>Invalid volume</div>}
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <div className='text-danger fs-px-13'>Quantity is exceed max order quantity: {maxOrderVolume}</div>}
+            {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid Price</div>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid volume</div>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume?.toString())}</div>}
         </>
     }
     
@@ -672,10 +670,10 @@ const OrderForm = (props: IOrderForm) => {
                 {orderType === tradingModel.OrderType.OP_LIMIT && _renderPriceInput}
                 {_renderVolumeInput}
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
-                    <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_ASK}</div>
+                    <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_ASK}</div>
                 }
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
-                    <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_BID}</div>
+                    <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
                 }
 
                 <div className="border-top">
