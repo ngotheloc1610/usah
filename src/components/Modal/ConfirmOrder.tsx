@@ -32,11 +32,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const pricingServicePb: any = psbp;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
-    const [currentSide, setCurrentSide] = useState(params.side);
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
-    const [tickSize, setTickSize] = useState(0.01);
-    const [lotSize, setLotSize] = useState(100);
+    const [tickSize, setTickSize] = useState(0);
+    const [lotSize, setLotSize] = useState(0);
+    const [minLot, setMinLot] = useState(0);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [outOfPrice, setOutOfPrice] = useState(false);
@@ -44,7 +44,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [isDisableInput, setIsDisableInput] = useState(false);
 
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
-    const [isInvalidMinOrderValue, setIsInvalidMinOrderValue] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
@@ -52,11 +51,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const maxQty = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
 
     useEffect(() => {
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize;
-        const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize;
-        setTickSize(convertNumber(tickSize));
-        setLotSize(convertNumber(lotSize));
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const currentTicker = tickerList.find(item => item.symbolCode === params.tickerCode);
+        if (currentTicker) {
+            const tickSize = currentTicker?.tickSize;
+            const lotSize = currentTicker?.lotSize;
+            const minLot = currentTicker?.minLot;
+            setTickSize(convertNumber(tickSize));
+            setLotSize(convertNumber(lotSize));
+            setMinLot(convertNumber(minLot));
+        }
     }, [])
 
     const handleVolumeModify = (valueVolume: string) => {
@@ -64,12 +68,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
         if (lotSize && convertNumber(lotSize) !== 0) {
-            setInvalidVolume(!checkVolumeLotSize(valueVolume, lotSize));
+            setInvalidVolume(!checkVolumeLotSize(valueVolume, lotSize) || convertNumber(onlyNumberVolumeChange) < minLot);
         }
         convertNumber(onlyNumberVolumeChange) > convertNumber(params.volume) ? setIsDisableInput(true) : setIsDisableInput(false);
         setVolumeModify(onlyNumberVolumeChange);
 
-        setIsInvalidMaxQty(new Decimal(maxQty).lt(new Decimal(onlyNumberVolumeChange)));
+        setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(onlyNumberVolumeChange)));
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -264,7 +268,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleLowerVolume = () => {
         const currentVol = convertNumber(volumeModify);
-        if (currentVol <= lotSize) {
+        if (currentVol <= minLot) {
             return;
         }
         let newVol = currentVol - lotSize;
@@ -342,27 +346,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </div>
     )
 
-    const _renderOrderType = () => (
-        <tr className='mt-2'>
-            <td className='text-left w-150'><b>Order type</b></td>
-            <td className='text-end pt-1 pb-2'>
-                {ORDER_TYPE.get(params.orderType)}
-            </td>
-        </tr>
-    )
-
-    const onChangePrice = (value: string) => {
-        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
-        const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
-        const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
-        const tickSize = symbolInfo?.tickSize ? symbolInfo?.tickSize : 1;
-        setOutOfPrice(+value < +floorPrice || +value > +ceilingPrice);
-        const newTickSize = Math.round(convertNumber(tickSize) * Math.pow(10, 2));
-        const newPrice = Math.round(+value * Math.pow(10, 2));
-        setInvalidPrice(newPrice % newTickSize !== 0);
-        setPriceModify(+value);
-    }
-
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
     }
@@ -380,6 +363,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <div className="border mb-1 d-flex">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
+                                maxLength={15}
                                 decimalScale={0} thousandSeparator=","
                                 isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                                 onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
@@ -390,7 +374,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         </div>
                     </div>
                     {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Invalid volume</div>}
-                    {isInvalidMaxQty && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>{`Quantity is exceed order quantity: ${formatNumber(maxQty)}`}</div>}
+                    {isInvalidMaxQty && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Quantity is exceed order quantity</div>}
                     {(new Decimal(calValue()).lt(new Decimal(minOrderValue))) && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='fs-px-12'>{_renderErrorMinValue()}</div>}
                 </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
@@ -411,17 +395,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
         return isDisable;
     }
-
-    const _renderBtnConfirmModifyCancelOrder = () => (
-        <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>CONFIRM</button>
-            <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
-        </div>
-    );
-
-    const _renderBtnConfirmOrder = () => (
-        <button disabled={convertNumber(calValue()) === 0} className='btn btn-primary' onClick={sendOrder}>Place</button>
-    )
 
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;

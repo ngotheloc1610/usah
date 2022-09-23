@@ -46,7 +46,7 @@ const OrderForm = (props: IOrderForm) => {
     const [isMaxOrderVol, setIsMaxOrderVol] = useState(false);
     const [floorPrice, setFloorPrice] = useState(0);
     const [ceilingPrice, setCeilingPrice] = useState(0);
-    const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
+    const [isOutOfDailyPrice, setIsOutOfDailyPrice] = useState(false);
 
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
@@ -94,11 +94,15 @@ const OrderForm = (props: IOrderForm) => {
                 if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
                 if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
                 setPrice(tempPrice);
-            } else {
-                setPrice(limitPrice);
             }
         }
     }, [orderType, currentSide, bestBidPrice, bestAskPrice, symbolCode])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_LIMIT) {
+            setPrice(limitPrice);
+        }
+    }, [orderType])
 
     useEffect(() => {
         // bug 60403
@@ -238,23 +242,21 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (price > ceilingPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
         if (price < floorPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
-        setIsShowNotiErrorPrice(false);
+        setIsOutOfDailyPrice(false);
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
-        setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+        setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
         setIsMaxOrderVol(volume > maxOrderVolume);
-    }, [price, volume])
+    }, [price, volume, minLot])
 
     useEffect(() => {
         if (symbolCode) {
-            setIsShowNotiErrorPrice(false);
-            setInvalidPrice(false);
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
@@ -287,7 +289,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor, quoteInfo, orderType])
+    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice])
     
     useEffect(() => {
         if (quoteInfo) {
@@ -307,10 +309,8 @@ const OrderForm = (props: IOrderForm) => {
                 setLimitPrice(convertNumber(quoteInfo.price))
             }
             setVolume(volume);
-            setInvalidPrice(false);
             setInvalidVolume(false);
             setIsMaxOrderVol(false);
-            setIsShowNotiErrorPrice(false);
         }
     }, [quoteInfo, orderType])
 
@@ -336,10 +336,8 @@ const OrderForm = (props: IOrderForm) => {
     
 
     useEffect(() => {
-        setIsShowNotiErrorPrice(false);
         setInvalidVolume(false);
         setIsMaxOrderVol(false);
-        setInvalidPrice(false);
     }, [symbolCode, quoteInfo])
 
     const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
@@ -384,18 +382,16 @@ const OrderForm = (props: IOrderForm) => {
     const handelLowerVolume = () => {
         setIsRenderVolume(false);
         const currentVol = Number(volume);
-        if (currentVol <= lotSize) {
-            setVolume(lotSize);
+        let newVol = currentVol - lotSize;
+        if (newVol < minLot) {
             return;
         }
-        let newVol = currentVol - lotSize;
-        if (!checkVolumeLotSize(newVol, lotSize)) {
-            const temp = new Decimal(newVol);
+        const temp = new Decimal(newVol);
 
-            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-            const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
-            newVol = convertNumber(strVol);
-        }
+        // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+        const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+        newVol = convertNumber(strVol);
+
         setVolume(newVol);
         setInvalidVolume(newVol % lotSize !== 0);
         setIsMaxOrderVol(newVol > Number(maxOrderVolume));
@@ -417,18 +413,18 @@ const OrderForm = (props: IOrderForm) => {
         setPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
-            setIsShowNotiErrorPrice(false);
+            setIsOutOfDailyPrice(false);
             return
         }
         if (newPrice > ceilingPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
         if (newPrice < floorPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
-        setIsShowNotiErrorPrice(false);
+        setIsOutOfDailyPrice(false);
 
     }
 
@@ -449,18 +445,18 @@ const OrderForm = (props: IOrderForm) => {
         }
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
-            setIsShowNotiErrorPrice(false);
+            setIsOutOfDailyPrice(false);
             return
         }
         if (newPrice > ceilingPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
         if (newPrice < floorPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
             return;
         }
-        setIsShowNotiErrorPrice(false);
+        setIsOutOfDailyPrice(false);
     }
 
     const getStatusOrderResponse = (value: number, content: string, typeStatusRes: string, msgCode: number) => {
@@ -521,7 +517,7 @@ const OrderForm = (props: IOrderForm) => {
             isInvalidMarketPrice = false;
         }
         const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '' || isInvalidMarketPrice;
-        return isDisable || isShowNotiErrorPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
+        return isDisable || isOutOfDailyPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
 
     const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
@@ -544,7 +540,7 @@ const OrderForm = (props: IOrderForm) => {
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
             convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(convertNumber(calcDefaultVolumeInput(minLot, lotSize)));
-            setIsShowNotiErrorPrice(false);
+            setIsOutOfDailyPrice(false);
             setInvalidVolume(false);
             setIsMaxOrderVol(false);
             setInvalidPrice(false);
@@ -568,22 +564,18 @@ const OrderForm = (props: IOrderForm) => {
         const price = convertNumber(value);
         setPrice(price);
         if (ceilingPrice === 0 && floorPrice === 0) {
-            setIsShowNotiErrorPrice(false);
+            setIsOutOfDailyPrice(false);
             return;
         }
         if (+price > ceilingPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
         } else if (+price < floorPrice) {
-            setIsShowNotiErrorPrice(true);
+            setIsOutOfDailyPrice(true);
         } else {
-            setIsShowNotiErrorPrice(false);
+            setIsOutOfDailyPrice(false);
         }
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
     }
-
-    const _renderNotiErrorPrice = () => (
-        <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
-    )
 
     const disableChangeValueBtn = (symbolCode: string | undefined) => {
         if (symbolCode) {
@@ -602,6 +594,7 @@ const OrderForm = (props: IOrderForm) => {
                 <div className='flex-grow-1 py-1 px-2' onKeyDown={handleKeyDown}>
                     <label className="text text-secondary">{title}</label>
                     <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" 
+                        maxLength={15}
                         className='form-control text-end border-0 p-0 fs-5 lh-1 fw-600'
                         thousandSeparator="," value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
@@ -613,7 +606,9 @@ const OrderForm = (props: IOrderForm) => {
                     <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && _renderNotiErrorPrice()}
+            {isOutOfDailyPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && 
+                <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
+            }
             {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid Price</div>}
             {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid volume</div>}
             {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume?.toString())}</div>}
@@ -633,7 +628,7 @@ const OrderForm = (props: IOrderForm) => {
         >Reset</button>
     )
 
-    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price?.toString(), handleUpperPrice, handleLowerPrice), [price, isShowNotiErrorPrice, invalidPrice, isAllowed, orderType])
+    const _renderPriceInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price?.toString(), handleUpperPrice, handleLowerPrice), [price, isOutOfDailyPrice, invalidPrice, isAllowed, orderType])
 
     const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume?.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
 
