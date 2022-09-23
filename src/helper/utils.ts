@@ -342,22 +342,35 @@ export const renderSideText = (side: number) => {
 // Eg: checkVolumeLotSize(100, 5) => true
 //     checkVolumeLotSize(101, 5) => false
 export const checkVolumeLotSize = (placeVol: any, lotSize: any) => {
-    const tempVol = new Decimal(placeVol);
-    return tempVol.modulo(lotSize).equals('0');
+    // NOTE: use convertNumber function to avoid lotSize is empty.
+    // When lotSize is empty, new Decimal(lotSize) is exception
+    if (lotSize && convertNumber(lotSize) !== 0) {
+        const tempVol = new Decimal(placeVol);
+        return tempVol.modulo(lotSize).equals('0');
+    }
+    return false;
 }
 
 // NOTE: calc default volume input
 // Eg: calcDefaultVolumeInput(101, 5) => '105'
 //     calcDefaultVolumeInput(100, 5) => '100'
 export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
-    const tempMinLot = new Decimal(minLot);
-    return tempMinLot.dividedBy(lotSize).ceil().mul(lotSize).toString();
+    // NOTE: use convertNumber function to avoid lotSize is empty.
+    // When lotSize is empty, new Decimal(lotSize) is exception
+    if (lotSize && convertNumber(lotSize) !== 0) {
+        const tempMinLot = new Decimal(minLot);
+        return tempMinLot.dividedBy(lotSize).ceil().mul(lotSize).toString();
+    }
+    return '0';
 }
 
 // NOTE: check invalid TickSize. PricePlace must be divisible by TickSize
 // Eg: checkPriceTickSize(182.31, 0.03) => true
 //     checkPriceTickSize(182.32, 0.03) => false
 export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
-    const tempPlacePrice = new Decimal(placePrice);
-    return tempPlacePrice.modulo(tickSize).equals('0');
+    if (tickSize && convertNumber(tickSize) !== 0) {
+        const tempPlacePrice = new Decimal(placePrice?.toFixed(2));
+        return tempPlacePrice.modulo(tickSize?.toFixed(2)).equals('0');
+    }
+    return false;
 }

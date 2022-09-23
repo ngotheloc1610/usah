@@ -66,8 +66,8 @@ const MultipleOrders = () => {
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
-    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
-    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
+    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
 
     const systemModelPb: any = smpb;
 
@@ -1032,7 +1032,7 @@ const MultipleOrders = () => {
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
             {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end fs-px-13'>Invalid Price</div>}
             {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end fs-px-13'>Invalid quantity</div>}
-            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-13'>Quantity is exceed max order quantity: {maxOrderVolume}</div>}
+            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume)}</div>}
         </>
 
     )
@@ -1322,10 +1322,10 @@ const MultipleOrders = () => {
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume)}
 
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
-                        <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_ASK}</div>
+                        <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_ASK}</div>
                     }
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
-                        <div className='text-danger fs-px-13'>{MESSAGE_EMPTY_BID}</div>
+                        <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
                     }
 
                     <div className="border-top">
