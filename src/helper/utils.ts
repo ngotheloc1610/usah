@@ -73,7 +73,7 @@ export const removeFocusInput = (element: any) => {
 }
 
 export const getSymbolCode = (str: string) => {
-    const newArr = str.split('-');
+    const newArr = str.split(' - ');
     const symbolCode = newArr[0].trim();
     return symbolCode ?? ''
 }
@@ -138,7 +138,7 @@ export const assignListPrice = (prvList, currentList, type: string) => {
 }
 
 export const checkValue = (preValue, currentValue) => {
-    if (currentValue !== preValue && currentValue.toString() !== '' && currentValue.toString() !== '-') {
+    if (currentValue !== preValue && currentValue?.toString() !== '' && currentValue?.toString() !== '-') {
         return currentValue;
     }
     return preValue;

@@ -4,7 +4,7 @@ import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookL
 import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IListTradeHistory, IStyleBidsAsk, ISymbolInfo, ISymbolQuote, ITickerInfo } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IListTradeHistory, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
@@ -13,13 +13,12 @@ import { wsService } from "../../../services/websocket-service";
 import './OrderBookCommon.scss';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
-import { SOCKET_CONNECTED, LIST_TICKER_INFO, ACCOUNT_ID, LIST_PRICE_TYPE, SOCKET_RECONNECTED, FORMAT_DATE, FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
-import { ITickerDetail } from '../../../interfaces/ticker.interface';
+import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE, SOCKET_RECONNECTED, FORMAT_DATE, FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_STYLE_LAYOUT, DEFAULT_TICKER_INFO } from '../../../mocks';
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_STYLE_LAYOUT } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
-import { assignListPrice, calcChange, calcPctChange, checkValue, convertDatetoTimeStamp, convertNumber, getSymbolCode, toTimestamp } from '../../../helper/utils';
+import { assignListPrice, checkValue, convertDatetoTimeStamp, getSymbolCode } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { chooseLayoutOrderBook } from '../../../redux/actions/User'
 import moment from 'moment';
@@ -48,7 +47,6 @@ const OrderBookCommon = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>(0);
     const [itemTickerInfor, setItemTickerInfor] = useState<ISymbolInfo>();
-    const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'))
     const [itemTickerDetail, setItemTickerDetail] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
@@ -62,6 +60,10 @@ const OrderBookCommon = () => {
     const currentDate = moment().format(FORMAT_DATE);
     const timeFrom = convertDatetoTimeStamp(currentDate, FROM_DATE_TIME);
     const timeTo = convertDatetoTimeStamp(currentDate, TO_DATE_TIME);
+
+    const listTicker = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+
+    const [symbolSelected, setSymbolSelected] = useState(`${listTicker[0]?.symbolCode} - ${listTicker[0]?.symbolName}`);
 
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
@@ -112,15 +114,6 @@ const OrderBookCommon = () => {
             }
         });
 
-        const unsubscribeTrade = wsService.getUnsubscribeTradeSubject().subscribe(resp => {
-        });
-
-        const subscribeTradeRes = wsService.getSubscribeTradeSubject().subscribe(resp => {
-        });
-
-        const subscribeQuote = wsService.getSubscribeQuoteSubject().subscribe(resp => {
-        });
-
         const quotes = wsService.getQuoteSubject().subscribe(resp => {
             if (resp && resp.quoteList) {
                 setQuoteEvent(resp.quoteList);
@@ -139,10 +132,7 @@ const OrderBookCommon = () => {
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
             unsubscribeQuote.unsubscribe();
-            subscribeQuote.unsubscribe();
             quotes.unsubscribe();
-            unsubscribeTrade.unsubscribe();
-            subscribeTradeRes.unsubscribe();
             trade.unsubscribe();
         }
     }, []);
@@ -291,20 +281,30 @@ const OrderBookCommon = () => {
     }
 
     const getTickerSearch = (value: string) => {
-        const symbolCode = value !== undefined ? getSymbolCode(value) : '';
-        setSymbolSearch(symbolCode);
-        setTickerSelect(symbolCode);
-        assignTickerToOrderForm(symbolCode);
-        const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode.toUpperCase());
+        if (!value) {
+            setSymbolSearch('');
+            setTickerSelect('');
+            setSymbolSelected('');
+            return;
+        }
+        const txtSearch = value !== undefined ? getSymbolCode(value) : '';
+        setSymbolSelected(value);
+        const itemTickerInfor = listTicker.find(item => item.symbolCode === txtSearch.toUpperCase() || item.symbolName === txtSearch);
+        if (itemTickerInfor) {
+            setSymbolSearch(itemTickerInfor?.symbolCode);
+            setTickerSelect(itemTickerInfor?.symbolCode);
+            assignTickerToOrderForm(itemTickerInfor?.symbolCode);
+            subscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
+            subscribeTradeEvent(itemTickerInfor?.symbolCode || '');
+            getTradeHistory(itemTickerInfor?.symbolCode || '');
+            setSymbolSearch(itemTickerInfor?.symbolCode || '');
+        }
 
         if (symbolSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
             unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
         }
-        subscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
-        subscribeTradeEvent(itemTickerInfor?.symbolCode || '');
-        getTradeHistory(itemTickerInfor?.symbolCode || '');
-        setSymbolSearch(itemTickerInfor?.symbolCode || '');
+        
         setItemTickerInfor(itemTickerInfor);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
@@ -320,14 +320,20 @@ const OrderBookCommon = () => {
 
     const handleKeyUp = (event: any) => {
         if (event.key === 'Enter') {
-            const symbolCode = event.target.value ? getSymbolCode(event.target.value) : '';
-            const itemTickerInfor = listTicker.find(item => item.symbolCode === symbolCode);
-            setSymbolSearch(symbolCode);
-            setTickerSelect(symbolCode);
-            setItemTickerInfor(itemTickerInfor);
-            setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
-            getTickerSearch(symbolCode)
-            searchTicker()
+            const txtSearch = event.target.value ? getSymbolCode(event.target.value) : '';
+            const itemTickerInfor = listTicker.find(item => item.symbolCode === txtSearch || item.symbolName === txtSearch);
+            if (itemTickerInfor) {
+                setSymbolSearch(itemTickerInfor?.symbolCode);
+                setTickerSelect(itemTickerInfor?.symbolCode);
+                setItemTickerInfor(itemTickerInfor);
+                setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
+                getTickerSearch(itemTickerInfor?.symbolCode)
+                setSymbolSelected(`${itemTickerInfor?.symbolCode} - ${itemTickerInfor?.symbolName}`)
+            } else {
+                setSymbolSearch('');
+                setTickerSelect('');
+                setSymbolSelected('');
+            }
         }
     }
 
@@ -422,7 +428,7 @@ const OrderBookCommon = () => {
                         onKeyUp={handleKeyUp}
                         disablePortal
                         options={listSymbolCode}
-                        defaultValue={listTicker.length > 0 ? `${listTicker[0].symbolCode} - ${listTicker[0].symbolName}` : ''}
+                        value={symbolSelected}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />

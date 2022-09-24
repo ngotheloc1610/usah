@@ -99,7 +99,8 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                     open: checkValue(temp?.open, quotes[index]?.open),
                     quoteTime: checkValue(temp?.quoteTime, quotes[index]?.quoteTime),
                     scale: checkValue(temp?.scale, quotes[index]?.scale),
-                    tickPerDay: checkValue(temp?.tickPerDay, quotes[index]?.tickPerDay)
+                    tickPerDay: checkValue(temp?.tickPerDay, quotes[index]?.tickPerDay),
+                    volumePerDay: checkValue(temp?.volumePerDay, quotes[index]?.volumePerDay)
                 };
                 setTickerInfo(temp);
             }
@@ -120,7 +121,8 @@ const OrderBookTickerDetail = (props: IPropsDetail) => {
                         open: checkValue(tempLastQuote[idx]?.open, item?.open),
                         quoteTime: checkValue(tempLastQuote[idx]?.quoteTime, item?.quoteTime),
                         scale: checkValue(tempLastQuote[idx]?.scale, item?.scale),
-                        tickPerDay: checkValue(tempLastQuote[idx]?.tickPerDay, item?.tickPerDay)
+                        tickPerDay: checkValue(tempLastQuote[idx]?.tickPerDay, item?.tickPerDay),
+                        volumePerDay: checkValue(tempLastQuote[idx]?.volumePerDay, item?.volumePerDay)
                     }
                 }
             });
