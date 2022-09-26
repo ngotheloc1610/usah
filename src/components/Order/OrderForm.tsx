@@ -102,7 +102,7 @@ const OrderForm = (props: IOrderForm) => {
         if (orderType === tradingModel.OrderType.OP_LIMIT) {
             setPrice(limitPrice);
         }
-    }, [orderType])
+    }, [orderType, limitPrice])
 
     useEffect(() => {
         // bug 60403
@@ -411,6 +411,7 @@ const OrderForm = (props: IOrderForm) => {
             newPrice = convertNumber(strPrice);
         }
         setPrice(newPrice);
+        setLimitPrice(newPrice);
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
             setIsOutOfDailyPrice(false);
@@ -442,6 +443,7 @@ const OrderForm = (props: IOrderForm) => {
         }
         if (newPrice > 0) {
             setPrice(newPrice);
+            setLimitPrice(newPrice);
         }
         setValidForm(newPrice > 0 && volume > 0);
         if (ceilingPrice === 0 && floorPrice === 0) {
@@ -563,6 +565,7 @@ const OrderForm = (props: IOrderForm) => {
         setIsRenderPrice(false);
         const price = convertNumber(value);
         setPrice(price);
+        setLimitPrice(price);
         if (ceilingPrice === 0 && floorPrice === 0) {
             setIsOutOfDailyPrice(false);
             return;
