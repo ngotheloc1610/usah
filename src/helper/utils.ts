@@ -8,6 +8,7 @@ import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
 import Decimal from 'decimal.js';
+import { INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE } from '../constants/order.constant';
 
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
@@ -322,6 +323,9 @@ export const handleAllowedInput = (value: string, isAllowed: boolean) => {
 export const checkMessageError = (msg: string, msgCode: number) => {
     if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY) {
         return msg;
+    }
+    if (msgCode === systemModel.MsgCode.MT_RET_REQUEST_INVALID_VOLUME) {
+        return INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE;
     }
     const messageDisplay = MESSAGE_ERROR.get(msgCode);
     return messageDisplay || msg;
