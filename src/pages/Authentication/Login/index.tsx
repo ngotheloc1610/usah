@@ -188,7 +188,7 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="mt-1">
-                                        <a className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase btn-login mb-2 unclick" onClick={handleSubmit}><strong>Login</strong></a>
+                                        <button disabled={email?.trim() === '' || password?.trim() === ''} className="btn btn-primary w-100 text-uppercase btn-login mb-2 pt-2 pb-2" onClick={handleSubmit}><strong>Login</strong></button>
                                         <p className="text-center"><a href={`${process.env.PUBLIC_URL}/forgot-password`}>Forgot Password</a></p>
                                     </div>
                                 </div>
