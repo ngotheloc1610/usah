@@ -72,8 +72,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
         convertNumber(onlyNumberVolumeChange) > convertNumber(params.volume) ? setIsDisableInput(true) : setIsDisableInput(false);
         setVolumeModify(onlyNumberVolumeChange);
+        
+        const tempVolumeChange = convertNumber(onlyNumberVolumeChange).toString();
 
-        setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(onlyNumberVolumeChange)));
+        setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -259,7 +261,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             const temp = new Decimal(newVol);
 
             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-            const strVol = temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+            const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
             newVol = convertNumber(strVol);
         }
         setVolumeModify(newVol.toString());
@@ -276,7 +278,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             const temp = new Decimal(newVol);
 
             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-            const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+            const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
             newVol = convertNumber(strVol);
         }
         setVolumeModify(newVol.toString());
@@ -366,7 +368,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 maxLength={15}
                                 decimalScale={0} thousandSeparator=","
                                 isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
-                                onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                                onValueChange={(e) => handleVolumeModify(e.value)} value={volumeModify !== '' ? formatNumber(volumeModify.replaceAll(',', '')) : ''} />
                         </div>
                         <div className="border-start d-flex flex-column">
                             <button disabled={btnDisableVolume()} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>

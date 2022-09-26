@@ -370,7 +370,7 @@ const OrderForm = (props: IOrderForm) => {
             const temp = new Decimal(newVol);
 
             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-            const strVol = temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+            const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
             newVol = convertNumber(strVol);
         }
         setVolume(newVol);
@@ -389,7 +389,7 @@ const OrderForm = (props: IOrderForm) => {
         const temp = new Decimal(newVol);
 
         // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-        const strVol = temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+        const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
         newVol = convertNumber(strVol);
 
         setVolume(newVol);
@@ -407,7 +407,7 @@ const OrderForm = (props: IOrderForm) => {
             const temp = new Decimal(newPrice);
 
             // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
-            const strPrice = temp.dividedBy(tickSize).floor().mul(tickSize).toString();
+            const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).floor().mul(tickSize).toString();
             newPrice = convertNumber(strPrice);
         }
         setPrice(newPrice);
@@ -437,7 +437,7 @@ const OrderForm = (props: IOrderForm) => {
             const temp = new Decimal(newPrice);
 
             // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
-            const strPrice = temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
+            const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
             newPrice = convertNumber(strPrice);
         }
         if (newPrice > 0) {
