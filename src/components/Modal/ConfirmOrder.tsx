@@ -434,8 +434,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <div className='col-6'><b className='text-truncate'>Indicative Gross Value</b></div>
                         <div className='text-end col-6'>{formatCurrency(calValue())}</div>
                     </div>
-                    <div className='fs-px-12 text-left mt-px-5'>(*Market prices may change)</div>
-                    <div className='fs-px-12 text-left text-danger mt-px-10'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
+                    {!isModify && !isCancel && <>
+                        <div className='fs-px-12 text-left mt-px-5'>(*Market prices may change)</div>
+                        <div className='fs-px-12 text-left text-danger mt-px-10'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
+                    </>}
                 </>
             }
         </>
