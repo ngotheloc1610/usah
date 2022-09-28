@@ -344,7 +344,7 @@ export const renderSideText = (side: number) => {
 export const checkVolumeLotSize = (placeVol: any, lotSize: any) => {
     // NOTE: use convertNumber function to avoid lotSize is empty.
     // When lotSize is empty, new Decimal(lotSize) is exception
-    if (lotSize && convertNumber(lotSize) !== 0) {
+    if (lotSize && convertNumber(lotSize) !== 0 && placeVol?.toString()?.trim() !== '') {
         const tempVol = new Decimal(placeVol);
         return tempVol.modulo(lotSize).equals('0');
     }
@@ -368,7 +368,7 @@ export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
 // Eg: checkPriceTickSize(182.31, 0.03) => true
 //     checkPriceTickSize(182.32, 0.03) => false
 export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
-    if (tickSize && convertNumber(tickSize) !== 0) {
+    if (tickSize && convertNumber(tickSize) !== 0 && placePrice?.toString()?.trim() !== '') {
         const tempPlacePrice = new Decimal(placePrice?.toFixed(2));
         return tempPlacePrice.modulo(tickSize?.toFixed(2)).equals('0');
     }
