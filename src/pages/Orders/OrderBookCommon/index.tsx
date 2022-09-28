@@ -285,6 +285,7 @@ const OrderBookCommon = () => {
             setSymbolSearch('');
             setTickerSelect('');
             setSymbolSelected('');
+            setItemTickerInfor(undefined);
             return;
         }
         const txtSearch = value !== undefined ? getSymbolCode(value) : '';
@@ -304,7 +305,7 @@ const OrderBookCommon = () => {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
             unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
         }
-        
+
         setItemTickerInfor(itemTickerInfor);
         setSymbolId(itemTickerInfor ? itemTickerInfor.symbolId : 0);
     }
