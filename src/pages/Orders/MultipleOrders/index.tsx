@@ -503,59 +503,63 @@ const MultipleOrders = () => {
     }
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.ticker);
-        const celling = getCelling(itemSymbol.ticker);
-        const floorPrice = getFloor(itemSymbol.ticker);
-        let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
-        if (newValue > celling) {
-            newValue = celling;
-        } else if (newValue < floorPrice) {
-            newValue = floorPrice;
-        }
+        if (itemSymbol?.orderType === tradingModel.OrderType.OP_LIMIT) {
+            const tickSize = getTickSize(itemSymbol.ticker);
+            const celling = getCelling(itemSymbol.ticker);
+            const floorPrice = getFloor(itemSymbol.ticker);
+            let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
+            if (newValue > celling) {
+                newValue = celling;
+            } else if (newValue < floorPrice) {
+                newValue = floorPrice;
+            }
 
-        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+            listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
 
-        const listOrder = [...listTickers];
-        setListTickers(listOrder);
+            const listOrder = [...listTickers];
+            setListTickers(listOrder);
 
-        if (listSelected.length > 0) {
-            const temps = [...listSelected];
-            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
-            if (idx >= 0) {
-                temps[idx] = {
-                    ...temps[idx],
-                    price: newValue.toString()
+            if (listSelected.length > 0) {
+                const temps = [...listSelected];
+                const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+                if (idx >= 0) {
+                    temps[idx] = {
+                        ...temps[idx],
+                        price: newValue.toString()
+                    }
+                    setListSelected(temps);
                 }
-                setListSelected(temps);
             }
         }
     }
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.ticker);
-        const celling = getCelling(itemSymbol.ticker);
-        const floorPrice = getFloor(itemSymbol.ticker);
-        let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
-        if (newValue > celling) {
-            newValue = celling;
-        } else if (newValue < floorPrice) {
-            newValue = floorPrice;
-        }
+        if (itemSymbol?.orderType === tradingModel.OrderType.OP_LIMIT) {
+            const tickSize = getTickSize(itemSymbol.ticker);
+            const celling = getCelling(itemSymbol.ticker);
+            const floorPrice = getFloor(itemSymbol.ticker);
+            let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
+            if (newValue > celling) {
+                newValue = celling;
+            } else if (newValue < floorPrice) {
+                newValue = floorPrice;
+            }
 
-        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+            listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
 
-        const listOrder = [...listTickers];
-        setListTickers(listOrder);
+            const listOrder = [...listTickers];
+            setListTickers(listOrder);
 
-        if (listSelected.length > 0) {
-            const temps = [...listSelected];
-            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
-            if (idx >= 0) {
-                temps[idx] = {
-                    ...temps[idx],
-                    price: newValue.toString()
+            if (listSelected.length > 0) {
+                const temps = [...listSelected];
+                const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+                if (idx >= 0) {
+                    temps[idx] = {
+                        ...temps[idx],
+                        price: newValue.toString()
+                    }
+                    setListSelected(temps);
                 }
-                setListSelected(temps);
             }
         }
     }
@@ -699,7 +703,7 @@ const MultipleOrders = () => {
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
                             thousandSeparator=","
-                            value={(convertNumber(item.price?.replaceAll(',','')) === 0 || item.orderType === tradingModel.OrderType.OP_MARKET) ? null : formatCurrency(item.price?.replaceAll(',', ''))}
+                            value={(convertNumber(item.price?.replaceAll(',','')) === 0 || item.orderType === tradingModel.OrderType.OP_MARKET) ? '' : formatCurrency(item.price?.replaceAll(',', ''))}
                             placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
