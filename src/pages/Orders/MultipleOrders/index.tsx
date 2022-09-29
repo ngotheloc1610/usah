@@ -398,7 +398,7 @@ const MultipleOrders = () => {
         const price = convertNumber(value)
         const tickSize = getTickSize(itemSymbol.ticker);
         let newValue = '';
-        if (price > 0) {
+        if (price > 0 || itemSymbol?.orderType === tradingModel.OrderType.OP_MARKET) {
             newValue = price.toString();
         } else {
             newValue = tickSize.toString();
