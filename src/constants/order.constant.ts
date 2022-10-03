@@ -16,3 +16,8 @@ export const TYPE_ORDER_RES = {
     Order: 'Order',
     Modify: 'Modify',
 }
+
+export const MESSAGE_EMPTY_ASK = 'No Ask Volume in queue, please use Limit order type';
+export const MESSAGE_EMPTY_BID = 'No Bid Volume in queue, please use Limit order type';
+
+export const INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE = 'Insufficient liquidity for this trade';

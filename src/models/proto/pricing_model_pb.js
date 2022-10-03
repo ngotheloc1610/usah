@@ -122,7 +122,11 @@ proto.Band.toObject = function(includeInstance, msg) {
     price: jspb.Message.getFieldWithDefault(msg, 1, ""),
     volume: jspb.Message.getFieldWithDefault(msg, 2, ""),
     tradable: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
-    numOrders: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    numOrders: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    retailVolume: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    retailNumOrders: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    lpVolume: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    lpNumOrders: jspb.Message.getFieldWithDefault(msg, 8, 0)
   };
 
   if (includeInstance) {
@@ -174,6 +178,22 @@ proto.Band.deserializeBinaryFromReader = function(msg, reader) {
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setNumOrders(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setRetailVolume(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setRetailNumOrders(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setLpVolume(value);
+      break;
+    case 8:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setLpNumOrders(value);
       break;
     default:
       reader.skipField();
@@ -229,6 +249,34 @@ proto.Band.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt64(
       4,
+      f
+    );
+  }
+  f = message.getRetailVolume();
+  if (f !== 0) {
+    writer.writeInt64(
+      5,
+      f
+    );
+  }
+  f = message.getRetailNumOrders();
+  if (f !== 0) {
+    writer.writeInt64(
+      6,
+      f
+    );
+  }
+  f = message.getLpVolume();
+  if (f !== 0) {
+    writer.writeInt64(
+      7,
+      f
+    );
+  }
+  f = message.getLpNumOrders();
+  if (f !== 0) {
+    writer.writeInt64(
+      8,
       f
     );
   }
@@ -304,6 +352,78 @@ proto.Band.prototype.getNumOrders = function() {
  */
 proto.Band.prototype.setNumOrders = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional int64 retail_volume = 5;
+ * @return {number}
+ */
+proto.Band.prototype.getRetailVolume = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Band} returns this
+ */
+proto.Band.prototype.setRetailVolume = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
+ * optional int64 retail_num_orders = 6;
+ * @return {number}
+ */
+proto.Band.prototype.getRetailNumOrders = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Band} returns this
+ */
+proto.Band.prototype.setRetailNumOrders = function(value) {
+  return jspb.Message.setProto3IntField(this, 6, value);
+};
+
+
+/**
+ * optional int64 lp_volume = 7;
+ * @return {number}
+ */
+proto.Band.prototype.getLpVolume = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Band} returns this
+ */
+proto.Band.prototype.setLpVolume = function(value) {
+  return jspb.Message.setProto3IntField(this, 7, value);
+};
+
+
+/**
+ * optional int64 lp_num_orders = 8;
+ * @return {number}
+ */
+proto.Band.prototype.getLpNumOrders = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Band} returns this
+ */
+proto.Band.prototype.setLpNumOrders = function(value) {
+  return jspb.Message.setProto3IntField(this, 8, value);
 };
 
 

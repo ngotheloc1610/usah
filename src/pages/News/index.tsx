@@ -239,7 +239,7 @@ const News = () => {
                 </div>
                 <div className="item-content">
                     <h6 className="item-title mb-0">{item?.newsTitle}</h6>
-                    <div className="item-summary opacity-75 fix-line-css">{parse(item?.newsContent)}</div>
+                    <div className="item-summary opacity-75 fix-line-css annoucement-notice">{parse(item?.newsContent)}</div>
                 </div>
             </div>
 

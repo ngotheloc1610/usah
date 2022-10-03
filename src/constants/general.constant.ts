@@ -76,6 +76,22 @@ export const STATE_HISTORY_SEARCH = [
         code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
     }
 ];
+
+export const ORDER_TYPE_SEARCH = [
+    {
+        name: 'All',
+        code: tradingModelPb.OrderType.NONE
+    },
+    {
+        name: 'Market',
+        code: tradingModelPb.OrderType.OP_MARKET
+    },
+    {
+        name: 'Limit',
+        code: tradingModelPb.OrderType.OP_LIMIT
+    }
+]
+
 export const INVALID_DATE = 'Invalid date';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';
@@ -115,16 +131,23 @@ export const TITLE_CONFIRM = {
     newOrder: 'New Order Confirmation'
 };
 
-export const ORDER_TYPE = [
-    { id: 1, name: 'Limit' }
-];
+export const ORDER_TYPE = new Map([
+    [tradingModelPb.OrderType.OP_LIMIT, 'Limit' ],
+    [tradingModelPb.OrderType.OP_MARKET, 'Market']
+]);
 
 export const ORDER_TYPE_NAME = {
     limit: 'Limit'
 };
 
 export const KEY_LOCAL_STORAGE = {
-    AUTHEN: 'lp_objAuthen'
+    AUTHEN: 'lp_objAuthen',
+    START_LOAD: 'startLoad',
+    END_LOAD: 'endLoad'
+};
+
+export const KEY_SESSION_STORAGE = {
+    SESSION: 'lp_session'
 };
 
 export const MODIFY_CANCEL_STATUS = {
@@ -220,7 +243,8 @@ export enum TITLE_ORDER_CONFIRM {
     VOLUME = 'Volume',
     QUANLITY = 'Quantity',
     PRICE = 'Price',
-    VALUE = 'Value'
+    VALUE = 'Value',
+    ORDER_TYPE = 'Order Type'
 };
 
 export const CURRENCY = {

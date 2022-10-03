@@ -82,6 +82,7 @@ message GetOrderHistoryRequest {
 	OrderState order_state = 5;
 	int64 account_id = 6;
 	Side side = 7;
+	string pspl_account_no = 8; //Send accountNo when request order history in remisier
 }
 
 message GetOrderHistoryResponse {
@@ -100,6 +101,18 @@ message SymbolUpdateResponse {
 	// TODO: Check response detail
 	MsgCode msg_code = 1;
 	string msg_text	= 2;
+}
+
+message GetOrderStatusRequest {
+	int64 account_id = 1;
+	string symbol_code = 2;
+	string order_id = 3;
+}
+
+message GetOrderStatusResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	Order order = 3;
 }
 
 

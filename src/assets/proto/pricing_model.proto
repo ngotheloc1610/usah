@@ -2,9 +2,15 @@ syntax = "proto3";
 
 message Band {
   string price = 1;
-  string volume = 2;
+  string volume = 2; // total volume
   bool tradable = 3;
-  int64 num_orders = 4;
+  int64 num_orders = 4; // total num orders
+
+  int64 retail_volume = 5; // Retail volume
+  int64 retail_num_orders = 6; // Retail num orders
+
+  int64 lp_volume = 7; // LP volume
+  int64 lp_num_orders = 8; // LP num orders
 }
 
 message Quote {

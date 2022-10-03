@@ -11,7 +11,7 @@ import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
-import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../../helper/utils'
+import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
 import { IQuoteEvent } from '../../../interfaces/quotes.interface'
 
 const OrderNew = () => {
@@ -30,9 +30,7 @@ const OrderNew = () => {
         tickSize: '',
     }
 
-    const defaultLastQuotesData: ILastQuote[] = []
-
-    const [lastQuotes, setLastQuotes] = useState(defaultLastQuotesData)
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([])
     const [currentTicker, setCurrentTicker] = useState(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
@@ -69,6 +67,11 @@ const OrderNew = () => {
         return () => lastQuotesRes.unsubscribe();
 
     }, [currentTickerSearch])
+
+    // NOTE: when change symbol => refresh order form
+    useEffect(() => {
+        setQuoteInfo(undefined);
+    }, [symbolCode])
 
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;
