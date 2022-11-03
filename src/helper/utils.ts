@@ -378,3 +378,17 @@ export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
     }
     return false;
 }
+
+export const stripHtmlTagsFromString = (content: string) => {
+    if (content) {
+        return content.replace(/<\/?[^>]+(>|$)/g, "");
+    }
+    return "";
+}
+
+export const formatDate = (datetime) => {
+    if (datetime !== null && datetime !== "") {
+        let mDateStr = moment(datetime).format("MMM DD YYYY HH:mm:ss");
+        return mDateStr;
+    } return null;
+}
