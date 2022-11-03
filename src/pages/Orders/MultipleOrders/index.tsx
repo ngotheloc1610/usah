@@ -712,8 +712,8 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                <td className="text-end">
-                    <div title={item?.message?.toUpperCase()} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
+                <td className="text-end" style={{maxWidth: '300px'}}>
+                    <div title={_renderMessageError(item)} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
                         {_renderMessageError(item)}
                     </div>
                 </td>
@@ -842,20 +842,45 @@ const MultipleOrders = () => {
         const list = [...listTickers];
         for (let i = 1; i < dataStringLines.length; i++) {
             const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-            if (headers && row.length == headers.length) {
+            if (headers && row.length === headers.length) {
                 const obj: any = {};
                 for (let j = 0; j < headers.length; j++) {
                     let d = row[j];
                     if (d.length > 0) {
-                        if (d[0] == '"')
+                        if (d[0] === '"')
                             d = d.substring(1, d.length - 1);
-                        if (d[d.length - 1] == '"')
+                        if (d[d.length - 1] === '"')
                             d = d.substring(d.length - 2, 1);
                     }
                     if (headers[j]) {
                         obj[headers[j].replaceAll(' ', '')] = d;
                     }
                 }
+                if (obj?.Ticker === undefined) {
+                    toast.error("Invalid file template. File don't have Ticker Field");
+                    return;
+                }
+
+                if (obj?.OrderSide === undefined) {
+                    toast.error("Invalid file template. File don't have OrderSide Field");
+                    return;
+                }
+
+                if (obj?.OrderType === undefined) {
+                    toast.error("Invalid file template. File don't have OrderType Field");
+                    return;
+                }
+
+                if (obj?.Price === undefined) {
+                    toast.error("Invalid file template. File don't have Price Field");
+                    return;
+                }
+
+                if (obj?.Quantity === undefined) {
+                    toast.error("Invalid file template. File don't have Quantity Field");
+                    return;
+                }
+
                 if (!checkSymbol(obj.Ticker)) {
                     toast.error("Symbol don't exist");
                     return;
