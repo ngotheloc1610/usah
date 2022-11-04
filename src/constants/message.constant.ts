@@ -41,7 +41,7 @@ export const MESSAGE_ERROR = new Map([
   
   export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}`;
 
-  export const INSUFFICIENT_QUANTITY_FOR_THIS_TRADE = 'Insufficient quantity for this trade';
+  export const INSUFFICIENT_QUANTITY_FOR_THIS_TRADE = 'INSUFFICIENT QUANTITY FOR THIS TRADE';
 
   export const MESSAGE_ERROR_API = {
     ERROR_SUSPEND_ACCOUNT: "Account suspended"
