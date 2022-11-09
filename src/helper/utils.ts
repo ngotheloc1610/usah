@@ -392,3 +392,18 @@ export const formatDate = (datetime) => {
         return mDateStr;
     } return null;
 }
+
+export const getExtensionFile = (fileName: string) => {
+    if (fileName) {
+        const ext = fileName?.split('.').pop();
+        if (ext === fileName) return '';
+        return `.${ext}`;
+    }
+    return '';
+}
+
+export const hasDuplicates = (strArr: string[]) => {
+    return strArr.some(function(item) {
+        return strArr.indexOf(item) !== strArr.lastIndexOf(item);
+    })
+}
