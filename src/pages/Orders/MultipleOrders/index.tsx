@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize, getExtensionFile, hasDuplicates } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -669,6 +669,15 @@ const MultipleOrders = () => {
         return idx >= 0;
     }
 
+    const checkEmptyMarketQtySymbol = (symbolCode: string, side: number) => {
+        const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
+        if (lastQuoteInfo) {
+            if (side === tradingModel.Side.BUY) return lastQuoteInfo.asksList.length === 0;
+            if (side === tradingModel.Side.SELL) return lastQuoteInfo.bidsList.length === 0;
+        }
+        return false;
+    }
+
     const _renderDataMultipleOrders = () => {
         return listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
@@ -712,7 +721,7 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                <td className="text-end" style={{maxWidth: '300px'}}>
+                <td className="text-end" style={{maxWidth: '400px'}}>
                     <div title={_renderMessageError(item)} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
                         {_renderMessageError(item)}
                     </div>
@@ -722,7 +731,17 @@ const MultipleOrders = () => {
     }
 
     const _renderMessageError = (item: any) => {
-        if (item?.msgCode === systemModelPb.MsgCode.MT_RET_REQUEST_INVALID_FILL && orderType === tradingModel.OrderType.OP_MARKET) {
+        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY 
+            && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
+            return MESSAGE_EMPTY_ASK;
+        }
+
+        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.SELL
+            && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
+            return MESSAGE_EMPTY_BID;
+        }
+
+        if (item?.msgCode === systemModelPb.MsgCode.MT_RET_REQUEST_INVALID_FILL && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
         }
         if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
@@ -838,7 +857,10 @@ const MultipleOrders = () => {
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-
+        if (hasDuplicates(headers)) {
+            toast.error("Invalid file template. File has duplicated fields");
+            return;
+        }
         const list = [...listTickers];
         for (let i = 1; i < dataStringLines.length; i++) {
             const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -880,7 +902,7 @@ const MultipleOrders = () => {
                     toast.error("Invalid file template. File don't have Quantity Field");
                     return;
                 }
-
+                
                 if (!checkSymbol(obj.Ticker)) {
                     toast.error("Symbol don't exist");
                     return;
@@ -960,7 +982,13 @@ const MultipleOrders = () => {
     }
 
     const handleFileUpload = (event: any) => {
+        const acceptedFiles = event.target.accept?.split(',');
         const file = event.target.files[0];
+        const extend = getExtensionFile(file?.name);
+        if (!acceptedFiles.includes(extend)) {
+            toast.error("Invalid file format");
+            return;
+        }
         const reader = new FileReader();
         reader.onload = (evt: any) => {
             /* Parse data */
