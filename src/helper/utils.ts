@@ -378,3 +378,32 @@ export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
     }
     return false;
 }
+
+export const stripHtmlTagsFromString = (content: string) => {
+    if (content) {
+        return content.replace(/<\/?[^>]+(>|$)/g, "");
+    }
+    return "";
+}
+
+export const formatDate = (datetime) => {
+    if (datetime !== null && datetime !== "") {
+        let mDateStr = moment(datetime).format("MMM DD YYYY HH:mm:ss");
+        return mDateStr;
+    } return null;
+}
+
+export const getExtensionFile = (fileName: string) => {
+    if (fileName) {
+        const ext = fileName?.split('.').pop();
+        if (ext === fileName) return '';
+        return `.${ext}`;
+    }
+    return '';
+}
+
+export const hasDuplicates = (strArr: string[]) => {
+    return strArr.some(function(item) {
+        return strArr.indexOf(item) !== strArr.lastIndexOf(item);
+    })
+}
