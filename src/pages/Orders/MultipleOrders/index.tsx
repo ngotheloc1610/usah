@@ -1247,6 +1247,7 @@ const MultipleOrders = () => {
         } else {
             setPrice(0);
             setVolume(0);
+            setLimitPrice(0);
         }
         const item = symbols.find(o => o?.symbolCode === symbolCode);
         if(item) {
