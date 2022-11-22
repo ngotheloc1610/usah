@@ -8,7 +8,7 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
@@ -88,6 +88,7 @@ const App = () => {
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
         localStorage.removeItem(MIN_ORDER_VALUE);
+        localStorage.removeItem(MAX_ORDER_VALUE);
         localStorage.removeItem(MAX_ORDER_VOLUME);
       }
     }
@@ -106,6 +107,7 @@ const App = () => {
       localStorage.removeItem(ROLE);
       localStorage.removeItem(POEM_ID);
       localStorage.removeItem(MIN_ORDER_VALUE);
+      localStorage.removeItem(MAX_ORDER_VALUE);
       localStorage.removeItem(MAX_ORDER_VOLUME);
       return;
     }
@@ -157,6 +159,7 @@ const App = () => {
   localStorage.removeItem(ROLE);
   localStorage.removeItem(POEM_ID);
   localStorage.removeItem(MIN_ORDER_VALUE);
+  localStorage.removeItem(MAX_ORDER_VALUE);
   localStorage.removeItem(MAX_ORDER_VOLUME);
   window.location.href = '/lp/login';
  }

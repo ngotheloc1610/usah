@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -72,6 +72,7 @@ const OrderForm = (props: IOrderForm) => {
     const [limitPrice, setLimitPrice] = useState(0);
 
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
     const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
@@ -518,6 +519,11 @@ const OrderForm = (props: IOrderForm) => {
         } else {
             isInvalidMarketPrice = false;
         }
+
+        if (price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+            return true;
+        }
+
         const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '' || isInvalidMarketPrice;
         return isDisable || isOutOfDailyPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
@@ -589,6 +595,12 @@ const OrderForm = (props: IOrderForm) => {
 
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
+    }
+
+    const calcGrossValue = (price: number, volume: number) => {
+        const tempPrice = new Decimal(price);
+        const grossVal = tempPrice.times(volume);
+        return convertNumber(grossVal);
     }
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
@@ -672,6 +684,10 @@ const OrderForm = (props: IOrderForm) => {
                 }
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
                     <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
+                }
+
+                {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
+                    <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
                 }
 
                 <div className="border-top">
