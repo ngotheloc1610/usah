@@ -1302,7 +1302,8 @@ proto.GroupAccount.toObject = function(includeInstance, msg) {
     groupName: jspb.Message.getFieldWithDefault(msg, 2, ""),
     groupType: jspb.Message.getFieldWithDefault(msg, 3, 0),
     maxOrderVolume: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    minOrderValue: jspb.Message.getFieldWithDefault(msg, 5, "")
+    minOrderValue: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    maxOrderValue: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -1358,6 +1359,10 @@ proto.GroupAccount.deserializeBinaryFromReader = function(msg, reader) {
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setMinOrderValue(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMaxOrderValue(value);
       break;
     default:
       reader.skipField();
@@ -1420,6 +1425,13 @@ proto.GroupAccount.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getMaxOrderValue();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -1513,6 +1525,24 @@ proto.GroupAccount.prototype.getMinOrderValue = function() {
  */
 proto.GroupAccount.prototype.setMinOrderValue = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string max_order_value = 6;
+ * @return {string}
+ */
+proto.GroupAccount.prototype.getMaxOrderValue = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.GroupAccount} returns this
+ */
+proto.GroupAccount.prototype.setMaxOrderValue = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -3077,6 +3107,8 @@ proto.MsgCode = {
   MT_RET_INVALID_PASSWORD: 10049,
   MT_RET_TOKEN_EXPIRED: 10050,
   MT_RET_CHANGE_PASSWORD_FAILED: 10051,
+  MT_RET_EXIST_LIMIT_ORDER_IN_QUEUE: 10052,
+  MT_RET_EXCEED_MAX_ORDER_VALUE: 10053,
   MT_RET_RMS_PROGRAM_ERROR: 20001,
   MT_RET_RMS_INVALID_INPUT: 20002,
   MT_RET_RMS_INVALID_SIDE: 20003,

@@ -48,6 +48,7 @@ message GroupAccount {
 	GroupType group_type		= 3;
 	int64 max_order_volume 		= 4;
 	string min_order_value		= 5;
+	string max_order_value		= 6;
 }
 
 enum GroupType {
@@ -181,7 +182,8 @@ enum MsgCode {
 	MT_RET_INVALID_PASSWORD			= 10049;
 	MT_RET_TOKEN_EXPIRED			= 10050;
 	MT_RET_CHANGE_PASSWORD_FAILED	= 10051;
-
+	MT_RET_EXIST_LIMIT_ORDER_IN_QUEUE	= 10052; // There is an existing limit order in queue for retail
+	MT_RET_EXCEED_MAX_ORDER_VALUE	= 10053; // Order value is out of range with max order value
 
 // RMS risk check
 	MT_RET_RMS_PROGRAM_ERROR		= 20001; // Program error
