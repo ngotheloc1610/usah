@@ -1314,7 +1314,7 @@ const MultipleOrders = () => {
         setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
-    const updateListTickers = (list) => {
+    const updateListTickers = (list:ISymbolMultiOrder[]) => {
         setListTickers(list);
         dispatch(keepListOrder(list));
     }
