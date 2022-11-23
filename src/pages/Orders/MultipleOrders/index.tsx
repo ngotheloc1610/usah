@@ -314,7 +314,7 @@ const MultipleOrders = () => {
                     });
                 }
             });
-            setLstTicketAndKeepLstOrder(tickers)
+            updateListTickers(tickers)
         }
     }
 
@@ -346,7 +346,7 @@ const MultipleOrders = () => {
         listTickers[index].msgCode = statusOrder ? statusOrder?.msgCode : null;
         listTickers[index].message = statusOrder ? statusOrder?.message : '';
         const orders = [...listTickers];
-        setLstTicketAndKeepLstOrder(orders);
+        updateListTickers(orders);
     }
 
     const updateTickerInfo = (currentTickerInfo: ISymbolMultiOrder, volume: string, price: string) => {
@@ -389,7 +389,7 @@ const MultipleOrders = () => {
         }
 
         const listOrder = [...listTickers];
-        setLstTicketAndKeepLstOrder(listOrder);
+        updateListTickers(listOrder);
     }
 
 
@@ -406,7 +406,7 @@ const MultipleOrders = () => {
         listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue);
 
         const listOrder = [...listTickers];
-        setLstTicketAndKeepLstOrder(listOrder);
+        updateListTickers(listOrder);
         if (listSelected.length > 0) {
             const temps = [...listSelected];
             const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
@@ -952,7 +952,7 @@ const MultipleOrders = () => {
                 }
             }
         }
-        setLstTicketAndKeepLstOrder(list);
+        updateListTickers(list);
     }
 
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
@@ -1305,7 +1305,7 @@ const MultipleOrders = () => {
 
         const tmp = [...listTickers];
         tmp.push(obj);
-        setLstTicketAndKeepLstOrder(tmp);
+        updateListTickers(tmp);
         setIsAddOrder(false);
         setPrice(0);
         setVolume(0);
@@ -1314,7 +1314,7 @@ const MultipleOrders = () => {
         setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
-    const setLstTicketAndKeepLstOrder = (list) => {
+    const updateListTickers = (list) => {
         setListTickers(list);
         dispatch(keepListOrder(list));
     }
