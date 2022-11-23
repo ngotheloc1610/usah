@@ -314,8 +314,7 @@ const MultipleOrders = () => {
                     });
                 }
             });
-            setListTickers(tickers);
-            dispatch(keepListOrder(tickers));
+            updateListTickers(tickers)
         }
     }
 
@@ -347,7 +346,7 @@ const MultipleOrders = () => {
         listTickers[index].msgCode = statusOrder ? statusOrder?.msgCode : null;
         listTickers[index].message = statusOrder ? statusOrder?.message : '';
         const orders = [...listTickers];
-        setListTickers(orders);
+        updateListTickers(orders);
     }
 
     const updateTickerInfo = (currentTickerInfo: ISymbolMultiOrder, volume: string, price: string) => {
@@ -390,7 +389,7 @@ const MultipleOrders = () => {
         }
 
         const listOrder = [...listTickers];
-        setListTickers(listOrder);
+        updateListTickers(listOrder);
     }
 
 
@@ -407,8 +406,7 @@ const MultipleOrders = () => {
         listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue);
 
         const listOrder = [...listTickers];
-        setListTickers(listOrder);
-
+        updateListTickers(listOrder);
         if (listSelected.length > 0) {
             const temps = [...listSelected];
             const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
@@ -721,7 +719,7 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                <td className="text-end" style={{maxWidth: '400px'}}>
+                <td className="text-end" style={{ maxWidth: '400px'}}>
                     <div title={_renderMessageError(item)} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
                         {_renderMessageError(item)}
                     </div>
@@ -731,7 +729,7 @@ const MultipleOrders = () => {
     }
 
     const _renderMessageError = (item: any) => {
-        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY 
+        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY
             && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
             return MESSAGE_EMPTY_ASK;
         }
@@ -902,7 +900,7 @@ const MultipleOrders = () => {
                     toast.error("Invalid file template. File don't have Quantity Field");
                     return;
                 }
-                
+
                 if (!checkSymbol(obj.Ticker)) {
                     toast.error("Symbol don't exist");
                     return;
@@ -954,8 +952,7 @@ const MultipleOrders = () => {
                 }
             }
         }
-        setListTickers(list);
-        dispatch(keepListOrder(list));
+        updateListTickers(list);
     }
 
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
@@ -1105,7 +1102,7 @@ const MultipleOrders = () => {
                 let newVol = currentVol + lotSize;
                 if (!checkVolumeLotSize(newVol, lotSize)) {
                     const temp = new Decimal(newVol);
-        
+
                     // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
                     const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
                     newVol = convertNumber(strVol);
@@ -1130,7 +1127,7 @@ const MultipleOrders = () => {
                 let newVol = currentVol - lotSize;
                 if (!checkVolumeLotSize(newVol, lotSize)) {
                     const temp = new Decimal(newVol);
-        
+
                     // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
                     const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
                     newVol = convertNumber(strVol);
@@ -1308,8 +1305,7 @@ const MultipleOrders = () => {
 
         const tmp = [...listTickers];
         tmp.push(obj);
-        setListTickers(tmp);
-        dispatch(keepListOrder(tmp));
+        updateListTickers(tmp);
         setIsAddOrder(false);
         setPrice(0);
         setVolume(0);
@@ -1318,6 +1314,10 @@ const MultipleOrders = () => {
         setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
+    const updateListTickers = (list:ISymbolMultiOrder[]) => {
+        setListTickers(list);
+        dispatch(keepListOrder(list));
+    }
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
         if (order.state === tradingModel.OrderState.ORDER_STATE_PLACED) {
             return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
