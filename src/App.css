@@ -105,3 +105,44 @@
 input::-ms-clear, input::-ms-reveal {
   display: none;
 }
+
+.session-timeout-model {
+  border-radius: 3% !important;
+  margin-top: calc(40vh) !important;
+}
+
+.w-2 {
+  width: 2px !important;
+}
+
+.bg-disabled {
+  background: #e9ecef !important;
+}
+
+.fs-px-13 {
+  font-size: 13px !important;
+}
+
+.modal-dialog {
+  width: 400px !important;
+}
+
+.custom .modal-dialog {
+  width: 1000px !important;
+}
+
+.mt-px-10 {
+  margin-top: 10px;
+}
+
+.mt-px-5 {
+  margin-top: 5px;
+}
+
+.modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+.w-px-150 {
+  width: 150px;
+}

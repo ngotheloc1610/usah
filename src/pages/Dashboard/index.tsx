@@ -148,19 +148,23 @@ const Dashboard = () => {
             lastQuote.unsubscribe();
         }
     }, [])
-
+    
     useEffect(() => {
         setMatchedOrder(matchedOrder + tradeEvent.length)
     }, [tradeEvent])
-
+    
     useEffect(() => {
         processLastQuote(lastQuotes, portfolio);
     }, [lastQuotes]);
-
+    
     useEffect(() => {
         processQuoteEvent(quoteEvent, portfolio);
     }, [quoteEvent]);
-
+    
+    useEffect(() => {
+        setQuoteInfo(undefined)
+    },[symbolCode]);
+    
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
             const temp = [...portfolio];
@@ -420,6 +424,7 @@ const Dashboard = () => {
         setSide(value);
     }
 
+
     return (
         <div className="site-main">
             <div className="container">
@@ -450,6 +455,7 @@ const Dashboard = () => {
                             </div>
                             <div className="card-body h-500" >
                                 <OrderForm isDashboard={isDashboard}
+                                    isMonitoring={false}
                                     messageSuccess={messageSuccess}
                                     symbolCode={symbolCode}
                                     symbolQuote={symbolQuote}

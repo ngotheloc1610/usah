@@ -17,6 +17,7 @@ export interface IDataLoginResquest {
     role: string;
     poem_id: string;
     min_order_value: number;
+    max_order_value: number;
     max_order_volume: number;
 }
 export interface IDataLogin {
@@ -59,6 +60,7 @@ export interface IParamHistorySearch {
     orderSide: number;
     fromDate: number;
     toDate: number;
+    orderType: number;
 }
 
 export interface IClientHoldingInfoReq {

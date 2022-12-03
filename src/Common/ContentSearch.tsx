@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT } from "../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
@@ -7,20 +7,22 @@ import * as qspb from "../models/proto/query_service_pb"
 import * as rpcpb from "../models/proto/rpc_pb";
 import * as smpb from '../models/proto/system_model_pb';
 import { toast } from "react-toastify";
-import { getSymbolCode, removeFocusInput } from "../helper/utils";
+import { convertNumber, getSymbolCode, removeFocusInput } from "../helper/utils";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 interface IPropsContentSearch {
-    getParamSearch: ( symbolCode: string, orderSide: number) => void;
+    getParamSearch: ( symbolCode: string, orderSide: number, orderType: number) => void;
 }
 
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getParamSearch } = props;
+    const tradingModelPb: any = tmpb;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
     const [side, setSide] = useState(0);
+    const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
@@ -48,7 +50,6 @@ const ContentSearch = (props: IPropsContentSearch) => {
     }, [])
 
     const getParamOrderSide = () => {
-        const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
             setSide(tradingModelPb.Side.SELL);
         }
@@ -85,7 +86,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const handleSearch = () => {
         // Filter hiện đang do bên Front End làm nên tạm thời không gửi msg Request lên
         // sendMessageSearch();
-        getParamSearch(symbolCode, side);
+        getParamSearch(symbolCode, side, orderType);
     }
 
     const _rendetMessageError = (message: string) => (
@@ -136,11 +137,29 @@ const ContentSearch = (props: IPropsContentSearch) => {
         </div>
     )
 
+    const handleOrderType = (value) => {
+        setOrderType(convertNumber(value));
+    }
+
+    const _renderListOrderType = () => {
+        return ORDER_TYPE_SEARCH.map(item => (<option value={item.code} key={item.code}>{item.name}</option>))
+    }
+
+    const _renderOrderType = () => (
+        <div className="col-xl-2">
+            <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
+            <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
+                {_renderListOrderType()}
+            </select>
+        </div>
+    )
+
     const _renderTemplate = () => (
         <div>
             <div className="card-body bg-gradient-light mb-3">
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
+                    {_renderOrderType()}
                     {_renderOrderSide()}
                     <div className="col-xs-2 col-sm-2 col-md-2 col-lg-2">
                         <a href="#" className="btn btn-sm d-block btn-primary text-nowrap" onClick={handleSearch}><strong>Search</strong></a>

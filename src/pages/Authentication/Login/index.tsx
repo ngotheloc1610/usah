@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
-import { LOGO } from '../../../assets';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
-import { success } from '../../../constants';
+import { multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +17,7 @@ const Login = () => {
     const [isRemeber, setIsRemeber] = useState(false)
     const [isMessErr, setIsMessErr] = useState(false);
     const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+    const [isMultiLoginFail, setIsMultiLoginFail] = useState(false);
     const secretKey = useSelector((state: any) => state.auth.secretKey);
     const rememberKey = useSelector((state: any) => state.auth.rememberKey);
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
@@ -53,6 +53,15 @@ const Login = () => {
         setIsRemeber(checked)
     }
 
+    const _renderMsgSuspend = () => (
+        <div className='fz-14 text-danger '>
+            <p className='m-0'>This account has been suspended. </p>
+            <p className='m-0'>Please contact the hosting provider for more information:</p>
+            <p className='m-0'>Phillip SG Contact (English Speaking): +65 6212-1810</p>
+            <p className=''>Phillip SG Email: cddesk@phillip.com.sg</p>
+        </div>
+    )
+
     const requestLogin = () => {
         const url = `${api_url}${API_LOGIN}`;
         const param = {
@@ -66,17 +75,23 @@ const Login = () => {
         if (encrypt) {
             dispatch(setRememberKey(encrypt));
         }
-        return axios.post<IReqLogin, IReqLogin>(url, param).then((resp) => {
+        return axios.post<IReqLogin, IReqLogin>(url, param)
+        .then((resp) => {
             if (resp.status === success) {
                 if (resp?.data?.data) {
+                    setIsMultiLoginFail(false);
                     const data = resp.data.data;
                     localStorage.setItem(ACCOUNT_ID, data.account_id.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
                     localStorage.setItem(EXPIRE_TIME, data.expire_time);
                     localStorage.setItem(ROLE, data.role);
                     localStorage.setItem(POEM_ID, data.poem_id);
-                    localStorage.setItem(MIN_ORDER_VALUE, resp.data.data.min_order_value.toString());
-                    localStorage.setItem(MAX_ORDER_VOLUME, resp.data.data.max_order_volume.toString());
+                    localStorage.setItem(MIN_ORDER_VALUE, data.min_order_value?.toString());
+                    localStorage.setItem(MAX_ORDER_VALUE, data.max_order_value?.toString());
+                    localStorage.setItem(MAX_ORDER_VOLUME, data.max_order_volume?.toString());
+
+                    sessionStorage.setItem(KEY_SESSION_STORAGE.SESSION, data.access_token.toString());
+
                     if (data.sub_accounts) {
                         localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(data.sub_accounts));
                     } else {
@@ -87,6 +102,11 @@ const Login = () => {
             }
         },
             (error) => {
+                if (error.response.data.meta.code === multipleLoginFail) {
+                    setIsMultiLoginFail(true);
+                    return
+                }
+                setIsMultiLoginFail(false);
                 setIsMessErr(true);
             });
     }
@@ -154,6 +174,7 @@ const Login = () => {
                                             </button>
                                         </div>
                                     </div>
+                                    {isMultiLoginFail && _renderMsgSuspend()}
                                     {isMessErr && <div className='mb-3'>
                                         <label className="d-block mb-1 text-danger">Login ID and Password is NOT matching</label>
                                     </div>}
@@ -168,7 +189,7 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="mt-1">
-                                        <a className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase btn-login mb-2 unclick" onClick={handleSubmit}><strong>Login</strong></a>
+                                        <button disabled={email?.trim() === '' || password?.trim() === ''} className="btn btn-primary w-100 text-uppercase btn-login mb-2 pt-2 pb-2" onClick={handleSubmit}><strong>Login</strong></button>
                                         <p className="text-center"><a href={`${process.env.PUBLIC_URL}/forgot-password`}>Forgot Password</a></p>
                                     </div>
                                 </div>

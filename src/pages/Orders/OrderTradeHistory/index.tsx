@@ -11,10 +11,12 @@ import { convertDatetoTimeStamp, convertNumber } from '../../../helper/utils';
 import { IListTradeHistory, IParamSearchTradeHistory } from "../../../interfaces/order.interface";
 
 const OrderTradeHistory = () => {
+    const tradingModelPb: any = tmpb;
     const [getDataTradeHistory, setDataTradeHistory] = useState<IListTradeHistory[]>([]);
     const [getDataTradeHistoryRes, setDataTradeHistoryRes] = useState<IListTradeHistory[]>([]);
     const [orderSide, setOrderSide] = useState(0);
     const [symbolCode, setSymbolCode] = useState('');
+    const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE)
     
     const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
 
@@ -41,15 +43,18 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         processTradeHistory(getDataTradeHistoryRes);
-    }, [getDataTradeHistoryRes, orderSide])
+    }, [getDataTradeHistoryRes, orderSide, orderType])
 
     const processTradeHistory = (tradeList: IListTradeHistory[]) => {
-        const tradingModelPb: any = tmpb;
         let tradeListFilter = tradeList;
         if ([tradingModelPb.Side.BUY, tradingModelPb.Side.SELL].includes(orderSide)) {
             tradeListFilter = tradeListFilter.filter(item => item.side === orderSide);
         }
+        if (orderType !== tradingModelPb.OrderType.OP_NONE) {
+            tradeListFilter = tradeListFilter.filter(item => item.orderType === orderType);
+        }
         setDataTradeHistory(tradeListFilter);
+
     }
 
     const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
@@ -82,6 +87,7 @@ const OrderTradeHistory = () => {
         setIsSearchData(true);
         setSymbolCode(param.symbolCode);
         sendTradeHistoryReq(param.symbolCode, tmpFromDate, tmpToDate);
+        setOrderType(param.orderType);
     }
 
     const changeStatusSearch = (value: boolean) => {

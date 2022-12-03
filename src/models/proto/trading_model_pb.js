@@ -191,7 +191,8 @@ proto.Order.toObject = function(includeInstance, msg) {
     orderRef: jspb.Message.getFieldWithDefault(msg, 33, ""),
     withdrawAmount: jspb.Message.getFieldWithDefault(msg, 34, ""),
     submittedId: jspb.Message.getFieldWithDefault(msg, 35, ""),
-    msgCode: jspb.Message.getFieldWithDefault(msg, 36, 0)
+    msgCode: jspb.Message.getFieldWithDefault(msg, 36, 0),
+    groupType: jspb.Message.getFieldWithDefault(msg, 37, 0)
   };
 
   if (includeInstance) {
@@ -371,6 +372,10 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 36:
       var value = /** @type {!proto.MsgCode} */ (reader.readEnum());
       msg.setMsgCode(value);
+      break;
+    case 37:
+      var value = /** @type {!proto.GroupType} */ (reader.readEnum());
+      msg.setGroupType(value);
       break;
     default:
       reader.skipField();
@@ -650,6 +655,13 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       36,
+      f
+    );
+  }
+  f = message.getGroupType();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      37,
       f
     );
   }
@@ -1301,6 +1313,24 @@ proto.Order.prototype.getMsgCode = function() {
  */
 proto.Order.prototype.setMsgCode = function(value) {
   return jspb.Message.setProto3EnumField(this, 36, value);
+};
+
+
+/**
+ * optional GroupType group_type = 37;
+ * @return {!proto.GroupType}
+ */
+proto.Order.prototype.getGroupType = function() {
+  return /** @type {!proto.GroupType} */ (jspb.Message.getFieldWithDefault(this, 37, 0));
+};
+
+
+/**
+ * @param {!proto.GroupType} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setGroupType = function(value) {
+  return jspb.Message.setProto3EnumField(this, 37, value);
 };
 
 
@@ -2718,7 +2748,8 @@ proto.OrderRoute = {
   ROUTE_ANDROID: 2,
   ROUTE_BACK: 3,
   ROUTE_API: 4,
-  ROUTE_WEB: 5
+  ROUTE_WEB: 5,
+  ROUTE_FIX: 6
 };
 
 /**

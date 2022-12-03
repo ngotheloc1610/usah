@@ -1,62 +1,98 @@
-import { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from "../../../constants/general.constant";
-import { ISymbolMultiOrder, IOrderListResponse } from "../../../interfaces/order.interface";
+import { useEffect, useRef, useState } from "react";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE } from "../../../constants/general.constant";
+import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
-import * as tspb from '../../../models/proto/trading_model_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText } from "../../../helper/utils";
+import * as tmpb from '../../../models/proto/trading_model_pb';
+import * as pspb from '../../../models/proto/pricing_service_pb';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize, getExtensionFile, hasDuplicates } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as qmpb from '../../../models/proto/query_model_pb';
 import { toast } from "react-toastify";
 import * as XLSX from 'xlsx';
-import * as tdpb from '../../../models/proto/trading_model_pb';
 import { Autocomplete, TextField } from "@mui/material";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
-import { MESSAGE_ERROR } from "../../../constants/message.constant";
+import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, MESSAGE_ERROR } from "../../../constants/message.constant";
+import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
+import Decimal from "decimal.js";
+import { Button, Modal } from "react-bootstrap";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
     // dispatch thực hiện các action khác nhau với các payload khác nhau nên sẽ khai báo any ở đây
     const dispatch: any = useDispatch();
-    const tradingModelPb: any = tspb;
-    const tradingModel: any = tdpb;
+    const tradingModel: any = tmpb;
     const queryModel: any = qmpb;
     const [listTickers, setListTickers] = useState<ISymbolMultiOrder[]>([]);
     const [showModalConfirmMultiOrders, setShowModalConfirmMultiOrders] = useState<boolean>(false);
     const [statusOrder, setStatusOrder] = useState(0);
     const [listSelected, setListSelected] = useState<ISymbolMultiOrder[]>([]);
-    const [currentSide, setCurrentSide] = useState(tradingModel.Side.SELL);
+    const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
     const [price, setPrice] = useState(0);
     const [volume, setVolume] = useState(0);
     const [isAddOrder, setIsAddOrder] = useState(false);
     const [ticker, setTicker] = useState('');
+    const [symbolCode, setSymbolCode] = useState('');
     const [sideAddNew, setSideAddNew] = useState('Sell');
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [isDelete, setIsDelete] = useState(false);
-    const [statusPlace, setStatusPlace] = useState(false);
+    const [isSave, setIsSave] = useState(false);
     const [orderListResponse, setOrderListResponse] = useState<IOrderListResponse[]>([]);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
+    const [isMaxOrderVol, setIsMaxOrderVol] = useState(false);
+    const [isValidTicker, setIsValidTicker] = useState(false);
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quotes, setQuotes] = useState([]);
+    const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+
+    const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
+    const [limitPrice, setLimitPrice] = useState(0);
+
+    const [bestAskPrice, setBestAskPrice] = useState(0);
+    const [bestBidPrice, setBestBidPrice] = useState(0);
+    const [symbolSelected, setSymbolSelected] = useState('');
+
+    const [isEmptyAsk, setIsEmptyAsk] = useState(false);
+    const [isEmptyBid, setIsEmptyBid] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
-    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
-    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME);
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
+    const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
 
     const systemModelPb: any = smpb;
+
+    const ref: any = useRef();
+    const pricingServicePb: any = pspb;
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
     }, [])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_MARKET) {
+            currentSide === tradingModel.Side.BUY ? setPrice(bestAskPrice) : setPrice(bestBidPrice);
+            setIsSave(true);
+            setIsShowNotiErrorPrice(false);
+        }
+    }, [bestAskPrice, bestBidPrice, orderType, currentSide, symbolSelected, ticker])
+
+    useEffect(() => {
+        if (orderType === tradingModel.OrderType.OP_LIMIT) {
+            setPrice(limitPrice);
+        }
+    }, [orderType, limitPrice])
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
@@ -69,7 +105,6 @@ const MultipleOrders = () => {
             getStatusOrderResponse(tmp, resp[MSG_TEXT], resp?.orderList, resp[MSG_CODE]);
             if (resp && resp.orderList) {
                 setOrderListResponse(resp.orderList);
-                setStatusPlace(true);
                 setListSelected([]);
             }
 
@@ -81,11 +116,117 @@ const MultipleOrders = () => {
     }, []);
 
     useEffect(() => {
+        const ws = wsService.getSocketSubject().subscribe(resp => {
+            if (resp === SOCKET_CONNECTED) {
+                sendMessageQuotes();
+                subscribeQuoteEvent();
+            }
+        });
+
+        const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
+            if (quote && quote.quotesList) {
+                setLastQuotes(quote.quotesList);
+            }
+        });
+
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
+            if (quoteEvent && quoteEvent.quoteList) {
+                setQuotes(quoteEvent.quoteList);
+            }
+        })
+
+        return () => {
+            ws.unsubscribe();
+            lastQuote.unsubscribe();
+            quoteEvent.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processLastQuote(lastQuotes)
+    }, [lastQuotes])
+
+    useEffect(() => {
+        processQuoteEvent(quotes)
+    }, [quotes])
+
+    const processLastQuote = (quotes: ILastQuote[]) => {
+        if (quotes.length > 0) {
+            let temp: ISymbolQuote[] = [];
+            symbols.forEach(symbol => {
+                if (symbol) {
+                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
+                    if (element) {
+                        const symbolQuote: ISymbolQuote = {
+                            symbolCode: symbol.symbolCode,
+                            symbolId: symbol.symbolId,
+                            symbolName: symbol.symbolName,
+                            prevClosePrice: symbol.prevClosePrice,
+                            high: element?.high || '0',
+                            low: element?.low || '0',
+                            lastPrice: element.currentPrice,
+                            open: element.open || '0',
+                            volume: element.volumePerDay,
+                            ceiling: symbol.ceiling,
+                            floor: symbol.floor,
+                        };
+                        const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
+                        if (index < 0) {
+                            temp.push(symbolQuote);
+                        }
+                    }
+                }
+            });
+            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
+            setSymbolInfor(temp);
+        }
+    }
+
+    const processQuoteEvent = (quotes: ILastQuote[]) => {
+        if (quotes && quotes.length > 0) {
+            let tempLastQuotes = [...lastQuotes];
+            quotes.forEach(item => {
+                const idx = tempLastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+                if (idx && idx >= 0) {
+                    tempLastQuotes[idx] = {
+                        ...tempLastQuotes[idx],
+                        high: item?.high || '0',
+                        low: item?.low || '0',
+                        currentPrice: item.currentPrice,
+                        open: item.open || '0',
+                        volume: item.volumePerDay,
+                        asksList: item.asksList,
+                        bidsList: item.bidsList
+                    }
+                }
+            });
+            setLastQuotes(tempLastQuotes);
+            const quote = quotes.find(o => o?.symbolCode === symbolSelected);
+            if (quote) {
+                setIsEmptyAsk(quote.asksList.length === 0);
+                setIsEmptyBid(quote.bidsList.length === 0);
+                const bestAsk = quote?.asksList?.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
+                const bestBid = quote?.bidsList?.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+            }
+        }
+    }
+
+    useEffect(() => {
         if (!ticker?.trim()) {
             setPrice(0)
             setVolume(0)
         }
+        if (ref.current !== ticker && ref.current !== '' && !isValidTicker ) {
+            setCurrentSide(tradingModel.Side.NONE);
+        }
+        ref.current = ticker;
     }, [ticker])
+
+    useEffect(() => {
+        setCurrentSide(tradingModel.Side.NONE);
+    }, [isAddOrder])
 
     useEffect(() => {
         isDelete ? setCurrentPage(currentPage) : setCurrentPage(START_PAGE);
@@ -94,6 +235,42 @@ const MultipleOrders = () => {
     useEffect(() => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
+
+    const sendMessageQuotes = () => {
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+
+            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            lastQuotesRequest.setSymbolCodeList(symbolCodes);
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const subscribeQuoteEvent = () => {
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
+
+            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            lastQuotesRequest.setSymbolCodeList(symbolCodes);
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
 
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
         if (orderList && orderList.length > 0) {
@@ -107,7 +284,9 @@ const MultipleOrders = () => {
                     }, []);
                     const txtSide = renderSideText(item.side);
                     listIndex.forEach(el => {
-                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim() && convertNumber(temps[el].volume) === convertNumber(item.amount)) {
+                        if (temps[el].orderSide.toLowerCase()?.trim() === txtSide?.toLowerCase()?.trim()
+                            && convertNumber(temps[el].volume) === convertNumber(item.amount)
+                            && temps[el].orderType === item.orderType) {
                             temps[el] = {
                                 ...temps[el],
                                 state: item.state,
@@ -123,8 +302,8 @@ const MultipleOrders = () => {
             listTickers.forEach(item => {
                 const idx = temps.findIndex(o => o?.no === item?.no);
                 if (idx >= 0) {
-                    const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ? 
-                            temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
+                    const msgErr = temps[idx]?.msgCode && temps[idx]?.msgCode === systemModelPb.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY ?
+                        temps[idx]?.status : MESSAGE_ERROR.get(temps[idx].msgCode);
                     tickers.push({
                         ...temps[idx],
                         message:  temps[idx].msgCode ? msgErr : MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_OK)
@@ -142,16 +321,32 @@ const MultipleOrders = () => {
     }
 
     const changeMultipleSide = (value: number, itemSymbol: ISymbolMultiOrder, index: number) => {
+        const quote = lastQuotes.find(o => o?.symbolCode === itemSymbol.ticker);
+        let bestAsk = 0;
+        let bestBid = 0;
+        if (quote) {
+            bestAsk = quote?.asksList.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
+            bestBid = quote?.bidsList.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
+        }
         switch (value) {
-            case tradingModelPb.Side.BUY.toString(): {
+            case tradingModel.Side.BUY.toString(): {
                 listTickers[index].orderSide = SIDE_NAME.buy;
+                if (listTickers[index].orderType === tradingModel.OrderType.OP_MARKET) {
+                    listTickers[index].price = bestAsk.toString();
+                }
                 break;
             }
             default: {
                 listTickers[index].orderSide = SIDE_NAME.sell;
+                if (listTickers[index].orderType === tradingModel.OrderType.OP_MARKET) {
+                    listTickers[index].price = bestBid.toString();
+                }
                 break;
             }
         }
+        const statusOrder = getStatusOrder(listTickers[index].ticker, listTickers[index].volume, listTickers[index].price);
+        listTickers[index].msgCode = statusOrder ? statusOrder?.msgCode : null;
+        listTickers[index].message = statusOrder ? statusOrder?.message : '';
         const orders = [...listTickers];
         setListTickers(orders);
     }
@@ -161,9 +356,9 @@ const MultipleOrders = () => {
             ...currentTickerInfo,
             volume: volume,
             price: price,
-            msgCode: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+            msgCode: getStatusOrder(currentTickerInfo?.ticker, volume, price) ?
                 getStatusOrder(currentTickerInfo?.ticker, volume, price)?.msgCode : null,
-            message: getStatusOrder(currentTickerInfo?.ticker, volume, price) ? 
+            message: getStatusOrder(currentTickerInfo?.ticker, volume, price) ?
                 getStatusOrder(currentTickerInfo?.ticker, volume, price)?.message : ''
         }
         return temp;
@@ -204,7 +399,7 @@ const MultipleOrders = () => {
         const price = convertNumber(value)
         const tickSize = getTickSize(itemSymbol.ticker);
         let newValue = '';
-        if (price > 0) {
+        if (price > 0 || itemSymbol?.orderType === tradingModel.OrderType.OP_MARKET) {
             newValue = price.toString();
         } else {
             newValue = tickSize.toString();
@@ -309,59 +504,63 @@ const MultipleOrders = () => {
     }
 
     const decreasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.ticker);
-        const celling = getCelling(itemSymbol.ticker);
-        const floorPrice = getFloor(itemSymbol.ticker);
-        let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
-        if (newValue > celling) {
-            newValue = celling;
-        } else if (newValue < floorPrice) {
-            newValue = floorPrice;
-        }
+        if (itemSymbol?.orderType === tradingModel.OrderType.OP_LIMIT) {
+            const tickSize = getTickSize(itemSymbol.ticker);
+            const celling = getCelling(itemSymbol.ticker);
+            const floorPrice = getFloor(itemSymbol.ticker);
+            let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
+            if (newValue > celling) {
+                newValue = celling;
+            } else if (newValue < floorPrice) {
+                newValue = floorPrice;
+            }
 
-        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+            listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
 
-        const listOrder = [...listTickers];
-        setListTickers(listOrder);
+            const listOrder = [...listTickers];
+            setListTickers(listOrder);
 
-        if (listSelected.length > 0) {
-            const temps = [...listSelected];
-            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
-            if (idx >= 0) {
-                temps[idx] = {
-                    ...temps[idx],
-                    price: newValue.toString()
+            if (listSelected.length > 0) {
+                const temps = [...listSelected];
+                const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+                if (idx >= 0) {
+                    temps[idx] = {
+                        ...temps[idx],
+                        price: newValue.toString()
+                    }
+                    setListSelected(temps);
                 }
-                setListSelected(temps);
             }
         }
     }
 
     const increasePrice = (itemSymbol: ISymbolMultiOrder, index: number) => {
-        const tickSize = getTickSize(itemSymbol.ticker);
-        const celling = getCelling(itemSymbol.ticker);
-        const floorPrice = getFloor(itemSymbol.ticker);
-        let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
-        if (newValue > celling) {
-            newValue = celling;
-        } else if (newValue < floorPrice) {
-            newValue = floorPrice;
-        }
+        if (itemSymbol?.orderType === tradingModel.OrderType.OP_LIMIT) {
+            const tickSize = getTickSize(itemSymbol.ticker);
+            const celling = getCelling(itemSymbol.ticker);
+            const floorPrice = getFloor(itemSymbol.ticker);
+            let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
+            if (newValue > celling) {
+                newValue = celling;
+            } else if (newValue < floorPrice) {
+                newValue = floorPrice;
+            }
 
-        listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
+            listTickers[index] = updateTickerInfo(listTickers[index], listTickers[index]?.volume, newValue.toString());
 
-        const listOrder = [...listTickers];
-        setListTickers(listOrder);
+            const listOrder = [...listTickers];
+            setListTickers(listOrder);
 
-        if (listSelected.length > 0) {
-            const temps = [...listSelected];
-            const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
-            if (idx >= 0) {
-                temps[idx] = {
-                    ...temps[idx],
-                    price: newValue.toString()
+            if (listSelected.length > 0) {
+                const temps = [...listSelected];
+                const idx = temps.findIndex(o => o?.no === itemSymbol?.no);
+                if (idx >= 0) {
+                    temps[idx] = {
+                        ...temps[idx],
+                        price: newValue.toString()
+                    }
+                    setListSelected(temps);
                 }
-                setListSelected(temps);
             }
         }
     }
@@ -452,16 +651,16 @@ const MultipleOrders = () => {
         if (orderSide) {
             switch (orderSide.toLocaleLowerCase()) {
                 case SIDE_NAME.buy.toLocaleLowerCase(): {
-                    return tradingModelPb.Side.BUY;
+                    return tradingModel.Side.BUY;
                 }
                 default: {
-                    return tradingModelPb.Side.SELL;
+                    return tradingModel.Side.SELL;
                 }
             }
         }
         return 0;
     }
-    
+
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false)
     }
@@ -471,19 +670,28 @@ const MultipleOrders = () => {
         return idx >= 0;
     }
 
+    const checkEmptyMarketQtySymbol = (symbolCode: string, side: number) => {
+        const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
+        if (lastQuoteInfo) {
+            if (side === tradingModel.Side.BUY) return lastQuoteInfo.asksList.length === 0;
+            if (side === tradingModel.Side.SELL) return lastQuoteInfo.bidsList.length === 0;
+        }
+        return false;
+    }
+
     const _renderDataMultipleOrders = () => {
         return listTickers.map((item: ISymbolMultiOrder, index: number) => {
             return <tr key={index}>
                 <td><input type="checkbox" disabled={defindStatusOrder(item).props.title !== undefined && item.state !== undefined} value="" name={index.toString()} onChange={(e) => handleChecked(e.target.checked, item)} checked={elementChecked(item)} /></td>
                 <td>{index + 1}</td>
                 <td className="text-left" title={getTickerName(item.ticker)}>{item.ticker}</td>
-                <td className="text-left">Limit</td>
+                <td className="text-left">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="text-left">
                     <select value={getOrderSideValue(item.orderSide)} className={`border-1
-                    ${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
+                    ${(getOrderSideValue(item.orderSide) === tradingModel.Side.BUY) ? 'text-danger' : 'text-success'} text-end w-100-persent`}
                         onChange={(e: any) => changeMultipleSide(e.target.value, item, index)}>
-                        <option value={tradingModelPb.Side.BUY} className="text-danger text-left">Buy</option>
-                        <option value={tradingModelPb.Side.SELL} className="text-success text-left">Sell</option>
+                        <option value={tradingModel.Side.BUY} className="text-danger text-left">Buy</option>
+                        <option value={tradingModel.Side.SELL} className="text-success text-left">Sell</option>
                     </select>
                 </td>
                 <td className="text-end">
@@ -501,9 +709,12 @@ const MultipleOrders = () => {
                 <td className="text-end">
                     <div className="d-flex">
                         <NumberFormat
+                            disabled={item.orderType === tradingModel.OrderType.OP_MARKET}
                             onValueChange={(e) => changePrice(e.value, item, index)}
                             decimalScale={2} type="text" className="form-control text-end border-1 py-0 px-10"
-                            thousandSeparator="," value={convertNumber(item.price?.replaceAll(',','')) === 0 ? null : formatCurrency(item.price?.replaceAll(',', ''))} placeholder=""
+                            thousandSeparator=","
+                            value={(convertNumber(item.price?.replaceAll(',','')) === 0 || item.orderType === tradingModel.OrderType.OP_MARKET) ? '' : formatCurrency(item.price?.replaceAll(',', ''))}
+                            placeholder=""
                         />
                         <div className="d-flex flex-column opacity-75">
                             <i className="bi bi-caret-up-fill line-height-16" onClick={() => increasePrice(item, index)}></i>
@@ -511,11 +722,33 @@ const MultipleOrders = () => {
                         </div>
                     </div>
                 </td>
-                <td className="text-end">
-                    <div title={item?.message?.toUpperCase()} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>{item?.message?.toUpperCase()}</div>
+                <td className="text-end" style={{maxWidth: '400px'}}>
+                    <div title={_renderMessageError(item)} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
+                        {_renderMessageError(item)}
+                    </div>
                 </td>
             </tr>
         })
+    }
+
+    const _renderMessageError = (item: any) => {
+        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY 
+            && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
+            return MESSAGE_EMPTY_ASK;
+        }
+
+        if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.SELL
+            && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
+            return MESSAGE_EMPTY_BID;
+        }
+
+        if (item?.msgCode === systemModelPb.MsgCode.MT_RET_REQUEST_INVALID_FILL && item?.orderType === tradingModel.OrderType.OP_MARKET) {
+            return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
+        }
+        if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
+            return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
+        }
+        return item?.message?.toUpperCase();
     }
 
     const _renderHearderMultipleOrdersConfirm = () => (
@@ -531,12 +764,12 @@ const MultipleOrders = () => {
         listSelected.map((item, index) => {
             return <tr key={index}>
                 <td className="text-nowrap" title={getTickerName(item.ticker)}>{item.ticker}</td>
-                <td className="text-center">Limit</td>
-                <td className={`${(getOrderSideValue(item.orderSide) === tradingModelPb.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
+                <td className="text-center">{ORDER_TYPE.get(item.orderType)}</td>
+                <td className={`${(getOrderSideValue(item.orderSide) === tradingModel.Side.BUY) ? 'text-danger' : 'text-success'} text-center text-nowrap`}>
                     {item.orderSide.toUpperCase()}
                 </td>
                 <td className="text-center text-nowrap">{formatNumber(item.volume?.replaceAll(',', ''))}</td>
-                <td className="text-center text-nowrap"> {formatCurrency(item.price?.replaceAll(',', ''))}</td>
+                <td className="text-center text-nowrap"> {item.orderType === tradingModel.OrderType.OP_MARKET ? null : formatCurrency(item.price?.replaceAll(',', ''))}</td>
             </tr>
         })
     )
@@ -546,7 +779,6 @@ const MultipleOrders = () => {
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();
-        const tradingModelPb: any = tspb;
         if (wsConnected) {
             let currentDate = new Date();
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
@@ -554,16 +786,16 @@ const MultipleOrders = () => {
             listSelected.forEach((item: ISymbolMultiOrder) => {
                 const symbol = symbols.find(o => o.symbolCode === item.ticker);
                 if (symbol) {
-                    let order = new tradingModelPb.Order();
+                    let order = new tradingModel.Order();
                     order.setAmount(item.volume?.replaceAll(',', ''));
-                    order.setPrice(item.price.replaceAll(',', ''));
+                    order.setPrice(convertNumber(item.price.replaceAll(',', '')).toFixed(2));
                     order.setUid(accountId);
                     order.setSymbolCode(symbol?.symbolCode);
                     order.setSide(getOrderSideValue(item.orderSide));
-                    order.setOrderType(tradingModel.OrderType.OP_LIMIT);
-                    order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
-                    order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
-                    order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
+                    order.setOrderType(item.orderType);
+                    order.setExecuteMode(tradingModel.ExecutionMode.MARKET);
+                    order.setOrderMode(tradingModel.OrderMode.REGULAR);
+                    order.setRoute(tradingModel.OrderRoute.ROUTE_WEB);
                     order.setCurrencyCode(CURRENCY.usd);
                     order.setSubmittedId(accountId);
                     order.setMsgCode(item.msgCode ? item.msgCode : systemModelPb.MsgCode.MT_RET_OK);
@@ -619,27 +851,59 @@ const MultipleOrders = () => {
         return side.toLowerCase().trim() === 'buy' || side.toLowerCase().trim() === 'sell';
     }
 
+    const checkOrderTypeValid = (orderType: string) => {
+        return orderType.toLowerCase().trim() === 'market' || orderType.toLowerCase().trim() === 'limit';
+    }
+
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-
+        if (hasDuplicates(headers)) {
+            toast.error("Invalid file template. File has duplicated fields");
+            return;
+        }
         const list = [...listTickers];
         for (let i = 1; i < dataStringLines.length; i++) {
             const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-            if (headers && row.length == headers.length) {
+            if (headers && row.length === headers.length) {
                 const obj: any = {};
                 for (let j = 0; j < headers.length; j++) {
                     let d = row[j];
                     if (d.length > 0) {
-                        if (d[0] == '"')
+                        if (d[0] === '"')
                             d = d.substring(1, d.length - 1);
-                        if (d[d.length - 1] == '"')
+                        if (d[d.length - 1] === '"')
                             d = d.substring(d.length - 2, 1);
                     }
                     if (headers[j]) {
-                        obj[headers[j]] = d;
+                        obj[headers[j].replaceAll(' ', '')] = d;
                     }
                 }
+                if (obj?.Ticker === undefined) {
+                    toast.error("Invalid file template. File don't have Ticker Field");
+                    return;
+                }
+
+                if (obj?.OrderSide === undefined) {
+                    toast.error("Invalid file template. File don't have OrderSide Field");
+                    return;
+                }
+
+                if (obj?.OrderType === undefined) {
+                    toast.error("Invalid file template. File don't have OrderType Field");
+                    return;
+                }
+
+                if (obj?.Price === undefined) {
+                    toast.error("Invalid file template. File don't have Price Field");
+                    return;
+                }
+
+                if (obj?.Quantity === undefined) {
+                    toast.error("Invalid file template. File don't have Quantity Field");
+                    return;
+                }
+                
                 if (!checkSymbol(obj.Ticker)) {
                     toast.error("Symbol don't exist");
                     return;
@@ -660,15 +924,32 @@ const MultipleOrders = () => {
                     return;
                 }
 
+                if (!checkOrderTypeValid(obj.OrderType)) {
+                    toast.error('Invalid order type');
+                    return;
+                }
+
+                let bestAsk = 0;
+                let bestBid = 0;
+                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj.Ticker);
+                if (tempQuote) {
+                    bestAsk = tempQuote?.asksList?.length > 0 ? convertNumber(tempQuote?.asksList[0]?.price) : 0;
+                    bestBid = tempQuote?.bidsList?.length > 0 ? convertNumber(tempQuote?.bidsList[0]?.price) : 0;
+                }
+                let tempPrice = obj.Price.replaceAll(',', '');
+                if (obj.OrderType.toLowerCase() === 'market') {
+                    tempPrice = obj.OrderSide.toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
+                }
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
                         no: (list.length).toString(),
                         orderSide: obj.OrderSide,
-                        price: formatCurrency(obj.Price.replaceAll(',', '')),
+                        price: formatCurrency(tempPrice),
                         ticker: obj.Ticker,
                         volume: obj.Quantity || obj.Volume,
-                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.msgCode : null,
-                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, obj.Price)?.message : ''
+                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
+                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.message : '',
+                        orderType: obj.OrderType.toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
                     }
                     list.push(tmp);
                 }
@@ -698,11 +979,23 @@ const MultipleOrders = () => {
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME)
             }
         }
+        if (calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+            return {
+                msgCode: systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE,
+                message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE)
+            }
+        }
         return null;
     }
 
     const handleFileUpload = (event: any) => {
+        const acceptedFiles = event.target.accept?.split(',');
         const file = event.target.files[0];
+        const extend = getExtensionFile(file?.name);
+        if (!acceptedFiles.includes(extend)) {
+            toast.error("Invalid file format");
+            return;
+        }
         const reader = new FileReader();
         reader.onload = (evt: any) => {
             /* Parse data */
@@ -732,9 +1025,16 @@ const MultipleOrders = () => {
         }
     }
 
-    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSelected1: string, positionSelected2: string) => (
+    const getClassNameSideBtn = (side: string, className: string, positionSell: string, positionBuy: string) => {
+        if (convertNumber(side) !== tradingModel.Side.NONE) {
+            return side === tradingModel.Side.SELL ? `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionSell}` : `btn ${className} rounded text-white flex-grow-1 p-2 text-center ${positionBuy}`
+        }
+        return `btn rounded text-white flex-grow-1 p-2 text-center `
+    }
+
+    const _renderButtonSideOrder = (side: string, className: string, title: string, sideHandle: string, positionSell: string, positionBuy: string) => (
         <button type="button"
-            className={side === tradingModel.Side.SELL ? `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected1}` : `btn ${className} text-white flex-grow-1 p-2 text-center ${positionSelected2}`}
+            className={getClassNameSideBtn(side, className, positionSell, positionBuy)}
             onClick={() => handleSide(sideHandle)}>
             <span className="fs-5 text-uppercase">{title}</span>
         </button>
@@ -744,6 +1044,7 @@ const MultipleOrders = () => {
         const symbolCode = getSymbolCode(ticker);
         const lotSize = getLotSize(symbolCode);
         const volume = convertNumber(value);
+        setIsMaxOrderVol(volume > convertNumber(maxOrderVolume))
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
@@ -768,24 +1069,23 @@ const MultipleOrders = () => {
         } else {
             setIsShowNotiErrorPrice(false);
         }
-        const temp = Math.round(+price * 100);
-        const tempTickeSize = Math.round(tickSize * 100);
-        setInvalidPrice(temp % tempTickeSize !== 0);
+        setInvalidPrice(!checkPriceTickSize(price, tickSize));
     }
 
     const _renderNotiErrorPrice = () => (
-        <div className='text-danger text-end'>Out of daily price limits</div>
+        <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
     )
 
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
         <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
-                <div className="flex-grow-1 py-1 px-2" onKeyDown={handleKeyDown}>
+                <div className={title === TITLE_ORDER_CONFIRM.PRICE && orderType === tradingModel.OrderType.OP_MARKET ? 'flex-grow-1 py-1 px-2 bg-disabled' : 'flex-grow-1 py-1 px-2'} onKeyDown={handleKeyDown}>
                     <label className="text text-secondary" style={{ float: 'left' }}>{title}</label>
-                    <NumberFormat disabled={disableControl()} decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
+                    <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" className="form-control text-end border-0 p-0 fs-5 lh-1 fw-600"
                         value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         thousandSeparator="," isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
+                        disabled={disableControl()}
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
@@ -793,9 +1093,10 @@ const MultipleOrders = () => {
                     <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isShowNotiErrorPrice && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
-            {invalidPrice && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end'>Invalid Price</div>}
-            {invalidVolume && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.VOLUME && <div className='text-danger text-end'>Invalid quantity</div>}
+            {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
+            {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end fs-px-13'>Invalid Price</div>}
+            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end fs-px-13'>Invalid quantity</div>}
+            {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume)}</div>}
         </>
 
     )
@@ -808,9 +1109,15 @@ const MultipleOrders = () => {
             if (item) {
                 const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
                 const currentVol = Number(volume);
-                const nerwVol = currentVol + lotSize;
-                setVolume(nerwVol);
-                setInvalidVolume(nerwVol % lotSize !== 0);
+                let newVol = currentVol + lotSize;
+                if (!checkVolumeLotSize(newVol, lotSize)) {
+                    const temp = new Decimal(newVol);
+        
+                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+                    const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+                    newVol = convertNumber(strVol);
+                }
+                setVolume(newVol);
             }
         }
     }
@@ -827,9 +1134,15 @@ const MultipleOrders = () => {
                     setVolume(lotSize);
                     return;
                 }
-                const nerwVol = currentVol - lotSize;
-                setVolume(nerwVol);
-                setInvalidVolume(nerwVol % lotSize !== 0);
+                let newVol = currentVol - lotSize;
+                if (!checkVolumeLotSize(newVol, lotSize)) {
+                    const temp = new Decimal(newVol);
+        
+                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+                    const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+                    newVol = convertNumber(strVol);
+                }
+                setVolume(newVol);
             }
         }
     }
@@ -846,10 +1159,14 @@ const MultipleOrders = () => {
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
+                if (!checkPriceTickSize(newPrice, tickSize)) {
+                    const temp = new Decimal(newPrice);
+
+                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
+                    const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).floor().mul(tickSize).toString();
+                    newPrice = convertNumber(strPrice);
+                }
                 setPrice(newPrice);
-                const temp = Math.round(Number(newPrice) * 100);
-                const tempTickeSize = Math.round(tickSize * 100);
-                setInvalidPrice(temp % tempTickeSize !== 0);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
                     return;
@@ -875,12 +1192,16 @@ const MultipleOrders = () => {
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
+                if (!checkPriceTickSize(newPrice, tickSize)) {
+                    const temp = new Decimal(newPrice);
+
+                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+                    const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
+                    newPrice = convertNumber(strPrice);
+                }
                 if (newPrice > 0) {
                     setPrice(newPrice);
                 }
-                const temp = Math.round(Number(newPrice) * 100);
-                const tempTickeSize = Math.round(tickSize * 100);
-                setInvalidPrice(temp % tempTickeSize !== 0);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
                     return;
@@ -897,13 +1218,35 @@ const MultipleOrders = () => {
     const handleChangeTicker = (event: any) => {
         const value = event.target.innerText || event.target.value;
         setTicker(value ? value : '');
+        const symbolCode = value?.split('-')[0]?.trim();
+        setSymbolCode(symbolCode ? symbolCode : '');
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
             const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+
+            const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
+            if (lastQuoteInfo) {
+                setIsEmptyAsk(lastQuoteInfo.asksList.length === 0);
+                setIsEmptyBid(lastQuoteInfo.bidsList.length === 0);
+                const bestAsk = lastQuoteInfo?.asksList?.length > 0 ? convertNumber(lastQuoteInfo?.asksList[0]?.price) : 0;
+                const bestBid = lastQuoteInfo?.bidsList?.length > 0 ? convertNumber(lastQuoteInfo?.bidsList[0]?.price) : 0;
+                setBestAskPrice(bestAsk);
+                setBestBidPrice(bestBid);
+                if (orderType === tradingModel.OrderType.OP_MARKET) {
+                    currentSide === tradingModel.Side.BUY ? setPrice(bestAsk) : setPrice(bestBid);
+                }
+            }
+
             const item = symbols.find(o => o?.symbolCode === symbolCode);
+            setIsSave(false)
             if (item) {
-                setPrice(convertNumber(item.floor));
-                setVolume(convertNumber(item.lotSize));
+                setSymbolSelected(item?.symbolCode);
+                convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
+                if (orderType === tradingModel.OrderType.OP_LIMIT) {
+                    convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
+                }
+                setVolume(convertNumber(calcDefaultVolumeInput(item.minLot, item.lotSize)));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
                 setIsShowNotiErrorPrice(false);
@@ -912,11 +1255,20 @@ const MultipleOrders = () => {
             setPrice(0);
             setVolume(0);
         }
-        
+        const item = symbols.find(o => o?.symbolCode === symbolCode);
+        if(item) {
+            setIsSave(true);
+            setIsValidTicker(false);
+        } else {
+            setIsValidTicker(true);
+            setPrice(0);
+            setVolume(0);
+        };
     }
 
     const disableControl = () => {
-        return ticker?.trim() === '';
+        const isDisableInput = ticker?.trim() === '' || isValidTicker;
+        return isDisableInput;
     }
 
     const renderSymbolSelect = () => {
@@ -938,7 +1290,21 @@ const MultipleOrders = () => {
     }
 
     const disableButtonPlace = () => {
-        return (ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice);
+        // NOTE: Button place order will be disabled when: 
+        // - Ticker is null
+        // - Price or volume invalid
+        // - Side is none
+        // - Volume lower or equal maxOrderVolume
+        return ticker === '' ||
+               price === 0 ||
+               volume === 0 ||
+               invalidPrice ||
+               invalidVolume ||
+               isShowNotiErrorPrice ||
+               !currentSide ||
+               !isSave ||
+               isMaxOrderVol ||
+               calcGrossValue(price, volume) > convertNumber(maxOrderValue);
     }
 
     const handlePlaceOrder = () => {
@@ -949,10 +1315,11 @@ const MultipleOrders = () => {
             price: price.toString(),
             volume: volume.toString(),
             ticker: tickerCode,
-            msgCode: getStatusOrder(tickerCode, volume, price) ? 
+            msgCode: getStatusOrder(tickerCode, volume, price) ?
                 getStatusOrder(tickerCode, volume, price)?.msgCode : null,
-            message: getStatusOrder(tickerCode, volume, price) ? 
-                getStatusOrder(tickerCode, volume, price)?.message : ''
+            message: getStatusOrder(tickerCode, volume, price) ?
+                getStatusOrder(tickerCode, volume, price)?.message : '',
+            orderType: orderType
         }
 
         const tmp = [...listTickers];
@@ -960,30 +1327,65 @@ const MultipleOrders = () => {
         setListTickers(tmp);
         dispatch(keepListOrder(tmp));
         setIsAddOrder(false);
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]')
-        const symbol = symbols.find(symbol => symbol.symbolCode === ticker?.split('-')[0]?.trim())
-        setPrice(symbol ? symbol.floor : 0);
-        setVolume(symbol ? symbol.lotSize : 0);
+        setPrice(0);
+        setVolume(0);
+        setTicker('');
+        setSymbolCode('');
+        setOrderType(tradingModel.OrderType.OP_LIMIT);
     }
 
     const defindStatusOrder = (order: ISymbolMultiOrder) => {
-        if (order.state === tradingModelPb.OrderState.ORDER_STATE_PLACED) {
+        if (order.state === tradingModel.OrderState.ORDER_STATE_PLACED) {
             return <div title={STATUS_ORDER.success} className="text-success text-truncate">{STATUS_ORDER.success}</div>
         }
         return <div title={order.status?.toUpperCase()} className="text-danger text-truncate">{order?.status?.toUpperCase()}</div>;
     }
 
+    const resetOrderForm = () => {
+        setIsAddOrder(false);
+        setTicker('');
+        setSymbolCode('');
+        setOrderType(tradingModel.OrderType.OP_LIMIT);
+        setPrice(0);
+        setVolume(0);
+        setIsMaxOrderVol(false);
+        setInvalidPrice(false);
+        setInvalidVolume(false);
+        setIsValidTicker(false);
+        setIsShowNotiErrorPrice(false);
+    }
+
+    const calcGrossValue = (price: number, volume: number) => {
+        const tempPrice = new Decimal(price);
+        const grossVal = tempPrice.times(volume);
+        return convertNumber(grossVal);
+    }
+
     const _renderOrderForm = () => (
-        <div className="popup-box multiple-Order" >
-            <div className="box d-flex">
-                <div className="col-6">Add Order
-                </div>
-                <div className="col-6 text-end"><span className="close-icon" onClick={() => setIsAddOrder(false)}>x</span></div>
-            </div>
-            <div className='content text-center' style={{ height: '600px' }}>
+        <Modal show={true} onHide={() => resetOrderForm()}>
+            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <h5>Add Order</h5>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
+                    <div className='row d-flex align-items-stretch mb-2'>
+                        <div className={orderType === tradingModel.OrderType.OP_LIMIT ?
+                            'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                            onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
+                            Limit
+                        </div>
+                        <div className={orderType === tradingModel.OrderType.OP_MARKET ?
+                            'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                            onClick={() => {
+                                setOrderType(tradingModel.OrderType.OP_MARKET);
+                            }} >
+                            Market</div>
+                    </div>
                     <div className="order-btn-group d-flex align-items-stretch mb-2">
                         {_renderButtonSideOrder(currentSide, 'btn-buy', 'Sell', 'Sell', 'selected', '')}
+                        <span className='w-2'></span>
                         {_renderButtonSideOrder(currentSide, 'btn-sell', 'Buy', 'Buy', '', 'selected')}
                     </div>
                     <div className="mb-2 border py-1 px-2 d-flex align-items-center justify-content-between">
@@ -992,10 +1394,22 @@ const MultipleOrders = () => {
                             {renderSymbolSelect()}
                         </div>
                     </div>
+                    {isValidTicker && ticker !== '' && <div className='text-danger text-end fs-px-13'>Invalid Ticker</div>}
 
 
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
+                    {orderType === tradingModel.OrderType.OP_LIMIT && _renderInputControl(TITLE_ORDER_CONFIRM.PRICE, price.toString(), handleUpperPrice, handleLowerPrice)}
                     {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume.toString(), handelUpperVolume, handelLowerVolume)}
+
+                    {orderType === tradingModel.OrderType.OP_MARKET && isEmptyAsk && currentSide === tradingModel.Side.BUY &&
+                        <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_ASK}</div>
+                    }
+                    {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
+                        <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
+                    }
+
+                    {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
+                        <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
+                    }
 
                     <div className="border-top">
 
@@ -1004,17 +1418,26 @@ const MultipleOrders = () => {
                             onClick={handlePlaceOrder} >Save</button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </Modal.Body>
+            {/* <Modal.Footer className='justify-content-center'>
+                <Button variant="secondary" onClick={() => resetOrderForm()}>
+                    CLOSE
+                </Button>
+                <Button variant="primary" onClick={handlePlaceOrder} disabled={disableButtonPlace()}>
+                    SAVE
+                </Button>
+            </Modal.Footer> */}
+        </Modal>
     )
 
     const _renderPopupConfirm = () => {
-        return <div className="popup-box multiple-Order" >
-            <div className="box d-flex" style={{ width: '40%' }}>
-                <div className="col-6">Multiple Orders</div>
-                <div className="col-6 text-end"><span className="close-icon position-close-popup" onClick={() => setShowModalConfirmMultiOrders(false)}>x</span></div>
-            </div>
-            <div className='content text-center' style={{ width: '40%' }}>
+        return <Modal className="custom" show={true} onHide={() => setShowModalConfirmMultiOrders(false)}>
+            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <h5>Multiple Orders</h5>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <div className="table table-responsive mh-500 tableFixHead">
                     <table className="table table-sm table-hover mb-0 dataTable no-footer">
                         <thead>
@@ -1025,23 +1448,25 @@ const MultipleOrders = () => {
                         </tbody>
                     </table>
                 </div>
-
-
-                <div className="text-end mb-3 mt-10">
-                    <a href="#" className="btn btn-outline-secondary btn-clear mr-10" onClick={(e) => setShowModalConfirmMultiOrders(false)}>Close</a>
-                    <a href="#" className="btn btn-primary btn-submit" onClick={callOrderRequest}>Submit</a>
-                </div>
-            </div>
-        </div>
+            </Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                <Button variant="secondary" onClick={() => setShowModalConfirmMultiOrders(false)}>
+                    CLOSE
+                </Button>
+                <Button variant="primary" onClick={callOrderRequest}>
+                    SUBMIT
+                </Button>
+            </Modal.Footer>
+        </Modal>
     }
 
-    const onInputClick = ( event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    const onInputClick = (event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         const element = event.target as HTMLInputElement
         element.value = ''
     }
 
     const _renderElementImport = () => (
-        <div className="border-1 mt-30 mr mb-30" style={{width: "350px"}}>
+        <div className="border-1 mt-30 mr mb-30" style={{ width: "350px" }}>
             <div className="header-import">
                 <span className="m-3">Import</span>
             </div>
@@ -1081,8 +1506,6 @@ const MultipleOrders = () => {
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">Multiple Orders</h6>
                 </div>
-
-
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>

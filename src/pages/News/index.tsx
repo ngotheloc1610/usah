@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, NEWS_STATUS, TAB_NEW
 import { success } from '../../constants';
 import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, SIDE, START_PAGE } from '../../constants/general.constant'
 import parse from "html-react-parser";
-import { convertNumber, defindConfigGet, defindConfigPost } from '../../helper/utils';
+import { convertNumber, defindConfigGet, defindConfigPost, formatDate, stripHtmlTagsFromString } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 import moment from 'moment';
 import queryString from 'query-string';
@@ -35,13 +35,8 @@ const News = () => {
     const [totalUnReadTrading, setTotalUnReadTrading] = useState<number>(0);
     const [isUnread, setIsUnread] = useState<boolean>(false);
     const [isUnreadTradingNotice, setIsUnreadTradingNotice] = useState(false);
-    const [listDataUnread, setListDataUnread] = useState<INews[]>();
-    const [listDataUnreadTrading, setListDataUnreadTrading] = useState<ITradingResult[]>();
     const [totalItem, setTotalItem] = useState<number>(0);
     const [totalTradingResult, setTotalTradingResult] = useState(0);
-    const [totalItemUnRead, setTotalItemUnRead] = useState<number>(0);
-    const [totalTradingUnread, setTotalTradingUnread] = useState(0);
-    const [paramTrading, setParamTrading] = useState<IParamPagination>({page_size: 0, page: 0});
 
     const urlGetNews = `${api_url}${API_GET_NEWS}`;
     const urlGetTotalUnread = `${api_url}${API_GET_TOTAL_UNREAD}`;
@@ -238,8 +233,11 @@ const News = () => {
                     <i className="bi bi-bell-fill"></i>
                 </div>
                 <div className="item-content">
-                    <h6 className="item-title mb-0">{item?.newsTitle}</h6>
-                    <div className="item-summary opacity-75 fix-line-css">{parse(item?.newsContent)}</div>
+                    <div className='justify-content-between d-flex'>
+                        <h6 className="item-title mb-0 text-truncate" style={{maxWidth: '500px'}} title={item?.newsTitle}>{item?.newsTitle}</h6>
+                        <div className="item-meta"><span className="item-datetime fs-12">{formatDate(item?.publishDate)}</span></div>
+                    </div>
+                    <div className="annoucement-notice text-truncate" style={{maxWidth: "600px"}}>{stripHtmlTagsFromString(item?.newsContent)}</div>
                 </div>
             </div>
 
@@ -374,12 +372,12 @@ const News = () => {
         <div className="notification-detail border" >
             <div className="d-flex border-bottom pb-1 p-3">
                 <div>
-                    <h6 className="mb-0">{dataDetailNews?.newsTitle}</h6>
+                    <h6 className="mb-0" style={{maxWidth: '670px'}} title={dataDetailNews?.newsTitle}>{dataDetailNews?.newsTitle}</h6>
                     <div className="small opacity-50"> {dataDetailNews?.publishDate ? moment(dataDetailNews?.publishDate).format(FORMAT_DATE_NEW_OR_RESULT) : ''} </div>
                 </div>
                 <a href="#" className="ms-auto close" onClick={closeDetailNews}><i className="bi bi-x-lg"></i></a>
             </div>
-            <div className='overflow-auto detail-news p-3'>
+            <div className='overflow-auto detail-news p-3' style={{position: 'relative'}}>
                 {parse(dataDetailNews?.newsContent)}
             </div>
         </div>

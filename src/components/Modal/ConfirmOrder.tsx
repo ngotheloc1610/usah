@@ -8,12 +8,14 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
 import * as psbp from '../../models/proto/pricing_service_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput } from '../../helper/utils';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { MESSAGE_ERROR } from '../../constants/message.constant';
 import { toast } from 'react-toastify';
+import { Button, Modal } from 'react-bootstrap';
+import Decimal from 'decimal.js';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -30,26 +32,35 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const pricingServicePb: any = psbp;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
-    const [currentSide, setCurrentSide] = useState(params.side);
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
-    const [tickSize, setTickSize] = useState(0.01);
-    const [lotSize, setLotSize] = useState(100);
+    const [tickSize, setTickSize] = useState(0);
+    const [lotSize, setLotSize] = useState(0);
+    const [minLot, setMinLot] = useState(0);
     const [invalidPrice, setInvalidPrice] = useState(false);
     const [invalidVolume, setInvalidVolume] = useState(false);
     const [outOfPrice, setOutOfPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [isDisableInput, setIsDisableInput] = useState(false);
 
+    const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
+
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE);
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
+
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || '0';
 
     useEffect(() => {
-        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
-        const tickSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.tickSize;
-        const lotSize = tickerList.find(item => item.symbolCode === params.tickerCode)?.lotSize;
-        setTickSize(convertNumber(tickSize));
-        setLotSize(convertNumber(lotSize));
+        const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
+        const currentTicker = tickerList.find(item => item.symbolCode === params.tickerCode);
+        if (currentTicker) {
+            const tickSize = currentTicker?.tickSize;
+            const lotSize = currentTicker?.lotSize;
+            const minLot = currentTicker?.minLot;
+            setTickSize(convertNumber(tickSize));
+            setLotSize(convertNumber(lotSize));
+            setMinLot(convertNumber(minLot));
+        }
     }, [])
 
     const handleVolumeModify = (valueVolume: string) => {
@@ -57,10 +68,14 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const lotSize = symbolInfo?.ceiling ? symbolInfo?.lotSize : '';
         const onlyNumberVolumeChange = valueVolume.replaceAll(/[^0-9]/g, "");
         if (lotSize && convertNumber(lotSize) !== 0) {
-            setInvalidVolume(convertNumber(valueVolume) % convertNumber(lotSize) !== 0);
+            setInvalidVolume(!checkVolumeLotSize(valueVolume, lotSize) || convertNumber(onlyNumberVolumeChange) < minLot);
         }
         convertNumber(onlyNumberVolumeChange) > convertNumber(params.volume) ? setIsDisableInput(true) : setIsDisableInput(false);
         setVolumeModify(onlyNumberVolumeChange);
+        
+        const tempVolumeChange = convertNumber(onlyNumberVolumeChange).toString();
+
+        setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
     const prepareMessageeModify = (accountId: string) => {
@@ -79,7 +94,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT);
+            order.setOrderType(params.orderType);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -131,11 +146,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
             let order = new tradingModelPb.Order();
             order.setAmount(`${params.volume}`);
-            order.setPrice(`${params.price}`);
+            order.setPrice(`${params.price.toFixed(2)}`);
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
+            order.setOrderType(params.orderType);
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -177,7 +192,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setUid(uid);
             order.setSymbolCode(params.tickerCode);
             order.setSide(params.side);
-            order.setOrderType(tradingModelPb.OrderType.OP_LIMIT)
+            order.setOrderType(params.orderType)
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
@@ -241,18 +256,32 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleUpperVolume = () => {
         const currentVol = convertNumber(volumeModify);
-        let nerwVol = currentVol + lotSize;
-        setVolumeModify(nerwVol.toString());
+        let newVol = currentVol + lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+            const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
+        setVolumeModify(newVol.toString());
 
     }
 
     const handleLowerVolume = () => {
         const currentVol = convertNumber(volumeModify);
-        if (currentVol <= lotSize) {
+        if (currentVol <= minLot) {
             return;
         }
-        const nerwVol = currentVol - lotSize;
-        setVolumeModify(nerwVol.toString());
+        let newVol = currentVol - lotSize;
+        if (!checkVolumeLotSize(newVol, lotSize)) {
+            const temp = new Decimal(newVol);
+
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+            const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+            newVol = convertNumber(strVol);
+        }
+        setVolumeModify(newVol.toString());
     }
 
     useEffect(() => {
@@ -311,23 +340,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }
 
     const _renderConfirmOrder = (title: string, value: string) => (
-        <tr className='mt-2'>
-            <td className='text-left w-150'><b>{title}</b></td>
-            {(isModify || isCancel) && title === TITLE_ORDER_CONFIRM.SIDE ? <td className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger pt-1 pb-2' : 'text-success pt-1 pb-2'}`}>{value}</td> : <td className={`text-end `}>{value}</td>}
-        </tr>
+        <div className='row'>
+            <div className='col-6'><b>{title}</b></div>
+            {title === TITLE_ORDER_CONFIRM.SIDE ?
+                <div className={`text-end ${value.toLowerCase() === SIDE_NAME.buy ? 'text-danger text-uppercase col-6' : 'text-success text-uppercase col-6'}`}>{value}</div>
+                : <div className="text-end text-uppercase col-6">{value}</div>}
+        </div>
     )
-
-    const onChangePrice = (value: string) => {
-        const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
-        const ceilingPrice = symbolInfo?.ceiling ? symbolInfo?.ceiling : '';
-        const floorPrice = symbolInfo?.floor ? symbolInfo?.floor : '';
-        const tickSize = symbolInfo?.tickSize ? symbolInfo?.tickSize : 1;
-        setOutOfPrice(+value < +floorPrice || +value > +ceilingPrice);
-        const newTickSize = Math.round(convertNumber(tickSize) * Math.pow(10, 2));
-        const newPrice = Math.round(+value * Math.pow(10, 2));
-        setInvalidPrice(newPrice % newTickSize !== 0);
-        setPriceModify(+value);
-    }
 
     const handleKeyDown = (e) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
@@ -337,29 +356,33 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isVolumeValue ? true : false
     }
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => (
-        <tr className='mt-2'>
-            <td className='text-left w-150'><b>{title}</b></td>
-            <td className='text-end'>
+        <div className='row'>
+            <div className='text-left col-4'>
+                <b>{title === TITLE_ORDER_CONFIRM.PRICE && params.orderType === tradingModelPb.OrderType.OP_MARKET ? 'Market price' : title}</b>
+            </div>
+            <div className='text-end col-8'>
                 {(isModify && title === TITLE_ORDER_CONFIRM.QUANLITY) ? <>
-                    <div className="border mb-1 d-flex h-46">
+                    <div className="border mb-1 d-flex">
                         <div className="flex-grow-1 py-1 px-2 d-flex justify-content-center align-items-end flex-column" onKeyDown={handleKeyDown}>
                             <NumberFormat type="text" className="m-100 form-control text-end border-0 p-0 fs-5 lh-1 fw-600 outline"
-                                decimalScale={0} thousandSeparator="," 
+                                maxLength={15}
+                                decimalScale={0} thousandSeparator=","
                                 isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
-                                onValueChange={(e) => handleVolumeModify(e.value)} value={formatNumber(volumeModify.replaceAll(',', ''))} />
+                                onValueChange={(e) => handleVolumeModify(e.value)} value={volumeModify !== '' ? formatNumber(volumeModify.replaceAll(',', '')) : ''} />
                         </div>
                         <div className="border-start d-flex flex-column">
                             <button disabled={btnDisableVolume()} type="button" className="btn border-bottom btn-increase flex-grow-1" onClick={handleUpperValue}>+</button>
                             <button type="button" className="btn btn-increase flex-grow-1" onClick={handleLowerValue}>-</button>
                         </div>
                     </div>
-                    {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger'>Invalid volume</div>}
-                    {isDisableInput && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-nowrap'>Quantity is exceed order quantity.</div> }
-                </> 
+                    {invalidVolume && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Invalid volume</div>}
+                    {isInvalidMaxQty && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-12'>Quantity is exceed order quantity</div>}
+                    {(new Decimal(calValue()).lt(new Decimal(minOrderValue))) && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='fs-px-12'>{_renderErrorMinValue()}</div>}
+                </>
                     : (title === TITLE_ORDER_CONFIRM.QUANLITY ? convertNumber(value) : formatCurrency(value))
                 }
-            </td>
-        </tr>
+            </div>
+        </div>
     )
     const _disableBtnConfirm = () => {
         let isDisable = true;
@@ -367,7 +390,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
         if (isModify) {
-            if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
+            if (new Decimal(calValue()).lt(new Decimal(minOrderValue))) {
                 return false;
             }
             isDisable = isConditionPrice && isConditionVolume && isChangePriceOrModify;
@@ -375,78 +398,88 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isDisable;
     }
 
-    const _renderBtnConfirmModifyCancelOrder = () => (
-        <div className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={sendOrder} disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>CONFIRM</button>
-            <button className="btn btn-light" onClick={() => handleCloseConfirmPopup(false)}>DISCARD</button>
-        </div>
-    );
-
-    const _renderBtnConfirmOrder = () => (
-        <button className='btn btn-primary' onClick={sendOrder}>Place</button>
-    )
-
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
 
     const calValue = () => {
-        return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
+        if (isModify) return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
+        return (convertNumber(params.volume) * convertNumber(params.price)).toFixed(2);
     }
 
     const _renderErrorMinValue = () => (
         <>
             <div className='text-danger text-end'>{`The order is less than USD ${formatNumber(minOrderValue || '')}. `}</div>
-            <div className='text-danger text-end'>Kindly revise the number of shares.</div>
+            <div className='text-danger text-end text-nowrap'>Kindly revise the number of shares.</div>
         </>
     )
 
-    const _renderListConfirm = () => (
-        <div>
-            <table className='w-354'>
-                <tbody>
-                    {_renderConfirmOrder(TITLE_ORDER_CONFIRM.TICKER, `${params.tickerCode} - ${params.tickerName}`)}
-                    {(isModify || isCancel) && _renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
-                    {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
-                    {_renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
-                </tbody>
-            </table>
-            {isModify && (convertNumber(calValue()) < convertNumber(minOrderValue)) && _renderErrorMinValue()}
-            <div className='mt-30'>
-                {!isModify && !isCancel && _renderBtnConfirmOrder()}
-                {(isModify || isCancel) && _renderBtnConfirmModifyCancelOrder()}
+    const _renderContentFormConfirm = () => (
+        <>
+            <div className='row'>
+                <div className='col-5'><b>Symbol Code</b></div>
+                <div className='col-7 text-end'>{`${params.tickerName} (${params.tickerCode})`}</div>
             </div>
-        </div>
+            <div className='row'>
+                <div className='col-6'><b>Order Type</b></div>
+                <div className='col-6 text-end'>{ORDER_TYPE.get(params.orderType)}</div>
+            </div>
+            {_renderConfirmOrder(TITLE_ORDER_CONFIRM.SIDE, `${getSideName(params.side)}`)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, `${formatNumber(volumeModify)}`, handleUpperVolume, handleLowerVolume)}
+            {_renderInputControl(TITLE_ORDER_CONFIRM.PRICE, params.price.toString(), handleUpperPrice, handleLowerPrice)}
+            {params.orderType === tradingModelPb.OrderType.OP_LIMIT && _renderConfirmOrder(`${TITLE_ORDER_CONFIRM.VALUE} ($)`, `${formatCurrency(calValue())}`)}
+            {params.orderType === tradingModelPb.OrderType.OP_MARKET &&
+                <>
+                    <div className='row'>
+                        <div className='col-6'><b className='text-truncate'>Indicative Gross Value</b></div>
+                        <div className='text-end col-6'>{formatCurrency(calValue())}</div>
+                    </div>
+                    {!isModify && !isCancel && <>
+                        <div className='fs-px-12 text-left mt-px-5'>(*Market prices may change)</div>
+                        <div className='fs-px-12 text-left text-danger mt-px-10'>Note: Balance unexecuted quantity will continue queue in market with Last Done price </div>
+                    </>}
+                </>
+            }
+        </>
     )
 
-    const _renderHeaderFormConfirm = () => (
-        <div>
-            <span className='fs-18'>
-                {!isModify && !isCancel && <b>Would you like to place order&nbsp;</b>}
-                {isCancel && <b>Are you sure to <span className='text-danger'>CANCEL</span> order</b>}
-                {isModify && <b>Are you sure to <span className='text-primary'>Modify</span> order</b>}
-            </span>
-            {!isModify && !isCancel && <span className={Number(currentSide) === Number(tradingModelPb.Side.BUY) ? 'order-type text-danger' : 'order-type text-success'}><b>
-                {Number(currentSide) === Number(tradingModelPb.Side.BUY) ? SIDE_NAME.buy : SIDE_NAME.sell}
-            </b></span>} &nbsp;
-            <span className='fs-18'><b>?</b></span>
-        </div>
-    )
+    const disablePlaceOrder = () => {
+        return convertNumber(calValue()) === 0 ||
+               convertNumber(calValue()) > convertNumber(maxOrderValue);
+    }
 
     const _renderTamplate = () => (
-        <div>
-            <div className="box d-flex">
-                <div className='col-6'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</div>
-                <div className='col-6'><span className="close-icon f-right" onClick={() => handleCloseConfirmPopup(false)}>x</span></div>
-            </div>
-            <div className='content text-center'>
-                {_renderHeaderFormConfirm()}
-                <div className='table-content'>
-                    {_renderListConfirm()}
-                </div>
-            </div>
-        </div>
+        <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
+            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+                <Modal.Title>
+                    <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>{_renderContentFormConfirm()}</Modal.Body>
+            <Modal.Footer className='justify-content-center'>
+                {!isModify && !isCancel &&
+                    <>
+                        {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                            Close
+                        </Button> */}
+                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={disablePlaceOrder()}>
+                            <b>Place</b>
+                        </Button>
+                    </>
+                }
+                {(isModify || isCancel) &&
+                    <>
+                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                            DISCARD
+                        </Button>
+                        <Button variant="primary" onClick={sendOrder}
+                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
+                            CONFIRM
+                        </Button>
+                    </>
+                }
+            </Modal.Footer>
+        </Modal>
     )
 
     return <div className="popup-box">

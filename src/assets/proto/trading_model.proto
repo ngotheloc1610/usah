@@ -40,6 +40,7 @@ message Order {
   string withdraw_amount = 34; // Withdraw able amount or Withdrew amount
   string submitted_id = 35;
   MsgCode msg_code = 36;
+  GroupType group_type = 37;
 }
 
 message Trade {
@@ -172,6 +173,7 @@ enum OrderRoute {
 	ROUTE_BACK = 3;
 	ROUTE_API = 4;
 	ROUTE_WEB = 5;
+	ROUTE_FIX = 6; // Come from FIX ENGINE
 }
 
 enum CallPut {

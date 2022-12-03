@@ -11,6 +11,7 @@ message NewOrderSingleRequest {
   string hash_password = 5; // E2EE password encrypted value from client side
   string hash_password_only8 = 6; // E2EE password encrypted value from client side (substring 8)
   bool hidden_confirm_flg = 7; //True -> hide confirm screen
+  string pspl_account_no = 8; //Send accountNo when place order in remisier
 }
 
 message NewOrderSingleResponse {

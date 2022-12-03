@@ -1,4 +1,4 @@
-import * as tspb from '../models/proto/trading_model_pb'
+import * as tspb from '../models/proto/trading_model_pb';
 const tradingModelPb: any = tspb;
 
 export const SIDE = [
@@ -76,6 +76,22 @@ export const STATE_HISTORY_SEARCH = [
         code: tradingModelPb.OrderState.ORDER_STATE_MODIFIED
     }
 ];
+
+export const ORDER_TYPE_SEARCH = [
+    {
+        name: 'All',
+        code: tradingModelPb.OrderType.NONE
+    },
+    {
+        name: 'Market',
+        code: tradingModelPb.OrderType.OP_MARKET
+    },
+    {
+        name: 'Limit',
+        code: tradingModelPb.OrderType.OP_LIMIT
+    }
+]
+
 export const INVALID_DATE = 'Invalid date';
 
 export const FORMAT_DATE = 'YYYY-MM-DD';
@@ -115,16 +131,23 @@ export const TITLE_CONFIRM = {
     newOrder: 'New Order Confirmation'
 };
 
-export const ORDER_TYPE = [
-    { id: 1, name: 'Limit' }
-];
+export const ORDER_TYPE = new Map([
+    [tradingModelPb.OrderType.OP_LIMIT, 'Limit' ],
+    [tradingModelPb.OrderType.OP_MARKET, 'Market']
+]);
 
 export const ORDER_TYPE_NAME = {
     limit: 'Limit'
 };
 
 export const KEY_LOCAL_STORAGE = {
-    AUTHEN: 'lp_objAuthen'
+    AUTHEN: 'lp_objAuthen',
+    START_LOAD: 'startLoad',
+    END_LOAD: 'endLoad'
+};
+
+export const KEY_SESSION_STORAGE = {
+    SESSION: 'lp_session'
 };
 
 export const MODIFY_CANCEL_STATUS = {
@@ -153,20 +176,21 @@ export const FROM_DATE_TIME = '00:00:00';
 
 export const TO_DATE_TIME = '23:59:59';
 
-export enum MESSAGE_TOAST {
-    SUCCESS_SEARCH = 'Search successfully',
-    SUCCESS_PLACE = 'Place order successfully',
-    SUCCESS_PASSWORD_UPDATE = 'Update password successfully',
+export const MESSAGE_TOAST = {
+    SUCCESS_SEARCH: 'Search successfully',
+    SUCCESS_PLACE: 'Place order successfully',
+    SUCCESS_PASSWORD_UPDATE: 'Update password successfully',
 
-    SUCCESS_CANCEL = 'Cancel order successfully',
-    SUCCESS_MODIFY = 'Modify order successfully',
+    SUCCESS_CANCEL: 'Cancel order successfully',
+    SUCCESS_MODIFY: 'Modify order successfully',
 
-    SUCCESS_ADD = 'Add symbol successfully',
+    SUCCESS_ADD: 'Add symbol successfully',
 
-    ERROR_PASSWORD_UPDATE = 'Incorrect current password',
-    ERROR_ADD = 'Add symbol failed',
+    ERROR_PASSWORD_UPDATE: 'Incorrect current password',
+    ERROR_PASSWORD_SHOULD_DIFF: `New Password should be different from past ${window.globalThis.timesChangePassword} passwords.`,
+    ERROR_ADD: 'Add symbol failed',
 
-    EXIST_ADD = 'Symbol already existed'
+    EXIST_ADD: 'Symbol already existed'
 };
 
 export const LIST_TICKER_INFO = 'TICKER_LIST';
@@ -184,6 +208,8 @@ export const ACCOUNT_ID = 'lp_account_id';
 export const POEM_ID = 'lp_poem_id';
 
 export const MIN_ORDER_VALUE = 'lp_min_order_value';
+
+export const MAX_ORDER_VALUE = 'lp_max_order_value';
 
 export const MAX_ORDER_VOLUME = 'lp_max_order_volume';
 
@@ -219,7 +245,8 @@ export enum TITLE_ORDER_CONFIRM {
     VOLUME = 'Volume',
     QUANLITY = 'Quantity',
     PRICE = 'Price',
-    VALUE = 'Value'
+    VALUE = 'Value',
+    ORDER_TYPE = 'Order Type'
 };
 
 export const CURRENCY = {
@@ -236,3 +263,5 @@ export const MARKET = 'US';
 export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as principal and is the contractual counterparty with investors in the trades.';
 
 export const NOT_MATCH_PASSWORD = "Passwords don't match";
+
+export const RETURN_LOGIN_TIME = 5;

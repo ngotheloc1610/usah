@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { wsService } from "../../../services/websocket-service";
-import * as tmpb from "../../../models/proto/trading_model_pb"
-import * as qspb from "../../../models/proto/query_service_pb"
-import * as rpcpb from "../../../models/proto/rpc_pb";
+import * as tmpb from "../../../models/proto/trading_model_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { convertDatetoTimeStamp, convertNumber, formatOrderTime, getSymbolCode, removeFocusInput } from '../../../helper/utils';
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
+import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -14,6 +12,7 @@ import moment from 'moment';
 import { IParamSearchTradeHistory, IPropsSearchTradeHistory } from '../../../interfaces/order.interface';
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
+    const tradingModelPb: any = tmpb;
     const { getParamSearch } = props
     const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
@@ -24,6 +23,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [currentDate, setCurrentDate] = useState('');
     const [isErrorDate, setIsErrorDate] = useState(false);
+    const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
@@ -80,13 +80,13 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             side: side,
             symbolCode: symbolCode,
             fromDate: fromDatetime,
-            toDate: toDatetime
+            toDate: toDatetime,
+            orderType: orderType
         }
         getParamSearch(param);
     }
 
     const getParamOrderSide = () => {
-        const tradingModelPb: any = tmpb
         if (orderSideSell === true && orderSideBuy === false) {
             setSide(tradingModelPb.Side.SELL);
         }
@@ -137,6 +137,23 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         </div>
     )
 
+    const handleOrderType = (value) => {
+        setOrderType(convertNumber(value));
+    }
+
+    const _renderListOrderType = () => {
+        return ORDER_TYPE_SEARCH.map(item => (<option value={item.code} key={item.code}>{item.name}</option>))
+    }
+
+    const _renderOrderType = () => (
+        <div className="col-xl-1">
+            <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
+            <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
+                {_renderListOrderType()}
+            </select>
+        </div>
+    )
+
     const _renderDateTime = () => (
         <div className="col-xl-4">
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
@@ -172,6 +189,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             <div className="card-body bg-gradient-light">
                 <div className="row g-2 align-items-end">
                     {_renderTicker()}
+                    {_renderOrderType()}
                     {_renderOrderSide()}
                     {_renderDateTime()}
                     <div className="col-xl-1 mb-2 mb-xl-0">

@@ -1,4 +1,4 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
 import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
@@ -19,8 +19,9 @@ function OrderTable(props: IPropListOrderHistory) {
     const [totalItem, setTotalItem] = useState<number>(0);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
+    const [dataDownload, setDataDownload] = useState<IOrderHistory[]>([]);
     const systemModelPb: any = stpb;
-
+    
     useEffect(() => {
         let historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         if (paramHistorySearch.symbolCode) {
@@ -38,7 +39,12 @@ function OrderTable(props: IPropListOrderHistory) {
         if (paramHistorySearch.orderSide > 0) {
             historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
         }
-        
+
+        if (paramHistorySearch.orderType !== tradingModelPb.OrderType.OP_NONE) {
+            historySortDate = historySortDate.filter(item => item.orderType === paramHistorySearch.orderType);
+        }
+
+        setDataDownload(historySortDate);
         setTotalItem(historySortDate.length);
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
@@ -153,7 +159,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
                 </td>
 
-                <td className="text-center w-120">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-center w-120">{ORDER_TYPE.get(item.orderType)}</td>
 
                 <td className="text-ellipsis text-end w-140">
                     <div>{formatNumber(item.amount)}</div>
@@ -164,8 +170,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price)}</div>
-                    {checkDisplayLastPrice(item.state, item.filledAmount) && <div>{formatCurrency(item?.lastPrice)}</div>}
-                    {!checkDisplayLastPrice(item.state, item.filledAmount) && <div>-</div>}
+                    <div>{(convertNumber(item?.lastPrice) > 0 && convertNumber(item?.filledAmount)) ? formatCurrency(item?.lastPrice) : '-'}</div>
                 </td>
                 <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-'}</td>
                 <td className="td w-200 text-center">
@@ -183,7 +188,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const handleDownload = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: IDataHistoryDownload[] = [];
-        dataCurrent.forEach(item => {
+        dataDownload.forEach(item => {
             if (item) {
                 data.push({
                     orderNo: item?.externalOrderId,
@@ -191,12 +196,12 @@ function OrderTable(props: IPropListOrderHistory) {
                     tickerName: getTickerName(item?.symbolCode),
                     orderSide: getSideName(item.side) || '',
                     orderStatus: getStateName(item.state) || '',
-                    orderType: ORDER_TYPE_NAME.limit,
+                    orderType: ORDER_TYPE.get(item.orderType) || '',
                     orderVolume: convertNumber(item.amount),
                     remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
                     executedVolume: convertNumber(item.filledAmount),
-                    orderPrice: convertNumber(item.price),
-                    lastPrice: convertNumber(item.lastPrice),
+                    orderPrice: formatCurrency(item.price),
+                    lastPrice: convertNumber(item.lastPrice) > 0 ? formatCurrency(item.lastPrice) : '-',
                     withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
                     orderDateTime: formatOrderTime(item.time),
                     executedDateTime: formatOrderTime(item.time),

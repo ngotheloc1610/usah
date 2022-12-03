@@ -48,6 +48,7 @@ message GroupAccount {
 	GroupType group_type		= 3;
 	int64 max_order_volume 		= 4;
 	string min_order_value		= 5;
+	string max_order_value		= 6;
 }
 
 enum GroupType {
@@ -123,6 +124,14 @@ enum DealAction {
 	DEAL_COLLATERAL	= 7;
 }
 
+enum SessionStatusCode {
+    SESSION_NONE        = 0;
+	SESSION_CLOSE       = 1;
+	SESSION_OPEN        = 2;
+	SESSION_REMOVE      = 3;
+	SESSION_NOTFOUND    = 4;
+}
+
 //return code
 enum MsgCode {
 	MT_RET_OK_NONE					= 0;
@@ -173,6 +182,27 @@ enum MsgCode {
 	MT_RET_INVALID_PASSWORD			= 10049;
 	MT_RET_TOKEN_EXPIRED			= 10050;
 	MT_RET_CHANGE_PASSWORD_FAILED	= 10051;
+	MT_RET_EXIST_LIMIT_ORDER_IN_QUEUE	= 10052; // There is an existing limit order in queue for retail
+	MT_RET_EXCEED_MAX_ORDER_VALUE	= 10053; // Order value is out of range with max order value
+
+// RMS risk check
+	MT_RET_RMS_PROGRAM_ERROR		= 20001; // Program error
+	MT_RET_RMS_INVALID_INPUT		= 20002; // Invalid input
+	MT_RET_RMS_INVALID_SIDE			= 20003; // Order side should be Buy(1) / Sell(2) only
+	MT_RET_RMS_INVALID_COMPANY		= 20004; // No valid company for input symbol and symbolsfx
+	MT_RET_RMS_INVALID_CURRENCY		= 20005; // Currency Code for input symbol and symbolfx is not valid
+	MT_RET_RMS_INVALID_LINKAGE		= 20006; // Order submitted Remisier is no linkage with the client
+	MT_RET_RMS_NO_ACCESS		= 20007; // Account No don't have access to US Market trading
+	MT_RET_RMS_PASSWORD_FAILED		= 20008; // E2EE password verification failed
+	MT_RET_RMS_ERROR_COMPANY_INFO	= 20009; // Error: getting Company Info for input symbol and symbolfx
+	MT_RET_RMS_PERMISSION_ACCESS	= 20010; // Error: getting US Trade Access for input Account No
+	MT_RET_RMS_INVALID_ORDER_NO		= 20011; // OrderNo was submitted before
+	MT_RET_RMS_INVALID_PRICE_LENGTH	= 20012; // Order price is out of field length
+	MT_RET_RMS_STOP_PRICE_LENGTH	= 20013; // Stop price is out of field length
+	MT_RET_RMS_INVALID_ORDER_TYPE	= 20014; // Order Type is not valid
+	MT_RET_RMS_INVALID_CLIENT		= 20015; // Client of input order is not eligible to trade US Asian Hrs
+	MT_RET_RMS_DB_ERROR				= 20016; // DB Error
+	MT_RET_RMS_FAILED_RISK_CHECK	= 30001; // Show as comment that API return
 }
 
 

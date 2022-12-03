@@ -1,4 +1,4 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistory, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
@@ -12,11 +12,13 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistory[]>([])
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+    const [dataDownload, setDataDownload] = useState<IListTradeHistory[]>([]);
     const totalItem = getDataTradeHistory.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
         
     useEffect(() => {
         const tradeSortDate: IListTradeHistory[] = getDataTradeHistory.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+        setDataDownload(tradeSortDate);
         const currentList = renderCurrentList(currentPage, itemPerPage, tradeSortDate);
         setListTradeSortDate(currentList);
     }, [getDataTradeHistory, itemPerPage, currentPage])
@@ -66,7 +68,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                         {getSideName(item.side)}
                     </span>
                 </td>
-                <td className="text-center w-80">{ORDER_TYPE_NAME.limit}</td>
+                <td className="text-center w-80">{ORDER_TYPE.get(item.orderType)}</td>
                 <td className="td text-end w-120">{formatNumber(item.amount)}</td>
                 <td className="td text-end w-80">{formatCurrency(item.price)}</td>
                 <td className="td text-end w-120" >{formatNumber(item.executedVolume)}</td>
@@ -96,16 +98,16 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const handleDownloadTradeHistory = () => {
         const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
         const data: ITradeHistoryDownload[] = []
-        listTradeSortDate.forEach((item) => {
+        dataDownload.forEach((item) => {
             if (item) {
                 data.push({
                     orderNo: item.externalOrderId,
                     tickerCode: getTickerCode(item?.tickerCode),
                     tickerName: getTickerName(item?.tickerCode),
                     orderSide: getSideName(item.side),
-                    orderType: ORDER_TYPE_NAME.limit,
+                    orderType: ORDER_TYPE.get(item.orderType) || '-',
                     orderQuatity: convertNumber(item.amount),
-                    orderPrice: convertNumber(item.price),
+                    orderPrice: formatCurrency(item.price),
                     executedQuatity: convertNumber(item.executedVolume),
                     executedPrice: convertNumber(item.executedPrice),
                     matchedValue: convertNumber(calcMatchedValue(item).toString()),

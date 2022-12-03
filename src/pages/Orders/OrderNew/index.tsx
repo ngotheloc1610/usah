@@ -11,7 +11,7 @@ import * as pspb from '../../../models/proto/pricing_service_pb'
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
-import { assignListPrice, calcChange, calcPctChange, checkValue } from '../../../helper/utils'
+import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
 import { IQuoteEvent } from '../../../interfaces/quotes.interface'
 
 const OrderNew = () => {
@@ -30,9 +30,7 @@ const OrderNew = () => {
         tickSize: '',
     }
 
-    const defaultLastQuotesData: ILastQuote[] = []
-
-    const [lastQuotes, setLastQuotes] = useState(defaultLastQuotesData)
+    const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([])
     const [currentTicker, setCurrentTicker] = useState(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolList, setSymbolList] = useState<ISymbolList[]>(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]'));
@@ -69,6 +67,11 @@ const OrderNew = () => {
         return () => lastQuotesRes.unsubscribe();
 
     }, [currentTickerSearch])
+
+    // NOTE: when change symbol => refresh order form
+    useEffect(() => {
+        setQuoteInfo(undefined);
+    }, [symbolCode])
 
     const sendMessageQuotes = () => {
         const pricingServicePb: any = pspb;
@@ -185,11 +188,9 @@ const OrderNew = () => {
                 bidsList: assignListPrice(dataSearchTicker.bidsList, quote.bidsList, LIST_PRICE_TYPE.bidList),
                 high: checkValue(dataSearchTicker.high, quote.high),
                 low: checkValue(dataSearchTicker.low, quote.low),
-                change: assignChangeValue(dataSearchTicker, quote).toFixed(2),
                 open: checkValue(dataSearchTicker.open, quote.open),
                 lastPrice: checkValue(dataSearchTicker.currentPrice, quote.currentPrice),
                 volume: checkValue(dataSearchTicker.volumePerDay, quote.volumePerDay),
-                changePrecent: assignPctChangeValue(dataSearchTicker, quote).toFixed(2),
                 symbolId: Number(item.symbolId),
                 tickerName: item.symbolName,
                 ticker: item.symbolCode,
@@ -199,18 +200,6 @@ const OrderNew = () => {
             }
             setCurrentTicker(tmpItem);
         }
-    }
-
-    const assignChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.netChange, quote.netChange);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcChange(lastPrice, open);
-    }
-
-    const assignPctChangeValue = (tickerInfo: ILastQuote, quote: IQuoteEvent) => {
-        const lastPrice = checkValue(tickerInfo.pctChange, quote.pctChange);
-        const open = checkValue(tickerInfo.open, quote.open);
-        return calcPctChange(lastPrice, open);
     }
 
     const subscribeQuoteEvent = (symbolId: string) => {
@@ -267,6 +256,7 @@ const OrderNew = () => {
                             <div className="row justify-content-center">
                                 <div className="col-xl-5 col-lg-6">
                                     <OrderForm isDashboard={false}
+                                               isMonitoring={false}
                                                messageSuccess={messageSuccess}
                                                symbolCode={symbolCode}
                                                quoteInfo={quoteInfo}

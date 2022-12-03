@@ -7,7 +7,6 @@ import * as rpcpb from '../../models/proto/rpc_pb';
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
-import { LIST_TICKER_INFO } from '../../constants/general.constant'
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
@@ -215,35 +214,32 @@ const TickerDashboard = (props: ITickerDashboard) => {
         </tr>
     )
 
-    const renderSymbolName = (symbolCode: string) => {
-        if (symbolList.length > 0) {
-            const item = symbolList.find(o => o?.symbolCode === symbolCode);
-            if (item) {
-                return item.symbolName;
-            }
-        }
-        return '';
-    }
-
     const renderDataListCompany = () => (
         listData.map((item: ISymbolQuote, index) => (
             <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice || '')}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.ceiling || '')}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.floor || '')}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.open || '')}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.high || '')}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.low || '')}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice)}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.ceiling)}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.floor)}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.open)}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.high)}</td>
+                <td className="text-end w-header fw-600">{formatCurrency(item.low)}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.open))}>{formatCurrency(item.lastPrice)}</span>
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{formatCurrency(item.lastPrice)}</span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{formatCurrency(item.lastPrice)}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     <span className={getClassName(calcChange(item.lastPrice, item.open))}>{formatCurrency(calcChange(item.lastPrice, item.open || '').toString())}</span>
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
+                        {calcChange(item.lastPrice, item.prevClosePrice)}
+                     </span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    <span className={getClassName(calcPctChange(item.lastPrice, item.open))}>{formatCurrency(calcPctChange(item.lastPrice, item.open || '').toString())}%</span>
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
+                        {calcPctChange(item.lastPrice, item.prevClosePrice)}%
+                    </span>}
+                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
             </tr>
         ))

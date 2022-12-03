@@ -11,8 +11,8 @@ export interface ITickerInfo {
     low?: string;
     lastPrice: string;
     volume: string;
-    change: string;
-    changePrecent: string;
+    change?: string;
+    changePrecent?: string;
     side?: string;
     tickSize?: string;
     minLot?: string;
@@ -20,6 +20,7 @@ export interface ITickerInfo {
     asks?: IAskAndBidPrice[];
     bids?: IAskAndBidPrice[];
     volumeStock?: string;
+    prevClosePrice?: string;
 }
 export interface IDetailTickerInfo {
     symbolId: number;
@@ -51,7 +52,7 @@ export interface IParamOrderModifyCancel {
     orderId?: string;
     tickerCode: string;
     tickerName: string;
-    orderType: string;
+    orderType: number;
     volume: string;
     price: number;
     side: number;
@@ -191,6 +192,7 @@ export interface ISymbolMultiOrder {
     status?: string;
     msgCode?: number;
     message?: string;
+    orderType: number;
 }
 
 export interface IListOrderHistory {
@@ -333,7 +335,7 @@ export interface ILastQuote {
     low?: string;
     netChange?: string;
     open?: string;
-    pctChange: string;
+    pctChange?: string;
     quoteTime: number;
     scale: number;
     symbolCode: string;
@@ -601,8 +603,8 @@ export interface IDataHistoryDownload {
     orderVolume: number;
     remainingVolume: number;
     executedVolume: number;
-    orderPrice: number;
-    lastPrice: number;
+    orderPrice: string;
+    lastPrice: string;
     withdrawQuantity: string;
     orderDateTime: string;
     executedDateTime: string;
@@ -617,7 +619,7 @@ export interface ITradeHistoryDownload {
     matchedValue: number;
     orderNo: string;
     orderType: string;
-    orderPrice: number;
+    orderPrice: string;
     orderSide?: string;
     tickerCode: string;
     tickerName: string;
@@ -627,6 +629,7 @@ export interface IParamSearchTradeHistory {
     side: number;
     fromDate: number;
     toDate: number;
+    orderType: number;
 }
 export interface IPropsSearchTradeHistory {
     getParamSearch: (item: IParamSearchTradeHistory) => void

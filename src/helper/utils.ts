@@ -7,6 +7,8 @@ import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
+import Decimal from 'decimal.js';
+import { INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE } from '../constants/order.constant';
 
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
@@ -72,7 +74,7 @@ export const removeFocusInput = (element: any) => {
 }
 
 export const getSymbolCode = (str: string) => {
-    const newArr = str.split('-');
+    const newArr = str.split(' - ');
     const symbolCode = newArr[0].trim();
     return symbolCode ?? ''
 }
@@ -137,29 +139,28 @@ export const assignListPrice = (prvList, currentList, type: string) => {
 }
 
 export const checkValue = (preValue, currentValue) => {
-    if (currentValue !== preValue && currentValue.toString() !== '' && currentValue.toString() !== '-') {
+    if (currentValue !== preValue && currentValue?.toString() !== '' && currentValue?.toString() !== '-') {
         return currentValue;
     }
     return preValue;
 }
 
-export const calcChange = (lastPrice: string, open: string) => {
-    if (!isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
-        return Number(lastPrice) - Number(open);
-    } else if (isNaN(Number(lastPrice)) && !isNaN(Number(open))) {
-        return 0 - Number(open);
-    } else if (!isNaN(Number(lastPrice)) && isNaN(Number(open))) {
-        return Number(lastPrice);
+export const calcChange = (lastPrice: string, prevClosePrice: string) => {
+    if (prevClosePrice) {
+        const lastPriceValue = new Decimal(lastPrice);
+        return lastPriceValue.minus(prevClosePrice).toFixed(2);
     }
-    return 0;
+    return '';
 }
 
-export const calcPctChange = (lastPrice: string, open: string) => {
-    const change = calcChange(lastPrice, open);
-    if (!isNaN(Number(open)) && Number(open) !== 0) {
-        return change / Number(open) * 100;
+export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
+    if (calcChange(lastPrice, prevClosePrice)) {
+        const change = new Decimal(calcChange(lastPrice, prevClosePrice));
+        if (convertNumber(prevClosePrice) !== 0) {
+            return change.div(prevClosePrice).mul(100).toFixed(2);
+        }
     }
-    return 0;
+    return '';
 }
 
 export const toTimestamp = (strDate: string) => {
@@ -323,6 +324,9 @@ export const checkMessageError = (msg: string, msgCode: number) => {
     if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY) {
         return msg;
     }
+    if (msgCode === systemModel.MsgCode.MT_RET_REQUEST_INVALID_VOLUME) {
+        return INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE;
+    }
     const messageDisplay = MESSAGE_ERROR.get(msgCode);
     return messageDisplay || msg;
 }
@@ -336,4 +340,70 @@ export const renderSideText = (side: number) => {
             return 'Sell';
         }
     }
+}
+
+//NOTE: Check invalid LotSize. VolumePlace must be divisible by LotSize
+// Eg: checkVolumeLotSize(100, 5) => true
+//     checkVolumeLotSize(101, 5) => false
+export const checkVolumeLotSize = (placeVol: any, lotSize: any) => {
+    // NOTE: use convertNumber function to avoid lotSize is empty.
+    // When lotSize is empty, new Decimal(lotSize) is exception
+    if (lotSize && convertNumber(lotSize) !== 0 && placeVol?.toString()?.trim() !== '') {
+        const tempVol = new Decimal(placeVol);
+        return tempVol.modulo(lotSize).equals('0');
+    }
+    return false;
+}
+
+// NOTE: calc default volume input
+// Eg: calcDefaultVolumeInput(101, 5) => '105'
+//     calcDefaultVolumeInput(100, 5) => '100'
+export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
+    // NOTE: use convertNumber function to avoid lotSize is empty.
+    // When lotSize is empty, new Decimal(lotSize) is exception
+    if (lotSize && convertNumber(lotSize) !== 0) {
+        const tempMinLot = new Decimal(minLot);
+        return tempMinLot.dividedBy(lotSize).ceil().mul(lotSize).toString();
+    }
+    return '0';
+}
+
+// NOTE: check invalid TickSize. PricePlace must be divisible by TickSize
+// Eg: checkPriceTickSize(182.31, 0.03) => true
+//     checkPriceTickSize(182.32, 0.03) => false
+export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
+    if (tickSize && convertNumber(tickSize) !== 0 && placePrice?.toString()?.trim() !== '') {
+        const tempPlacePrice = new Decimal(placePrice?.toFixed(2));
+        return tempPlacePrice.modulo(tickSize?.toFixed(2)).equals('0');
+    }
+    return false;
+}
+
+export const stripHtmlTagsFromString = (content: string) => {
+    if (content) {
+        return content.replace(/<\/?[^>]+(>|$)/g, "");
+    }
+    return "";
+}
+
+export const formatDate = (datetime) => {
+    if (datetime !== null && datetime !== "") {
+        let mDateStr = moment(datetime).format("MMM DD YYYY HH:mm:ss");
+        return mDateStr;
+    } return null;
+}
+
+export const getExtensionFile = (fileName: string) => {
+    if (fileName) {
+        const ext = fileName?.split('.').pop();
+        if (ext === fileName) return '';
+        return `.${ext}`;
+    }
+    return '';
+}
+
+export const hasDuplicates = (strArr: string[]) => {
+    return strArr.some(function(item) {
+        return strArr.indexOf(item) !== strArr.lastIndexOf(item);
+    })
 }
