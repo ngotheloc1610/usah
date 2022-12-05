@@ -87,6 +87,7 @@ const startWs = async () => {
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         isRender = false;
+        clearInterval(intervalId);
         setTimeout(function(){startWs()}, 5000);
     }
     
@@ -170,7 +171,7 @@ const startWs = async () => {
         }
     }
 
-    setInterval(() => {
+    const intervalId = setInterval(() => {
         console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
         socket.send("PING")
     }, 30000 )
