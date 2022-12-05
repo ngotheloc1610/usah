@@ -612,10 +612,10 @@ export interface IDataHistoryDownload {
 }
 
 export interface ITradeHistoryDownload {
-    orderQuatity: number;
+    orderQuantity: number;
     executedDatetime: string;
     executedPrice: number;
-    executedQuatity: number;
+    executedQuantity: number;
     matchedValue: number;
     orderNo: string;
     orderType: string;
