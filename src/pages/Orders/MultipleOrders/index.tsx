@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE } from "../../../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -68,6 +68,7 @@ const MultipleOrders = () => {
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
 
     const systemModelPb: any = smpb;
 
@@ -975,6 +976,12 @@ const MultipleOrders = () => {
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VOLUME)
             }
         }
+        if (calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+            return {
+                msgCode: systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE,
+                message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE)
+            }
+        }
         return null;
     }
 
@@ -1286,7 +1293,16 @@ const MultipleOrders = () => {
         // - Price or volume invalid
         // - Side is none
         // - Volume lower or equal maxOrderVolume
-        return ticker === '' || price === 0 || volume === 0 || invalidPrice || invalidVolume || isShowNotiErrorPrice || !currentSide || !isSave || isMaxOrderVol;
+        return ticker === '' ||
+               price === 0 ||
+               volume === 0 ||
+               invalidPrice ||
+               invalidVolume ||
+               isShowNotiErrorPrice ||
+               !currentSide ||
+               !isSave ||
+               isMaxOrderVol ||
+               calcGrossValue(price, volume) > convertNumber(maxOrderValue);
     }
 
     const handlePlaceOrder = () => {
@@ -1340,6 +1356,12 @@ const MultipleOrders = () => {
         setIsShowNotiErrorPrice(false);
     }
 
+    const calcGrossValue = (price: number, volume: number) => {
+        const tempPrice = new Decimal(price);
+        const grossVal = tempPrice.times(volume);
+        return convertNumber(grossVal);
+    }
+
     const _renderOrderForm = () => (
         <Modal show={true} onHide={() => resetOrderForm()}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -1384,6 +1406,10 @@ const MultipleOrders = () => {
                     }
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
                         <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
+                    }
+
+                    {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
+                        <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
                     }
 
                     <div className="border-top">

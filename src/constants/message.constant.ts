@@ -37,6 +37,7 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE, `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}. Kindly revise the number of shares`],
     [systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION, 'Market is closed during holiday'],
     [systemModel.MsgCode.MT_RET_TOKEN_EXPIRED, 'Token expired'],
+    [systemModel.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE, 'Gross value is exceed max order value'],
   ]);
   
   export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}`;
