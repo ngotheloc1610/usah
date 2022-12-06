@@ -39,7 +39,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
+    const [dataSelectedList, setDataSelected] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listOrder.length;
@@ -257,25 +257,38 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => item.isChecked);
+        const dataSelected = dataOrder.filter(item => dataSelectedList.includes(item.externalOrderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
     }
 
-    const handleChecked = (e) => {
-        const { name, checked } = e.target;
-        if (name === "allSelect") {
-            const isSelectAll = dataOrder.map((order) => {
-                return { ...order, isChecked: checked };
-            });
-            setDataOrder(isSelectAll);
-        } else {
-            let tempOrder = dataOrder.map((order, index) =>
-                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
-            );
-            setDataOrder(tempOrder);
+    const handleChecked = (event: any, item: any) => {
+        if (item) {
+            const temps = [...dataSelectedList];
+            const idx = temps.findIndex(o => o === item.externalOrderId);
+            if (event.target.checked) {
+                if (idx < 0) {
+                    temps.push(item.externalOrderId);
+                }
+            } else {
+                if (idx >= 0) {
+                    temps.splice(idx, 1);
+                }
+            }
+            setDataSelected(temps);
         }
+
+    }
+
+    const handleCheckedAll = (event: any) => {
+        let lst: string[] = [];
+        if (event.target.checked) {
+            dataOrder.forEach(item => {
+                lst.push(item.externalOrderId);
+            });
+        }
+        setDataSelected(lst);
     }
 
     const getListModifyCancelData = () => (
@@ -284,9 +297,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 <td>
                     <div className="form-check">
                         <input className="form-check-input" type="checkbox" value=""
-                            checked={item?.isChecked || false}
+                            checked={dataSelectedList.includes(item.externalOrderId)}
                             name={index.toString()}
-                            onChange={handleChecked}
+                            onChange={(event) => handleChecked(event, item)}
                             id="all" />
                     </div>
                 </td>
@@ -318,8 +331,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                             <th>
                                 <input type="checkbox" value=""
                                     name="allSelect"
-                                    onChange={handleChecked}
-                                    checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
+                                    onChange={handleCheckedAll}
+                                    checked={dataSelectedList.length === dataOrder.length && dataOrder.length > 0}
                                 />
                             </th>
                             <th className="sorting_disabled">
@@ -347,7 +360,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                 <span className="text-ellipsis">Datetime</span>
                             </th>
                             <th className="text-end sorting_disabled">
-                                {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                                {(dataSelectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
                             </th>
                         </tr>
                     </thead>
@@ -371,7 +384,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             params={paramModifyCancel}
             handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
-            totalOrder={totalOrder} listOrder={dataSelected}
+            totalOrder={totalOrder} listOrder={dataSelectedList}
             handleOrderResponse={getStatusOrderResponse}
             handleStatusCancelAll={getStatusModifyCancelOrCancelMulti} />}
     </div>
