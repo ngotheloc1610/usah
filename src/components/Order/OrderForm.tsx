@@ -86,7 +86,7 @@ const OrderForm = (props: IOrderForm) => {
         if (symbol) {
             setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
         }
-    }, [symbolCode])
+    }, [symbolCode, symbolInfor])
 
     useEffect(() => {
         if (symbolCode) {
@@ -290,7 +290,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice])
+    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice, isRenderVolume])
     
     useEffect(() => {
         if (quoteInfo) {
