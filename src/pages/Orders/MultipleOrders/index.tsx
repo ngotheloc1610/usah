@@ -730,6 +730,8 @@ const MultipleOrders = () => {
     }
 
     const _renderMessageError = (item: any) => {
+        if(item.msgCode === systemModelPb.MsgCode.MT_RET_OK) return item?.message?.toUpperCase();
+
         if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY
             && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
             return MESSAGE_EMPTY_ASK;
@@ -746,6 +748,7 @@ const MultipleOrders = () => {
         if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
         }
+
         return item?.message?.toUpperCase();
     }
 
