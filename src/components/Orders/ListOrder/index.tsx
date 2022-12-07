@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
@@ -155,6 +155,19 @@ const ListOrder = (props: IPropsListOrder) => {
         window.scrollTo(position.x, position.y)
     }, [position])
 
+    useEffect(() => {
+        const orderIds = dataOrder.map((order) => order.externalOrderId);
+        const newSelectList = [...selectedList] 
+
+        selectedList.forEach((item) => {
+            if(!orderIds.includes(item)) {
+                newSelectList.splice(newSelectList.indexOf(item), 1);
+            }
+        });
+
+        setSelectedList(newSelectList);
+    }, [dataOrder])
+
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
@@ -260,6 +273,7 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
     }
+
     const handleChecked = (event: any, item: any) => {
         if (item) {
             const temps = [...selectedList];
@@ -275,7 +289,6 @@ const ListOrder = (props: IPropsListOrder) => {
             }
             setSelectedList(temps);
         }
-
     }
 
     const handleCheckedAll = (event: any) => {
