@@ -198,7 +198,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
-        setIsRenderPrice(false);
+        // setIsRenderPrice(false);
         setIsRenderVolume(false);
         const tempSymbolsList = [...symbolInfor];
         const tempLastQuotes = [...lastQuotes];
@@ -290,7 +290,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice])
+    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice, isRenderVolume])
     
     useEffect(() => {
         if (quoteInfo) {
