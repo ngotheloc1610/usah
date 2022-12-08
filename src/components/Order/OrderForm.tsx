@@ -86,7 +86,7 @@ const OrderForm = (props: IOrderForm) => {
         if (symbol) {
             setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
         }
-    }, [symbolCode, symbolInfor])
+    }, [symbolCode])
 
     useEffect(() => {
         if (symbolCode) {
