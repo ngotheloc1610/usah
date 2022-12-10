@@ -372,6 +372,7 @@ export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
 // Eg: checkPriceTickSize(182.31, 0.03) => true
 //     checkPriceTickSize(182.32, 0.03) => false
 export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
+    if (convertNumber(placePrice) === 0 && convertNumber(tickSize) === 0) return true;
     if (tickSize && convertNumber(tickSize) !== 0 && placePrice?.toString()?.trim() !== '') {
         const tempPlacePrice = new Decimal(placePrice?.toFixed(2));
         return tempPlacePrice.modulo(tickSize?.toFixed(2)).equals('0');
