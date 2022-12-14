@@ -39,7 +39,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
-    const [dataSelectedList, setDataSelected] = useState<any[]>([]);
+    const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
+    const [dataSelectedList, setSelectedList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const totalItem = listOrder.length;
@@ -93,6 +94,19 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             unsubscribeQuoteEvent();
         }
     }, []);
+
+    useEffect(() => {
+        const orderIds = dataOrder.map((order) => order.externalOrderId);
+        const newSelectList = [...dataSelectedList] 
+
+        dataSelectedList.forEach((item) => {
+            if(!orderIds.includes(item)) {
+                newSelectList.splice(newSelectList.indexOf(item), 1);
+            }
+        });
+
+        setSelectedList(newSelectList);
+    }, [dataOrder])
 
     useEffect(() => {
         processOrderList(listOrderFull);
@@ -276,7 +290,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                     temps.splice(idx, 1);
                 }
             }
-            setDataSelected(temps);
+            setSelectedList(temps);
         }
 
     }
@@ -288,11 +302,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 lst.push(item.externalOrderId);
             });
         }
-        setDataSelected(lst);
+        setSelectedList(lst);
     }
 
     const getListModifyCancelData = () => (
         dataOrder.map((item, index) => {
+            console.log('check',dataSelectedList.includes(item.externalOrderId))
             return <tr key={index} className="odd">
                 <td>
                     <div className="form-check">
@@ -384,7 +399,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             params={paramModifyCancel}
             handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
-            totalOrder={totalOrder} listOrder={dataSelectedList}
+            totalOrder={totalOrder} listOrder={dataSelected}
             handleOrderResponse={getStatusOrderResponse}
             handleStatusCancelAll={getStatusModifyCancelOrCancelMulti} />}
     </div>
