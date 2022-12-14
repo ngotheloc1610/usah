@@ -41,6 +41,7 @@ message Order {
   string submitted_id = 35;
   MsgCode msg_code = 36;
   GroupType group_type = 37;
+  ExternalState external_state = 38; // External system result state
 }
 
 message Trade {
@@ -186,4 +187,10 @@ enum ModifyType {
 	MODIFY_TYPE_NONE = 0;
  	CANCEL = 2;
 	UPDATE = 3;
+}
+
+enum ExternalState {
+	EXTERNAL_STATE_NONE = 0;
+	EXTERNAL_STATE_WAITING = 1; // Wating for received external trading system result for an order
+	EXTERNAL_STATE_RECEIVED = 2; // Already received result for an order
 }

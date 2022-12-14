@@ -27,6 +27,9 @@ message Account {
 	string phone = 15;
 
 	BoolFlag enable_secret_key_flg = 16; // Setting enable trading PIN
+
+	int64 num_trades			= 17;
+	int64 num_pending_orders	= 18;
 	
 	// Have to use enum with NONE value for bool flag because:
 	// There's no way of telling whether a field was explicitly set to

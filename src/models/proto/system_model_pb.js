@@ -441,7 +441,9 @@ proto.Account.toObject = function(includeInstance, msg) {
     recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
     email: jspb.Message.getFieldWithDefault(msg, 14, ""),
     phone: jspb.Message.getFieldWithDefault(msg, 15, ""),
-    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 16, 0)
+    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 16, 0),
+    numTrades: jspb.Message.getFieldWithDefault(msg, 17, 0),
+    numPendingOrders: jspb.Message.getFieldWithDefault(msg, 18, 0)
   };
 
   if (includeInstance) {
@@ -541,6 +543,14 @@ proto.Account.deserializeBinaryFromReader = function(msg, reader) {
     case 16:
       var value = /** @type {!proto.Account.BoolFlag} */ (reader.readEnum());
       msg.setEnableSecretKeyFlg(value);
+      break;
+    case 17:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setNumTrades(value);
+      break;
+    case 18:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setNumPendingOrders(value);
       break;
     default:
       reader.skipField();
@@ -680,6 +690,20 @@ proto.Account.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       16,
+      f
+    );
+  }
+  f = message.getNumTrades();
+  if (f !== 0) {
+    writer.writeInt64(
+      17,
+      f
+    );
+  }
+  f = message.getNumPendingOrders();
+  if (f !== 0) {
+    writer.writeInt64(
+      18,
       f
     );
   }
@@ -990,6 +1014,42 @@ proto.Account.prototype.getEnableSecretKeyFlg = function() {
  */
 proto.Account.prototype.setEnableSecretKeyFlg = function(value) {
   return jspb.Message.setProto3EnumField(this, 16, value);
+};
+
+
+/**
+ * optional int64 num_trades = 17;
+ * @return {number}
+ */
+proto.Account.prototype.getNumTrades = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 17, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setNumTrades = function(value) {
+  return jspb.Message.setProto3IntField(this, 17, value);
+};
+
+
+/**
+ * optional int64 num_pending_orders = 18;
+ * @return {number}
+ */
+proto.Account.prototype.getNumPendingOrders = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 18, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setNumPendingOrders = function(value) {
+  return jspb.Message.setProto3IntField(this, 18, value);
 };
 
 

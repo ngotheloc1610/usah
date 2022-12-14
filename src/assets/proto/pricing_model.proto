@@ -35,6 +35,7 @@ message Quote {
   string volume_per_day = 19;
   string current_price = 20;   // LP market price
   string retail_price = 21; // Retail market price
+  RouteQuote route = 22; // Quote from refinitiv or usah
 }
 
 
@@ -44,4 +45,10 @@ message Chart {
   string symbol_code = 3;
 
   //TODO
+}
+
+enum RouteQuote {
+	QUOTE_NONE      = 0;
+	QUOTE_USAH      = 1;
+	QUOTE_REFINITIV = 2;
 }
