@@ -307,7 +307,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const getListModifyCancelData = () => (
         dataOrder.map((item, index) => {
-            console.log('check',dataSelectedList.includes(item.externalOrderId))
             return <tr key={index} className="odd">
                 <td>
                     <div className="form-check">
