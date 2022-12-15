@@ -3,7 +3,7 @@ import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
 import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
-import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo } from "../../interfaces/order.interface";
+import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
@@ -33,9 +33,9 @@ const Dashboard = () => {
 
     const [matchedOrder, setMatchedOrder] = useState(0);
     const [pendingOrder, setPendingOrder] = useState(0);
-    const [trade, setTrade] = useState<IListTradeHistory[]>([])
     const [tradeEvent, setTradeEvent] = useState<IListTradeHistory[]>([])
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
+    const [accountDetail, setAccountDetail] = useState<IAccountDetail>();
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
@@ -51,6 +51,7 @@ const Dashboard = () => {
                 sendTradeHistoryReq();
                 sendListOrder();
                 sendAccountPortfolio();
+                sendAccountDetail();
             }
 
             if (resp === SOCKET_RECONNECTED) {
@@ -101,7 +102,6 @@ const Dashboard = () => {
 
         const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
             if (res && res.tradeList) {
-                setTrade(res.tradeList)
                 setMatchedOrder(res.tradeList.length)
             }
         });
@@ -121,6 +121,12 @@ const Dashboard = () => {
         const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
             if (res && res.accountPortfolioList) {
                 setPortfolio(res.accountPortfolioList);
+            }
+        });
+
+        const customerInfoDetailRes = wsService.getCustomerInfoDetail().subscribe(res => {   
+            if (res && res.account) {
+                setAccountDetail(res.account);
             }
         });
 
@@ -146,6 +152,7 @@ const Dashboard = () => {
             portfolioRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
+            customerInfoDetailRes.unsubscribe();
         }
     }, [])
     
@@ -253,6 +260,24 @@ const Dashboard = () => {
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
             rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
+            rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const sendAccountDetail = () => {
+        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        const SystemServicePb: any = sspb;
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let currentDate = new Date();
+            let infoDetailRequest = new SystemServicePb.AccountDetailRequest();
+            infoDetailRequest.setAccountId(Number(accountId));
+
+            const rpcModel: any = rspb;
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_DETAIL_REQ);
+            rpcMsg.setPayloadData(infoDetailRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
@@ -383,11 +408,11 @@ const Dashboard = () => {
                 <div className="row d-flex justify-content-center align-items-center">
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Matched Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : formatNumber(matchedOrder.toString())}</div>
+                        <div className="fw-600">{isLoading ? '-' : accountDetail?.numTrades}</div>
                     </div>
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Pending Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : formatNumber(pendingOrder.toString())}</div>
+                        <div className="fw-600">{isLoading ? '-' : accountDetail?.numPendingOrders}</div>
                     </div>
                     <div className="text-center px-3 col-md-4">
                         <div className="small fw-bold">% P/L</div>
@@ -413,6 +438,7 @@ const Dashboard = () => {
 
         if (item === MESSAGE_TOAST.SUCCESS_PLACE) {
             sendListOrder();
+            sendAccountDetail();
         }
     }
 
@@ -423,7 +449,6 @@ const Dashboard = () => {
     const getSide = (value: number) => {
         setSide(value);
     }
-
 
     return (
         <div className="site-main">

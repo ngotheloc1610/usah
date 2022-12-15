@@ -478,6 +478,27 @@ export interface IPortfolio {
     unrealizedPl: string;
 }
 
+export interface IAccountDetail {
+    accountId: number;
+    apiFlg: boolean;
+    apiKey: string;
+    comment: string;
+    email: string;
+    enableFlg: false;
+    enableSecretKeyFlg: number;
+    groupId: number;
+    numPendingOrders: number;
+    numTrades: number;
+    name: string;
+    password: string;
+    phone: string;
+    recvAdminNewsFlg: number;
+    recvMatchNotiFlg: number;
+    registeredDate: number;
+    secretKey: string;
+    tradingRights: number;
+}
+
 export interface IPortfolioDownLoad {
     tickerCode: string;
     ownedVol: number;
