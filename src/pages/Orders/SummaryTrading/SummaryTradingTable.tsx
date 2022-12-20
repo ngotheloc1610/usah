@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { checkValue, convertNumber, convertNumberToFixed, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -262,13 +262,13 @@ function SummaryTradingTable() {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
                     ownedVol: calcOwnedVolume(item?.symbolCode.split('.')[0]),
-                    avgPrice: convertNumber(calcAvgPrice(item).toFixed(2).toString()),
-                    dayNotional: convertNumber(calcInvestedValue(item).toFixed(2).toString()),
-                    marketPrice: convertNumber(Number(item.marketPrice).toFixed(2)),
-                    currentValue: convertNumber(calcCurrentValue(item).toFixed(2).toString()),
-                    unrealizedPl: convertNumber(formatCurrency(calcUnrealizedPL(item).toFixed(2).toString())),
+                    avgPrice: convertNumberToFixed(calcAvgPrice(item).toString()),
+                    dayNotional: convertNumberToFixed(calcInvestedValue(item).toString()),
+                    marketPrice: convertNumberToFixed(item.marketPrice),
+                    currentValue: convertNumberToFixed(calcCurrentValue(item).toString()),
+                    unrealizedPl: convertNumberToFixed(formatCurrency(calcUnrealizedPL(item).toString())),
                     percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
-                    transactionVol: convertNumber(item.totalVolume.toFixed(2).toString()),
+                    transactionVol: convertNumberToFixed(item.totalVolume.toString()),
                 })
             }
         })
@@ -285,6 +285,7 @@ function SummaryTradingTable() {
                 'Transaction Volume': item.transactionVol,
             }
         })
+
         exportCSV(dataClone, `summaryTrading_${dateTimeCurrent}`);
     }
 

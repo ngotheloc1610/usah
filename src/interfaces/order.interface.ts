@@ -502,13 +502,13 @@ export interface IAccountDetail {
 export interface IPortfolioDownLoad {
     tickerCode: string;
     ownedVol: number;
-    avgPrice: number;
-    dayNotional: number;
-    marketPrice: number;
-    currentValue: number;
-    unrealizedPl: number;
+    avgPrice: string;
+    dayNotional: string;
+    marketPrice: string;
+    currentValue: string;
+    unrealizedPl: string;
     percentUnrealizedPl: string;
-    transactionVol: number;
+    transactionVol: string;
 }
 export interface ITotalNetFollowAccountId {
     title: string;
