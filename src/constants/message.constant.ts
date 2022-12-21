@@ -47,3 +47,5 @@ export const MESSAGE_ERROR = new Map([
   export const MESSAGE_ERROR_API = {
     ERROR_SUSPEND_ACCOUNT: "Account suspended"
   }
+
+  export const INVALID_VOLUME= 'Invalid volume';

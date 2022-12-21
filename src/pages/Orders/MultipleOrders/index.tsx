@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
-import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, MESSAGE_ERROR } from "../../../constants/message.constant";
+import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_VOLUME, MESSAGE_ERROR } from "../../../constants/message.constant";
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
 import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
@@ -459,7 +459,20 @@ const MultipleOrders = () => {
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (convertNumber(itemSymbol.volume) - lotSize) > 0 ? (convertNumber(itemSymbol.volume) - lotSize) : lotSize;
+        const lotSizeConvert = convertNumber(lotSize) === 0 ? 1 : convertNumber(lotSize);
+        const currentVol =convertNumber(itemSymbol.volume);
+
+        if (currentVol <= lotSizeConvert) {
+            return;
+        }
+        
+        let newValue = currentVol - lotSizeConvert;
+        if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
+            const temp = new Decimal(newValue);
+             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : temp.dividedBy(lotSizeConvert).ceil().mul(lotSizeConvert).toString();
+            newValue = convertNumber(strVol);
+        }
 
         listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
 
@@ -481,8 +494,16 @@ const MultipleOrders = () => {
 
     const increaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
-        const newValue = (convertNumber(itemSymbol.volume) + lotSize) > 0 ? (convertNumber(itemSymbol.volume) + lotSize) : lotSize;
-
+        const lotSizeConvert = convertNumber(lotSize) === 0 ? 1 : convertNumber(lotSize);
+        const currentVol =convertNumber(itemSymbol.volume);
+        
+        let newValue = currentVol + lotSizeConvert;
+        if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
+            const temp = new Decimal(newValue);
+            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : temp.dividedBy(lotSizeConvert).floor().mul(lotSizeConvert).toString();
+            newValue = convertNumber(strVol);
+        }
         listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
 
         const listOrder = [...listTickers];
@@ -506,7 +527,7 @@ const MultipleOrders = () => {
             const tickSize = getTickSize(itemSymbol.ticker);
             const celling = getCelling(itemSymbol.ticker);
             const floorPrice = getFloor(itemSymbol.ticker);
-            let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;
+            let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;     
             if (newValue > celling) {
                 newValue = celling;
             } else if (newValue < floorPrice) {
@@ -747,6 +768,9 @@ const MultipleOrders = () => {
         }
         if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
+        }
+        if(convertNumber(item.volume) % getLotSize(item.ticker) !== 0 || item.volume < 1){
+            return INVALID_VOLUME;
         }
 
         return item?.message?.toUpperCase();
@@ -1322,7 +1346,6 @@ const MultipleOrders = () => {
                 getStatusOrder(tickerCode, volume, price)?.message : '',
             orderType: orderType
         }
-
         const tmp = [...listTickers];
         tmp.push(obj);
         updateListTickers(tmp);
@@ -1378,7 +1401,7 @@ const MultipleOrders = () => {
                         <div className={orderType === tradingModel.OrderType.OP_LIMIT ?
                             'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
                             onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
-                            Limit
+                           Limit
                         </div>
                         <div className={orderType === tradingModel.OrderType.OP_MARKET ?
                             'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
