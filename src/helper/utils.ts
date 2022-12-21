@@ -201,6 +201,13 @@ export const convertNumber = (value: any) => {
     return 0;
 }
 
+export const roundingNumber = (value: string) => {
+    if (value && !isNaN(Number(value)) ) {
+        return Number(value).toFixed(2);
+    }
+    return "0.00";
+}
+
 export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
     let i = index;
     let sum = 0;
