@@ -201,7 +201,7 @@ export const convertNumber = (value: any) => {
     return 0;
 }
 
-export const convertNumberToFixed = (value: string) => {
+export const roundingNumber = (value: string) => {
     if (value && !isNaN(Number(value)) ) {
         return Number(value).toFixed(2);
     }

@@ -20,6 +20,7 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_FILL, 'Invalid Fill'],
     [systemModel.MsgCode.MT_RET_REQUEST_LIMIT_VOLUME, 'Request limit quantity'],
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_ORDER_TYPE, 'Invalid Order Type'],
+    [systemModel.MsgCode.MT_RET_FORWARD_EXT_SYSTEM, 'Orders forwarded to external trading system'],
 
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_LIMIT_PRICE, 'Request invalid limt price'],
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_TRIGGER_PRICE, 'Request invalid trigger price'],

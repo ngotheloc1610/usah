@@ -26,6 +26,8 @@ interface IConfirmOrder {
     isCancel?: boolean;
 }
 
+const flagMsgCode = window.globalThis.flagMsgCode;
+
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
@@ -99,6 +101,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             order.setSubmittedId(uid);
+
+            if(flagMsgCode) {
+                order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
+            }
             modifyOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
@@ -166,6 +172,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.warning;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
@@ -197,6 +205,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             order.setSubmittedId(uid);
+
+            if(flagMsgCode) {
+                order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
+            }
             cancelOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);

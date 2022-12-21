@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, convertNumberToFixed, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { checkValue, convertNumber, roundingNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -262,13 +262,13 @@ function SummaryTradingTable() {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
                     ownedVol: calcOwnedVolume(item?.symbolCode.split('.')[0]),
-                    avgPrice: convertNumberToFixed(calcAvgPrice(item).toString()),
-                    dayNotional: convertNumberToFixed(calcInvestedValue(item).toString()),
-                    marketPrice: convertNumberToFixed(item.marketPrice),
-                    currentValue: convertNumberToFixed(calcCurrentValue(item).toString()),
-                    unrealizedPl: convertNumberToFixed(formatCurrency(calcUnrealizedPL(item).toString())),
+                    avgPrice: roundingNumber(calcAvgPrice(item).toString()),
+                    dayNotional: roundingNumber(calcInvestedValue(item).toString()),
+                    marketPrice: roundingNumber(item.marketPrice),
+                    currentValue: roundingNumber(calcCurrentValue(item).toString()),
+                    unrealizedPl: roundingNumber(formatCurrency(calcUnrealizedPL(item).toString())),
                     percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
-                    transactionVol: convertNumberToFixed(item.totalVolume.toString()),
+                    transactionVol: roundingNumber(item.totalVolume.toString()),
                 })
             }
         })

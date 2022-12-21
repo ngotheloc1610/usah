@@ -4,4 +4,5 @@ window.globalThis = {
     "flagRmsApi": "true",
     "idleTimeOut": 3600000,
     "timesChangePassword": 6,
+    "flagMsgCode": "true",
 }
