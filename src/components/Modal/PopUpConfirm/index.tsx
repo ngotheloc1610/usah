@@ -20,6 +20,8 @@ interface IPropsConfirm {
     handleStatusCancelAll?: (value: boolean) => void;
 }
 
+const flagMsgCode = window.globalThis.flagMsgCode;
+
 const PopUpConfirm = (props: IPropsConfirm) => {
     const { handleCloseConfirmPopup, totalOrder, listOrder, handleOrderResponse, handleStatusCancelAll } = props;
 
@@ -95,6 +97,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                 order.setSide(item.side);
                 order.setSubmittedId(uid);
+
+                if(flagMsgCode) {
+                    order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
+                }
+
                 cancelOrder.addOrder(order);
             });
             let rpcMsg = new rProtoBuff.RpcMessage();
