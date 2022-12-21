@@ -104,7 +104,8 @@ export const FORMAT_DATE_TIME_MILLIS = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
-    error: 2
+    error: 2,
+    warning: 3,
 };
 
 export const SIDE_NAME = {
