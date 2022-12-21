@@ -359,6 +359,11 @@ const OrderForm = (props: IOrderForm) => {
         return <div>{toast.error(messageDis)}</div>
     }
 
+    const _rendetMessageWarning = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.warning(messageDis)}</div>
+    }
+
     const handleSide = (value: string) => {
         setCurrentSide(value);
     }
@@ -469,6 +474,7 @@ const OrderForm = (props: IOrderForm) => {
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _rendetMessageWarning(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {

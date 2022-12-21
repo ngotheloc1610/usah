@@ -201,6 +201,13 @@ export const convertNumber = (value: any) => {
     return 0;
 }
 
+export const roundingNumber = (value: string) => {
+    if (value && !isNaN(Number(value)) ) {
+        return Number(value).toFixed(2);
+    }
+    return "0.00";
+}
+
 export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
     let i = index;
     let sum = 0;
@@ -407,4 +414,20 @@ export const hasDuplicates = (strArr: string[]) => {
     return strArr.some(function(item) {
         return strArr.indexOf(item) !== strArr.lastIndexOf(item);
     })
+}
+
+export const calcDecreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).ceil().mul(lostSize).toString();
+    }
+    return '0';
+}
+
+export const calcIncreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).floor().mul(lostSize).toString();
+    }
+    return '0';
 }

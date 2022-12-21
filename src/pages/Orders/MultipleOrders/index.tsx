@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize, getExtensionFile, hasDuplicates } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize, getExtensionFile, hasDuplicates, calcDecreaseCommon, calcIncreaseCommon } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -468,9 +468,8 @@ const MultipleOrders = () => {
         
         let newValue = currentVol - lotSizeConvert;
         if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
-            const temp = new Decimal(newValue);
              // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : temp.dividedBy(lotSizeConvert).ceil().mul(lotSizeConvert).toString();
+            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' :  calcDecreaseCommon(lotSizeConvert, newValue);
             newValue = convertNumber(strVol);
         }
 
@@ -496,12 +495,11 @@ const MultipleOrders = () => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const lotSizeConvert = convertNumber(lotSize) === 0 ? 1 : convertNumber(lotSize);
         const currentVol =convertNumber(itemSymbol.volume);
-        
+
         let newValue = currentVol + lotSizeConvert;
         if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
-            const temp = new Decimal(newValue);
             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : temp.dividedBy(lotSizeConvert).floor().mul(lotSizeConvert).toString();
+            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : calcIncreaseCommon(lotSizeConvert, newValue);
             newValue = convertNumber(strVol);
         }
         listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
@@ -769,7 +767,7 @@ const MultipleOrders = () => {
         if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
         }
-        if(convertNumber(item.volume) % getLotSize(item.ticker) !== 0 || item.volume < 1){
+        if(convertNumber(item?.volume) % getLotSize(item?.ticker) !== 0 || item?.volume < 1){
             return INVALID_VOLUME;
         }
 
@@ -1135,10 +1133,8 @@ const MultipleOrders = () => {
                 const currentVol = Number(volume);
                 let newVol = currentVol + lotSize;
                 if (!checkVolumeLotSize(newVol, lotSize)) {
-                    const temp = new Decimal(newVol);
-
                     // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-                    const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).floor().mul(lotSize).toString();
+                    const strVol = convertNumber(lotSize) === 0 ? '0' : calcIncreaseCommon(lotSize, newVol);
                     newVol = convertNumber(strVol);
                 }
                 setVolume(newVol);
@@ -1160,10 +1156,10 @@ const MultipleOrders = () => {
                 }
                 let newVol = currentVol - lotSize;
                 if (!checkVolumeLotSize(newVol, lotSize)) {
-                    const temp = new Decimal(newVol);
+
 
                     // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-                    const strVol = convertNumber(lotSize) === 0 ? '0' : temp.dividedBy(lotSize).ceil().mul(lotSize).toString();
+                    const strVol = convertNumber(lotSize) === 0 ? '0' : calcDecreaseCommon(lotSize, newVol);
                     newVol = convertNumber(strVol);
                 }
                 setVolume(newVol);
@@ -1184,10 +1180,8 @@ const MultipleOrders = () => {
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
                 if (!checkPriceTickSize(newPrice, tickSize)) {
-                    const temp = new Decimal(newPrice);
-
                     // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
-                    const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).floor().mul(tickSize).toString();
+                    const strPrice = convertNumber(tickSize) === 0 ? '0' : calcIncreaseCommon(tickSize, newPrice);
                     newPrice = convertNumber(strPrice);
                 }
                 setPrice(newPrice);
@@ -1217,10 +1211,8 @@ const MultipleOrders = () => {
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
                 if (!checkPriceTickSize(newPrice, tickSize)) {
-                    const temp = new Decimal(newPrice);
-
                     // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
-                    const strPrice = convertNumber(tickSize) === 0 ? '0' : temp.dividedBy(tickSize).ceil().mul(tickSize).toString();
+                    const strPrice = convertNumber(tickSize) === 0 ? '0' : calcDecreaseCommon(tickSize, newPrice);
                     newPrice = convertNumber(strPrice);
                 }
                 if (newPrice > 0) {

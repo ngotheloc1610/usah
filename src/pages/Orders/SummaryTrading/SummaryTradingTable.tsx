@@ -1,5 +1,5 @@
 import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { checkValue, convertNumber, roundingNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
 import { wsService } from "../../../services/websocket-service";
 import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
@@ -262,17 +262,31 @@ function SummaryTradingTable() {
                 data.push({
                     tickerCode: getSymbol(item.symbolCode)?.symbolCode,
                     ownedVol: calcOwnedVolume(item?.symbolCode.split('.')[0]),
-                    avgPrice: convertNumber(calcAvgPrice(item).toString()),
-                    dayNotional: convertNumber(calcInvestedValue(item).toString()),
-                    marketPrice: convertNumber(item.marketPrice),
-                    currentValue: convertNumber(calcCurrentValue(item).toString()),
-                    unrealizedPl: convertNumber(formatCurrency(calcUnrealizedPL(item).toString())),
+                    avgPrice: roundingNumber(calcAvgPrice(item).toString()),
+                    dayNotional: roundingNumber(calcInvestedValue(item).toString()),
+                    marketPrice: roundingNumber(item.marketPrice),
+                    currentValue: roundingNumber(calcCurrentValue(item).toString()),
+                    unrealizedPl: roundingNumber(formatCurrency(calcUnrealizedPL(item).toString())),
                     percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
-                    transactionVol: convertNumber(item.totalVolume.toString()),
+                    transactionVol: roundingNumber(item.totalVolume.toString()),
                 })
             }
         })
-        exportCSV(data, `summaryTrading_${dateTimeCurrent}`);
+        const dataClone = data.map((item)=>{
+            return {
+                'Ticker Code': item.tickerCode,
+                'Owned Volume': item.ownedVol,
+                'AVG Price': item.avgPrice,
+                'Day Notional': item.dayNotional,
+                'Market Price': item.marketPrice,
+                'Current Value': item.currentValue,
+                'Unrealized PL': item.unrealizedPl,
+                '% Unrealized PL': item.unrealizedPl,
+                'Transaction Volume': item.transactionVol,
+            }
+        })
+
+        exportCSV(dataClone, `summaryTrading_${dateTimeCurrent}`);
     }
 
     const _renderDownloadPortfolio = () => (
