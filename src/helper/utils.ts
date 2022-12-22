@@ -431,3 +431,39 @@ export const calcIncreaseCommon = (lostSize: number, newVolume: number)=>{
     }
     return '0';
 }
+
+export const convertValueIncreaseTickSize = (newValue: number, tickSize: number)=>{
+    if (!checkPriceTickSize(newValue, tickSize)) {
+        // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+        const value = convertNumber(tickSize) === 0 ? '0' : calcIncreaseCommon(tickSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueDecreaseTickSize = (newValue: number, tickSize: number)=>{
+    if (!checkPriceTickSize(newValue, tickSize)) {
+        // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+        const value = convertNumber(tickSize) === 0 ? '0' : calcDecreaseCommon(tickSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueIncreaseLostSize = (newValue: number, lostSize: number)=>{
+    if (!checkVolumeLotSize(newValue, lostSize)) {
+        // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+        const value = convertNumber(lostSize) === 0 ? '0' : calcIncreaseCommon(lostSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueDecreaseLostSize = (newValue: number, lostSize: number)=>{
+    if (!checkVolumeLotSize(newValue, lostSize)) {
+        // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+        const value = convertNumber(lostSize) === 0 ? '0' : calcDecreaseCommon(lostSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
