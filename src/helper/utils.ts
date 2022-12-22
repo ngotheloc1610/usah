@@ -415,3 +415,19 @@ export const hasDuplicates = (strArr: string[]) => {
         return strArr.indexOf(item) !== strArr.lastIndexOf(item);
     })
 }
+
+export const calcDecreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).ceil().mul(lostSize).toString();
+    }
+    return '0';
+}
+
+export const calcIncreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).floor().mul(lostSize).toString();
+    }
+    return '0';
+}
