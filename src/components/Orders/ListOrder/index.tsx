@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
-import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
+import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.scss';
@@ -39,6 +39,8 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const [selectedList, setSelectedList] = useState<any[]>([]);
 
+    const [orderEventList, setOrderEventList] = useState<any[]>([]);
+
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
 
@@ -64,18 +66,118 @@ const ListOrder = (props: IPropsListOrder) => {
             processListOrder(response.orderList);
         });
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
-            if (resp && resp.quoteList) {
-                sendListOrder()
-            }
+        const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            console.log("OrderEvent: ", resp.orderList);
+            setOrderEventList(resp.orderList);
         })
 
         return () => {
             ws.unsubscribe();
-            quoteEvent.unsubscribe();
             listOrder.unsubscribe();
+            orderEvent.unsubscribe();
         }
     }, []);
+
+    useEffect(() => {
+        processOrderEvent(orderEventList);
+    }, [orderEventList]);
+
+    const processOrderEvent = (orderList) => {
+        if (orderList) {
+            orderList.forEach(order => {
+                switch (order.state) {
+                    case tradingModelPb.OrderState.ORDER_STATE_PLACED: {
+                        handleOrderPlaced(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_CANCELED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_PARTIAL: {
+                        handleOrderParital(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_FILLED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_REJECTED: {
+                        handleOrderRejected(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MODIFIED: {
+                        handleOrderModified(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MATCHED: {
+                        break;
+                    }
+                    default: {
+                        console.log("Order state don't support. OrderState=", order.state);
+                    }
+                }
+            })
+        }
+    }
+
+    const handleOrderPlaced = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx < 0) {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime)
+    
+            });
+            setDataOrder(tmpList);
+        }
+    }
+
+    const handleOrderCanceledAndFilled = (order) => {
+        removeOrder(order);
+    }
+
+    const handleOrderParital = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.amount,
+                filledAmount: order?.totalFilledAmount
+            }
+            setDataOrder(tmpList);
+        }
+    }
+
+    const handleOrderModified = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.filledAmount,
+                filledAmount: order?.totalFilledAmount
+            }
+            setDataOrder(tmpList);
+        }
+    }
+
+    const handleOrderRejected = (order) => {
+        removeOrder(order);
+    }
+
+    const removeOrder = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList.splice(idx, 1);
+            setDataOrder(tmpList);
+        }
+    }
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
