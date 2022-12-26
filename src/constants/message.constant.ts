@@ -50,3 +50,4 @@ export const MESSAGE_ERROR = new Map([
   }
 
   export const INVALID_VOLUME= 'Invalid volume';
+  export const INVALID_PRICE= 'Invalid price';

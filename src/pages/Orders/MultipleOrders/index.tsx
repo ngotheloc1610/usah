@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, checkVolumeLotSize, getExtensionFile, hasDuplicates, calcDecreaseCommon, calcIncreaseCommon } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, checkVolumeLotSize } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
-import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_VOLUME, MESSAGE_ERROR } from "../../../constants/message.constant";
+import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_PRICE, INVALID_VOLUME, MESSAGE_ERROR } from "../../../constants/message.constant";
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
 import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
@@ -467,11 +467,8 @@ const MultipleOrders = () => {
         }
         
         let newValue = currentVol - lotSizeConvert;
-        if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
-             // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' :  calcDecreaseCommon(lotSizeConvert, newValue);
-            newValue = convertNumber(strVol);
-        }
+
+        newValue = convertValueDecreaseLostSize(newValue, lotSizeConvert);
 
         listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
 
@@ -497,11 +494,9 @@ const MultipleOrders = () => {
         const currentVol =convertNumber(itemSymbol.volume);
 
         let newValue = currentVol + lotSizeConvert;
-        if (!checkVolumeLotSize(newValue, lotSizeConvert)) {
-            // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-            const strVol = convertNumber(lotSizeConvert) === 0 ? '0' : calcIncreaseCommon(lotSizeConvert, newValue);
-            newValue = convertNumber(strVol);
-        }
+
+        newValue = convertValueIncreaseLostSize(newValue, lotSizeConvert);
+
         listTickers[index] = updateTickerInfo(listTickers[index], newValue.toString(), listTickers[index]?.price);
 
         const listOrder = [...listTickers];
@@ -526,6 +521,9 @@ const MultipleOrders = () => {
             const celling = getCelling(itemSymbol.ticker);
             const floorPrice = getFloor(itemSymbol.ticker);
             let newValue = (convertNumber(itemSymbol.price) - tickSize) > 0 ? (convertNumber(itemSymbol.price) - tickSize) : tickSize;     
+            
+            newValue = convertValueDecreaseTickSize(newValue, tickSize);
+
             if (newValue > celling) {
                 newValue = celling;
             } else if (newValue < floorPrice) {
@@ -557,6 +555,9 @@ const MultipleOrders = () => {
             const celling = getCelling(itemSymbol.ticker);
             const floorPrice = getFloor(itemSymbol.ticker);
             let newValue = (convertNumber(itemSymbol.price) + tickSize) > 0 ? (convertNumber(itemSymbol.price) + tickSize) : tickSize;
+            
+            newValue = convertValueIncreaseTickSize(newValue, tickSize);
+
             if (newValue > celling) {
                 newValue = celling;
             } else if (newValue < floorPrice) {
@@ -764,11 +765,17 @@ const MultipleOrders = () => {
         if (item?.msgCode === systemModelPb.MsgCode.MT_RET_REQUEST_INVALID_FILL && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
         }
+
         if (convertNumber(item?.price) === 0 && item?.orderType === tradingModel.OrderType.OP_MARKET) {
             return INSUFFICIENT_QUANTITY_FOR_THIS_TRADE;
         }
+
         if(convertNumber(item?.volume) % getLotSize(item?.ticker) !== 0 || item?.volume < 1){
             return INVALID_VOLUME;
+        }
+
+        if(!checkPriceTickSize(convertNumber(item?.price), getTickSize(item?.ticker))){
+            return INVALID_PRICE;
         }
 
         return item?.message?.toUpperCase();
@@ -963,6 +970,7 @@ const MultipleOrders = () => {
                 if (obj.OrderType.toLowerCase() === 'market') {
                     tempPrice = obj.OrderSide.toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
                 }
+          
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
                         no: (list.length).toString(),
@@ -1132,11 +1140,9 @@ const MultipleOrders = () => {
                 const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
                 const currentVol = Number(volume);
                 let newVol = currentVol + lotSize;
-                if (!checkVolumeLotSize(newVol, lotSize)) {
-                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
-                    const strVol = convertNumber(lotSize) === 0 ? '0' : calcIncreaseCommon(lotSize, newVol);
-                    newVol = convertNumber(strVol);
-                }
+
+                newVol = convertValueIncreaseLostSize(newVol, lotSize);
+   
                 setVolume(newVol);
             }
         }
@@ -1155,13 +1161,7 @@ const MultipleOrders = () => {
                     return;
                 }
                 let newVol = currentVol - lotSize;
-                if (!checkVolumeLotSize(newVol, lotSize)) {
-
-
-                    // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
-                    const strVol = convertNumber(lotSize) === 0 ? '0' : calcDecreaseCommon(lotSize, newVol);
-                    newVol = convertNumber(strVol);
-                }
+               newVol = convertValueDecreaseLostSize(newVol, lotSize);
                 setVolume(newVol);
             }
         }
@@ -1179,11 +1179,9 @@ const MultipleOrders = () => {
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
-                if (!checkPriceTickSize(newPrice, tickSize)) {
-                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.03'
-                    const strPrice = convertNumber(tickSize) === 0 ? '0' : calcIncreaseCommon(tickSize, newPrice);
-                    newPrice = convertNumber(strPrice);
-                }
+      
+                newPrice = convertValueIncreaseTickSize(newPrice, tickSize);
+
                 setPrice(newPrice);
                 if (newPrice > ceilingPrice) {
                     setIsShowNotiErrorPrice(true);
@@ -1210,11 +1208,9 @@ const MultipleOrders = () => {
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
-                if (!checkPriceTickSize(newPrice, tickSize)) {
-                    // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
-                    const strPrice = convertNumber(tickSize) === 0 ? '0' : calcDecreaseCommon(tickSize, newPrice);
-                    newPrice = convertNumber(strPrice);
-                }
+           
+                newPrice = convertValueDecreaseTickSize(newPrice, tickSize);
+                
                 if (newPrice > 0) {
                     setPrice(newPrice);
                 }
