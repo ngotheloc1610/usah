@@ -130,8 +130,14 @@ const ListOrder = (props: IPropsListOrder) => {
                 time: convertNumber(order?.executedDatetime)
     
             });
-            setDataOrder(tmpList);
+        } else {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                price: order?.price
+            }
         }
+        setDataOrder(tmpList);
     }
 
     const handleOrderCanceledAndFilled = (order) => {
@@ -148,8 +154,13 @@ const ListOrder = (props: IPropsListOrder) => {
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount
             }
-            setDataOrder(tmpList);
+        } else {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime),
+            });
         }
+        setDataOrder(tmpList);
     }
 
     const handleOrderModified = (order) => {
@@ -160,7 +171,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 ...tmpList[idx],
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.filledAmount,
-                filledAmount: order?.totalFilledAmount
+                filledAmount: '0'
             }
             setDataOrder(tmpList);
         }
