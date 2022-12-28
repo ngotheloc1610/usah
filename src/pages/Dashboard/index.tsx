@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED, TIME_ZONE, TO_DATE_TIME } from "../../constants/general.constant";
+import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -13,8 +13,7 @@ import * as tspb from "../../models/proto/trading_service_pb";
 import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
-import moment from 'moment-timezone'
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils";
+import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -30,10 +29,6 @@ const Dashboard = () => {
     const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
     const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
-
-    const [matchedOrder, setMatchedOrder] = useState(0);
-    const [pendingOrder, setPendingOrder] = useState(0);
-    const [tradeEvent, setTradeEvent] = useState<IListTradeHistory[]>([])
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
     const [accountDetail, setAccountDetail] = useState<IAccountDetail>();
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
@@ -48,8 +43,6 @@ const Dashboard = () => {
             }
 
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendTradeHistoryReq();
-                sendListOrder();
                 sendAccountPortfolio();
                 sendAccountDetail();
             }
@@ -59,9 +52,14 @@ const Dashboard = () => {
                 const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
                 subscribeQuoteEvent(symbolListActive);
                 callLastQuoteRequest(symbolListActive)
-                subscribeTradeEvent(symbolListActive);
             }
         });
+
+        const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            if (resp && resp.orderList) {
+                sendAccountDetail();
+            }
+        })
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList && res.symbolList.length > 0) {
@@ -96,25 +94,6 @@ const Dashboard = () => {
                 }
                 subscribeQuoteEvent(symbolListActive);
                 callLastQuoteRequest(symbolListActive)
-                subscribeTradeEvent(symbolListActive);
-            }
-        });
-
-        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            if (res && res.tradeList) {
-                setMatchedOrder(res.tradeList.length)
-            }
-        });
-
-        const trade = wsService.getTradeEvent().subscribe(trades => {
-            if (trades && trades.tradeList) {
-                setTradeEvent(trades.tradeList);
-            }
-        })
-
-        const listOrder = wsService.getListOrder().subscribe(res => {
-            if (res && res.orderList) {
-                setPendingOrder(res.orderList.length)
             }
         });
 
@@ -145,20 +124,13 @@ const Dashboard = () => {
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
-            tradeHistoryRes.unsubscribe();
-            unsubscribeTradeEvent(symbolList);
-            listOrder.unsubscribe();
-            trade.unsubscribe();
             portfolioRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
             customerInfoDetailRes.unsubscribe();
+            orderEvent.unsubscribe();
         }
     }, [])
-    
-    useEffect(() => {
-        setMatchedOrder(matchedOrder + tradeEvent.length)
-    }, [tradeEvent])
     
     useEffect(() => {
         processLastQuote(lastQuotes, portfolio);
@@ -206,45 +178,6 @@ const Dashboard = () => {
                 }
             })
             setPortfolio(temp);
-        }
-    }
-
-    const sendTradeHistoryReq = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
-
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
-            tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setFromDatetime(convertDatetoTimeStamp(today, FROM_DATE_TIME))
-            tradeHistoryRequest.setToDatetime(convertDatetoTimeStamp(today, TO_DATE_TIME))
-            const rpcPb: any = rspb;
-            let rpcMsg = new rpcPb.RpcMessage();
-            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
-            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendListOrder = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let orderRequest = new queryServicePb.GetOrderRequest();
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-
-            orderRequest.setAccountId(accountId);
-            rpcMsg.setPayloadData(orderRequest.serializeBinary());
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
@@ -335,40 +268,6 @@ const Dashboard = () => {
         }
     }
 
-    const subscribeTradeEvent = (symbolList: ISymbolInfo[]) => {
-        const tradingServicePb: any = tspb;
-        const rpc: any = rspb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeTradeEvent = new tradingServicePb.SubscribeTradeEventRequest();
-            symbolList.forEach(item => {
-                if (item) {
-                    subscribeTradeEvent.addSymbolCode(item.symbolCode)
-                }
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_TRADE_REQ);
-            rpcMsg.setPayloadData(subscribeTradeEvent.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const unsubscribeTradeEvent = (symbolList: ISymbolInfo[]) => {
-        const tradingServicePb: any = tspb;
-        const rpc: any = rspb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let unsubscribeTradeEventReq = new tradingServicePb.UnsubscribeTradeEventRequest();
-            symbolList.forEach(item => {
-                unsubscribeTradeEventReq.addSymbolCode(item.symbolCode)
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_TRADE_REQ);
-            rpcMsg.setPayloadData(unsubscribeTradeEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const totalPctUnrealizedPL = (portfolios: IPortfolio[]) => {
         let totalUnrealizedPL = 0;
         let totalInvestedValue = 0;
@@ -435,11 +334,6 @@ const Dashboard = () => {
 
     const messageSuccess = (item: string) => {
         setMsgSuccess(item);
-
-        if (item === MESSAGE_TOAST.SUCCESS_PLACE) {
-            sendListOrder();
-            sendAccountDetail();
-        }
     }
 
     const handleTickerSearch = (value: string) => {

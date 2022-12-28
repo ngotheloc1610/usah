@@ -310,7 +310,7 @@ const OrderForm = (props: IOrderForm) => {
                 setLimitPrice(convertNumber(quoteInfo.price))
             }
             setVolume(volume);
-            setInvalidVolume(false);
+            setInvalidVolume(volume < 0);
             setIsMaxOrderVol(false);
         }
     }, [quoteInfo, orderType])
