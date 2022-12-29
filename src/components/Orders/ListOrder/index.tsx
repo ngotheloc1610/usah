@@ -152,7 +152,8 @@ const ListOrder = (props: IPropsListOrder) => {
                 ...tmpList[idx],
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
-                filledAmount: order?.totalFilledAmount
+                filledAmount: order?.totalFilledAmount,
+                price: order?.lastPrice
             }
         } else {
             tmpList.unshift({
