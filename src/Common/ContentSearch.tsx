@@ -61,31 +61,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
         }
     }
 
-    const sendMessageSearch = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let orderRequest = new queryServicePb.GetOrderRequest();
-            const rpcModel: any = rpcpb;
-            let rpcMsg = new rpcModel.RpcMessage();
-
-            orderRequest.setAccountId(Number(accountId));
-            // Filter đang chưa có nên tạm thời chưa gửi symbolCode và side lên và sẽ tự lọc tránh lỗi
-            // orderRequest.setSymbolCode(symbolCode);
-            // orderRequest.setSide(side);
-
-            rpcMsg.setPayloadData(orderRequest.serializeBinary());
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_LIST_REQ);
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
     const handleSearch = () => {
         // Filter hiện đang do bên Front End làm nên tạm thời không gửi msg Request lên
-        // sendMessageSearch();
         getParamSearch(symbolCode, side, orderType);
     }
 

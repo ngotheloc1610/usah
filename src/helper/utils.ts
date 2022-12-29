@@ -328,7 +328,7 @@ export const handleAllowedInput = (value: string, isAllowed: boolean) => {
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
-    if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY) {
+    if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY || msgCode === systemModel.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
         return msg;
     }
     if (msgCode === systemModel.MsgCode.MT_RET_REQUEST_INVALID_VOLUME) {
