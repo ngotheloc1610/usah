@@ -153,7 +153,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
-                price: order?.lastPrice
+                price: order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price
             }
         } else {
             tmpList.unshift({
