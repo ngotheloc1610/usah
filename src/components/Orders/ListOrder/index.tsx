@@ -339,7 +339,7 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = (typeOrderRes: string) => {
+    const _renderMessageSuccess = (typeOrderRes: string) => {
         setMessageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch (typeOrderRes) {
             case (TYPE_ORDER_RES.Order):
@@ -351,31 +351,39 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
-    const _rendetMessageError = (message: string, msgCode: number) => {
+    const _renderMessageError = (message: string, msgCode: number) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(messageDis)}</div>
+    }
+
+    const _renderMessageWarning = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.warning(messageDis)}</div>
     }
 
     const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string, msgCode: number) => {
         if (statusOrder === 0 && typeOrderRes === TYPE_ORDER_RES.Order) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
             setStatusCancel(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (statusModify === 0 && typeOrderRes === TYPE_ORDER_RES.Modify) {
             setStatusModify(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         return <></>;

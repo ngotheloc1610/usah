@@ -17,13 +17,12 @@ interface IPropsConfirm {
     totalOrder: number;
     listOrder: IListOrderModifyCancel[];
     handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
-    handleStatusCancelAll?: (value: boolean) => void;
 }
 
 const flagMsgCode = window.globalThis.flagMsgCode;
 
 const PopUpConfirm = (props: IPropsConfirm) => {
-    const { handleCloseConfirmPopup, totalOrder, listOrder, handleOrderResponse, handleStatusCancelAll } = props;
+    const { handleCloseConfirmPopup, totalOrder, listOrder, handleOrderResponse } = props;
 
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
@@ -35,17 +34,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                if (handleStatusCancelAll) {
-                    // Get status modify or cancel order response
-                    handleStatusCancelAll(MODIFY_CANCEL_STATUS.success);
-                    unSubscribeQuoteEvent();
-                }
                 tmp = RESPONSE_RESULT.success;
             } else {
-                if (handleStatusCancelAll) {
-                    // Get status modify or cancel order response
-                    handleStatusCancelAll(MODIFY_CANCEL_STATUS.error)
-                }
                 tmp = RESPONSE_RESULT.error;
             }
             handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);

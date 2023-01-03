@@ -51,3 +51,6 @@ export const MESSAGE_ERROR = new Map([
 
   export const INVALID_VOLUME= 'Invalid volume';
   export const INVALID_PRICE= 'Invalid price';
+
+  export const HANDLE_NEW_ORDER_REQUEST = 'Handle new order request';
+  export const HANDLE_MODIFY_REQUEST = 'Handle modify request';

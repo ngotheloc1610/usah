@@ -341,7 +341,7 @@ const OrderForm = (props: IOrderForm) => {
         setIsMaxOrderVol(false);
     }, [symbolCode, quoteInfo])
 
-    const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
+    const _renderMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
         messageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch (typeStatusRes) {
@@ -354,12 +354,12 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const _rendetMessageError = (message: string, msgCode) => {
+    const _renderMessageError = (message: string, msgCode) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(messageDis)}</div>
     }
 
-    const _rendetMessageWarning = (message: string, msgCode) => {
+    const _renderMessageWarning = (message: string, msgCode) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.warning(messageDis)}</div>
     }
@@ -472,23 +472,25 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(tradingModel.Side.NONE);
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
-                {(value === RESPONSE_RESULT.warning && content !== '') && _rendetMessageWarning(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         return <></>;
