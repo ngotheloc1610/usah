@@ -252,7 +252,7 @@ const OrderForm = (props: IOrderForm) => {
         }
         setIsOutOfDailyPrice(false);
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
-        setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
+        setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
         setIsMaxOrderVol(volume > maxOrderVolume);
     }, [price, volume, minLot])
 
@@ -337,7 +337,6 @@ const OrderForm = (props: IOrderForm) => {
     
 
     useEffect(() => {
-        setInvalidVolume(false);
         setIsMaxOrderVol(false);
     }, [symbolCode, quoteInfo])
 
