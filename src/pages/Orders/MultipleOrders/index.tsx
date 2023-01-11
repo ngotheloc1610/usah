@@ -457,6 +457,11 @@ const MultipleOrders = () => {
         return 0
     }
 
+    const getSymbolDetail = (symbolCode: string) => {
+        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        return lstSymbols.find(o => o?.symbolCode === symbolCode);
+    }
+
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
         const lotSize = getLotSize(itemSymbol.ticker);
         const lotSizeConvert = convertNumber(lotSize) === 0 ? 1 : convertNumber(lotSize);
@@ -778,6 +783,12 @@ const MultipleOrders = () => {
             return INVALID_PRICE;
         }
 
+        if (item?.msgCode === null) {
+            const symbol = getSymbolDetail(item?.ticker || '');
+            if (convertNumber(item?.volume) < convertNumber(symbol?.minLot))
+            return MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_MIN_LOT)?.toUpperCase();
+        }
+
         return item?.message?.toUpperCase();
     }
 
@@ -1071,13 +1082,24 @@ const MultipleOrders = () => {
     )
 
     const handleChangeVolume = (value: string) => {
-        const symbolCode = getSymbolCode(ticker);
-        const lotSize = getLotSize(symbolCode);
+        const symbolCode = ticker.split('-')[0]?.trim() || '';
+        const symbolDetail = getSymbolDetail(symbolCode);
+        const lotSize = convertNumber(symbolDetail?.lotSize);
+        const minLot = convertNumber(symbolDetail?.minLot);
         const volume = convertNumber(value);
+
         setIsMaxOrderVol(volume > convertNumber(maxOrderVolume))
+
+        if (lotSize === 0) {
+            setVolume(volume);
+            setInvalidVolume(true);
+            console.log("Volume invalid because minLot=0 with symbolCode=", ticker);
+            return;
+        }
+
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
-            setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+            setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
         }
     }
 
@@ -1119,13 +1141,13 @@ const MultipleOrders = () => {
                     />
                 </div>
                 <div className="border-start d-flex flex-column">
-                    <button type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
-                    <button type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
+                    <button disabled={disabledUpValue(title)} type="button" className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
+                    <button disabled={disabledDownValue(title)} type="button" className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
             {isShowNotiErrorPrice && !isValidTicker && title === TITLE_ORDER_CONFIRM.PRICE && _renderNotiErrorPrice()}
             {invalidPrice && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.PRICE && <div className='text-danger text-end fs-px-13'>Invalid Price</div>}
-            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end fs-px-13'>Invalid quantity</div>}
+            {invalidVolume && !isValidTicker && convertNumber(value) !== 0 && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger text-end fs-px-13'>Invalid volume</div>}
             {isMaxOrderVol && title === TITLE_ORDER_CONFIRM.QUANLITY && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume)}</div>}
         </>
 
@@ -1136,8 +1158,12 @@ const MultipleOrders = () => {
             const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            if (volume < convertNumber(item?.minLot)) {
+                setVolume(convertNumber(item?.minLot));
+                return;
+            }
             if (item) {
-                const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
+                const lotSize = convertNumber(item?.lotSize) === 0 ? 1 : convertNumber(item?.lotSize);
                 const currentVol = Number(volume);
                 let newVol = currentVol + lotSize;
 
@@ -1153,6 +1179,10 @@ const MultipleOrders = () => {
             const symbolCode = ticker.split('-')[0]?.trim();
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            if (volume > convertNumber(maxOrderVolume)) {
+                setVolume(convertNumber(maxOrderVolume));
+                return;
+            }
             if (item) {
                 const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
                 const currentVol = Number(volume);
@@ -1280,8 +1310,23 @@ const MultipleOrders = () => {
     }
 
     const disableControl = () => {
-        const isDisableInput = ticker?.trim() === '' || isValidTicker;
-        return isDisableInput;
+        return ticker?.trim() === '' || isValidTicker;
+    }
+
+    const disabledDownValue = (title: string) => {
+        if (title === TITLE_ORDER_CONFIRM.QUANLITY) {
+            const symbolCode = ticker.split('-')[0]?.trim() || '';
+            const symbol = getSymbolDetail(symbolCode);
+            if (volume <= convertNumber(symbol?.minLot)) return true;
+        }
+        return false;
+    }
+
+    const disabledUpValue = (title: string) => {
+        if (title === TITLE_ORDER_CONFIRM.QUANLITY) {
+            if (volume >= convertNumber(maxOrderVolume)) return true;
+        }
+        return false;
     }
 
     const renderSymbolSelect = () => {
@@ -1421,7 +1466,9 @@ const MultipleOrders = () => {
                     {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
                         <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
                     }
-
+                    {price !== 0 && volume !== 0 && calcGrossValue(price, volume) < convertNumber(minOrderValue) && 
+                        <div className='text-danger fs-px-13 text-end'>Gross value is smaller than min order value: {formatNumber(maxOrderValue?.toString())}</div>
+                    }
                     {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
                         <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
                     }
