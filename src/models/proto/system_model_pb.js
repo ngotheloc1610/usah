@@ -441,7 +441,9 @@ proto.Account.toObject = function(includeInstance, msg) {
     recvMatchNotiFlg: jspb.Message.getFieldWithDefault(msg, 13, 0),
     email: jspb.Message.getFieldWithDefault(msg, 14, ""),
     phone: jspb.Message.getFieldWithDefault(msg, 15, ""),
-    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 16, 0)
+    enableSecretKeyFlg: jspb.Message.getFieldWithDefault(msg, 16, 0),
+    numTrades: jspb.Message.getFieldWithDefault(msg, 17, 0),
+    numPendingOrders: jspb.Message.getFieldWithDefault(msg, 18, 0)
   };
 
   if (includeInstance) {
@@ -541,6 +543,14 @@ proto.Account.deserializeBinaryFromReader = function(msg, reader) {
     case 16:
       var value = /** @type {!proto.Account.BoolFlag} */ (reader.readEnum());
       msg.setEnableSecretKeyFlg(value);
+      break;
+    case 17:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setNumTrades(value);
+      break;
+    case 18:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setNumPendingOrders(value);
       break;
     default:
       reader.skipField();
@@ -680,6 +690,20 @@ proto.Account.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       16,
+      f
+    );
+  }
+  f = message.getNumTrades();
+  if (f !== 0) {
+    writer.writeInt64(
+      17,
+      f
+    );
+  }
+  f = message.getNumPendingOrders();
+  if (f !== 0) {
+    writer.writeInt64(
+      18,
       f
     );
   }
@@ -993,6 +1017,42 @@ proto.Account.prototype.setEnableSecretKeyFlg = function(value) {
 };
 
 
+/**
+ * optional int64 num_trades = 17;
+ * @return {number}
+ */
+proto.Account.prototype.getNumTrades = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 17, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setNumTrades = function(value) {
+  return jspb.Message.setProto3IntField(this, 17, value);
+};
+
+
+/**
+ * optional int64 num_pending_orders = 18;
+ * @return {number}
+ */
+proto.Account.prototype.getNumPendingOrders = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 18, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.Account} returns this
+ */
+proto.Account.prototype.setNumPendingOrders = function(value) {
+  return jspb.Message.setProto3IntField(this, 18, value);
+};
+
+
 
 /**
  * List of repeated fields within this message type.
@@ -1302,7 +1362,8 @@ proto.GroupAccount.toObject = function(includeInstance, msg) {
     groupName: jspb.Message.getFieldWithDefault(msg, 2, ""),
     groupType: jspb.Message.getFieldWithDefault(msg, 3, 0),
     maxOrderVolume: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    minOrderValue: jspb.Message.getFieldWithDefault(msg, 5, "")
+    minOrderValue: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    maxOrderValue: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -1358,6 +1419,10 @@ proto.GroupAccount.deserializeBinaryFromReader = function(msg, reader) {
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setMinOrderValue(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMaxOrderValue(value);
       break;
     default:
       reader.skipField();
@@ -1420,6 +1485,13 @@ proto.GroupAccount.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getMaxOrderValue();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -1513,6 +1585,24 @@ proto.GroupAccount.prototype.getMinOrderValue = function() {
  */
 proto.GroupAccount.prototype.setMinOrderValue = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string max_order_value = 6;
+ * @return {string}
+ */
+proto.GroupAccount.prototype.getMaxOrderValue = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.GroupAccount} returns this
+ */
+proto.GroupAccount.prototype.setMaxOrderValue = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -3049,6 +3139,7 @@ proto.MsgCode = {
   MT_RET_ERR_PERMISSIONS: 8,
   MT_RET_ERR_TIMEOUT: 9,
   MT_RET_ERR_NOTFOUND: 13,
+  MT_RET_FORWARD_EXT_SYSTEM: 100,
   MT_RET_SUBCRIBE_OK: 310,
   MT_RET_SUBCRIBE_ALREADY: 311,
   MT_RET_SUBCRIBE_ERROR: 312,
@@ -3077,6 +3168,8 @@ proto.MsgCode = {
   MT_RET_INVALID_PASSWORD: 10049,
   MT_RET_TOKEN_EXPIRED: 10050,
   MT_RET_CHANGE_PASSWORD_FAILED: 10051,
+  MT_RET_EXIST_LIMIT_ORDER_IN_QUEUE: 10052,
+  MT_RET_EXCEED_MAX_ORDER_VALUE: 10053,
   MT_RET_RMS_PROGRAM_ERROR: 20001,
   MT_RET_RMS_INVALID_INPUT: 20002,
   MT_RET_RMS_INVALID_SIDE: 20003,

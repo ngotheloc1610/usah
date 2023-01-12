@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
 import { multipleLoginFail, success } from '../../../constants';
@@ -86,8 +86,9 @@ const Login = () => {
                     localStorage.setItem(EXPIRE_TIME, data.expire_time);
                     localStorage.setItem(ROLE, data.role);
                     localStorage.setItem(POEM_ID, data.poem_id);
-                    localStorage.setItem(MIN_ORDER_VALUE, resp.data.data.min_order_value.toString());
-                    localStorage.setItem(MAX_ORDER_VOLUME, resp.data.data.max_order_volume.toString());
+                    localStorage.setItem(MIN_ORDER_VALUE, data.min_order_value?.toString());
+                    localStorage.setItem(MAX_ORDER_VALUE, data.max_order_value?.toString());
+                    localStorage.setItem(MAX_ORDER_VOLUME, data.max_order_volume?.toString());
 
                     sessionStorage.setItem(KEY_SESSION_STORAGE.SESSION, data.access_token.toString());
 
@@ -125,8 +126,6 @@ const Login = () => {
             setIsMessErr(false);
             requestLogin();
         }
-
-
     }
 
     const handlekeyDown = (event: any) => {

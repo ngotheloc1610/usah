@@ -51,7 +51,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && move build build-lp",
+    "build": "react-scripts build && (rd /s /q build-lp && move build build-lp) || move build build-lp",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

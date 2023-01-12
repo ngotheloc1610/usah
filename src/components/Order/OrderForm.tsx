@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -72,6 +72,7 @@ const OrderForm = (props: IOrderForm) => {
     const [limitPrice, setLimitPrice] = useState(0);
 
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
     const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
@@ -197,7 +198,7 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
-        setIsRenderPrice(false);
+        // setIsRenderPrice(false);
         setIsRenderVolume(false);
         const tempSymbolsList = [...symbolInfor];
         const tempLastQuotes = [...lastQuotes];
@@ -251,7 +252,7 @@ const OrderForm = (props: IOrderForm) => {
         }
         setIsOutOfDailyPrice(false);
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
-        setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
+        setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
         setIsMaxOrderVol(volume > maxOrderVolume);
     }, [price, volume, minLot])
 
@@ -264,7 +265,7 @@ const OrderForm = (props: IOrderForm) => {
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
-            if (isRenderPrice) {
+            if (isRenderPrice && symbolItem) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                     convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
@@ -289,7 +290,7 @@ const OrderForm = (props: IOrderForm) => {
             setPrice(0);
             setVolume(0);
         }
-    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice])
+    }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice, isRenderVolume])
     
     useEffect(() => {
         if (quoteInfo) {
@@ -309,7 +310,7 @@ const OrderForm = (props: IOrderForm) => {
                 setLimitPrice(convertNumber(quoteInfo.price))
             }
             setVolume(volume);
-            setInvalidVolume(false);
+            setInvalidVolume(volume < 0);
             setIsMaxOrderVol(false);
         }
     }, [quoteInfo, orderType])
@@ -336,11 +337,10 @@ const OrderForm = (props: IOrderForm) => {
     
 
     useEffect(() => {
-        setInvalidVolume(false);
         setIsMaxOrderVol(false);
     }, [symbolCode, quoteInfo])
 
-    const _rendetMessageSuccess = (message: string, typeStatusRes: string) => {
+    const _renderMessageSuccess = (message: string, typeStatusRes: string) => {
         // To handle when order success then update new data without having to press f5
         messageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch (typeStatusRes) {
@@ -353,9 +353,14 @@ const OrderForm = (props: IOrderForm) => {
         }
     }
 
-    const _rendetMessageError = (message: string, msgCode) => {
+    const _renderMessageError = (message: string, msgCode) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(messageDis)}</div>
+    }
+
+    const _renderMessageWarning = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.warning(messageDis)}</div>
     }
 
     const handleSide = (value: string) => {
@@ -466,22 +471,25 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(tradingModel.Side.NONE);
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (typeStatusRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeStatusRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeStatusRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         return <></>;
@@ -518,6 +526,11 @@ const OrderForm = (props: IOrderForm) => {
         } else {
             isInvalidMarketPrice = false;
         }
+
+        if (price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+            return true;
+        }
+
         const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '' || isInvalidMarketPrice;
         return isDisable || isOutOfDailyPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
@@ -591,6 +604,12 @@ const OrderForm = (props: IOrderForm) => {
         e.key !== 'Delete' ? setIsAllowed(true) : setIsAllowed(false);
     }
 
+    const calcGrossValue = (price: number, volume: number) => {
+        const tempPrice = new Decimal(price);
+        const grossVal = tempPrice.times(volume);
+        return convertNumber(grossVal);
+    }
+
     const _renderInputControl = (title: string, value: string, handleUpperValue: () => void, handleLowerValue: () => void) => {
         return <>
             <div className="mb-2 border d-flex align-items-stretch item-input-spinbox">
@@ -609,7 +628,7 @@ const OrderForm = (props: IOrderForm) => {
                     <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn px-2 py-1 flex-grow-1" onClick={handleLowerValue}>-</button>
                 </div>
             </div>
-            {isOutOfDailyPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && 
+            {limitPrice !== 0 && isOutOfDailyPrice && title === TITLE_ORDER_CONFIRM.PRICE && symbolCode && orderType === tradingModel.OrderType.OP_LIMIT && 
                 <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
             }
             {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid Price</div>}
@@ -672,6 +691,10 @@ const OrderForm = (props: IOrderForm) => {
                 }
                 {orderType === tradingModel.OrderType.OP_MARKET && isEmptyBid && currentSide === tradingModel.Side.SELL &&
                     <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
+                }
+
+                {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
+                    <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
                 }
 
                 <div className="border-top">

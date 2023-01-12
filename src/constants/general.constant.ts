@@ -104,7 +104,8 @@ export const FORMAT_DATE_TIME_MILLIS = 'MMM DD YYYY HH:mm:ss.SSS';
 
 export const RESPONSE_RESULT = {
     success: 1,
-    error: 2
+    error: 2,
+    warning: 3,
 };
 
 export const SIDE_NAME = {
@@ -208,6 +209,8 @@ export const ACCOUNT_ID = 'lp_account_id';
 export const POEM_ID = 'lp_poem_id';
 
 export const MIN_ORDER_VALUE = 'lp_min_order_value';
+
+export const MAX_ORDER_VALUE = 'lp_max_order_value';
 
 export const MAX_ORDER_VOLUME = 'lp_max_order_volume';
 

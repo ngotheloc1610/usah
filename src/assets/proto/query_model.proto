@@ -22,6 +22,8 @@ message Symbol {
   SymbolStatus symbol_status = 19;
   string symbol_suffix = 20;
   string gbo_sec_code = 21; //Security Code from GBO
+  ProductType product_type = 22;
+  MatchingMethod matching_method = 23;
 }
 
 enum CalculationMode {
@@ -34,5 +36,17 @@ enum CalculationMode {
 enum SymbolStatus {
 	SYMBOL_NONE = 0;
 	SYMBOL_ACTIVE = 1;
-	SYMBOL_DEACTIVE = 2;;
+	SYMBOL_DEACTIVE = 2;
+}
+
+enum ProductType {
+	PRODUCT_TYPE_NONE = 0;
+	PRODUCT_TYPE_EQ = 1;
+	PRODUCT_TYPE_ETF = 2;
+}
+
+enum MatchingMethod {
+	MATCHING_METHOD_NONE = 0;
+	MATCHING_METHOD_EQ = 1; //Ticker is matched following to Equity matching process
+	MATCHING_METHOD_ETF = 2; //Ticker is matched following to ETF matching process
 }

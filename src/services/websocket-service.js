@@ -33,6 +33,7 @@ const unsubscribeQuoteSubject = new Subject();
 const subscribeQuoteSubject = new Subject();
 const subscribeTradeEventSubject = new Subject();
 const unsubscribeTradeEventSubject = new Subject();
+const orderEventSubject = new Subject();
 const tradeSubject = new Subject();
 let isRender = true;
 const startWs = async () => {
@@ -87,6 +88,7 @@ const startWs = async () => {
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         isRender = false;
+        clearInterval(intervalId);
         setTimeout(function(){startWs()}, 5000);
     }
     
@@ -168,9 +170,13 @@ const startWs = async () => {
             const unsubscrbeTradeRes = tradingService.UnsubscribeTradeEventResponse.deserializeBinary(msg.getPayloadData());
             unsubscribeTradeEventSubject.next(unsubscrbeTradeRes.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.ORDER_EVENT) {
+            const orderEvent = tradingService.OrderEvent.deserializeBinary(msg.getPayloadData());
+            orderEventSubject.next(orderEvent.toObject());
+        }
     }
 
-    setInterval(() => {
+    const intervalId = setInterval(() => {
         console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
         socket.send("PING")
     }, 30000 )
@@ -200,6 +206,7 @@ export const wsService = {
     getSubscribeQuoteSubject: () => subscribeQuoteSubject.asObservable(),
     getSubscribeTradeSubject: () => subscribeTradeEventSubject.asObservable(),
     getUnsubscribeTradeSubject: () => unsubscribeTradeEventSubject.asObservable(),
-    getTradeEvent: () => tradeSubject.asObservable()
+    getTradeEvent: () => tradeSubject.asObservable(),
+    getOrderEvent: () => orderEventSubject.asObservable()
 
 }

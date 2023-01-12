@@ -115,3 +115,12 @@ message UnsubscribeTradeEventResponse {
 	MsgCode msg_code = 1;
 	string msg_text = 2;
 }
+
+message UpdateOrderStatusRequest {
+	Order order = 1; 
+}
+
+message UpdateOrderStatusResponse {
+	MsgCode msg_code = 2;
+	string msg_text = 3;
+}

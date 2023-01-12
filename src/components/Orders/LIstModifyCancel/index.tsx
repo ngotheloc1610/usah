@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError } from "../../../helper/utils";
+import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -40,8 +40,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
+    const [dataSelectedList, setSelectedList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+
+    const [orderEventList, setOrderEventList] = useState<any[]>([]);
+
     const totalItem = listOrder.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
 
@@ -76,27 +80,153 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             }
         });
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
-            if (resp && resp.quoteList) {
-                sendListOrder();
-            }
-        })
-
         const listOrder = wsService.getListOrder().subscribe(response => {
             setListOrderFull(response.orderList);
         });
 
+        const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            console.log("OrderEvent: ", resp.orderList);
+            setOrderEventList(resp.orderList);
+        })
+
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
-            quoteEvent.unsubscribe();
             unsubscribeQuoteEvent();
+            orderEvent.unsubscribe();
         }
     }, []);
 
     useEffect(() => {
+        const orderIds = dataOrder.map((order) => order.externalOrderId);
+        const newSelectList = [...dataSelectedList] 
+
+        dataSelectedList.forEach((item) => {
+            if(!orderIds.includes(item)) {
+                newSelectList.splice(newSelectList.indexOf(item), 1);
+            }
+        });
+
+        setSelectedList(newSelectList);
+    }, [dataOrder])
+
+    useEffect(() => {
         processOrderList(listOrderFull);
     }, [listOrderFull, symbolCode, orderSide, orderType])
+
+    useEffect(() => {
+        processOrderEvent(orderEventList);
+    }, [orderEventList]);
+
+    const processOrderEvent = (orderList) => {
+        if (orderList) {
+            orderList.forEach(order => {
+                switch (order.state) {
+                    case tradingModelPb.OrderState.ORDER_STATE_PLACED: {
+                        handleOrderPlaced(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_CANCELED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_PARTIAL: {
+                        handleOrderParital(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_FILLED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_REJECTED: {
+                        handleOrderRejected(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MODIFIED: {
+                        handleOrderModified(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MATCHED: {
+                        break;
+                    }
+                    default: {
+                        console.log("Order state don't support. OrderState=", order.state);
+                    }
+                }
+            })
+        }
+    }
+
+
+    const handleOrderPlaced = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx < 0) {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime)
+    
+            });
+        } else {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                price: order?.price
+            }
+        }
+        setDataOrder(tmpList);
+    }
+
+    const handleOrderCanceledAndFilled = (order) => {
+        removeOrder(order);
+    }
+
+    const handleOrderParital = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.amount,
+                filledAmount: order?.totalFilledAmount,
+                price: order?.lastPrice
+            }
+        } else {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime),
+            });
+        }
+        setDataOrder(tmpList);
+    }
+
+    const handleOrderModified = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.filledAmount,
+                filledAmount: '0'
+            }
+            setDataOrder(tmpList);
+        }
+    }
+
+    const handleOrderRejected = (order) => {
+        removeOrder(order);
+    }
+
+    const removeOrder = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList.splice(idx, 1);
+            setDataOrder(tmpList);
+        }
+    }
 
     const subscribeQuoteEvent = () => {
         const wsConnected = wsService.getWsConnected();
@@ -206,9 +336,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = (message: string, typeOrderRes: string) => {
+    const _renderMessageSuccess = (message: string, typeOrderRes: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
-        MESSAGE_TOAST.SUCCESS_PLACE && sendListOrder();
         setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch(typeOrderRes) {
             case TYPE_ORDER_RES.Order:
@@ -220,62 +349,78 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
     }
 
-    const _rendetMessageError = (message: string, msgCode: number) => {
+    const _renderMessageError = (message: string, msgCode: number) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(messageDis)}</div>
+    }
+
+    const _renderMessageWarning = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.warning(messageDis)}</div>
     }
 
     const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string, msgCode: number) => {
         if (typeOrderRes === TYPE_ORDER_RES.Order && statusOrder === 0) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
+                
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
             setStatusCancel(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (typeOrderRes === TYPE_ORDER_RES.Modify && statusModify === 0) {
             setStatusModify(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(content, typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         return <></>;
     }
 
-    const getStatusModifyCancelOrCancelMulti = (value: boolean) => {
-        if (value) {
-            sendListOrder();
-        }
-    }
-
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => item.isChecked);
+        const dataSelected = dataOrder.filter(item => dataSelectedList.includes(item.externalOrderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
     }
 
-    const handleChecked = (e) => {
-        const { name, checked } = e.target;
-        if (name === "allSelect") {
-            const isSelectAll = dataOrder.map((order) => {
-                return { ...order, isChecked: checked };
-            });
-            setDataOrder(isSelectAll);
-        } else {
-            let tempOrder = dataOrder.map((order, index) =>
-                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
-            );
-            setDataOrder(tempOrder);
+    const handleChecked = (event: any, item: any) => {
+        if (item) {
+            const temps = [...dataSelectedList];
+            const idx = temps.findIndex(o => o === item.externalOrderId);
+            if (event.target.checked) {
+                if (idx < 0) {
+                    temps.push(item.externalOrderId);
+                }
+            } else {
+                if (idx >= 0) {
+                    temps.splice(idx, 1);
+                }
+            }
+            setSelectedList(temps);
         }
+
+    }
+
+    const handleCheckedAll = (event: any) => {
+        let lst: string[] = [];
+        if (event.target.checked) {
+            dataOrder.forEach(item => {
+                lst.push(item.externalOrderId);
+            });
+        }
+        setSelectedList(lst);
     }
 
     const getListModifyCancelData = () => (
@@ -284,9 +429,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 <td>
                     <div className="form-check">
                         <input className="form-check-input" type="checkbox" value=""
-                            checked={item?.isChecked || false}
+                            checked={dataSelectedList.includes(item.externalOrderId)}
                             name={index.toString()}
-                            onChange={handleChecked}
+                            onChange={(event) => handleChecked(event, item)}
                             id="all" />
                     </div>
                 </td>
@@ -318,8 +463,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                             <th>
                                 <input type="checkbox" value=""
                                     name="allSelect"
-                                    onChange={handleChecked}
-                                    checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
+                                    onChange={handleCheckedAll}
+                                    checked={dataSelectedList.length === dataOrder.length && dataOrder.length > 0}
                                 />
                             </th>
                             <th className="sorting_disabled">
@@ -347,7 +492,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                 <span className="text-ellipsis">Datetime</span>
                             </th>
                             <th className="text-end sorting_disabled">
-                                {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                                {(dataSelectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
                             </th>
                         </tr>
                     </thead>
@@ -363,17 +508,14 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         {isCancel && <ConfirmOrder isCancel={isCancel}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
-            params={paramModifyCancel}
-            handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
+            params={paramModifyCancel} />}
         {isModify && <ConfirmOrder isModify={isModify}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
-            params={paramModifyCancel}
-            handleStatusModifyCancel={getStatusModifyCancelOrCancelMulti} />}
+            params={paramModifyCancel} />}
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
             totalOrder={totalOrder} listOrder={dataSelected}
-            handleOrderResponse={getStatusOrderResponse}
-            handleStatusCancelAll={getStatusModifyCancelOrCancelMulti} />}
+            handleOrderResponse={getStatusOrderResponse} />}
     </div>
 }
 export default ListModifyCancel;

@@ -478,16 +478,37 @@ export interface IPortfolio {
     unrealizedPl: string;
 }
 
+export interface IAccountDetail {
+    accountId: number;
+    apiFlg: boolean;
+    apiKey: string;
+    comment: string;
+    email: string;
+    enableFlg: false;
+    enableSecretKeyFlg: number;
+    groupId: number;
+    numPendingOrders: number;
+    numTrades: number;
+    name: string;
+    password: string;
+    phone: string;
+    recvAdminNewsFlg: number;
+    recvMatchNotiFlg: number;
+    registeredDate: number;
+    secretKey: string;
+    tradingRights: number;
+}
+
 export interface IPortfolioDownLoad {
     tickerCode: string;
     ownedVol: number;
-    avgPrice: number;
-    dayNotional: number;
-    marketPrice: number;
-    currentValue: number;
-    unrealizedPl: number;
+    avgPrice: string;
+    dayNotional: string;
+    marketPrice: string;
+    currentValue: string;
+    unrealizedPl: string;
     percentUnrealizedPl: string;
-    transactionVol: number;
+    transactionVol: string;
 }
 export interface ITotalNetFollowAccountId {
     title: string;
@@ -612,10 +633,10 @@ export interface IDataHistoryDownload {
 }
 
 export interface ITradeHistoryDownload {
-    orderQuatity: number;
+    orderQuantity: number;
     executedDatetime: string;
     executedPrice: number;
-    executedQuatity: number;
+    executedQuantity: number;
     matchedValue: number;
     orderNo: string;
     orderType: string;

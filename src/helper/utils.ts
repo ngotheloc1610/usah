@@ -201,6 +201,13 @@ export const convertNumber = (value: any) => {
     return 0;
 }
 
+export const roundingNumber = (value: string) => {
+    if (value && !isNaN(Number(value)) ) {
+        return Number(value).toFixed(2);
+    }
+    return "0.00";
+}
+
 export const calcVolumeDESC = (arr: IAskAndBidPrice[], index: number) => {
     let i = index;
     let sum = 0;
@@ -321,7 +328,7 @@ export const handleAllowedInput = (value: string, isAllowed: boolean) => {
 }
 
 export const checkMessageError = (msg: string, msgCode: number) => {
-    if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY) {
+    if (msgCode === systemModel.MsgCode.MT_RET_ERR_NOT_ENOUGH_MONEY || msgCode === systemModel.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
         return msg;
     }
     if (msgCode === systemModel.MsgCode.MT_RET_REQUEST_INVALID_VOLUME) {
@@ -372,6 +379,7 @@ export const calcDefaultVolumeInput = (minLot: any, lotSize: any) => {
 // Eg: checkPriceTickSize(182.31, 0.03) => true
 //     checkPriceTickSize(182.32, 0.03) => false
 export const checkPriceTickSize = (placePrice: any, tickSize: any) => {
+    if (convertNumber(placePrice) === 0 && convertNumber(tickSize) === 0) return true;
     if (tickSize && convertNumber(tickSize) !== 0 && placePrice?.toString()?.trim() !== '') {
         const tempPlacePrice = new Decimal(placePrice?.toFixed(2));
         return tempPlacePrice.modulo(tickSize?.toFixed(2)).equals('0');
@@ -406,4 +414,56 @@ export const hasDuplicates = (strArr: string[]) => {
     return strArr.some(function(item) {
         return strArr.indexOf(item) !== strArr.lastIndexOf(item);
     })
+}
+
+export const calcDecreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).ceil().mul(lostSize).toString();
+    }
+    return '0';
+}
+
+export const calcIncreaseCommon = (lostSize: number, newVolume: number)=>{
+    if(lostSize){
+        const temp = new Decimal(newVolume);
+            return temp.dividedBy(lostSize).floor().mul(lostSize).toString();
+    }
+    return '0';
+}
+
+export const convertValueIncreaseTickSize = (newValue: number, tickSize: number)=>{
+    if (!checkPriceTickSize(newValue, tickSize)) {
+        // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+        const value = convertNumber(tickSize) === 0 ? '0' : calcIncreaseCommon(tickSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueDecreaseTickSize = (newValue: number, tickSize: number)=>{
+    if (!checkPriceTickSize(newValue, tickSize)) {
+        // Eg: TickSize: 0.03, CurrentPrice: 186.02 => NewPrice: '186.00'
+        const value = convertNumber(tickSize) === 0 ? '0' : calcDecreaseCommon(tickSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueIncreaseLostSize = (newValue: number, lostSize: number)=>{
+    if (!checkVolumeLotSize(newValue, lostSize)) {
+        // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '612'
+        const value = convertNumber(lostSize) === 0 ? '0' : calcIncreaseCommon(lostSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
+}
+
+export const convertValueDecreaseLostSize = (newValue: number, lostSize: number)=>{
+    if (!checkVolumeLotSize(newValue, lostSize)) {
+        // Eg: LotSize: 3, CurrentVolume: 611 => NewVolume: '609'
+        const value = convertNumber(lostSize) === 0 ? '0' : calcDecreaseCommon(lostSize, newValue);
+        return convertNumber(value);
+    }
+    return newValue;
 }

@@ -97,6 +97,7 @@ message RpcMessage {
 	ACCOUNT_CREATE_MULTI_REQ					= 84;
 	ACCOUNT_BALANCE_REQ							= 85;
 	ACCOUNT_PORTFOLIO_REQ						= 86;
+	UPDATE_ORDER_STATUS_REQ						= 87;
 
 	BALANCE_UPDATE_RES							= 90;
 	ACCOUNT_CREATE_RES							= 91;
@@ -105,6 +106,8 @@ message RpcMessage {
 	ACCOUNT_CREATE_MULTI_RES					= 94;
 	ACCOUNT_BALANCE_RES							= 95;
 	ACCOUNT_PORTFOLIO_RES						= 96;
+	UPDATE_ORDER_STATUS_RES						= 97;
+
 
 	//Querry message
 	POSITION_REQ                        		= 100;

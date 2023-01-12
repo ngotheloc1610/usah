@@ -8,11 +8,11 @@ import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
 import * as psbp from '../../models/proto/pricing_service_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
-import { MESSAGE_ERROR } from '../../constants/message.constant';
+import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR } from '../../constants/message.constant';
 import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
@@ -20,18 +20,19 @@ import Decimal from 'decimal.js';
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
-    handleStatusModifyCancel?: (value: boolean) => void;
     params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
 }
+
+const flagMsgCode = window.globalThis.flagMsgCode;
 
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const pricingServicePb: any = psbp;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleStatusModifyCancel } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0);
@@ -48,7 +49,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
 
-    const maxQty = localStorage.getItem(MAX_ORDER_VOLUME) || '0';
+    const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || '0';
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -99,6 +100,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             order.setSubmittedId(uid);
+
+            if(flagMsgCode) {
+                order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
+            }
             modifyOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.MODIFY_ORDER_REQ);
@@ -108,20 +113,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getModifySubject().subscribe(resp => {
                 let tmp = 0;
+                let msgText = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    if (handleStatusModifyCancel) {
-                        // Get status modify or cancel order response
-                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success)
-                    }
                     tmp = RESPONSE_RESULT.success;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msgText = HANDLE_MODIFY_REQUEST;
                 } else {
-                    if (handleStatusModifyCancel) {
-                        // Get status modify or cancel order response
-                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error)
-                    }
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Modify, resp[MSG_CODE]);
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Modify, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
         }
@@ -164,12 +165,16 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getOrderSubject().subscribe(resp => {
                 let tmp = 0;
+                let msg = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                     tmp = RESPONSE_RESULT.success;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msg = HANDLE_NEW_ORDER_REQUEST;
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Order, resp[MSG_CODE]);
+                handleOrderResponse(tmp, msg, TYPE_ORDER_RES.Order, resp[MSG_CODE]);
             });
 
             handleCloseConfirmPopup(true);
@@ -197,6 +202,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
             order.setSubmittedId(uid);
+
+            if(flagMsgCode) {
+                order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
+            }
             cancelOrder.addOrder(order);
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
@@ -206,17 +215,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    if (handleStatusModifyCancel) {
-                        // Get status modify or cancel order response
-                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.success);
-                        unSubscribeQuoteEvent();
-                    }
                     tmp = RESPONSE_RESULT.success;
                 } else {
-                    if (handleStatusModifyCancel) {
-                        // Get status modify or cancel order response
-                        handleStatusModifyCancel(MODIFY_CANCEL_STATUS.error);
-                    }
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
@@ -443,6 +443,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
+    const disablePlaceOrder = () => {
+        return convertNumber(calValue()) === 0 ||
+               convertNumber(calValue()) > convertNumber(maxOrderValue);
+    }
+
     const _renderTamplate = () => (
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -457,7 +462,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={convertNumber(calValue()) === 0}>
+                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>

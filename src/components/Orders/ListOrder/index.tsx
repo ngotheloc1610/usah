@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
-import { calcPendingVolume, checkMessageError, formatCurrency, formatOrderTime } from "../../../helper/utils";
-import { IListOrderMonitoring, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
+import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
@@ -37,6 +37,10 @@ const ListOrder = (props: IPropsListOrder) => {
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
 
+    const [selectedList, setSelectedList] = useState<any[]>([]);
+
+    const [orderEventList, setOrderEventList] = useState<any[]>([]);
+
     const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
 
@@ -62,18 +66,130 @@ const ListOrder = (props: IPropsListOrder) => {
             processListOrder(response.orderList);
         });
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(resp => {
-            if (resp && resp.quoteList) {
-                sendListOrder()
-            }
+        const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            console.log("OrderEvent: ", resp.orderList);
+            setOrderEventList(resp.orderList);
         })
 
         return () => {
             ws.unsubscribe();
-            quoteEvent.unsubscribe();
             listOrder.unsubscribe();
+            orderEvent.unsubscribe();
         }
     }, []);
+
+    useEffect(() => {
+        processOrderEvent(orderEventList);
+    }, [orderEventList]);
+
+    const processOrderEvent = (orderList) => {
+        if (orderList) {
+            orderList.forEach(order => {
+                switch (order.state) {
+                    case tradingModelPb.OrderState.ORDER_STATE_PLACED: {
+                        handleOrderPlaced(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_CANCELED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_PARTIAL: {
+                        handleOrderParital(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_FILLED: {
+                        handleOrderCanceledAndFilled(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_REJECTED: {
+                        handleOrderRejected(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MODIFIED: {
+                        handleOrderModified(order);
+                        break;
+                    }
+                    case tradingModelPb.OrderState.ORDER_STATE_MATCHED: {
+                        break;
+                    }
+                    default: {
+                        console.log("Order state don't support. OrderState=", order.state);
+                    }
+                }
+            })
+        }
+    }
+
+    const handleOrderPlaced = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx < 0) {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime)
+    
+            });
+        } else {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                price: order?.price
+            }
+        }
+        setDataOrder(tmpList);
+    }
+
+    const handleOrderCanceledAndFilled = (order) => {
+        removeOrder(order);
+    }
+
+    const handleOrderParital = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.amount,
+                filledAmount: order?.totalFilledAmount,
+                price: order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price
+            }
+        } else {
+            tmpList.unshift({
+                ...order,
+                time: convertNumber(order?.executedDatetime),
+            });
+        }
+        setDataOrder(tmpList);
+    }
+
+    const handleOrderModified = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList[idx] = {
+                ...tmpList[idx],
+                time: convertNumber(order?.executedDatetime),
+                amount: order?.filledAmount,
+                filledAmount: '0'
+            }
+            setDataOrder(tmpList);
+        }
+    }
+
+    const handleOrderRejected = (order) => {
+        removeOrder(order);
+    }
+
+    const removeOrder = (order) => {
+        const tmpList = [...dataOrder];
+        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        if (idx >= 0) {
+            tmpList.splice(idx, 1);
+            setDataOrder(tmpList);
+        }
+    }
 
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
@@ -153,6 +269,19 @@ const ListOrder = (props: IPropsListOrder) => {
         window.scrollTo(position.x, position.y)
     }, [position])
 
+    useEffect(() => {
+        const orderIds = dataOrder.map((order) => order.externalOrderId);
+        const newSelectList = [...selectedList] 
+
+        selectedList.forEach((item) => {
+            if(!orderIds.includes(item)) {
+                newSelectList.splice(newSelectList.indexOf(item), 1);
+            }
+        });
+
+        setSelectedList(newSelectList);
+    }, [dataOrder])
+
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
     }
@@ -210,7 +339,7 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsCancelAll(isCloseModifyCancel);
     }
 
-    const _rendetMessageSuccess = (typeOrderRes: string) => {
+    const _renderMessageSuccess = (typeOrderRes: string) => {
         setMessageSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch (typeOrderRes) {
             case (TYPE_ORDER_RES.Order):
@@ -222,56 +351,78 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }
 
-    const _rendetMessageError = (message: string, msgCode: number) => {
+    const _renderMessageError = (message: string, msgCode: number) => {
         const messageDis = checkMessageError(message, msgCode);
         return <div>{toast.error(messageDis)}</div>
+    }
+
+    const _renderMessageWarning = (message: string, msgCode) => {
+        const messageDis = checkMessageError(message, msgCode);
+        return <div>{toast.warning(messageDis)}</div>
     }
 
     const getStatusOrderResponse = (value: number, content: string, typeOrderRes: string, msgCode: number) => {
         if (statusOrder === 0 && typeOrderRes === TYPE_ORDER_RES.Order) {
             setStatusOrder(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
             setStatusCancel(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         if (statusModify === 0 && typeOrderRes === TYPE_ORDER_RES.Modify) {
             setStatusModify(value);
             return <>
-                {(value === RESPONSE_RESULT.success && content !== '') && _rendetMessageSuccess(typeOrderRes)}
-                {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
+                {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
+                {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
         return <></>;
     }
 
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => item.isChecked);
+        const dataSelected = dataOrder.filter(item => selectedList.includes(item.externalOrderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
     }
-    const handleChecked = (e) => {
-        const { name, checked } = e.target;
-        if (name === "allSelect") {
-            const isSelectAll = dataOrder.map((order) => {
-                return { ...order, isChecked: checked };
-            });
-            setDataOrder(isSelectAll);
-        } else {
-            let tempOrder = dataOrder.map((order, index) =>
-                Number(index) === Number(name) ? { ...order, isChecked: checked } : order
-            );
-            setDataOrder(tempOrder);
+
+    const handleChecked = (event: any, item: any) => {
+        if (item) {
+            const temps = [...selectedList];
+            const idx = temps.findIndex(o => o === item.externalOrderId);
+            if (event.target.checked) {
+                if (idx < 0) {
+                    temps.push(item.externalOrderId);
+                }
+            } else {
+                if (idx >= 0) {
+                    temps.splice(idx, 1);
+                }
+            }
+            setSelectedList(temps);
         }
     }
+
+    const handleCheckedAll = (event: any) => {
+        let lst: string[] = [];
+        if (event.target.checked) {
+            dataOrder.forEach(item => {
+                lst.push(item.externalOrderId);
+            });
+        }
+        setSelectedList(lst);
+    }
+
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
@@ -280,8 +431,8 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th>
                             <input type="checkbox" value=""
                                 name="allSelect"
-                                onChange={handleChecked}
-                                checked={!dataOrder.some((order) => order?.isChecked !== true) && dataOrder.length > 0}
+                                onChange={handleCheckedAll}
+                                checked={selectedList.length === dataOrder.length && dataOrder.length > 0}
                             />
                         </th>
                         <th className="sorting_disabled">
@@ -310,7 +461,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         </th>
                         <th className="text-end sorting_disabled">
 
-                            {(dataOrder.some((order) => order?.isChecked === true) && dataOrder.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                            {(selectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
 
                         </th>
                     </tr>
@@ -328,9 +479,9 @@ const ListOrder = (props: IPropsListOrder) => {
                     <td>
                         <div className="form-check">
                             <input className="form-check-input" type="checkbox" value=""
-                                checked={item?.isChecked || false}
+                                checked={selectedList.includes(item.externalOrderId)}
                                 name={index.toString()}
-                                onChange={handleChecked}
+                                onChange={(event) => handleChecked(event, item)}
                                 id="all" />
                         </div>
                     </td>

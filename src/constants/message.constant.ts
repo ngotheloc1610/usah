@@ -20,6 +20,7 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_FILL, 'Invalid Fill'],
     [systemModel.MsgCode.MT_RET_REQUEST_LIMIT_VOLUME, 'Request limit quantity'],
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_ORDER_TYPE, 'Invalid Order Type'],
+    [systemModel.MsgCode.MT_RET_FORWARD_EXT_SYSTEM, 'Orders forwarded to external trading system'],
 
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_LIMIT_PRICE, 'Request invalid limt price'],
     [systemModel.MsgCode.MT_RET_REQUEST_INVALID_TRIGGER_PRICE, 'Request invalid trigger price'],
@@ -37,6 +38,7 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE, `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}. Kindly revise the number of shares`],
     [systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION, 'Market is closed during holiday'],
     [systemModel.MsgCode.MT_RET_TOKEN_EXPIRED, 'Token expired'],
+    [systemModel.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE, 'Gross value is exceed max order value'],
   ]);
   
   export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}`;
@@ -46,3 +48,9 @@ export const MESSAGE_ERROR = new Map([
   export const MESSAGE_ERROR_API = {
     ERROR_SUSPEND_ACCOUNT: "Account suspended"
   }
+
+  export const INVALID_VOLUME= 'Invalid volume';
+  export const INVALID_PRICE= 'Invalid price';
+
+  export const HANDLE_NEW_ORDER_REQUEST = 'Handle new order request';
+  export const HANDLE_MODIFY_REQUEST = 'Handle modify request';
