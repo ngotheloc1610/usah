@@ -746,7 +746,8 @@ const MultipleOrders = () => {
                     </div>
                 </td>
                 <td className="text-end" style={{ maxWidth: '400px'}}>
-                    <div title={_renderMessageError(item)} className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK ? 'text-success' : 'text-danger'} text-truncate`}>
+                    <div title={_renderMessageError(item)} 
+                        className={`${item.msgCode === systemModelPb.MsgCode.MT_RET_OK || item.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM ? 'text-success' : 'text-danger'} text-truncate`}>
                         {_renderMessageError(item)}
                     </div>
                 </td>
@@ -756,6 +757,8 @@ const MultipleOrders = () => {
 
     const _renderMessageError = (item: any) => {
         if(item.msgCode === systemModelPb.MsgCode.MT_RET_OK) return item?.message?.toUpperCase();
+
+        if (item?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) return ORDER_RESPONSE.SUCCESS.toUpperCase();
 
         if (item?.orderType === tradingModel.OrderType.OP_MARKET && getOrderSideValue(item?.orderSide) === tradingModel.Side.BUY
             && checkEmptyMarketQtySymbol(item?.ticker, getOrderSideValue(item?.orderSide))) {
@@ -856,7 +859,13 @@ const MultipleOrders = () => {
         if (statusOrder === 0) {
             setStatusOrder(value);
             if (lstResponse && lstResponse?.length > 0) {
-                const lengItemSuccess = lstResponse?.filter(item => item?.state === tradingModel.OrderState.ORDER_STATE_PLACED)?.length;
+                const lstRecordsSuccess = lstResponse?.filter(item => item?.state === tradingModel.OrderState.ORDER_STATE_PLACED);
+                lstResponse.forEach(item => {
+                    if (item?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                        lstRecordsSuccess.push(item);
+                    }
+                })
+                const lengItemSuccess = lstRecordsSuccess?.length;
                 if (lengItemSuccess === 0) {
                     return <div>{toast.error(`${ORDER_RESPONSE.REJECT}: ${lstResponse.length}`)}</div>
                 }
