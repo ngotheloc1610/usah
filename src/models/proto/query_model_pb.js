@@ -101,7 +101,8 @@ proto.Symbol.toObject = function(includeInstance, msg) {
     symbolSuffix: jspb.Message.getFieldWithDefault(msg, 20, ""),
     gboSecCode: jspb.Message.getFieldWithDefault(msg, 21, ""),
     productType: jspb.Message.getFieldWithDefault(msg, 22, 0),
-    matchingMethod: jspb.Message.getFieldWithDefault(msg, 23, 0)
+    matchingMethod: jspb.Message.getFieldWithDefault(msg, 23, 0),
+    cowenFlg: jspb.Message.getBooleanFieldWithDefault(msg, 24, false)
   };
 
   if (includeInstance) {
@@ -229,6 +230,10 @@ proto.Symbol.deserializeBinaryFromReader = function(msg, reader) {
     case 23:
       var value = /** @type {!proto.MatchingMethod} */ (reader.readEnum());
       msg.setMatchingMethod(value);
+      break;
+    case 24:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setCowenFlg(value);
       break;
     default:
       reader.skipField();
@@ -417,6 +422,13 @@ proto.Symbol.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       23,
+      f
+    );
+  }
+  f = message.getCowenFlg();
+  if (f) {
+    writer.writeBool(
+      24,
       f
     );
   }
@@ -834,6 +846,24 @@ proto.Symbol.prototype.getMatchingMethod = function() {
  */
 proto.Symbol.prototype.setMatchingMethod = function(value) {
   return jspb.Message.setProto3EnumField(this, 23, value);
+};
+
+
+/**
+ * optional bool cowen_flg = 24;
+ * @return {boolean}
+ */
+proto.Symbol.prototype.getCowenFlg = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 24, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setCowenFlg = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 24, value);
 };
 
 

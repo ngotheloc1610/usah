@@ -24,6 +24,7 @@ message Symbol {
   string gbo_sec_code = 21; //Security Code from GBO
   ProductType product_type = 22;
   MatchingMethod matching_method = 23;
+  bool cowen_flg = 24; //True -> Send order to Cowen, False -> Don't send order to Cowen
 }
 
 enum CalculationMode {
