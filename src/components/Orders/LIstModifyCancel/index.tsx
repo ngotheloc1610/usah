@@ -159,7 +159,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
 
     const handleOrderPlaced = (order) => {
-        const tmpList = [...dataOrder];
+        const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
         if (idx < 0) {
             tmpList.unshift({
@@ -174,7 +174,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 price: order?.price
             }
         }
-        setDataOrder(tmpList);
+        setListOrderFull(tmpList);
     }
 
     const handleOrderCanceledAndFilled = (order) => {
@@ -182,7 +182,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const handleOrderParital = (order) => {
-        const tmpList = [...dataOrder];
+        const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
         if (idx >= 0) {
             tmpList[idx] = {
@@ -198,11 +198,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 time: convertNumber(order?.executedDatetime),
             });
         }
-        setDataOrder(tmpList);
+        setListOrderFull(tmpList);
     }
 
     const handleOrderModified = (order) => {
-        const tmpList = [...dataOrder];
+        const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
         if (idx >= 0) {
             tmpList[idx] = {
@@ -211,7 +211,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 amount: order?.filledAmount,
                 filledAmount: '0'
             }
-            setDataOrder(tmpList);
+            setListOrderFull(tmpList);
         }
     }
 
@@ -220,11 +220,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const removeOrder = (order) => {
-        const tmpList = [...dataOrder];
+        const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
         if (idx >= 0) {
             tmpList.splice(idx, 1);
-            setDataOrder(tmpList);
+            setListOrderFull(tmpList);
         }
     }
 
