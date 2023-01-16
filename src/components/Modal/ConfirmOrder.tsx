@@ -79,7 +79,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
-    const prepareMessageeModify = (accountId: string) => {
+    const prepareMessageModify = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
@@ -119,6 +119,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
                     tmp = RESPONSE_RESULT.success;
                     msgText = HANDLE_MODIFY_REQUEST;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                    tmp = RESPONSE_RESULT.error;
+                    msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
@@ -181,7 +184,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessageeCancel = (accountId: string) => {
+    const prepareMessageCancel = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
@@ -214,12 +217,32 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
+                let msgText = resp[MSG_TEXT];
+                if (resp?.orderList?.length > 1) {
+                    if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                } else if (resp?.orderList?.length === 1) {
+                    const order = resp?.orderList[0];
+                    if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
                 } else {
                     tmp = RESPONSE_RESULT.error;
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
         }
@@ -240,13 +263,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const sendOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
-            prepareMessageeCancel(accountId);
+            prepareMessageCancel(accountId);
         }
         else if (isModify) {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
                 return;
             }
-            prepareMessageeModify(accountId);
+            prepareMessageModify(accountId);
         } else {
             callSigleOrderRequest(accountId);
         }
