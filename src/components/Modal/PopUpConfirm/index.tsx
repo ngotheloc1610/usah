@@ -1,10 +1,9 @@
 
-import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as tspb from '../../../models/proto/trading_service_pb';
-import * as psbp from '../../../models/proto/pricing_service_pb';
 import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
@@ -29,7 +28,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const tradingModelPb: any = tmpb;
     const systemModelPb: any = smpb;
     const rProtoBuff: any = rpc;
-    const pricingServicePb: any = psbp;
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
@@ -73,20 +71,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const sendRes = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         prepareMessageCancelAll(accountId);
-    }
-
-    const unSubscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            listOrder.forEach(item => {
-                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
-            });
-            let rpcMsg = new rProtoBuff.RpcMessage();
-            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
     }
 
     const prepareMessageCancelAll = (accountId: string) => {
