@@ -189,6 +189,8 @@ enum MsgCode {
 	MT_RET_EXIST_LIMIT_ORDER_IN_QUEUE	= 10052; // There is an existing limit order in queue for retail
 	MT_RET_EXCEED_MAX_ORDER_VALUE	= 10053; // Order value is out of range with max order value
 	MT_RET_UNKNOWN_ORDER_ID			= 10054; // OrderNo was cancelled or filled before
+	
+	MT_RET_ERROR_FROM_BO            = 10055; // Error from Cowen
 
 // RMS risk check
 	MT_RET_RMS_PROGRAM_ERROR		= 20001; // Program error
