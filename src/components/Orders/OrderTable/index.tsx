@@ -96,12 +96,15 @@ function OrderTable(props: IPropListOrderHistory) {
         return true;
     }
 
-    const getMessageDisplay = (msgCode: number, state: number) => {
+    const getMessageDisplay = (msgCode: number, state: number, comment: string) => {
         if (state !== tradingModelPb.OrderState.ORDER_STATE_REJECTED) {
             return '-';
         }
         if (msgCode === systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE) {
             return MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY;
+        }
+        if (msgCode === systemModelPb.MsgCode.MT_RET_ERROR_FROM_BO) {
+            return comment
         }
         return MESSAGE_ERROR.get(msgCode) || '-';
     }
@@ -179,7 +182,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
-                <td className="text-start fz-14 w-200">{getMessageDisplay(item.msgCode, item.state)}</td>
+                <td className="text-start fz-14 w-200">{getMessageDisplay(item.msgCode, item.state, item.comment)}</td>
 
             </tr>
         ))
@@ -205,7 +208,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
                     orderDateTime: formatOrderTime(item.time),
                     executedDateTime: formatOrderTime(item.time),
-                    comment: getMessageDisplay(item.msgCode, item.state)
+                    comment: getMessageDisplay(item.msgCode, item.state, item.comment)
                 });
             }
         });
