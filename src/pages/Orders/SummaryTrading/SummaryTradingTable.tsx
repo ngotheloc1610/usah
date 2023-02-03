@@ -266,7 +266,7 @@ function SummaryTradingTable() {
                     dayNotional: roundingNumber(calcInvestedValue(item).toString()),
                     marketPrice: roundingNumber(item.marketPrice),
                     currentValue: roundingNumber(calcCurrentValue(item).toString()),
-                    unrealizedPl: roundingNumber(formatCurrency(calcUnrealizedPL(item).toString())),
+                    unrealizedPl: formatCurrency(calcUnrealizedPL(item).toString()),
                     percentUnrealizedPl: calcPctUnrealizedPL(item).toFixed(2) + '%',
                     transactionVol: roundingNumber(item.totalVolume.toString()),
                 })
