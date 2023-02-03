@@ -281,7 +281,7 @@ function SummaryTradingTable() {
                 'Market Price': item.marketPrice,
                 'Current Value': item.currentValue,
                 'Unrealized PL': item.unrealizedPl,
-                '% Unrealized PL': item.unrealizedPl,
+                '% Unrealized PL': item.percentUnrealizedPl,
                 'Transaction Volume': item.transactionVol,
             }
         })
