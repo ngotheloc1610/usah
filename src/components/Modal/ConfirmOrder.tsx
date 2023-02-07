@@ -7,8 +7,7 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import * as psbp from '../../models/proto/pricing_service_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -30,7 +29,6 @@ const flagMsgCode = window.globalThis.flagMsgCode;
 const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
-    const pricingServicePb: any = psbp;
     const rProtoBuff: any = rpc;
     const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
@@ -79,7 +77,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
-    const prepareMessageeModify = (accountId: string) => {
+    const prepareMessageModify = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
@@ -119,6 +117,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
                     tmp = RESPONSE_RESULT.success;
                     msgText = HANDLE_MODIFY_REQUEST;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                    tmp = RESPONSE_RESULT.error;
+                    msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
                 } else {
                     tmp = RESPONSE_RESULT.error;
                 }
@@ -181,7 +182,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessageeCancel = (accountId: string) => {
+    const prepareMessageCancel = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
@@ -214,39 +215,47 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             wsService.sendMessage(rpcMsg.serializeBinary());
             wsService.getCancelSubject().subscribe(resp => {
                 let tmp = 0;
-                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
+                let msgText = resp[MSG_TEXT];
+                if (resp?.orderList?.length > 1) {
+                    if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                } else if (resp?.orderList?.length === 1) {
+                    const order = resp?.orderList[0];
+                    if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
                 } else {
                     tmp = RESPONSE_RESULT.error;
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
                 }
-                handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
             });
             handleCloseConfirmPopup(false);
-        }
-    }
-
-    const unSubscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            unsubscribeQuoteReq.addSymbolCode(params.tickerCode);
-            let rpcMsg = new rProtoBuff.RpcMessage();
-            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
     const sendOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
-            prepareMessageeCancel(accountId);
+            prepareMessageCancel(accountId);
         }
         else if (isModify) {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
                 return;
             }
-            prepareMessageeModify(accountId);
+            prepareMessageModify(accountId);
         } else {
             callSigleOrderRequest(accountId);
         }

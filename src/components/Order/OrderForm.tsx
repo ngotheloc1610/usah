@@ -74,7 +74,12 @@ const OrderForm = (props: IOrderForm) => {
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
     const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-
+    
+    const checkSymbolValid = (symbolCode: string) => {
+        const index = listSymbols.findIndex(item => item.symbolCode === symbolCode);
+        return index >= 0;
+    }
+    
     useEffect(() => {
         setIsRenderPrice(true);
         setIsRenderVolume(true);
@@ -89,13 +94,15 @@ const OrderForm = (props: IOrderForm) => {
     }, [symbolCode])
 
     useEffect(() => {
-        if (symbolCode) {
+        if (symbolCode && checkSymbolValid(symbolCode)) {
             if (orderType === tradingModel.OrderType.OP_MARKET) {
                 let tempPrice = 0;
                 if (currentSide === tradingModel.Side.BUY) tempPrice = bestAskPrice;
                 if (currentSide === tradingModel.Side.SELL) tempPrice = bestBidPrice;
                 setPrice(tempPrice);
             }
+        }else {
+            setPrice(0);
         }
     }, [orderType, currentSide, bestBidPrice, bestAskPrice, symbolCode])
 
@@ -618,10 +625,11 @@ const OrderForm = (props: IOrderForm) => {
                     <NumberFormat decimalScale={title === TITLE_ORDER_CONFIRM.PRICE ? 2 : 0} type="text" 
                         maxLength={15}
                         className='form-control text-end border-0 p-0 fs-5 lh-1 fw-600'
-                        thousandSeparator="," value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
+                        thousandSeparator="," 
+                        value={convertNumber(value) === 0 ? '' : formatCurrency(value)}
                         isAllowed={(e) => handleAllowedInput(e.value, isAllowed)}
                         onValueChange={title === TITLE_ORDER_CONFIRM.PRICE ? (e: any) => handleChangePrice(e.value) : (e: any) => handleChangeVolume(e.value)}
-                         />
+                    />
                 </div>
                 <div className="border-start d-flex flex-column">
                     <button type="button" disabled={disableChangeValueBtn(symbolCode)} className="btn border-bottom px-2 py-1 flex-grow-1" onClick={handleUpperValue}>+</button>
@@ -632,7 +640,7 @@ const OrderForm = (props: IOrderForm) => {
                 <div className='text-danger text-end fs-px-13'>Out of daily price limits</div>
             }
             {title === TITLE_ORDER_CONFIRM.PRICE && invalidPrice && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid Price</div>}
-            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && <div className='text-danger fs-px-13 text-end'>Invalid volume</div>}
+            {title === TITLE_ORDER_CONFIRM.QUANLITY && invalidVolume && symbolCode && checkSymbolValid(symbolCode) && <div className='text-danger fs-px-13 text-end'>Invalid volume</div>}
             {title === TITLE_ORDER_CONFIRM.QUANLITY && isMaxOrderVol && !invalidVolume && <div className='text-danger fs-px-13 text-end'>Quantity is exceed max order quantity: {formatNumber(maxOrderVolume?.toString())}</div>}
         </>
     }

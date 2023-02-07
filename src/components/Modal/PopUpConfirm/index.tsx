@@ -1,16 +1,16 @@
 
-import { ACCOUNT_ID, MODIFY_CANCEL_STATUS, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, SIDE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as tspb from '../../../models/proto/trading_service_pb';
-import * as psbp from '../../../models/proto/pricing_service_pb';
 import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 import { useEffect } from 'react';
 import './PopUpConfirm.scss';
 import { Button, Modal } from 'react-bootstrap';
+import { MESSAGE_ERROR } from '../../../constants/message.constant';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -28,17 +28,37 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const tradingModelPb: any = tmpb;
     const systemModelPb: any = smpb;
     const rProtoBuff: any = rpc;
-    const pricingServicePb: any = psbp;
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
             let tmp = 0;
-            if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                tmp = RESPONSE_RESULT.success;
+            let msgText = resp[MSG_TEXT];
+            if (resp?.orderList?.length > 1) {
+                if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                    tmp = RESPONSE_RESULT.error;
+                    msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+            } else if (resp?.orderList?.length === 1) {
+                const order = resp?.orderList[0];
+                if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+                    tmp = RESPONSE_RESULT.success;
+                } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                    tmp = RESPONSE_RESULT.error;
+                    msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                }
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
             } else {
                 tmp = RESPONSE_RESULT.error;
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
             }
-            handleOrderResponse(tmp, resp[MSG_TEXT], TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+            
             handleCloseConfirmPopup(false);
         });
 
@@ -50,24 +70,10 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const sendRes = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        prepareMessageeCancelAll(accountId);
+        prepareMessageCancelAll(accountId);
     }
 
-    const unSubscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            listOrder.forEach(item => {
-                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
-            });
-            let rpcMsg = new rProtoBuff.RpcMessage();
-            rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const prepareMessageeCancelAll = (accountId: string) => {
+    const prepareMessageCancelAll = (accountId: string) => {
         const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {

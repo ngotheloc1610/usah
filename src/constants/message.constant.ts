@@ -1,6 +1,5 @@
 import { formatCurrency } from '../helper/utils';
 import * as smpb from '../models/proto/system_model_pb';
-import * as tdpb from '../models/proto/trading_model_pb';
 import { MIN_ORDER_VALUE } from './general.constant';
 const systemModel: any = smpb;
 
@@ -39,6 +38,7 @@ export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_INVALID_HOLIDAY_SESSION, 'Market is closed during holiday'],
     [systemModel.MsgCode.MT_RET_TOKEN_EXPIRED, 'Token expired'],
     [systemModel.MsgCode.MT_RET_EXCEED_MAX_ORDER_VALUE, 'Gross value is exceed max order value'],
+    [systemModel.MsgCode.MT_RET_UNKNOWN_ORDER_ID, 'Insufficient liquidity for this trade'],
   ]);
   
   export const MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY = `The order is less than USD ${formatCurrency(localStorage.getItem(MIN_ORDER_VALUE) || '0')}`;
