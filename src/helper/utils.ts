@@ -467,3 +467,8 @@ export const convertValueDecreaseLostSize = (newValue: number, lostSize: number)
     }
     return newValue;
 }
+
+export const calcOwnedVolAccountId = (totalBuy: number, totalSell: number) => {
+    const ownedVolume = totalBuy - totalSell;
+    return ownedVolume > 0 ? ownedVolume : 0;
+}

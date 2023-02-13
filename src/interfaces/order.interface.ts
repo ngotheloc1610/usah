@@ -660,3 +660,20 @@ export interface IState {
     name: string;
     code: number;
 }
+
+export interface IOrderPortfolio {
+    accountId: number;
+    currencyCode: string;
+    currencyValue: string;
+    investedValue: string;
+    marketPrice: string;
+    ownedAmount: string;
+    ownedVolume: number;
+    realizedPl: string;
+    symbolCode: string;
+    totalBuyAmount: string;
+    totalBuyVolume: number;
+    totalSellAmount: string;
+    totalSellVolume: number;
+    unrealizedPl: string;
+}
