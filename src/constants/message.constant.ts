@@ -54,3 +54,4 @@ export const MESSAGE_ERROR = new Map([
 
   export const HANDLE_NEW_ORDER_REQUEST = 'Handle new order request';
   export const HANDLE_MODIFY_REQUEST = 'Handle modify request';
+  export const CANCEL_SUCCESSFULLY = 'Cancel order successfully'
