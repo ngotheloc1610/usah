@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
 import NumberFormat from "react-number-format";
-import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_PRICE, INVALID_VOLUME, MESSAGE_ERROR } from "../../../constants/message.constant";
+import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_PRICE, INVALID_VOLUME, MESSAGE_ERROR, MESSAGE_ERROR_FILE_UPLOAD } from "../../../constants/message.constant";
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
 import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
@@ -930,32 +930,32 @@ const MultipleOrders = () => {
                     }
                 }
                 if (obj?.Ticker === undefined) {
-                    toast.error("Invalid file template. File don't have Ticker Field");
+                    toast.error(MESSAGE_ERROR_FILE_UPLOAD('Ticker'));
                     return;
                 }
 
                 if (obj?.OrderSide === undefined) {
-                    toast.error("Invalid file template. File don't have OrderSide Field");
+                    toast.error(MESSAGE_ERROR_FILE_UPLOAD('OrderSide'));
                     return;
                 }
 
                 if (obj?.OrderType === undefined) {
-                    toast.error("Invalid file template. File don't have OrderType Field");
+                    toast.error(MESSAGE_ERROR_FILE_UPLOAD('OrderType'));
                     return;
                 }
 
                 if (obj?.Price === undefined) {
-                    toast.error("Invalid file template. File don't have Price Field");
+                    toast.error(MESSAGE_ERROR_FILE_UPLOAD('Price'));
                     return;
                 }
 
                 if (obj?.Quantity === undefined) {
-                    toast.error("Invalid file template. File don't have Quantity Field");
+                    toast.error(MESSAGE_ERROR_FILE_UPLOAD('Quantity'));
                     return;
                 }
 
                 if (!checkSymbol(obj.Ticker)) {
-                    toast.error("Symbol don't exist");
+                    toast.error("Symbol doesn't exist");
                     return;
                 }
 
