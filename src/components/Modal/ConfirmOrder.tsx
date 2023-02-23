@@ -11,7 +11,7 @@ import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLU
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
-import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR } from '../../constants/message.constant';
+import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../constants/message.constant';
 import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
@@ -222,6 +222,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                         tmp = RESPONSE_RESULT.error;
                         msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                        tmp = RESPONSE_RESULT.success;
+                        msgText = CANCEL_SUCCESSFULLY;
                     } else {
                         tmp = RESPONSE_RESULT.error;
                     }
@@ -233,6 +236,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                         tmp = RESPONSE_RESULT.error;
                         msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                        tmp = RESPONSE_RESULT.success;
+                        msgText = CANCEL_SUCCESSFULLY;
                     } else {
                         tmp = RESPONSE_RESULT.error;
                     }
