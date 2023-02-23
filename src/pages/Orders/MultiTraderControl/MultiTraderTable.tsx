@@ -5,8 +5,8 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
 import { useEffect, useRef, useState } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SOCKET_RECONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName } from "../../../helper/utils";
-import { IPortfolio, ISymbolInfo, ITradingAccountVertical } from "../../../interfaces/order.interface";
+import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName, calcOwnedVolAccountId } from "../../../helper/utils";
+import { IPortfolio, ISymbolInfo, ITradingAccountVertical, IOrderPortfolio } from "../../../interfaces/order.interface";
 
 const MultiTraderTable = () => {
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
@@ -183,7 +183,6 @@ const MultiTraderTable = () => {
         buildMessage(accountId);
     }
 
-
     const sendMessageMultiTrader = (lstAccountIds: string[]) => {
         setAccountId(accountId)
         const systemServicePb: any = sspb;
@@ -267,8 +266,14 @@ const MultiTraderTable = () => {
                         <tr className="tr-maintb" key={index}>
                             <td title={getTickerName(item.ticker)}>{item.ticker}</td>
 
-                            {item.holdingVolume.map((item: string, idx: number) => (<td key={idx}>{formatNumber(convertNumber(item).toString())}</td>))}
-
+                            {
+                                item.holdingVolume.map((item: IOrderPortfolio, idx: number) => (
+                                    <td key={idx}>
+                                        {formatNumber(calcOwnedVolAccountId(item?.totalBuyVolume, item?.totalSellVolume).toString())}
+                                    </td>
+                                ))
+                            }
+                                
                             <td>{formatCurrency(item.totalNetPosition)}</td>
                             <td>{formatCurrency(item.totalGrossTransactions)}</td>
                             <td>{formatCurrency(item.totalPl.toString())}</td>
