@@ -1371,8 +1371,7 @@ const MultipleOrders = () => {
                !currentSide ||
                !isSave ||
                isMaxOrderVol ||
-               calcGrossValue(price, volume) > convertNumber(maxOrderValue) ||
-               calcGrossValue(price, volume) < convertNumber(minOrderValue);
+               calcGrossValue(price, volume) > convertNumber(maxOrderValue);
     }
 
     const handlePlaceOrder = () => {
