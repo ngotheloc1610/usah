@@ -1476,7 +1476,7 @@ const MultipleOrders = () => {
                         <div className='text-danger fs-px-13 text-end'>{MESSAGE_EMPTY_BID}</div>
                     }
                     {price !== 0 && volume !== 0 && calcGrossValue(price, volume) < convertNumber(minOrderValue) && 
-                        <div className='text-danger fs-px-13 text-end'>Gross value is smaller than min order value: {formatNumber(maxOrderValue?.toString())}</div>
+                        <div className='text-danger fs-px-13 text-end'>Gross value is smaller than min order value: {formatNumber(minOrderValue?.toString())}</div>
                     }
                     {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
                         <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
