@@ -4,7 +4,7 @@ import '../../pages/Orders/OrderNew/OrderNew.scss';
 import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM, MIN_ORDER_VALUE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
@@ -73,6 +73,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
+    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
     const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     
     const checkSymbolValid = (symbolCode: string) => {
@@ -534,7 +535,15 @@ const OrderForm = (props: IOrderForm) => {
             isInvalidMarketPrice = false;
         }
 
-        if (price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+        if (price === 0 || volume === 0) {
+            return true
+        }
+
+        if (calcGrossValue(price, volume) > convertNumber(maxOrderValue)) {
+            return true;
+        }
+
+        if (calcGrossValue(price, volume) < convertNumber(minOrderValue)) {
             return true;
         }
 
@@ -703,6 +712,10 @@ const OrderForm = (props: IOrderForm) => {
 
                 {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
                     <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
+                }
+
+                {price !== 0 && volume !== 0 && calcGrossValue(price, volume) < convertNumber(minOrderValue) &&
+                    <div className='text-danger fs-px-13 text-end'>Gross value is less than minimum order value: {formatNumber(minOrderValue?.toString())}</div>
                 }
 
                 <div className="border-top">
