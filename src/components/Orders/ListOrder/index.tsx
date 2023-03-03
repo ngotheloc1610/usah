@@ -123,7 +123,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const handleOrderPlaced = (order) => {
         const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
         if (idx < 0) {
             tmpList.unshift({
                 ...order,
@@ -146,7 +146,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const handleOrderParital = (order) => {
         const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
@@ -166,7 +166,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const handleOrderModified = (order) => {
         const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
@@ -184,7 +184,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const removeOrder = (order) => {
         const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.externalOrderId === order.externalOrderId);
+        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
         if (idx >= 0) {
             tmpList.splice(idx, 1);
             setDataOrder(tmpList);
@@ -270,7 +270,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [position])
 
     useEffect(() => {
-        const orderIds = dataOrder.map((order) => order.externalOrderId);
+        const orderIds = dataOrder.map((order) => order.orderId);
         const newSelectList = [...selectedList] 
 
         selectedList.forEach((item) => {
@@ -390,7 +390,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => selectedList.includes(item.externalOrderId));
+        const dataSelected = dataOrder.filter(item => selectedList.includes(item.orderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
@@ -399,10 +399,10 @@ const ListOrder = (props: IPropsListOrder) => {
     const handleChecked = (event: any, item: any) => {
         if (item) {
             const temps = [...selectedList];
-            const idx = temps.findIndex(o => o === item.externalOrderId);
+            const idx = temps.findIndex(o => o === item.orderId);
             if (event.target.checked) {
                 if (idx < 0) {
-                    temps.push(item.externalOrderId);
+                    temps.push(item.orderId);
                 }
             } else {
                 if (idx >= 0) {
@@ -417,7 +417,7 @@ const ListOrder = (props: IPropsListOrder) => {
         let lst: string[] = [];
         if (event.target.checked) {
             dataOrder.forEach(item => {
-                lst.push(item.externalOrderId);
+                lst.push(item.orderId);
             });
         }
         setSelectedList(lst);
@@ -479,7 +479,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <td>
                         <div className="form-check">
                             <input className="form-check-input" type="checkbox" value=""
-                                checked={selectedList.includes(item.externalOrderId)}
+                                checked={selectedList.includes(item.orderId)}
                                 name={index.toString()}
                                 onChange={(event) => handleChecked(event, item)}
                                 id="all" />
