@@ -543,10 +543,6 @@ const OrderForm = (props: IOrderForm) => {
             return true;
         }
 
-        if (calcGrossValue(price, volume) < convertNumber(minOrderValue)) {
-            return true;
-        }
-
         const isDisable = Number(price) === 0 || Number(volume) === 0 || tickerName === '' || isInvalidMarketPrice;
         return isDisable || isOutOfDailyPrice || invalidVolume || invalidPrice || currentSide === tradingModel.Side.NONE || isMaxOrderVol;
     }
@@ -712,10 +708,6 @@ const OrderForm = (props: IOrderForm) => {
 
                 {price !== 0 && volume !== 0 && calcGrossValue(price, volume) > convertNumber(maxOrderValue) && 
                     <div className='text-danger fs-px-13 text-end'>Gross value is exceed max order value: {formatNumber(maxOrderValue?.toString())}</div>
-                }
-
-                {price !== 0 && volume !== 0 && calcGrossValue(price, volume) < convertNumber(minOrderValue) &&
-                    <div className='text-danger fs-px-13 text-end'>Gross value is less than minimum order value: {formatNumber(minOrderValue?.toString())}</div>
                 }
 
                 <div className="border-top">
