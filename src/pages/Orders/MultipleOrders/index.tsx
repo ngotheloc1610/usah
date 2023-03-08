@@ -278,8 +278,15 @@ const MultipleOrders = () => {
             orderList.forEach((item: IOrderListResponse) => {
                 if (item) {
                     const listIndex = temps.reduce((listIndex: number[], order: ISymbolMultiOrder, idx: number) => {
-                        if (order?.ticker === item?.symbolCode && convertNumber(order?.price.replaceAll(',', '')) === convertNumber(item.price))
+                        if (order?.orderType === tradingModel.OrderType.OP_LIMIT) {
+                            if (order?.ticker === item?.symbolCode && convertNumber(order?.price.replaceAll(',', '')) === convertNumber(item.price))
                             listIndex.push(idx);
+                        }
+
+                        if (order?.orderType === tradingModel.OrderType.OP_MARKET && order?.ticker === item?.symbolCode) {
+                            listIndex.push(idx);
+                        }
+                        
                         return listIndex;
                     }, []);
                     const txtSide = renderSideText(item.side);
