@@ -370,8 +370,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 {(value === RESPONSE_RESULT.warning && content !== '') && _renderMessageWarning(content, msgCode)}
             </>
         }
-        if (statusCancel === 0 && typeOrderRes === TYPE_ORDER_RES.Cancel) {
-            setStatusCancel(value);
+        if (typeOrderRes === TYPE_ORDER_RES.Cancel) {
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(typeOrderRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}

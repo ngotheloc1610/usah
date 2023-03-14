@@ -369,8 +369,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 
             </>
         }
-        if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
-            setStatusCancel(value);
+        if (typeOrderRes === TYPE_ORDER_RES.Cancel) {
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeOrderRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
