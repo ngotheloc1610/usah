@@ -10,7 +10,7 @@ import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 import { useEffect } from 'react';
 import './PopUpConfirm.scss';
 import { Button, Modal } from 'react-bootstrap';
-import { MESSAGE_ERROR } from '../../../constants/message.constant';
+import { MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../../constants/message.constant';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -39,7 +39,10 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                     tmp = RESPONSE_RESULT.error;
                     msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                } else {
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msgText = CANCEL_SUCCESSFULLY;
+                }else {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
@@ -50,7 +53,10 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                     tmp = RESPONSE_RESULT.error;
                     msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                } else {
+                } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msgText = CANCEL_SUCCESSFULLY;
+                }else {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
