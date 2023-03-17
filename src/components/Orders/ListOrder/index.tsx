@@ -479,6 +479,41 @@ const ListOrder = (props: IPropsListOrder) => {
         setDataOrder(temp);
     }
 
+    const handleSortSide = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortDateTime(false);
+        setIsSortSide(true);
+        const temp = [...dataOrder];
+        if (isSideAsc) {
+            temp.sort((a, b) => b?.side - a?.side);
+            setIsSideAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        temp.sort((a, b) => a?.side - b?.side);
+        setIsSideAsc(true);
+        setDataOrder(temp);
+    }
+
+    const handleSortPrice = () => {
+        setIsSortTicker(false);
+        setIsSortDateTime(false);
+        setIsSortSide(false);
+        setIsSortPrice(true);
+        const temp = [...dataOrder];
+        if (isPriceAsc) {
+            temp.sort((a, b) => convertNumber(b?.price) - convertNumber(a?.price));
+            setIsPriceAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        temp.sort((a, b) => convertNumber(a?.price) - convertNumber(b?.price));
+        setIsPriceAsc(true);
+        setDataOrder(temp);
+        return;
+    }
+
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
@@ -499,14 +534,18 @@ const ListOrder = (props: IPropsListOrder) => {
                             {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
                             {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
                         </th>
-                        <th className="sorting_disabled text-center">
+                        <th className="sorting_disabled text-center" onClick={handleSortSide}>
                             <span className="text-ellipsis">Side</span>
+                            {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
+                            {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="sorting_disabled text-center">
                             <span className="text-ellipsis">Type</span>
                         </th>
-                        <th className="text-end sorting_disabled">
+                        <th className="text-end sorting_disabled" onClick={handleSortPrice}>
                             <span className="text-ellipsis">Price</span>
+                            {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
+                            {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Quantity</span>
