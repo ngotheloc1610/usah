@@ -23,6 +23,8 @@ const OrderHistory = () => {
         orderType: tradingModel.OrderType.OP_NONE
     });
 
+    const [isDownload, setIsDownLoad] = useState(false);
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -67,15 +69,21 @@ const OrderHistory = () => {
         sendListOrder(from, to);
     }
 
+    const handleDownLoad = (value: boolean) => {
+        setIsDownLoad(value);
+    }
+
     const _renderOrderHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <OrderHistorySearch paramSearch={handleSearch} />
+                        <OrderHistorySearch paramSearch={handleSearch} handleDownLoad={handleDownLoad}/>
                         <OrderTable
                             listOrderHistory={listOrderHistory}
-                            paramHistorySearch={paramHistorySearch} />
+                            paramHistorySearch={paramHistorySearch}
+                            isDownLoad={isDownload}
+                            resetFlagDownload={handleDownLoad} />
                     </div>
                 </div>
             </div>

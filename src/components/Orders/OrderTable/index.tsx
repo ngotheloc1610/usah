@@ -8,9 +8,10 @@ import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
 import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
+import { toast } from "react-toastify";
 
 function OrderTable(props: IPropListOrderHistory) {
-    const { listOrderHistory, paramHistorySearch } = props;
+    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
     const [showModalDetail, setShowModalDetail] = useState(false)
@@ -20,6 +21,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
     const [dataDownload, setDataDownload] = useState<IOrderHistory[]>([]);
+
     const systemModelPb: any = stpb;
     
     useEffect(() => {
@@ -54,6 +56,44 @@ function OrderTable(props: IPropListOrderHistory) {
         setCurrentPage(START_PAGE);
     }, [paramHistorySearch])
 
+    useEffect(() => {
+        if (isDownLoad) {
+            const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
+            const data: IDataHistoryDownload[] = [];
+            if (dataDownload?.length > 0) {
+                dataDownload.forEach(item => {
+                    if (item) {
+                        data.push({
+                            orderNo: item?.externalOrderId,
+                            tickerCode: item?.symbolCode,
+                            tickerName: getTickerName(item?.symbolCode),
+                            orderSide: getSideName(item.side) || '',
+                            orderStatus: getStateName(item.state) || '',
+                            orderType: ORDER_TYPE.get(item.orderType) || '',
+                            orderVolume: convertNumber(item.amount),
+                            remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
+                            executedVolume: convertNumber(item.filledAmount),
+                            orderPrice: formatCurrency(item.price),
+                            lastPrice: convertNumber(item.lastPrice) > 0 ? formatCurrency(item.lastPrice) : '-',
+                            withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
+                            orderDateTime: formatOrderTime(item.time),
+                            executedDateTime: formatOrderTime(item.time),
+                            comment: getMessageDisplay(item.msgCode, item.state, item.comment)
+                        });
+                    }
+                });
+                exportCSV(data, `orderHistory_${dateTimeCurrent}`);
+            } else {
+                toast.warn('Do not have record to download');
+            }
+
+            // after download, reset flag = false
+            if (resetFlagDownload) {
+                resetFlagDownload(false);
+            }
+        }
+    }, [isDownLoad])
+
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
         setCurrentPage(START_PAGE);
@@ -83,14 +123,6 @@ function OrderTable(props: IPropListOrderHistory) {
         const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
         const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
         if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && !isCheckItemFilledAmount)) {
-            return false;
-        }
-        return true;
-    }
-    const checkDisplayLastPrice = (state, volume) => {
-        const orderStatePlaced = tradingModelPb.OrderState.ORDER_STATE_PLACED;
-        const orderStateCancel = tradingModelPb.OrderState.ORDER_STATE_CANCELED;
-        if ((state === orderStatePlaced || state === orderStateCancel) && convertNumber(volume) === 0) {
             return false;
         }
         return true;
@@ -188,33 +220,6 @@ function OrderTable(props: IPropListOrderHistory) {
         ))
     )
 
-    const handleDownload = () => {
-        const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
-        const data: IDataHistoryDownload[] = [];
-        dataDownload.forEach(item => {
-            if (item) {
-                data.push({
-                    orderNo: item?.externalOrderId,
-                    tickerCode: item?.symbolCode,
-                    tickerName: getTickerName(item?.symbolCode),
-                    orderSide: getSideName(item.side) || '',
-                    orderStatus: getStateName(item.state) || '',
-                    orderType: ORDER_TYPE.get(item.orderType) || '',
-                    orderVolume: convertNumber(item.amount),
-                    remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
-                    executedVolume: convertNumber(item.filledAmount),
-                    orderPrice: formatCurrency(item.price),
-                    lastPrice: convertNumber(item.lastPrice) > 0 ? formatCurrency(item.lastPrice) : '-',
-                    withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
-                    orderDateTime: formatOrderTime(item.time),
-                    executedDateTime: formatOrderTime(item.time),
-                    comment: getMessageDisplay(item.msgCode, item.state, item.comment)
-                });
-            }
-        });
-        exportCSV(data, `orderHistory_${dateTimeCurrent}`);
-    }
-
     const _renderOrderHistoryTable = () => {
         return (
             <div className="card-body">
@@ -231,9 +236,9 @@ function OrderTable(props: IPropListOrderHistory) {
                 <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                     getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
                 />
-                {dataCurrent.length > 0 && <p className="text-end border-top pt-3">
+                {/* {dataCurrent.length > 0 && <p className="text-end border-top pt-3">
                     <a className="btn btn-success text-white ps-4 pe-4" onClick={handleDownload}><i className="bi bi-cloud-download"></i> Download</a>
-                </p>}
+                </p>} */}
                 {showModalDetail && <ModalMatching getStatusFromModal={getStatusFromModal} />}
             </div>
         )

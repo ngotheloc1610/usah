@@ -69,6 +69,8 @@ export interface IOrderBook {
 export interface IPropListOrderHistory {
     listOrderHistory: IOrderHistory[];
     paramHistorySearch: IParamHistorySearch;
+    isDownLoad: boolean;
+    resetFlagDownload: (isDownload: boolean) => void;
 }
 
 export interface IPropListTradeHistory {
