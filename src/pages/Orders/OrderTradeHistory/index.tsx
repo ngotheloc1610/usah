@@ -24,6 +24,8 @@ const OrderTradeHistory = () => {
     const [toDate, setToDate] = useState(convertDatetoTimeStamp(today, TO_DATE_TIME));
     const [isSearchData, setIsSearchData] = useState(false);
 
+    const [isDownload, setIsDownload] = useState(false)
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -95,13 +97,23 @@ const OrderTradeHistory = () => {
         setIsSearchData(value);
     }
 
+    const handleDownload = (value: boolean) => {
+        setIsDownload(value)
+    }
+
     const _renderTradeHistory = () => {
         return (
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <SearchTradeHistory getParamSearch={getParamSearch}/>
-                        <TableTradeHistory getDataTradeHistory={getDataTradeHistory} isSearchData={isSearchData} changeStatusSearch={changeStatusSearch} />
+                        <SearchTradeHistory getParamSearch={getParamSearch} handleDownload={handleDownload}/>
+                        <TableTradeHistory 
+                            getDataTradeHistory={getDataTradeHistory}  
+                            isSearchData={isSearchData} 
+                            changeStatusSearch={changeStatusSearch} 
+                            isDownload={isDownload} 
+                            resetStatusDownload={handleDownload}
+                        />
                     </div>
                 </div>
             </div>
