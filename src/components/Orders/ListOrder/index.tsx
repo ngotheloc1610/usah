@@ -48,6 +48,24 @@ const ListOrder = (props: IPropsListOrder) => {
         x: 0,
         y: 0
     })
+
+    // sort ticker
+    const [isTickerAsc, setIsTickerAsc] = useState(false);
+    const [isSortTicker, setIsSortTicker] = useState(false);
+
+    // sort price
+    const [isPriceAsc, setIsPriceAsc] = useState(false);
+    const [isSortPrice, setIsSortPrice] = useState(false);
+
+    // sort orderSide
+    const [isSideAsc, setIsSideAsc] = useState(false);
+    const [isSortSide, setIsSortSide] = useState(false);
+
+    // sort dateTime
+    const [isSortDateTime, setIsSortDateTime] = useState(true);
+    const [isDateTimeAsc, setIsDateTimeAsc] = useState(false);
+
+
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
     const myRef: any = useRef();
 
@@ -423,6 +441,79 @@ const ListOrder = (props: IPropsListOrder) => {
         setSelectedList(lst);
     }
 
+    const handleSortTicker = () => {
+        setIsSortTicker(true);
+        setIsSortPrice(false);
+        setIsSortSide(false);
+        setIsSortDateTime(false);
+        const temp = [...dataOrder];
+        if (isTickerAsc) {
+            // sort DESC
+            temp.sort((a, b) => b?.symbolCode.localeCompare(a?.symbolCode))
+            setIsTickerAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        // sort ASC
+        temp.sort((a, b) => a?.symbolCode.localeCompare(b?.symbolCode))
+        setIsTickerAsc(true);
+        setDataOrder(temp);
+    }
+
+    const handleSortDateTime = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortSide(false);
+        setIsSortDateTime(true);
+        const temp = [...dataOrder];
+        if (isDateTimeAsc) {
+            // sort DESC
+            temp.sort((a, b) => b?.time?.toString().localeCompare(a?.time?.toString()))
+            setIsDateTimeAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        // sort ASC
+        temp.sort((a, b) => a?.time?.toString().localeCompare(b?.time?.toString()))
+        setIsDateTimeAsc(true);
+        setDataOrder(temp);
+    }
+
+    const handleSortSide = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortDateTime(false);
+        setIsSortSide(true);
+        const temp = [...dataOrder];
+        if (isSideAsc) {
+            temp.sort((a, b) => b?.side - a?.side);
+            setIsSideAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        temp.sort((a, b) => a?.side - b?.side);
+        setIsSideAsc(true);
+        setDataOrder(temp);
+    }
+
+    const handleSortPrice = () => {
+        setIsSortTicker(false);
+        setIsSortDateTime(false);
+        setIsSortSide(false);
+        setIsSortPrice(true);
+        const temp = [...dataOrder];
+        if (isPriceAsc) {
+            temp.sort((a, b) => convertNumber(b?.price) - convertNumber(a?.price));
+            setIsPriceAsc(false);
+            setDataOrder(temp);
+            return;
+        }
+        temp.sort((a, b) => convertNumber(a?.price) - convertNumber(b?.price));
+        setIsPriceAsc(true);
+        setDataOrder(temp);
+        return;
+    }
+
     const _renderTableListOrder = () => {
         return (
             <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
@@ -438,17 +529,23 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th className="sorting_disabled">
                             <span className="text-ellipsis">Order No</span>
                         </th>
-                        <th className="sorting_disabled">
+                        <th className="sorting_disabled pointer-style" onClick={handleSortTicker}>
                             <span className="text-ellipsis">Ticker</span>
+                            {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
+                            {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
                         </th>
-                        <th className="sorting_disabled text-center">
+                        <th className="sorting_disabled text-center pointer-style" onClick={handleSortSide}>
                             <span className="text-ellipsis">Side</span>
+                            {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
+                            {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="sorting_disabled text-center">
                             <span className="text-ellipsis">Type</span>
                         </th>
-                        <th className="text-end sorting_disabled">
+                        <th className="text-end sorting_disabled pointer-style" onClick={handleSortPrice}>
                             <span className="text-ellipsis">Price</span>
+                            {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
+                            {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Quantity</span>
@@ -456,11 +553,12 @@ const ListOrder = (props: IPropsListOrder) => {
                         <th className="text-end sorting_disabled">
                             <span className="text-ellipsis">Pending</span>
                         </th>
-                        <th className="text-end sorting_disabled">
+                        <th className="text-end sorting_disabled pointer-style" onClick={handleSortDateTime}>
                             <span className="text-ellipsis">Datetime</span>
+                            {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
+                            {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="text-end sorting_disabled">
-
                             {(selectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
 
                         </th>
