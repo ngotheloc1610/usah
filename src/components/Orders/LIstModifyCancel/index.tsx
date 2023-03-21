@@ -5,9 +5,9 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import { IListOrderModifyCancel, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -32,10 +32,10 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
-    const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
     
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(DEFAULT_DATA_MODIFY_CANCEL);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
@@ -45,6 +45,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
 
     const [orderEventList, setOrderEventList] = useState<any[]>([]);
+
+    const [cancelListId, setCancelListId] = useState<string[]>([]);
 
     const totalItem = listOrder.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
@@ -62,10 +64,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             }
         }
         setDataOrder(currentList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
         setCurrentPage(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isCancel])
 
     useEffect(() => {
@@ -95,6 +99,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             unsubscribeQuoteEvent();
             orderEvent.unsubscribe();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -108,14 +113,17 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         });
 
         setSelectedList(newSelectList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataOrder])
 
     useEffect(() => {
         processOrderList(listOrderFull);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrderFull, symbolCode, orderSide, orderType])
 
     useEffect(() => {
         processOrderEvent(orderEventList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderEventList]);
 
     const processOrderEvent = (orderList) => {
@@ -422,6 +430,26 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setSelectedList(lst);
     }
 
+    const checkOrderExistListCancelId = (orderId: string) => {
+        return cancelListId.indexOf(orderId) >= 0;
+    }
+
+    const getOrderCancelId = (orderId: string) => {
+        const idx = cancelListId.indexOf(orderId);
+        if (orderId !== '' && orderId !== null && orderId !== undefined && idx < 0) {
+            cancelListId.push(orderId);
+        }
+        setCancelListId(cancelListId);
+    }
+
+    const getOrderCancelIdResponse = (orderId: string) => {
+        const idx = cancelListId.indexOf(orderId);
+        if (idx >= 0) {
+            cancelListId.splice(idx, 1);
+        }
+        setCancelListId(cancelListId);
+    }
+
     const getListModifyCancelData = () => (
         dataOrder.map((item, index) => {
             return <tr key={index} className="odd">
@@ -443,12 +471,21 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-end">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                     <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
-                    <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
-                        <i className="bi bi-x-lg"></i>
-                    </a>
+                    { !checkOrderExistListCancelId(item?.orderId) &&
+                        // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                        <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
+                            <i className="bi bi-x-lg"></i>
+                        </a>
+                    }
+                    { checkOrderExistListCancelId(item?.orderId) &&
+                        <div className="spinner-border spinner-border-sm" role="status">
+                            <span className="sr-only"></span>
+                        </div>
+                    }
                 </td>
             </tr>
         })
@@ -507,14 +544,19 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         {isCancel && <ConfirmOrder isCancel={isCancel}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
-            params={paramModifyCancel} />}
+            params={paramModifyCancel}
+            handleOrderCancelId={getOrderCancelId}
+            handleOrderCancelIdResponse={getOrderCancelIdResponse}
+        />}
         {isModify && <ConfirmOrder isModify={isModify}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
             params={paramModifyCancel} />}
         {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
             totalOrder={totalOrder} listOrder={dataSelected}
-            handleOrderResponse={getStatusOrderResponse} />}
+            handleOrderResponse={getStatusOrderResponse}
+            handleOrderCancelId={getOrderCancelId}
+        />}
     </div>
 }
 export default ListModifyCancel;
