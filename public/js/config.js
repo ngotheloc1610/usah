@@ -5,4 +5,5 @@ window.globalThis = {
     "idleTimeOut": 3600000,
     "timesChangePassword": 6,
     "flagMsgCode": "true",
+    "timeOutCancelResponse": 10000,
 }
