@@ -961,27 +961,27 @@ const MultipleOrders = () => {
                     return;
                 }
 
-                if (!checkSymbol(obj.Ticker)) {
+                if (!checkSymbol(obj?.Ticker?.trim())) {
                     toast.error("Symbol doesn't exist");
                     return;
                 }
 
-                if (isNaN(Number(obj.Quantity.replaceAll(',', '')))) {
+                if (isNaN(Number(obj?.Quantity?.trim().replaceAll(',', '')))) {
                     toast.error('Invalid quantity');
                     return;
                 }
 
-                if (isNaN(Number(obj.Price.replaceAll(',', '')))) {
+                if (isNaN(Number(obj?.Price?.trim().replaceAll(',', '')))) {
                     toast.error('Invalid price');
                     return;
                 }
 
-                if (!checkSideValid(obj.OrderSide)) {
+                if (!checkSideValid(obj?.OrderSide?.trim())) {
                     toast.error('Invalid order side');
                     return;
                 }
 
-                if (!checkOrderTypeValid(obj.OrderType)) {
+                if (!checkOrderTypeValid(obj?.OrderType?.trim())) {
                     toast.error('Invalid order type');
                     return;
                 }
