@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
@@ -232,7 +232,8 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
     let askBidItem: IAskAndBidPrice[] = asksBidsList;
     let arr: IAsksBidsList[] = [];
     let counter = 0;
-    while (counter < MARKET_DEPTH_LENGTH) {
+    const marketDepthLength = window.globalThis.marketDepthLenghtOrderBook || MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT
+    while (counter < marketDepthLength) {
         if (askBidItem[counter]) {
             const numOrders = askBidItem[counter].numOrders ? askBidItem[counter].volume.toString() : '-';
             const price = askBidItem[counter].price ? Number(askBidItem[counter].price).toFixed(2) : '-';
@@ -249,7 +250,7 @@ export const getListAsksBids = (asksBidsList: IAskAndBidPrice[], type: string) =
 
             let total = '';
             if (type === LIST_PRICE_TYPE.askList) {
-                total = counter === (MARKET_DEPTH_LENGTH - 1) ? numOrders : totalNumOrder;
+                total = counter === (marketDepthLength - 1) ? numOrders : totalNumOrder;
             } else {
                 total = counter === 0 ? numOrders : totalNumOrder;
             }

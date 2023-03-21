@@ -115,7 +115,9 @@ export const SIDE_NAME = {
 
 export const MARKET_DEPTH_LENGTH_DASHBOARD = 10;
 
-export const MARKET_DEPTH_LENGTH = 3;
+export const MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT = 15;
+
+export const MARKET_DEPTH_LENGTH = 3
 
 export const MSG_CODE = 'msgCode';
 

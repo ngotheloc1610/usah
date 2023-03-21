@@ -109,7 +109,8 @@ const OrderBook = (props: IOrderBookProps) => {
     const renderAskList = (quote: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = quote.asksList;
         let arr: IAskAndBidPrice[] = [];
-        let counter = MARKET_DEPTH_LENGTH_DASHBOARD - 1;
+        const markerDepthLenght = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD
+        let counter = markerDepthLenght - 1;
         while (counter >= 0) {
             if (askItems[counter]) {
                 arr.push({
@@ -153,7 +154,8 @@ const OrderBook = (props: IOrderBookProps) => {
         let bidItems: IAskAndBidPrice[] = quote.bidsList;
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
-        while (counter < MARKET_DEPTH_LENGTH_DASHBOARD) {
+        const markerDepthLenght = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD
+        while (counter < markerDepthLenght) {
             if (bidItems[counter]) {
                 arr.push({
                     numOrders: bidItems[counter].numOrders,
