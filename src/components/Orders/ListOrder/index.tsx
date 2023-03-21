@@ -481,9 +481,9 @@ const ListOrder = (props: IPropsListOrder) => {
                             <span className="text-ellipsis">Datetime</span>
                         </th>
                         <th className="text-end sorting_disabled">
-
-                            {(selectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
-
+                            <button className="text-ellipsis btn btn-primary" disabled={cancelListId.length > 0} onClick={() => btnCancelAllConfirm()}>
+                                Cancel
+                            </button>
                         </th>
                     </tr>
                 </thead>

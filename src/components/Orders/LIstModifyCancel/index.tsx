@@ -528,7 +528,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                 <span className="text-ellipsis">Datetime</span>
                             </th>
                             <th className="text-end sorting_disabled">
-                                {(dataSelectedList.length > 0) && <button className="text-ellipsis btn btn-primary" onClick={() => btnCancelAllConfirm()}>Cancel</button>}
+                                <button className="text-ellipsis btn btn-primary" disabled={cancelListId.length > 0} onClick={() => btnCancelAllConfirm()}>
+                                    Cancel
+                                </button>
                             </th>
                         </tr>
                     </thead>
@@ -556,6 +558,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             totalOrder={totalOrder} listOrder={dataSelected}
             handleOrderResponse={getStatusOrderResponse}
             handleOrderCancelId={getOrderCancelId}
+            handleOrderCancelIdResponse={getOrderCancelIdResponse}
         />}
     </div>
 }
