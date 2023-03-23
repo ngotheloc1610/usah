@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useMemo } from "react";
-import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
+import { useEffect, useRef, useState } from "react";
+import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -24,7 +24,7 @@ interface IPropsListOrder {
 
 
 const ListOrder = (props: IPropsListOrder) => {
-    const { getMsgSuccess, setMessageSuccess } = props;
+    const { setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
     const [dataOrder, setDataOrder] = useState<IListOrderMonitoring[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);

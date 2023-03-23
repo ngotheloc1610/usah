@@ -5,9 +5,9 @@ import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
-import { IListOrderModifyCancel, IParamOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import { IListOrderModifyCancel, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, ORDER_TYPE_NAME, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
 import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -36,7 +36,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [statusModify, setStatusModify] = useState(0);
     
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(DEFAULT_DATA_MODIFY_CANCEL);
-    const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
@@ -62,10 +61,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             }
         }
         setDataOrder(currentList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
         setCurrentPage(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isCancel])
 
     useEffect(() => {
@@ -108,14 +109,17 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         });
 
         setSelectedList(newSelectList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataOrder])
 
     useEffect(() => {
         processOrderList(listOrderFull);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrderFull, symbolCode, orderSide, orderType])
 
     useEffect(() => {
         processOrderEvent(orderEventList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderEventList]);
 
     const processOrderEvent = (orderList) => {
@@ -338,7 +342,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const _renderMessageSuccess = (message: string, typeOrderRes: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
-        setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch(typeOrderRes) {
             case TYPE_ORDER_RES.Order:
                 return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>

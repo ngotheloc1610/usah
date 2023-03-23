@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
-import { IHistorySearchStatus, IState } from '../../../interfaces/order.interface'
+import { IHistorySearchStatus } from '../../../interfaces/order.interface'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
-import * as qspb from "../../../models/proto/query_service_pb"
-import * as rpcpb from "../../../models/proto/rpc_pb";
 import { wsService } from "../../../services/websocket-service";
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, STATE, STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, getSymbolCode, removeFocusInput } from '../../../helper/utils';
+import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, 
+    STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
@@ -30,15 +29,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [fromDatetime, setFromDatetime] = useState(0);
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
-    const [currentDate, setCurrentDate] = useState('');
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     const [isErrorDate, setIsErrorDate] = useState(false);
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
-        setCurrentDate(currentDate);
-        
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
             orderState: orderState,
@@ -50,8 +46,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
         paramSearch(paramSearchHistory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
@@ -65,6 +63,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         });
 
         return () => orderHistoryRes.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -73,6 +72,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             listSymbolName.push(`${item.symbolCode} - ${item.symbolName}`);
         });
         setListSymbolName(listSymbolName)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleChangeFromDate = (value: string) => {
@@ -81,30 +81,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleChangeToDate = (value: string) => {
         setToDatetime(convertDatetoTimeStamp(value, TO_DATE_TIME));
-    }
-
-    const sendMessageOrderHistory = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let orderHistoryRequest = new queryServicePb.GetOrderHistoryRequest();
-
-            orderHistoryRequest.setAccountId(Number(accountId));
-            orderHistoryRequest.setSymbolCode(symbolCode);
-            orderHistoryRequest.setSide(side);
-            orderHistoryRequest.setFromDatetime(fromDatetime);
-            orderHistoryRequest.setToDatetime(toDatetime);
-            orderHistoryRequest.setOrderState(orderState);
-
-            const rpcModel: any = rpcpb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ORDER_HISTORY_REQ);
-            rpcMsg.setPayloadData(orderHistoryRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
     }
 
     const _rendetMessageError = (message: string) => (
@@ -119,7 +95,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const handleSearch = () => {
         // before the core handles the filter but now the font end handle filter
-        // sendMessageOrderHistory();
         fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
         const paramSearchHistory: IParamHistorySearch = {
             symbolCode: symbolCode,
@@ -198,14 +173,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         else {
             setSide(tradingModelPb.Side.NONE);
         }
-    }
-
-    const btnClickFromDate = (e) => {
-        handleChangeFromDate(e.target.value);
-    }
-
-    const btnClickToDate = (e) => {
-        handleChangeToDate(e.target.value);
     }
 
     const _renderOrderSide = () => (

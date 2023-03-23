@@ -4,7 +4,7 @@ import { DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import TickerDetail from "./TickerDetail";
 import { wsService } from "../../services/websocket-service";
@@ -41,16 +41,19 @@ const OrderBook = (props: IOrderBookProps) => {
         });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quotes => {
-            if (quotes && quotes.quoteList) {
-                setQuoteEvent(quotes.quoteList);
+            if (quotes.quoteList) {
+                const idx = quotes.quoteList?.findIndex(o => o?.symbolCode === symbolCode);
+                if (idx >= 0) {
+                    setQuoteEvent(quotes.quoteList);
+                }
             }
-        })
+        });
 
         return () => {
             getLastQuote.unsubscribe();
             quoteEvent.unsubscribe();
         }
-    }, [])
+    }, [symbolCode])
 
     useEffect(() => {
         symbolCode && setTicker(symbolCode);
@@ -104,8 +107,8 @@ const OrderBook = (props: IOrderBookProps) => {
 
     }
 
-    const _renderAskPrice = (itemData: ILastQuote) => {
-        let askItems: IAskAndBidPrice[] = itemData.asksList;
+    const renderAskList = (quote: ILastQuote) => {
+        let askItems: IAskAndBidPrice[] = quote.asksList;
         let arr: IAskAndBidPrice[] = [];
         let counter = MARKET_DEPTH_LENGTH - 1;
         while (counter >= 0) {
@@ -115,7 +118,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: askItems[counter].price,
                     tradable: askItems[counter].tradable,
                     volume: askItems[counter].volume,
-                    symbolCode: itemData.symbolCode,
+                    symbolCode: quote.symbolCode,
                 });
             } else {
                 arr.push({
@@ -123,12 +126,42 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: itemData.symbolCode
+                    symbolCode: quote.symbolCode
                 });
             }
             counter--;
         }
-        return arr.map((item: IAskAndBidPrice, index: number) => (
+        return arr;
+    }
+
+    const arrAsk = useMemo(() => renderAskList(quote), [quote]);
+
+    const _renderAskPrice = () => {
+        // let askItems: IAskAndBidPrice[] = itemData.asksList;
+        // let arr: IAskAndBidPrice[] = [];
+        // let counter = MARKET_DEPTH_LENGTH - 1;
+        // while (counter >= 0) {
+        //     if (askItems[counter]) {
+        //         arr.push({
+        //             numOrders: askItems[counter].numOrders,
+        //             price: askItems[counter].price,
+        //             tradable: askItems[counter].tradable,
+        //             volume: askItems[counter].volume,
+        //             symbolCode: itemData.symbolCode,
+        //         });
+        //     } else {
+        //         arr.push({
+        //             numOrders: 0,
+        //             price: '-',
+        //             tradable: false,
+        //             volume: '-',
+        //             symbolCode: itemData.symbolCode
+        //         });
+        //     }
+        //     counter--;
+        // }
+        
+        return arrAsk.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
                     <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
@@ -141,8 +174,8 @@ const OrderBook = (props: IOrderBookProps) => {
         ));
     }
 
-    const _renderBidPrice = (itemData: ILastQuote) => {
-        let bidItems: IAskAndBidPrice[] = itemData.bidsList;
+    const renderBidList = (quote: ILastQuote) => {
+        let bidItems: IAskAndBidPrice[] = quote.bidsList;
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
         while (counter < MARKET_DEPTH_LENGTH) {
@@ -152,7 +185,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: bidItems[counter].price,
                     tradable: bidItems[counter].tradable,
                     volume: bidItems[counter].volume,
-                    symbolCode: itemData.symbolCode
+                    symbolCode: quote.symbolCode
                 });
             } else {
                 arr.push({
@@ -160,12 +193,41 @@ const OrderBook = (props: IOrderBookProps) => {
                     price: '-',
                     tradable: false,
                     volume: '-',
-                    symbolCode: itemData.symbolCode
+                    symbolCode: quote.symbolCode
                 });
             }
             counter++;
         }
-        return arr.map((item: IAskAndBidPrice, index: number) => (
+        return arr;
+    }
+
+    const arrBid = useMemo(() => renderBidList(quote), [quote]);
+
+    const _renderBidPrice = () => {
+        // let bidItems: IAskAndBidPrice[] = itemData.bidsList;
+        // let arr: IAskAndBidPrice[] = [];
+        // let counter = 0;
+        // while (counter < MARKET_DEPTH_LENGTH) {
+        //     if (bidItems[counter]) {
+        //         arr.push({
+        //             numOrders: bidItems[counter].numOrders,
+        //             price: bidItems[counter].price,
+        //             tradable: bidItems[counter].tradable,
+        //             volume: bidItems[counter].volume,
+        //             symbolCode: itemData.symbolCode
+        //         });
+        //     } else {
+        //         arr.push({
+        //             numOrders: 0,
+        //             price: '-',
+        //             tradable: false,
+        //             volume: '-',
+        //             symbolCode: itemData.symbolCode
+        //         });
+        //     }
+        //     counter++;
+        // }
+        return arrBid.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL)}>
                 <td className="text-end fw-600">&nbsp;</td>
                 <td className="fw-bold text-center fw-600">
@@ -250,13 +312,13 @@ const OrderBook = (props: IOrderBookProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {_renderAskPrice(quote)}
+                            {_renderAskPrice()}
                             <tr className="bg-light">
                                 <td className="text-center" colSpan={3}>
                                     <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '' && symbolCode) ? formatCurrency(quote.currentPrice) : '-'}</span>
                                 </td>
                             </tr>
-                            {_renderBidPrice(quote)}
+                            {_renderBidPrice()}
                         </tbody>
                     </table>
                 </div>

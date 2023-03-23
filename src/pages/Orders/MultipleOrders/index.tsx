@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, checkVolumeLotSize } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -22,6 +22,7 @@ import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_PRICE, INVALID_VOLUME, ME
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
 import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
+import moment from "moment";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -51,7 +52,7 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const [quotes, setQuotes] = useState([]);
+    // const [quotes, setQuotes] = useState([]);
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
@@ -96,6 +97,7 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
+            console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                 tmp = RESPONSE_RESULT.success;
@@ -107,7 +109,7 @@ const MultipleOrders = () => {
                 setOrderListResponse(resp.orderList);
                 setListSelected([]);
             }
-
+            console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
         return () => {
@@ -129,16 +131,16 @@ const MultipleOrders = () => {
             }
         });
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
-            if (quoteEvent && quoteEvent.quoteList) {
-                setQuotes(quoteEvent.quoteList);
-            }
-        })
+        // const quoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
+        //     if (quoteEvent && quoteEvent.quoteList) {
+        //         setQuotes(quoteEvent.quoteList);
+        //     }
+        // })
 
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
-            quoteEvent.unsubscribe();
+            // quoteEvent.unsubscribe();
         }
     }, [])
 
@@ -146,9 +148,9 @@ const MultipleOrders = () => {
         processLastQuote(lastQuotes)
     }, [lastQuotes])
 
-    useEffect(() => {
-        processQuoteEvent(quotes)
-    }, [quotes])
+    // useEffect(() => {
+    //     processQuoteEvent(quotes)
+    // }, [quotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
@@ -182,36 +184,36 @@ const MultipleOrders = () => {
         }
     }
 
-    const processQuoteEvent = (quotes: ILastQuote[]) => {
-        if (quotes && quotes.length > 0) {
-            let tempLastQuotes = [...lastQuotes];
-            quotes.forEach(item => {
-                const idx = tempLastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx && idx >= 0) {
-                    tempLastQuotes[idx] = {
-                        ...tempLastQuotes[idx],
-                        high: item?.high || '0',
-                        low: item?.low || '0',
-                        currentPrice: item.currentPrice,
-                        open: item.open || '0',
-                        volume: item.volumePerDay,
-                        asksList: item.asksList,
-                        bidsList: item.bidsList
-                    }
-                }
-            });
-            setLastQuotes(tempLastQuotes);
-            const quote = quotes.find(o => o?.symbolCode === symbolSelected);
-            if (quote) {
-                setIsEmptyAsk(quote.asksList.length === 0);
-                setIsEmptyBid(quote.bidsList.length === 0);
-                const bestAsk = quote?.asksList?.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
-                const bestBid = quote?.bidsList?.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
-                setBestAskPrice(bestAsk);
-                setBestBidPrice(bestBid);
-            }
-        }
-    }
+    // const processQuoteEvent = (quotes: ILastQuote[]) => {
+    //     if (quotes && quotes.length > 0) {
+    //         let tempLastQuotes = [...lastQuotes];
+    //         quotes.forEach(item => {
+    //             const idx = tempLastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
+    //             if (idx && idx >= 0) {
+    //                 tempLastQuotes[idx] = {
+    //                     ...tempLastQuotes[idx],
+    //                     high: item?.high || '0',
+    //                     low: item?.low || '0',
+    //                     currentPrice: item.currentPrice,
+    //                     open: item.open || '0',
+    //                     volume: item.volumePerDay,
+    //                     asksList: item.asksList,
+    //                     bidsList: item.bidsList
+    //                 }
+    //             }
+    //         });
+    //         setLastQuotes(tempLastQuotes);
+    //         const quote = quotes.find(o => o?.symbolCode === symbolSelected);
+    //         if (quote) {
+    //             setIsEmptyAsk(quote.asksList.length === 0);
+    //             setIsEmptyBid(quote.bidsList.length === 0);
+    //             const bestAsk = quote?.asksList?.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
+    //             const bestBid = quote?.bidsList?.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
+    //             setBestAskPrice(bestAsk);
+    //             setBestBidPrice(bestBid);
+    //         }
+    //     }
+    // }
 
     useEffect(() => {
         if (!ticker?.trim()) {
@@ -859,6 +861,7 @@ const MultipleOrders = () => {
             rpcMsg.setPayloadData(multiOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log(`Send multiOrder with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             setShowModalConfirmMultiOrders(false);
         }
     }

@@ -136,7 +136,10 @@ const OrderForm = (props: IOrderForm) => {
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
-                setQuoteEvent(quote.quoteList);
+                const idx = quote.quoteList?.findIndex(o => o?.symbolCode === symbolCode);
+                if (idx >= 0) {
+                    setQuoteEvent(quote.quoteList);
+                }
             }
         });
 
@@ -144,7 +147,7 @@ const OrderForm = (props: IOrderForm) => {
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
         }
-    }, [])
+    }, [symbolCode])
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);

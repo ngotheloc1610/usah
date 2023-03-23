@@ -28,10 +28,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const queryModelPb: any = qmpb;
 
     useEffect(() => {
-        const subscribeQuoteRes = wsService.getSubscribeQuoteSubject().subscribe(resp => {
-            console.log(resp);
-        });
-
         const symbols = wsService.getSymbolListSubject().subscribe(resp => {
             if (resp && resp.symbolList) {
                 const temp: any[] = [];
@@ -58,7 +54,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
         return () => {
             unSubscribeQuoteEvent();
-            subscribeQuoteRes.unsubscribe();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
             symbols.unsubscribe();
