@@ -110,7 +110,9 @@ const OrderNew = () => {
         setSymbolCode(value);
         const symbolLocalList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]')
         const itemTickerInfor = symbolLocalList.find(item => item.ticker === value.toUpperCase());
-        subscribeQuoteEvent(value)
+        if (value?.trim() !== '') {
+            subscribeQuoteEvent(value)
+        }
         if (currentTickerSearch) {
             unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
         }

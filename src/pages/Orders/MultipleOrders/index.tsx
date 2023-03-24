@@ -121,7 +121,7 @@ const MultipleOrders = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendMessageQuotes();
-                subscribeQuoteEvent();
+                // subscribeQuoteEvent();
             }
         });
 
@@ -270,6 +270,22 @@ const MultipleOrders = () => {
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unsubscribeQuoteEvent = () => {
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let subscribeQuoteEventReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            subscribeQuoteEventReq.setSymbolCodeList(symbolCodes);
+
+            const rpcModel: any = rspb;
+
+            let rpcMsg = new rpcModel.RpcMessage();
+            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -1407,6 +1423,7 @@ const MultipleOrders = () => {
         setTicker('');
         setSymbolCode('');
         setOrderType(tradingModel.OrderType.OP_LIMIT);
+        unsubscribeQuoteEvent();
     }
 
     const updateListTickers = (list:ISymbolMultiOrder[]) => {
@@ -1432,6 +1449,7 @@ const MultipleOrders = () => {
         setInvalidVolume(false);
         setIsValidTicker(false);
         setIsShowNotiErrorPrice(false);
+        unsubscribeQuoteEvent();
     }
 
     const calcGrossValue = (price: number, volume: number) => {
@@ -1587,7 +1605,10 @@ const MultipleOrders = () => {
                 </div>
                 <div className="d-flex justify-content-sm-between m-3">
                     <div className="d-flex">
-                        <button type="button" className="btn btn-warning" onClick={() => setIsAddOrder(true)}>Add Order</button>
+                        <button type="button" className="btn btn-warning" onClick={() => {
+                            setIsAddOrder(true);
+                            subscribeQuoteEvent();
+                        }}>Add Order</button>
                         {listTickers.length === 0 && <div className="upload-btn-wrapper">
                             <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" title={"template file"} download="MultiOrdersSample.csv"> Download</a>
                         </div>}

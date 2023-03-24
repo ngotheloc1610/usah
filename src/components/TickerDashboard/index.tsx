@@ -53,7 +53,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
         })
 
         return () => {
-            unSubscribeQuoteEvent();
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
             symbols.unsubscribe();
@@ -165,22 +164,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 }
             });
             setLastQuotes(tempLastQuotes);
-        }
-    }
-
-    const unSubscribeQuoteEvent = () => {
-        const pricingServicePb: any = psbp;
-        const rpc: any = rpcpb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            symbolList.forEach(item => {
-                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 

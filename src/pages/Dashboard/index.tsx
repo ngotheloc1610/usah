@@ -25,7 +25,6 @@ const Dashboard = () => {
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
 
     const [side, setSide] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
     const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
@@ -64,8 +63,7 @@ const Dashboard = () => {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList && res.symbolList.length > 0) {
                 let symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
-                symbolListActive = symbolListActive.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode))
-                setSymbolList(symbolListActive);
+                symbolListActive = symbolListActive.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
                 localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                 localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList));
                 if (symbolListActive.length > 0) {
@@ -129,6 +127,7 @@ const Dashboard = () => {
             lastQuote.unsubscribe();
             customerInfoDetailRes.unsubscribe();
             orderEvent.unsubscribe();
+            unSubscribeQuoteEvent();
         }
     }, [])
     
@@ -234,6 +233,24 @@ const Dashboard = () => {
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rspb;
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
+        const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            symbolListActive.forEach(item => {
+                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
