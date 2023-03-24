@@ -128,7 +128,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const _renderListOrderType = () => {
-        return ORDER_TYPE_SEARCH.map(item => (<option value={item.code} key={item.code}>{item.name}</option>))
+        return ORDER_TYPE_SEARCH.map((item, index) => (<option value={item.code} key={index}>{item.name}</option>))
     }
 
     const _renderTicker = () => (
