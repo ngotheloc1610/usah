@@ -113,17 +113,17 @@ const Dashboard = () => {
             }
         })
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-            if (quote && quote.quoteList) {
-                // setQuoteEvent(quote.quoteList);
-            }
-        });
+        // const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+        //     if (quote && quote.quoteList) {
+        //         setQuoteEvent(quote.quoteList);
+        //     }
+        // });
 
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
             portfolioRes.unsubscribe();
-            quoteEvent.unsubscribe();
+            // quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
             customerInfoDetailRes.unsubscribe();
             orderEvent.unsubscribe();

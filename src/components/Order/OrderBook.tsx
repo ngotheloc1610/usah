@@ -137,30 +137,6 @@ const OrderBook = (props: IOrderBookProps) => {
     const arrAsk = useMemo(() => renderAskList(quote), [quote]);
 
     const _renderAskPrice = () => {
-        // let askItems: IAskAndBidPrice[] = itemData.asksList;
-        // let arr: IAskAndBidPrice[] = [];
-        // let counter = MARKET_DEPTH_LENGTH - 1;
-        // while (counter >= 0) {
-        //     if (askItems[counter]) {
-        //         arr.push({
-        //             numOrders: askItems[counter].numOrders,
-        //             price: askItems[counter].price,
-        //             tradable: askItems[counter].tradable,
-        //             volume: askItems[counter].volume,
-        //             symbolCode: itemData.symbolCode,
-        //         });
-        //     } else {
-        //         arr.push({
-        //             numOrders: 0,
-        //             price: '-',
-        //             tradable: false,
-        //             volume: '-',
-        //             symbolCode: itemData.symbolCode
-        //         });
-        //     }
-        //     counter--;
-        // }
-        
         return arrAsk.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
@@ -204,29 +180,6 @@ const OrderBook = (props: IOrderBookProps) => {
     const arrBid = useMemo(() => renderBidList(quote), [quote]);
 
     const _renderBidPrice = () => {
-        // let bidItems: IAskAndBidPrice[] = itemData.bidsList;
-        // let arr: IAskAndBidPrice[] = [];
-        // let counter = 0;
-        // while (counter < MARKET_DEPTH_LENGTH) {
-        //     if (bidItems[counter]) {
-        //         arr.push({
-        //             numOrders: bidItems[counter].numOrders,
-        //             price: bidItems[counter].price,
-        //             tradable: bidItems[counter].tradable,
-        //             volume: bidItems[counter].volume,
-        //             symbolCode: itemData.symbolCode
-        //         });
-        //     } else {
-        //         arr.push({
-        //             numOrders: 0,
-        //             price: '-',
-        //             tradable: false,
-        //             volume: '-',
-        //             symbolCode: itemData.symbolCode
-        //         });
-        //     }
-        //     counter++;
-        // }
         return arrBid.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL)}>
                 <td className="text-end fw-600">&nbsp;</td>

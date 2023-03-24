@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE } from "../../../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE, TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT } from "../../../constants/general.constant";
 import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
@@ -23,6 +23,7 @@ import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.c
 import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
 import moment from "moment";
+import LazyLoad from "../../../components/lazy-load";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -52,7 +53,6 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    // const [quotes, setQuotes] = useState([]);
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
@@ -64,6 +64,8 @@ const MultipleOrders = () => {
 
     const [isEmptyAsk, setIsEmptyAsk] = useState(false);
     const [isEmptyBid, setIsEmptyBid] = useState(false);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE);
@@ -96,6 +98,24 @@ const MultipleOrders = () => {
     }, [orderType, limitPrice])
 
     useEffect(() => {
+        // handle time out hide lazy load if don't receive multiOrder response
+        const timeOut = window?.globalThis?.timeOutMultiOrderResponse ? window?.globalThis?.timeOutMultiOrderResponse : TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT;
+        const timeResetLoading = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+                toast.warn("Please refer to the order history for checking of your order status.");
+            }
+        }, timeOut);
+
+        if (!isLoading) {
+            clearTimeout(timeResetLoading);
+        }
+
+        return () => clearTimeout(timeResetLoading)
+
+    }, [isLoading])
+
+    useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
             console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
@@ -109,6 +129,7 @@ const MultipleOrders = () => {
                 setOrderListResponse(resp.orderList);
                 setListSelected([]);
             }
+            setIsLoading(false);
             console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
@@ -121,7 +142,6 @@ const MultipleOrders = () => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
                 sendMessageQuotes();
-                // subscribeQuoteEvent();
             }
         });
 
@@ -131,26 +151,15 @@ const MultipleOrders = () => {
             }
         });
 
-        // const quoteEvent = wsService.getQuoteSubject().subscribe(quoteEvent => {
-        //     if (quoteEvent && quoteEvent.quoteList) {
-        //         setQuotes(quoteEvent.quoteList);
-        //     }
-        // })
-
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
-            // quoteEvent.unsubscribe();
         }
     }, [])
 
     useEffect(() => {
         processLastQuote(lastQuotes)
     }, [lastQuotes])
-
-    // useEffect(() => {
-    //     processQuoteEvent(quotes)
-    // }, [quotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
@@ -183,37 +192,6 @@ const MultipleOrders = () => {
             setSymbolInfor(temp);
         }
     }
-
-    // const processQuoteEvent = (quotes: ILastQuote[]) => {
-    //     if (quotes && quotes.length > 0) {
-    //         let tempLastQuotes = [...lastQuotes];
-    //         quotes.forEach(item => {
-    //             const idx = tempLastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-    //             if (idx && idx >= 0) {
-    //                 tempLastQuotes[idx] = {
-    //                     ...tempLastQuotes[idx],
-    //                     high: item?.high || '0',
-    //                     low: item?.low || '0',
-    //                     currentPrice: item.currentPrice,
-    //                     open: item.open || '0',
-    //                     volume: item.volumePerDay,
-    //                     asksList: item.asksList,
-    //                     bidsList: item.bidsList
-    //                 }
-    //             }
-    //         });
-    //         setLastQuotes(tempLastQuotes);
-    //         const quote = quotes.find(o => o?.symbolCode === symbolSelected);
-    //         if (quote) {
-    //             setIsEmptyAsk(quote.asksList.length === 0);
-    //             setIsEmptyBid(quote.bidsList.length === 0);
-    //             const bestAsk = quote?.asksList?.length > 0 ? convertNumber(quote?.asksList[0]?.price) : 0;
-    //             const bestBid = quote?.bidsList?.length > 0 ? convertNumber(quote?.bidsList[0]?.price) : 0;
-    //             setBestAskPrice(bestAsk);
-    //             setBestBidPrice(bestBid);
-    //         }
-    //     }
-    // }
 
     useEffect(() => {
         if (!ticker?.trim()) {
@@ -252,40 +230,6 @@ const MultipleOrders = () => {
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
             rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const subscribeQuoteEvent = () => {
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-
-            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
-            lastQuotesRequest.setSymbolCodeList(symbolCodes);
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(lastQuotesRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const unsubscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeQuoteEventReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
-            subscribeQuoteEventReq.setSymbolCodeList(symbolCodes);
-
-            const rpcModel: any = rspb;
-
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -844,6 +788,7 @@ const MultipleOrders = () => {
     )
 
     const callOrderRequest = () => {
+        setIsLoading(true);
         const accountId = localStorage.getItem(ACCOUNT_ID)
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
@@ -1423,7 +1368,6 @@ const MultipleOrders = () => {
         setTicker('');
         setSymbolCode('');
         setOrderType(tradingModel.OrderType.OP_LIMIT);
-        unsubscribeQuoteEvent();
     }
 
     const updateListTickers = (list:ISymbolMultiOrder[]) => {
@@ -1449,7 +1393,6 @@ const MultipleOrders = () => {
         setInvalidVolume(false);
         setIsValidTicker(false);
         setIsShowNotiErrorPrice(false);
-        unsubscribeQuoteEvent();
     }
 
     const calcGrossValue = (price: number, volume: number) => {
@@ -1607,7 +1550,7 @@ const MultipleOrders = () => {
                     <div className="d-flex">
                         <button type="button" className="btn btn-warning" onClick={() => {
                             setIsAddOrder(true);
-                            subscribeQuoteEvent();
+                            sendMessageQuotes();
                         }}>Add Order</button>
                         {listTickers.length === 0 && <div className="upload-btn-wrapper">
                             <a href={FILE_MULTI_ORDER_SAMPLE} className="btn btn-upload" title={"template file"} download="MultiOrdersSample.csv"> Download</a>
@@ -1635,6 +1578,7 @@ const MultipleOrders = () => {
         </div>
         {showModalConfirmMultiOrders && _renderPopupConfirm()}
         {isAddOrder && _renderOrderForm()}
+        {isLoading && <LazyLoad />}
     </div>
 
 };

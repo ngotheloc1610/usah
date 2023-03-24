@@ -266,3 +266,7 @@ export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as principal and is t
 export const NOT_MATCH_PASSWORD = "Passwords don't match";
 
 export const RETURN_LOGIN_TIME = 5;
+
+export const TIME_OUT_CANCEL_RESPONSE_DEFAULT = 10000;
+
+export const TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT = 30000;
