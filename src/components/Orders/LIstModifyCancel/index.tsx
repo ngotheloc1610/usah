@@ -422,6 +422,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             cancelListId.splice(idx, 1);
         }
         setCancelListId(cancelListId);
+        setSelectedList([]);
     }
 
     const getListModifyCancelData = () => (
