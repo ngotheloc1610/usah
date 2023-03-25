@@ -123,6 +123,9 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
             console.log("Send request cancel all order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            if (handleCloseConfirmPopup) {
+                handleCloseConfirmPopup(false);
+            }
         }
     }
     return <>
