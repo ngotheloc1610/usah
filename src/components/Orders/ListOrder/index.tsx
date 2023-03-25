@@ -452,6 +452,7 @@ const ListOrder = (props: IPropsListOrder) => {
             cancelListId.splice(idx, 1);
         }
         setCancelListId(cancelListId);
+        setSelectedList([]);
     }
 
     const _renderTableListOrder = () => {

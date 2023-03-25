@@ -7,7 +7,7 @@ import * as tspb from '../../../models/proto/trading_service_pb';
 import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './PopUpConfirm.scss';
 import { Button, Modal } from 'react-bootstrap';
 import { MESSAGE_ERROR } from '../../../constants/message.constant';
@@ -31,6 +31,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const tradingModelPb: any = tmpb;
     const systemModelPb: any = smpb;
     const rProtoBuff: any = rpc;
+
+    const [isDisableConfirmBtn, setIsDisableConfirmBtn] = useState(false);
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
@@ -64,6 +66,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             }
             
             handleCloseConfirmPopup(false);
+            setIsDisableConfirmBtn(false);
             console.log("Finised process cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
@@ -123,9 +126,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
             console.log("Send request cancel all order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
-            if (handleCloseConfirmPopup) {
-                handleCloseConfirmPopup(false);
-            }
+            setIsDisableConfirmBtn(true);
         }
     }
     return <>
@@ -151,7 +152,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                     DISCARD
                 </Button>
-                <Button variant="primary" onClick={sendRes}>
+                <Button variant="primary" disabled={isDisableConfirmBtn} onClick={sendRes}>
                     CONFIRM
                 </Button>
             </Modal.Footer>
