@@ -965,9 +965,9 @@ const MultipleOrders = () => {
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
                         no: (list.length).toString(),
-                        orderSide: obj.OrderSide,
+                        orderSide: obj.OrderSide.trim(),
                         price: formatCurrency(tempPrice),
-                        ticker: obj.Ticker,
+                        ticker: obj.Ticker.trim(),
                         volume: obj.Quantity || obj.Volume,
                         msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
                         message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.message : '',
