@@ -7,7 +7,7 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -19,6 +19,8 @@ import Decimal from 'decimal.js';
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
+    handleOrderCancelId?: (orderId: string) => void;
+    handleOrderCancelIdResponse?: (orderId: string) => void;
     params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
@@ -30,7 +32,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0);
@@ -60,7 +62,57 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             setLotSize(convertNumber(lotSize));
             setMinLot(convertNumber(minLot));
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        const cancelReq = wsService.getCancelSubject().subscribe(resp => {
+            handleCancelRes(resp)
+        });
+
+        return () => {
+            cancelReq.unsubscribe()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const handleCancelRes = (resp: any) => {
+        let tmp = 0;
+        let msgText = resp[MSG_TEXT];
+        if (resp?.orderList?.length > 1) {
+            updateMessageResponse(tmp, resp[MSG_CODE], msgText)
+        } else if (resp?.orderList?.length === 1) {
+            const order = resp?.orderList[0];
+            updateMessageResponse(tmp, order?.msgCode, msgText)
+        } else {
+            tmp = RESPONSE_RESULT.error;
+            handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+        }
+        handleCloseConfirmPopup(false);
+
+        // handle cancel order response to disable loading icon
+        resp?.orderList?.forEach(item => {
+            if (item && handleOrderCancelIdResponse) {
+                handleOrderCancelIdResponse(item?.orderId);
+            }
+        })
+    }
+
+    const updateMessageResponse = (statusRes: number, msgCode: number, msgText: string) => {
+        const systemModelPb: any = smpb;
+        if ( msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+            statusRes = RESPONSE_RESULT.success;
+        } else if (msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+            statusRes = RESPONSE_RESULT.error;
+            msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) || '';
+        } else if (msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+            statusRes = RESPONSE_RESULT.success;
+            msgText = CANCEL_SUCCESSFULLY;
+        } else {
+            statusRes = RESPONSE_RESULT.error;
+        }
+        handleOrderResponse(statusRes, msgText, TYPE_ORDER_RES.Cancel, msgCode);
+    }
 
     const handleVolumeModify = (valueVolume: string) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
@@ -213,42 +265,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            wsService.getCancelSubject().subscribe(resp => {
-                let tmp = 0;
-                let msgText = resp[MSG_TEXT];
-                if (resp?.orderList?.length > 1) {
-                    if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                        tmp = RESPONSE_RESULT.success;
-                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
-                        tmp = RESPONSE_RESULT.error;
-                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
-                        tmp = RESPONSE_RESULT.success;
-                        msgText = CANCEL_SUCCESSFULLY;
-                    } else {
-                        tmp = RESPONSE_RESULT.error;
-                    }
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-                } else if (resp?.orderList?.length === 1) {
-                    const order = resp?.orderList[0];
-                    if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
-                        tmp = RESPONSE_RESULT.success;
-                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
-                        tmp = RESPONSE_RESULT.error;
-                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
-                        tmp = RESPONSE_RESULT.success;
-                        msgText = CANCEL_SUCCESSFULLY;
-                    } else {
-                        tmp = RESPONSE_RESULT.error;
-                    }
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
-                } else {
-                    tmp = RESPONSE_RESULT.error;
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-                }
-            });
-            handleCloseConfirmPopup(false);
         }
     }
 
@@ -256,6 +272,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
             prepareMessageCancel(accountId);
+            if (handleOrderCancelId) {
+                handleOrderCancelId(params?.orderId || '')
+            }
+
+            // after timeOutCancelOrder, if don't receive cancel response => auto stop loading
+            const timeOutCancelOrder = window.globalThis.timeOutCancelResponse ? 
+                            window.globalThis.timeOutCancelResponse : TIME_OUT_CANCEL_RESPONSE_DEFAULT;
+            setTimeout(() => {
+                if (handleOrderCancelIdResponse) {
+                    handleOrderCancelIdResponse(params?.orderId || '');
+                }
+            }, timeOutCancelOrder)
         }
         else if (isModify) {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
@@ -303,6 +331,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if((priceModify*100)%(tickSize*100) === 0) {
             setInvalidPrice(false)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [priceModify])
 
     const handleUpperPrice = () => {
