@@ -952,14 +952,14 @@ const MultipleOrders = () => {
 
                 let bestAsk = 0;
                 let bestBid = 0;
-                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj.Ticker);
+                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj?.Ticker?.trim());
                 if (tempQuote) {
                     bestAsk = tempQuote?.asksList?.length > 0 ? convertNumber(tempQuote?.asksList[0]?.price) : 0;
                     bestBid = tempQuote?.bidsList?.length > 0 ? convertNumber(tempQuote?.bidsList[0]?.price) : 0;
                 }
-                let tempPrice = obj.Price.replaceAll(',', '');
-                if (obj.OrderType.toLowerCase() === 'market') {
-                    tempPrice = obj.OrderSide.toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
+                let tempPrice = obj.Price.trim().replaceAll(',', '');
+                if (obj.OrderType.trim().toLowerCase() === 'market') {
+                    tempPrice = obj.OrderSide.trim().toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
                 }
           
                 if (Object.values(obj).filter(x => x).length > 0) {
@@ -969,9 +969,9 @@ const MultipleOrders = () => {
                         price: formatCurrency(tempPrice),
                         ticker: obj.Ticker.trim(),
                         volume: obj.Quantity || obj.Volume,
-                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
-                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.message : '',
-                        orderType: obj.OrderType.toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
+                        msgCode: getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
+                        message: getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice)?.message : '',
+                        orderType: obj.OrderType.trim().toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
                     }
                     list.push(tmp);
                 }
