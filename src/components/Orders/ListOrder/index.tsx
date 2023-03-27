@@ -160,6 +160,12 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleOrderCanceledAndFilled = (order) => {
+        if (order?.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED) {
+            const idx = cancelListId.indexOf(order?.orderId);
+            if (idx >= 0) {
+                cancelListId.splice(idx, 1);
+            }
+        }
         removeOrder(order);
     }
 
@@ -515,10 +521,6 @@ const ListOrder = (props: IPropsListOrder) => {
         return;
     }
 
-    const checkOrderExistListCancelId = (orderId: string) => {
-        return cancelListId.indexOf(orderId) >= 0;
-    }
-
     const getOrderCancelId = (orderId: string) => {
         const idx = cancelListId.indexOf(orderId);
         if (orderId !== '' && orderId !== null && orderId !== undefined && idx < 0) {
@@ -527,12 +529,17 @@ const ListOrder = (props: IPropsListOrder) => {
         setCancelListId(cancelListId);
     }
 
+    const checkOrderExistListCancelId = (orderId: string) => {
+        return cancelListId.indexOf(orderId) >= 0;
+    }
+
     const getOrderCancelIdResponse = (orderId: string) => {
         const idx = cancelListId.indexOf(orderId);
         if (idx >= 0) {
             cancelListId.splice(idx, 1);
         }
         setCancelListId(cancelListId);
+        setSelectedList([]);
     }
 
     const _renderTableListOrder = () => {
@@ -580,9 +587,13 @@ const ListOrder = (props: IPropsListOrder) => {
                             {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
                         </th>
                         <th className="text-end sorting_disabled">
-                            {(selectedList.length > 0) && <button className="text-ellipsis btn btn-primary" disabled={cancelListId.length > 0} onClick={() => btnCancelAllConfirm()}>
-                                Cancel
-                            </button>}
+
+                            {(selectedList.length > 0) && 
+                                <button className="text-ellipsis btn btn-primary" 
+                                disabled={cancelListId.length > 0}
+                                onClick={() => btnCancelAllConfirm()}>Cancel</button>
+                            }
+
                         </th>
                     </tr>
                 </thead>
@@ -669,7 +680,8 @@ const ListOrder = (props: IPropsListOrder) => {
                 totalOrder={totalOrder} listOrder={dataSelected}
                 handleOrderResponse={getStatusOrderResponse}
                 handleOrderCancelId={getOrderCancelId}
-                handleOrderCancelIdResponse={getOrderCancelIdResponse} />}
+                handleOrderCancelIdResponse={getOrderCancelIdResponse}
+            />}
         </>
     )
 }

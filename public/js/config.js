@@ -6,4 +6,5 @@ window.globalThis = {
     "timesChangePassword": 6,
     "flagMsgCode": "true",
     "timeOutCancelResponse": 10000,
+    "timeOutMultiOrderResponse": 30000,
 }

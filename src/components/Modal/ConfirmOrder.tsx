@@ -15,6 +15,7 @@ import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR, CANCEL_
 import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
+import moment from 'moment';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -64,55 +65,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
-    useEffect(() => {
-        const cancelReq = wsService.getCancelSubject().subscribe(resp => {
-            handleCancelRes(resp)
-        });
-
-        return () => {
-            cancelReq.unsubscribe()
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleCancelRes = (resp: any) => {
-        let tmp = 0;
-        let msgText = resp[MSG_TEXT];
-        if (resp?.orderList?.length > 1) {
-            updateMessageResponse(tmp, resp[MSG_CODE], msgText)
-        } else if (resp?.orderList?.length === 1) {
-            const order = resp?.orderList[0];
-            updateMessageResponse(tmp, order?.msgCode, msgText)
-        } else {
-            tmp = RESPONSE_RESULT.error;
-            handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-        }
-        handleCloseConfirmPopup(false);
-
-        // handle cancel order response to disable loading icon
-        resp?.orderList?.forEach(item => {
-            if (item && handleOrderCancelIdResponse) {
-                handleOrderCancelIdResponse(item?.orderId);
-            }
-        })
-    }
-
-    const updateMessageResponse = (statusRes: number, msgCode: number, msgText: string) => {
-        const systemModelPb: any = smpb;
-        if ( msgCode === systemModelPb.MsgCode.MT_RET_OK) {
-            statusRes = RESPONSE_RESULT.success;
-        } else if (msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
-            statusRes = RESPONSE_RESULT.error;
-            msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) || '';
-        } else if (msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
-            statusRes = RESPONSE_RESULT.success;
-            msgText = CANCEL_SUCCESSFULLY;
-        } else {
-            statusRes = RESPONSE_RESULT.error;
-        }
-        handleOrderResponse(statusRes, msgText, TYPE_ORDER_RES.Cancel, msgCode);
-    }
 
     const handleVolumeModify = (valueVolume: string) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
@@ -216,7 +168,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("Send request order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             wsService.getOrderSubject().subscribe(resp => {
+                console.log("Received order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msg = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -228,6 +182,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msg, TYPE_ORDER_RES.Order, resp[MSG_CODE]);
+                console.log("Finised process order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             });
 
             handleCloseConfirmPopup(true);
@@ -265,6 +220,50 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("Send request cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            wsService.getCancelSubject().subscribe(resp => {
+                console.log("Received cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+                let tmp = 0;
+                let msgText = resp[MSG_TEXT];
+                if (resp?.orderList?.length > 1) {
+                    if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                        tmp = RESPONSE_RESULT.success;
+                        msgText = CANCEL_SUCCESSFULLY;
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                } else if (resp?.orderList?.length === 1) {
+                    const order = resp?.orderList[0];
+                    if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+                        tmp = RESPONSE_RESULT.success;
+                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
+                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                        tmp = RESPONSE_RESULT.success;
+                        msgText = CANCEL_SUCCESSFULLY;
+                    } else {
+                        tmp = RESPONSE_RESULT.error;
+                    }
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
+                } else {
+                    tmp = RESPONSE_RESULT.error;
+                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                }
+                resp?.orderList?.forEach(item => {
+                    if (item && handleOrderCancelIdResponse) {
+                        handleOrderCancelIdResponse(item?.orderId);
+                    }
+                })
+                console.log("Finised process cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            });
+            handleCloseConfirmPopup(false);
         }
     }
 
@@ -273,7 +272,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if (isCancel) {
             prepareMessageCancel(accountId);
             if (handleOrderCancelId) {
-                handleOrderCancelId(params?.orderId || '')
+                handleOrderCancelId(params?.orderId || '');
             }
 
             // after timeOutCancelOrder, if don't receive cancel response => auto stop loading

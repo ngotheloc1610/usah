@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from "../../constants/general.constant";
-import { IAskAndBidPrice, ILastQuote, IListTradeHistory, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
+import { ACCOUNT_ID, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../constants/general.constant";
+import { IAskAndBidPrice, ILastQuote, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
-import * as tspb from "../../models/proto/trading_service_pb";
 import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import StockInfo from "../../components/Order/StockInfo";
-import { checkValue, convertDatetoTimeStamp, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
+import { checkValue, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
 const Dashboard = () => {
@@ -26,7 +25,6 @@ const Dashboard = () => {
     const [listTickerSearch, setListTickerSearch] = useState<string[]>([]);
 
     const [side, setSide] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolInfo[]>([]);
     const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
@@ -35,6 +33,7 @@ const Dashboard = () => {
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
+    const [volumeTrade, setVolumeTrade] = useState('0');
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -64,8 +63,7 @@ const Dashboard = () => {
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
             if (res.symbolList && res.symbolList.length > 0) {
                 let symbolListActive = res.symbolList.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
-                symbolListActive = symbolListActive.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode))
-                setSymbolList(symbolListActive);
+                symbolListActive = symbolListActive.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
                 localStorage.setItem(LIST_TICKER_INFO, JSON.stringify(symbolListActive));
                 localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList));
                 if (symbolListActive.length > 0) {
@@ -115,26 +113,27 @@ const Dashboard = () => {
             }
         })
 
-        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-            if (quote && quote.quoteList) {
-                setQuoteEvent(quote.quoteList);
-            }
-        });
+        // const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+        //     if (quote && quote.quoteList) {
+        //         setQuoteEvent(quote.quoteList);
+        //     }
+        // });
 
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
             portfolioRes.unsubscribe();
-            quoteEvent.unsubscribe();
+            // quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
             customerInfoDetailRes.unsubscribe();
             orderEvent.unsubscribe();
+            unSubscribeQuoteEvent();
         }
     }, [])
     
     useEffect(() => {
         processLastQuote(lastQuotes, portfolio);
-    }, [lastQuotes]);
+    }, [lastQuotes, symbolCode]);
     
     useEffect(() => {
         processQuoteEvent(quoteEvent, portfolio);
@@ -161,6 +160,12 @@ const Dashboard = () => {
             });
             setPortfolio(temp);
         }
+
+        const symbolQuote = lastQuotes.find(o => o?.symbolCode === symbolCode);
+        if (symbolQuote) {
+            setVolumeTrade(symbolQuote?.volumePerDay)
+        }
+
     }
 
     const processQuoteEvent = (quoteEvent: IQuoteEvent[] = [], portfolio: IPortfolio[] = []) => {
@@ -228,6 +233,24 @@ const Dashboard = () => {
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsg.serializeBinary());
+        }
+    }
+
+    const unSubscribeQuoteEvent = () => {
+        const pricingServicePb: any = pspb;
+        const rpc: any = rspb;
+        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
+        const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
+        const wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
+            let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
+            symbolListActive.forEach(item => {
+                unsubscribeQuoteReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsg = new rpc.RpcMessage();
+            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
+            rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
@@ -324,6 +347,7 @@ const Dashboard = () => {
     )
 
     const getTickerInfo = (value: ISymbolQuote) => {
+        setVolumeTrade(value?.volume);
         setSymbolCode(value?.symbolCode);
         setSymbolQuote(value);
     }
@@ -364,7 +388,7 @@ const Dashboard = () => {
                             />
                         </div>
                         <div>
-                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode} />
+                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode} volumeTrade={volumeTrade} />
                         </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">

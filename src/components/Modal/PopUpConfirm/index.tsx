@@ -7,9 +7,10 @@ import * as tspb from '../../../models/proto/trading_service_pb';
 import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './PopUpConfirm.scss';
 import { Button, Modal } from 'react-bootstrap';
+import moment from 'moment';
 import { MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../../constants/message.constant';
 
 interface IPropsConfirm {
@@ -31,8 +32,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const systemModelPb: any = smpb;
     const rProtoBuff: any = rpc;
 
+    const [isDisableConfirmBtn, setIsDisableConfirmBtn] = useState(false);
+
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
+            console.log("Received cancel all order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
             let msgText = resp[MSG_TEXT];
             if (resp?.orderList?.length > 1) {
@@ -68,13 +72,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             }
             
             handleCloseConfirmPopup(false);
-
-            // handle cancel response to hide loading
-            resp?.orderList?.forEach(order => {
-                if (order && handleOrderCancelIdResponse) {
-                    handleOrderCancelIdResponse(order?.orderId);
-                }
-            })
+            setIsDisableConfirmBtn(false);
+            console.log("Finised process cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
         return () => {
@@ -109,7 +108,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                         handleOrderCancelIdResponse(item?.orderId || '');
                     }
                 }, timeOutCancelOrder)
-
                 let order = new tradingModelPb.Order();
                 order.setOrderId(item.orderId);
                 order.setAmount(`${item.amount}`);
@@ -134,6 +132,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("Send request cancel all order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            setIsDisableConfirmBtn(true);
         }
     }
     return <>
@@ -159,7 +159,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                     DISCARD
                 </Button>
-                <Button variant="primary" onClick={sendRes}>
+                <Button variant="primary" disabled={isDisableConfirmBtn} onClick={sendRes}>
                     CONFIRM
                 </Button>
             </Modal.Footer>

@@ -35,8 +35,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [statusModify, setStatusModify] = useState(0);
     
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(DEFAULT_DATA_MODIFY_CANCEL);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
@@ -96,7 +94,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendListOrder();
-                subscribeQuoteEvent();
             }
         });
 
@@ -112,7 +109,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         return () => {
             ws.unsubscribe();
             listOrder.unsubscribe();
-            unsubscribeQuoteEvent();
             orderEvent.unsubscribe();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,6 +198,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const handleOrderCanceledAndFilled = (order) => {
+        if (order?.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED) {
+            const idx = cancelListId.indexOf(order?.orderId);
+            if (idx >= 0) {
+                cancelListId.splice(idx, 1)
+            }
+        }
         removeOrder(order);
     }
 
@@ -249,34 +251,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         if (idx >= 0) {
             tmpList.splice(idx, 1);
             setListOrderFull(tmpList);
-        }
-    }
-
-    const subscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            symbolsList.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
-            })
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const unsubscribeQuoteEvent = () => {
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeQuoteEventReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            symbolsList.forEach((item: any) => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
-            });
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
@@ -362,7 +336,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const _renderMessageSuccess = (message: string, typeOrderRes: string) => {
         // To handle when modify or cancel success then update new data without having to press f5
-        setMsgSuccess(MESSAGE_TOAST.SUCCESS_PLACE);
         switch(typeOrderRes) {
             case TYPE_ORDER_RES.Order:
                 return <div>{toast.success(MESSAGE_TOAST.SUCCESS_PLACE)}</div>
@@ -464,6 +437,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             cancelListId.splice(idx, 1);
         }
         setCancelListId(cancelListId);
+        setSelectedList([]);
     }
 
     const handleSortTicker = () => {
@@ -564,6 +538,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                     <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
+
                     { !checkOrderExistListCancelId(item?.orderId) &&
                         // eslint-disable-next-line jsx-a11y/anchor-is-valid
                         <a onClick={() => handleModifyCancel(item, TITLE_CONFIRM['cancel'])}>
@@ -625,9 +600,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                 {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
                             </th>
                             <th className="text-end sorting_disabled">
-                                {(dataSelectedList.length > 0) && <button className="text-ellipsis btn btn-primary" disabled={cancelListId.length > 0} onClick={() => btnCancelAllConfirm()}>
-                                    Cancel
-                                </button>}
+                                {(dataSelectedList.length > 0) && 
+                                    <button className="text-ellipsis btn btn-primary" 
+                                        disabled={cancelListId.length > 0}
+                                        onClick={() => btnCancelAllConfirm()}>Cancel</button>
+                                }
                             </th>
                         </tr>
                     </thead>
@@ -643,7 +620,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         {isCancel && <ConfirmOrder isCancel={isCancel}
             handleCloseConfirmPopup={togglePopup}
             handleOrderResponse={getStatusOrderResponse}
-            params={paramModifyCancel}
+            params={paramModifyCancel} 
             handleOrderCancelId={getOrderCancelId}
             handleOrderCancelIdResponse={getOrderCancelIdResponse}
         />}
