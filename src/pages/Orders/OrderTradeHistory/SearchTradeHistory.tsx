@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
-import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb";
-import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
-import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
-import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
-import { toast } from 'react-toastify';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode, defindConfigPost } from '../../../helper/utils';
+import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME, ACCOUNT_ID, GET_DATA_ALL_ACCOUNT, TEAM_CODE } from '../../../constants/general.constant';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
-import { IParamSearchTradeHistory, IPropsSearchTradeHistory } from '../../../interfaces/order.interface';
+import { IParamSearchComponentTradeHistory, IPropsSearchTradeHistory } from '../../../interfaces/order.interface';
+import axios from 'axios';
+import { success, notFound } from '../../../constants';
+import { API_GET_ACCOUNT_BY_TEAM_CODE } from '../../../constants/api.constant';
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const tradingModelPb: any = tmpb;
-    const { getParamSearch, handleDownload } = props
+    const { getParamSearch, handleDownload, isUnAuthorised } = props
     const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
@@ -25,27 +25,39 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
+    const currentAccountId = localStorage.getItem(ACCOUNT_ID) || ''
+    
+    const [accountId, setAccountId] = useState(currentAccountId)
+    const [listAccId, setListAccId] = useState([])
+    const teamCode = localStorage.getItem(TEAM_CODE) || ''
+    
+    const [isShowAccInputBox, setIsShowAccInputBox] = useState(false)
+
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
         setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setDateTimeTo(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
     }, [])
 
+    useEffect(() => {
+        const api_url = window.globalThis.apiUrl;
+        const urlGetAccId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
+        if(teamCode && teamCode !== 'null') {
+            axios.post(urlGetAccId, {}, defindConfigPost()).then((resp: any) => {
+                if(resp.status === success) {
+                    setIsShowAccInputBox(true)
+                    const listAccId = resp.data.accountDetails.map(item => item.accountId )
+                    setListAccId(listAccId)
+                }
+                if (resp.status === notFound) {
+                    setIsShowAccInputBox(false)
+                }
+            })
+        }
+    }, [])
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
-
-    useEffect(() => {
-        const systemModelPb: any = smpb;
-        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            let tmp = 0;
-            if (res[MSG_CODE] !== systemModelPb.MsgCode.MT_RET_OK) {
-                tmp = RESPONSE_RESULT.error;
-            }
-            getTradeHistoryResponse(tmp, res[MSG_TEXT]);
-        });
-
-        return () => tradeHistoryRes.unsubscribe()
-    }, [])
 
     useEffect(() => {
         const listSymbolName: string[] = [];
@@ -63,24 +75,15 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         setDateTimeTo(convertDatetoTimeStamp(value, TO_DATE_TIME))
     }
 
-    const _rendetMessageError = (message: string) => (
-        <div>{toast.error(message)}</div>
-    )
-
-    const getTradeHistoryResponse = (value: number, content: string) => (
-        <>
-            {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
-        </>
-    )
-
     const handleSearch = () => {
         fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
-        const param: IParamSearchTradeHistory = {
-            side: side,
-            symbolCode: symbolCode,
-            fromDate: fromDatetime,
-            toDate: toDatetime,
-            orderType: orderType
+        const param: IParamSearchComponentTradeHistory= {
+            order_side: side,
+            symbol_code: symbolCode,
+            from_time: fromDatetime,
+            to_time: toDatetime,
+            order_type: orderType,
+            account_id: accountId
         }
         getParamSearch(param);
     }
@@ -106,7 +109,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderTicker = () => (
-        <div className="col-xl-3">
+        <div className= {`${isShowAccInputBox ? 'col-xl-6 ps-0 pe-2' : 'col-xl-3'}`}>
             <label className="d-block text-secondary mb-1">Ticker Code</label>
             <Autocomplete
                 className='ticker-input'
@@ -120,7 +123,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderOrderSide = () => (
-        <div className="col-xl-2 pl-30">
+        <div className={`${isShowAccInputBox ? 'col-xl-5 ps-1 pe-0' : 'col-xl-2 pl-30'}`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
 
@@ -145,7 +148,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderOrderType = () => (
-        <div className="col-xl-1">
+        <div className={`${isShowAccInputBox ? 'col-xl-3' : 'col-xl-1'} ps-0 pe-2`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
                 {_renderListOrderType()}
@@ -154,7 +157,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderDateTime = () => (
-        <div className="col-xl-4">
+        <div className={`${isShowAccInputBox ? 'col-xl-7' : 'col-xl-4'} px-0`}>
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
@@ -179,6 +182,28 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
             </div>
         </div>
     )
+    const handleChangeAccountId = (event:any , values: any) => {
+        values ? setAccountId(values.value) : setAccountId('*');
+    }
+
+    const handleKeyUpAccountId = (event:any) => {
+        event.target.value ? setAccountId(event.target.value) : setAccountId('');
+    }
+
+    const _renderAccId = () => (
+        <div className='col-xl-3 ps-1 pe-2'>
+            <label className="d-block text-secondary mb-1">Account Id</label>
+            <Autocomplete
+                className='account-input'
+                options={listAccId}
+                onChange={handleChangeAccountId}
+                onKeyUp={handleKeyUpAccountId}
+                disablePortal
+                defaultValue={currentAccountId}
+                renderInput={(params) => <TextField {...params} placeholder="Search"/>}
+            />
+        </div>
+    )
 
     const _renderTemplate = () => (
         <>
@@ -186,18 +211,39 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <h6 className="card-title fs-6 mb-0">Trade History</h6>
             </div>
             <div className="card-body bg-gradient-light">
-                <div className="row g-2 align-items-end">
-                    {_renderTicker()}
-                    {_renderOrderType()}
-                    {_renderOrderSide()}
-                    {_renderDateTime()}
+                {isShowAccInputBox ? (
+                    <div className="row g-2 align-items-end">
+                        <div className='row col-xl-6'>
+                            {_renderAccId()}
+                            {_renderTicker()}
+                            {_renderOrderType()}
+                        </div>
+                        <div className='row col-xl-4'>
+                            {_renderOrderSide()}
+                            {_renderDateTime()}
+                        </div>
+                        <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between ms-2">
+                            <a href="#" className="btn btn-primary text-white ps-3 pe-3" onClick={handleSearch}><i className="bi bi-search"></i> Search</a>
+                            <a className="btn btn-success text-white ps- pe-3" onClick={() => handleDownload(true)}><i className="bi bi-cloud-download"></i> Download</a>
+                        </div>
+                    </div>
+
+                ) : (
+                    <div className="row g-2 align-items-end">
+                        {_renderTicker()}
+                        {_renderOrderType()}
+                        {_renderOrderSide()}
+                        {_renderDateTime()}
                      <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between">
                         <a href="#" className="btn btn-primary text-white ps-3 pe-3" onClick={handleSearch}><i className="bi bi-search"></i> Search</a>
                         <a className="btn btn-success text-white ps- pe-3" onClick={() => handleDownload(true)}><i className="bi bi-cloud-download"></i> Download</a>
                     </div>
-                </div>
+                    </div>
+
+                )}
                 <div className='row g-2 align-items-end'>
                     <div className="col-xl-5 ">
+                        {isUnAuthorised && <div className='text-danger'>Sorry. You have no rights to view Order History of this account</div>}
                     </div>
                     <div className="col-xl-5 ">
                         {isErrorDate && <div className='text-danger'>Period is incorrect, the to date must be greater than the from date</div>}
