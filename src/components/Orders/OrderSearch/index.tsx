@@ -15,10 +15,11 @@ import moment from 'moment';
 
 interface IPropsOrderSearchHistory {
     paramSearch: (param: IParamHistorySearch) => void;
+    handleDownLoad: (isDownload: boolean) => void;
 }
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
-    const { paramSearch } = props;
+    const { paramSearch, handleDownLoad } = props;
     const tradingModelPb: any = tmpb;
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
@@ -132,7 +133,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const _renderTicker = () => (
-        <div className="col-xl-3">
+        <div className="col-xl-8">
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
@@ -146,7 +147,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const _renderOrderStatus = () => (
-        <div className="col-xl-2">
+        <div className="col-xl-4">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Status</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderStatus(e.target.value)}>
                 {_renderListOrderState()}
@@ -155,7 +156,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const _renderOrderType = () => (
-        <div className="col-xl-1">
+        <div className="col-xl-3">
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
                 {_renderListOrderType()}
@@ -176,7 +177,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const _renderOrderSide = () => (
-        <div className="col-xl-2 pl-30">
+        <div className="col-xl-3" style={{padding: 0}}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
 
@@ -193,10 +194,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const _renderDateTime = () => (
-        <div className="col-xl-3">
+        <div className="col-xl-6" style={{padding: 0}}>
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
-                <div className="col-md-4">
+                <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             value={fromDatetime ? moment(fromDatetime).format(FORMAT_DATE) : ''}
@@ -205,8 +206,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                         />
                     </div>
                 </div>
-                <div className='col-md-1 seperate'>~</div>
-                <div className="col-md-4">
+                <div className='col-md-2 seperate'>~</div>
+                <div className="col-md-5">
                     <div className="input-group input-group-sm">
                         <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
                             value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
@@ -219,6 +220,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         </div>
     )
 
+    const downLoadOrderHistory = () => {
+        if (handleDownLoad != null) {
+            handleDownLoad(true);
+        }
+    }
+
 
     const _renderTemplate = () => (
         <>
@@ -227,13 +234,18 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             </div>
             <div className="card-body bg-gradient-light">
                 <div className="row g-2 align-items-end d-fex">
-                    {_renderTicker()}
-                    {_renderOrderStatus()}
-                    {_renderOrderType()}
-                    {_renderOrderSide()}
-                    {_renderDateTime()}
-                    <div className="col-xl-1 mb-2 mb-xl-0">
-                        <a href="#" className="btn btn-sm d-block btn-primary" onClick={handleSearch}><strong>Search</strong></a>
+                    <div className="row col-xl-5">
+                        {_renderTicker()}
+                        {_renderOrderStatus()}
+                    </div>
+                    <div className='row col-xl-5'>
+                        {_renderOrderType()}
+                        {_renderOrderSide()}
+                        {_renderDateTime()}
+                    </div>
+                    <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between">
+                        <a href="#" className="btn btn-primary text-white ps-3 pe-3" onClick={handleSearch}><i className="bi bi-search"></i> Search</a>
+                        <a className="btn btn-success text-white ps- pe-3" onClick={downLoadOrderHistory}><i className="bi bi-cloud-download"></i> Download</a>
                     </div>
                 </div>
                 <div className='row g-2 align-items-end'>
