@@ -11,7 +11,6 @@ import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
-import StockInfo from "../../components/Order/StockInfo";
 import { checkValue, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 
@@ -377,7 +376,7 @@ const Dashboard = () => {
                         <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
-                        <div>
+                        <div className="max-height-69">
                             <OrderBook isDashboard={isDashboard}
                                 listDataTicker={handleSymbolList}
                                 itemTickerSearch={handleTickerSearch}
@@ -387,16 +386,13 @@ const Dashboard = () => {
                                 handleSide={getSide}
                             />
                         </div>
-                        <div>
-                            <StockInfo listDataTicker={handleSymbolList} symbolCode={symbolCode} volumeTrade={volumeTrade} />
-                        </div>
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
-                        <div className="card flex-grow-1">
+                        <div className="card flex-grow-1 h-94">
                             <div className="card-header">
                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                             </div>
-                            <div className="card-body h-500" >
+                            <div className="card-body border border-2" >
                                 <OrderForm isDashboard={isDashboard}
                                     isMonitoring={false}
                                     messageSuccess={messageSuccess}

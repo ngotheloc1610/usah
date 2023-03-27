@@ -113,6 +113,8 @@ export const SIDE_NAME = {
     sell: 'sell'
 };
 
+export const MARKET_DEPTH_LENGTH_DASHBOARD = 10;
+
 export const MARKET_DEPTH_LENGTH = 3;
 
 export const MSG_CODE = 'msgCode';
