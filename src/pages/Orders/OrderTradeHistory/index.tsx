@@ -7,7 +7,7 @@ import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState, useEffect } from 'react';
 import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber } from '../../../helper/utils';
+import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { IListTradeHistory, IParamSearchTradeHistory } from "../../../interfaces/order.interface";
 
 const OrderTradeHistory = () => {
@@ -43,6 +43,7 @@ const OrderTradeHistory = () => {
 
     useEffect(() => {
         processTradeHistory(getDataTradeHistoryRes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getDataTradeHistoryRes, orderSide, orderType])
 
     const processTradeHistory = (tradeList: IListTradeHistory[]) => {

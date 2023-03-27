@@ -7,7 +7,7 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -15,10 +15,13 @@ import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR, CANCEL_
 import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
+import moment from 'moment';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
     handleOrderResponse: (value: number, content: string, typeOrderRes: string, msgCode: number) => void;
+    handleOrderCancelId?: (orderId: string) => void;
+    handleOrderCancelIdResponse?: (orderId: string) => void;
     params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
@@ -30,7 +33,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0);
@@ -60,6 +63,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             setLotSize(convertNumber(lotSize));
             setMinLot(convertNumber(minLot));
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleVolumeModify = (valueVolume: string) => {
@@ -164,7 +168,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("Send request order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             wsService.getOrderSubject().subscribe(resp => {
+                console.log("Received order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msg = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -176,6 +182,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msg, TYPE_ORDER_RES.Order, resp[MSG_CODE]);
+                console.log("Finised process order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             });
 
             handleCloseConfirmPopup(true);
@@ -213,7 +220,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            console.log("Send request cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             wsService.getCancelSubject().subscribe(resp => {
+                console.log("Received cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msgText = resp[MSG_TEXT];
                 if (resp?.orderList?.length > 1) {
@@ -247,6 +256,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                     handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
                 }
+                resp?.orderList?.forEach(item => {
+                    if (item && handleOrderCancelIdResponse) {
+                        handleOrderCancelIdResponse(item?.orderId);
+                    }
+                })
+                console.log("Finised process cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             });
             handleCloseConfirmPopup(false);
         }
@@ -256,6 +271,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
             prepareMessageCancel(accountId);
+            if (handleOrderCancelId) {
+                handleOrderCancelId(params?.orderId || '');
+            }
+
+            // after timeOutCancelOrder, if don't receive cancel response => auto stop loading
+            const timeOutCancelOrder = window.globalThis.timeOutCancelResponse ? 
+                            window.globalThis.timeOutCancelResponse : TIME_OUT_CANCEL_RESPONSE_DEFAULT;
+            setTimeout(() => {
+                if (handleOrderCancelIdResponse) {
+                    handleOrderCancelIdResponse(params?.orderId || '');
+                }
+            }, timeOutCancelOrder)
         }
         else if (isModify) {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
@@ -303,6 +330,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         if((priceModify*100)%(tickSize*100) === 0) {
             setInvalidPrice(false)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [priceModify])
 
     const handleUpperPrice = () => {

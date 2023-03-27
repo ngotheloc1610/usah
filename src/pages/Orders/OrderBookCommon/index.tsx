@@ -115,8 +115,12 @@ const OrderBookCommon = () => {
         });
 
         const quotes = wsService.getQuoteSubject().subscribe(resp => {
+            const symbolCode = symbolSelected?.split('-')[0]?.trim();
             if (resp && resp.quoteList) {
-                setQuoteEvent(resp.quoteList);
+                const idx = resp.quoteList?.findIndex(o => o?.symbolCode === symbolCode);
+                if (idx >= 0) {
+                    setQuoteEvent(resp.quoteList);
+                }
             }
         });
 
@@ -135,7 +139,7 @@ const OrderBookCommon = () => {
             quotes.unsubscribe();
             trade.unsubscribe();
         }
-    }, []);
+    }, [symbolSelected]);
 
     useEffect(() => {
         processQuotes(quoteEvent);

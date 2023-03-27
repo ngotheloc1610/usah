@@ -4,7 +4,7 @@ import * as tmpb from "../../../models/proto/trading_model_pb";
 import * as smpb from '../../../models/proto/system_model_pb';
 import '../OrderHistory/orderHistory.scss'
 import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
+import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME } from '../../../constants/general.constant';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -21,18 +21,17 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [fromDatetime, setDateTimeFrom] = useState(0);
     const [toDatetime, setDateTimeTo] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
-    const [currentDate, setCurrentDate] = useState('');
     const [isErrorDate, setIsErrorDate] = useState(false);
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
-        setCurrentDate(currentDate);
         setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setDateTimeTo(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
     }, [])
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
     useEffect(() => {
