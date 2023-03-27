@@ -77,6 +77,8 @@ export interface IPropListTradeHistory {
     getDataTradeHistory: IListTradeHistory[];
     isSearchData: boolean;
     changeStatusSearch: (status: boolean) => void;
+    isDownload: boolean;
+    resetStatusDownload: (item: boolean) => void;
 }
 
 export interface IStateListOrder {
@@ -656,6 +658,7 @@ export interface IParamSearchTradeHistory {
 }
 export interface IPropsSearchTradeHistory {
     getParamSearch: (item: IParamSearchTradeHistory) => void
+    handleDownload: (item: boolean) => void
 }
 
 export interface IState {

@@ -13,7 +13,7 @@ import { IParamSearchTradeHistory, IPropsSearchTradeHistory } from '../../../int
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const tradingModelPb: any = tmpb;
-    const { getParamSearch } = props
+    const { getParamSearch, handleDownload } = props
     const [symbolCode, setSymbolCode] = useState('')
     const [orderSideBuy, setOrderSideBuy] = useState(false);
     const [orderSideSell, setOrderSideSell] = useState(false);
@@ -191,8 +191,9 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                     {_renderOrderType()}
                     {_renderOrderSide()}
                     {_renderDateTime()}
-                    <div className="col-xl-1 mb-2 mb-xl-0">
-                        <a href="#" className="btn btn-sm d-block btn-primary" onClick={handleSearch}><strong>Search</strong></a>
+                     <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between">
+                        <a href="#" className="btn btn-primary text-white ps-3 pe-3" onClick={handleSearch}><i className="bi bi-search"></i> Search</a>
+                        <a className="btn btn-success text-white ps- pe-3" onClick={() => handleDownload(true)}><i className="bi bi-cloud-download"></i> Download</a>
                     </div>
                 </div>
                 <div className='row g-2 align-items-end'>

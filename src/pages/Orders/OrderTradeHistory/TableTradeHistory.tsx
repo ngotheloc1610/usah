@@ -5,9 +5,10 @@ import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
 import { useEffect, useState } from "react";
 import moment from "moment";
+import {toast} from 'react-toastify'
 
 function TableTradeHistory(props: IPropListTradeHistory) {
-    const { getDataTradeHistory, isSearchData, changeStatusSearch } = props
+    const { getDataTradeHistory, isSearchData, changeStatusSearch, isDownload, resetStatusDownload } = props
     const tradingModelPb: any = tspb;
     const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistory[]>([])
     const [currentPage, setCurrentPage] = useState(START_PAGE);
@@ -31,6 +32,39 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             }
         }
     }, [getDataTradeHistory])
+
+    useEffect(() => {
+        if(isDownload) {
+            const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
+            const data: ITradeHistoryDownload[] = []
+            if(listTradeSortDate.length > 0) {
+                dataDownload.forEach((item) => {
+                    if (item) {
+                        data.push({
+                            orderNo: item.externalOrderId,
+                            tickerCode: getTickerCode(item?.tickerCode),
+                            tickerName: getTickerName(item?.tickerCode),
+                            orderSide: getSideName(item.side),
+                            orderType: ORDER_TYPE.get(item.orderType) || '-',
+                            orderQuantity: convertNumber(item.amount),
+                            orderPrice: formatCurrency(item.price),
+                            executedQuantity: convertNumber(item.executedVolume),
+                            executedPrice: convertNumber(item.executedPrice),
+                            matchedValue: convertNumber(calcMatchedValue(item).toString()),
+                            executedDatetime: formatOrderTime(Number(item.executedDatetime)),
+                        })
+                    }
+                })
+                exportCSV(data, `tradeHistory_${dateTimeCurrent}`)
+            }else {
+                toast.warn('Do not have record to download')
+            }
+
+            if(resetStatusDownload) {
+                resetStatusDownload(false)
+            }
+        }
+    }, [isDownload])
 
     const getTickerCode = (symbolCode: string) => {
         return symbolsList.find(item => item.symbolCode === symbolCode)?.symbolCode;
@@ -133,9 +167,6 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
                 getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
             />
-            {listTradeSortDate.length > 0 && <p className="text-end border-top pt-3">
-                <a onClick={handleDownloadTradeHistory} href="#" className="btn btn-success text-white ps-4 pe-4"><i className="bi bi-cloud-download"></i> Download</a>
-            </p>}
         </div>
     )
 
