@@ -12,6 +12,7 @@ import { convertDatetoTimeStamp, defindConfigGet } from '../../../helper/utils';
 import { API_GET_ORDER_HISTORY } from '../../../constants/api.constant';
 import axios from 'axios';
 import { success } from '../../../constants';
+import { IReqOrderHistory } from '../../../interfaces/order.interface';
 
 const OrderHistory = () => {
     const tradingModel: any = tmpb;
@@ -32,7 +33,7 @@ const OrderHistory = () => {
     const urlGetOrderHistory = `${api_url}${API_GET_ORDER_HISTORY}`;
 
     const getDataOrderHistory = (params : IParamHistorySearch) => {
-        axios.get(urlGetOrderHistory, defindConfigGet(params)).then((resp) => {
+        axios.get<IReqOrderHistory, IReqOrderHistory>(urlGetOrderHistory, defindConfigGet(params)).then((resp) => {
             if (resp.status === success) {
                 console.log(resp.data);
             }

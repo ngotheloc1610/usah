@@ -1,4 +1,4 @@
-import { IParamHistorySearch } from ".";
+import { IMeta, IParamHistorySearch } from ".";
 
 export interface ITickerInfo {
     symbolId: number;
@@ -603,19 +603,25 @@ export interface IOrderListResponse {
 }
 
 export interface IDataHistory {
-    orderId: number;
-    tickerCode: string;
-    tickerName: string;
+    id:number;
+    orderId: string;
+    externalOrderId: string;
+    accountId: string;
+    symbolCode: string;
+    submittedId: string;
+    orderType: string;
     orderSide: string;
     orderStatus: string;
-    orderType: string;
-    orderVolume: string;
-    remainingVolume: string;
-    executedVolume: string;
-    orderPrice: string;
-    lastPrice: string;
-    orderDateTime: string;
-    executedDateTime: string;
+    price: number;
+    volume: number;
+    currencyCode: string;
+    execPrice: number;
+    execVolume: number;
+    execTime: number;
+    orderTime: number;
+    msgCode: string;
+    withdrawAmount: number;
+    comment: string;
 }
 
 
@@ -682,4 +688,22 @@ export interface IOrderPortfolio {
     totalSellAmount: string;
     totalSellVolume: number;
     unrealizedPl: string;
+}
+
+export interface IReqOrderHistory {
+    config: string;
+    data: {
+        meta: IMeta;
+        data: IDataOrderHistory;
+    }
+    status: number;
+}
+
+export interface IDataOrderHistory {
+    count: number;
+    page_size: number;
+    next_page: number;
+    prev_page: number;
+    results: [IDataHistory];
+    total_page: number;
 }
