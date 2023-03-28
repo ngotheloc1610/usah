@@ -5,7 +5,7 @@ import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb";
 import { useEffect, useState } from 'react';
-import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, FORMAT_DATE, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { IParamHistorySearch } from '../../../interfaces';
 import moment from 'moment';
 import { convertDatetoTimeStamp, defindConfigGet } from '../../../helper/utils';
@@ -20,6 +20,8 @@ const OrderHistory = () => {
     const currentDate = moment().format(FORMAT_DATE);
     const [listOrderHistory, setListOrderHistory] = useState([]);
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>({
+        page: START_PAGE,
+        pageSize: DEFAULT_ITEM_PER_PAGE,
         symbolCode: '',
         orderState: 0,
         orderSide: 0,
@@ -42,6 +44,10 @@ const OrderHistory = () => {
             console.log(error);
         });
     }
+
+    useEffect(() => {
+        getDataOrderHistory(paramHistorySearch);
+    }, [paramHistorySearch])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
