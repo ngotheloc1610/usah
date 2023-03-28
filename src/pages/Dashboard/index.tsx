@@ -376,7 +376,7 @@ const Dashboard = () => {
                         <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
-                        <div className="max-height-69">
+                        <div className="max-height-72">
                             <OrderBook isDashboard={isDashboard}
                                 listDataTicker={handleSymbolList}
                                 itemTickerSearch={handleTickerSearch}

@@ -2,7 +2,6 @@ import PaginationComponent from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import * as pspb from "../../../models/proto/pricing_service_pb";
 import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
@@ -65,9 +64,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const totalItem = listOrder.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
 
-    const pricingServicePb: any = pspb;
-    const rpc: any = rpcpb;
-
     useEffect(() => {
         const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
         const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
@@ -102,7 +98,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         });
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
-            console.log("OrderEvent: ", resp.orderList);
             setOrderEventList(resp.orderList);
         })
 
@@ -210,13 +205,17 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const handleOrderParital = (order) => {
         const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
+        let orderPrice = order?.price;
+        if (order?.orderType === tradingModelPb.OrderType.OP_MARKET) {
+            orderPrice = order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price;
+        }
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
-                price: order?.lastPrice
+                price: orderPrice
             }
         } else {
             tmpList.unshift({

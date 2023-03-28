@@ -1,12 +1,11 @@
 import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH_DASHBOARD } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import { DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
+import { DEFAULT_DATA_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
 import { useEffect, useMemo, useState } from "react";
 import { Autocomplete, TextField } from "@mui/material";
-import TickerDetail from "./TickerDetail";
 import { wsService } from "../../services/websocket-service";
 
 
@@ -264,7 +263,9 @@ const OrderBook = (props: IOrderBookProps) => {
                                 {_renderHeaderOrderBook()}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody ref={(el) => {
+                            if (el) el.style.setProperty('border-top', 'none', 'important');
+                        }}>
                             {_renderAskPrice()}
                             <tr className="bg-light">
                                 <td className="text-center lh-sm" colSpan={3}>
