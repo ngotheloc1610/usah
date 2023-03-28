@@ -83,7 +83,6 @@ const ListOrder = (props: IPropsListOrder) => {
         });
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
-            console.log("OrderEvent: ", resp.orderList);
             setOrderEventList(resp.orderList);
         })
 
@@ -171,13 +170,17 @@ const ListOrder = (props: IPropsListOrder) => {
     const handleOrderParital = (order) => {
         const tmpList = [...dataOrder];
         const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
+        let orderPrice = order?.price;
+        if (order?.orderType === tradingModelPb.OrderType.OP_MARKET) {
+            orderPrice = order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price;
+        }
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
-                price: order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price
+                price: orderPrice
             }
         } else {
             tmpList.unshift({
