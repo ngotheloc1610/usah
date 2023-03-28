@@ -57,9 +57,13 @@ export interface IDataChangePasswordRequest {
     new_password: string;
   };
 }
+
+export interface IParamPagination {
+  page: number;
+  pageSize: number;
+}
+
 export interface IParamHistorySearch {
-  page?: number;
-  pageSize?: number;
   symbolCode: string;
   orderState: number;
   orderSide: number;

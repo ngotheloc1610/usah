@@ -602,23 +602,23 @@ export interface IOrderListResponse {
     uid: number;
 }
 
-// export interface IDataHistory {
-//     orderId: number;
-//     tickerCode: string;
-//     tickerName: string;
-//     orderSide: string;
-//     orderStatus: string;
-//     orderType: string;
-//     orderVolume: string;
-//     remainingVolume: string;
-//     executedVolume: string;
-//     orderPrice: string;
-//     lastPrice: string;
-//     orderDateTime: string;
-//     executedDateTime: string;
-// }
-
 export interface IDataHistory {
+    orderId: number;
+    tickerCode: string;
+    tickerName: string;
+    orderSide: string;
+    orderStatus: string;
+    orderType: string;
+    orderVolume: string;
+    remainingVolume: string;
+    executedVolume: string;
+    orderPrice: string;
+    lastPrice: string;
+    orderDateTime: string;
+    executedDateTime: string;
+}
+
+export interface IDataOrderHistory {
     id:number;
     orderId: string;
     externalOrderId: string;
@@ -709,16 +709,16 @@ export interface IReqOrderHistory {
     config: string;
     data: {
         meta: IMeta;
-        data: IDataOrderHistory;
+        data: IDataResOrderHistory;
     }
     status: number;
 }
 
-export interface IDataOrderHistory {
+export interface IDataResOrderHistory {
     count: number;
     page_size: number;
     next_page: number;
     prev_page: number;
-    results: [IDataHistory];
+    results: [IDataOrderHistory];
     total_page: number;
 }

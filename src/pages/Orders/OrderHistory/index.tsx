@@ -20,8 +20,6 @@ const OrderHistory = () => {
     const currentDate = moment().format(FORMAT_DATE);
     const [listOrderHistory, setListOrderHistory] = useState([]);
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>({
-        page: START_PAGE,
-        pageSize: DEFAULT_ITEM_PER_PAGE,
         symbolCode: '',
         orderState: 0,
         orderSide: 0,
