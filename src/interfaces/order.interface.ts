@@ -602,6 +602,22 @@ export interface IOrderListResponse {
     uid: number;
 }
 
+// export interface IDataHistory {
+//     orderId: number;
+//     tickerCode: string;
+//     tickerName: string;
+//     orderSide: string;
+//     orderStatus: string;
+//     orderType: string;
+//     orderVolume: string;
+//     remainingVolume: string;
+//     executedVolume: string;
+//     orderPrice: string;
+//     lastPrice: string;
+//     orderDateTime: string;
+//     executedDateTime: string;
+// }
+
 export interface IDataHistory {
     id:number;
     orderId: string;
@@ -623,7 +639,6 @@ export interface IDataHistory {
     withdrawAmount: number;
     comment: string;
 }
-
 
 export interface IDataHistoryDownload {
     orderNo: string;

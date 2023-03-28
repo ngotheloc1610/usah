@@ -53,16 +53,6 @@ function OrderTable(props: IPropListOrderHistory) {
         setDataCurrent(currentList);
     }, [listOrderHistory, itemPerPage, currentPage]);
 
-    // useEffect(() => {
-    //     const paramSearchHistory: IParamHistorySearch = {
-    //         ...paramHistorySearch,
-    //         page: currentPage,
-    //         pageSize: itemPerPage
-    //     }
-    //     getDataOrderHistory(paramSearchHistory)
-    // }, [itemPerPage, currentPage])
-    
-
     useEffect(() => {
         setCurrentPage(START_PAGE);
     }, [paramHistorySearch])
