@@ -70,6 +70,7 @@ export interface IPropListOrderHistory {
     listOrderHistory: IOrderHistory[];
     paramHistorySearch: IParamHistorySearch;
     isDownLoad: boolean;
+    getDataOrderHistory: (params: IParamHistorySearch) => void;
     resetFlagDownload: (isDownload: boolean) => void;
 }
 

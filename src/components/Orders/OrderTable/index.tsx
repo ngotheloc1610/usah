@@ -9,9 +9,10 @@ import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
 import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
 import { toast } from "react-toastify";
+import { IParamHistorySearch } from "../../../interfaces";
 
 function OrderTable(props: IPropListOrderHistory) {
-    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload } = props;
+    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload, getDataOrderHistory } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
     const [showModalDetail, setShowModalDetail] = useState(false)
@@ -51,6 +52,16 @@ function OrderTable(props: IPropListOrderHistory) {
         const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
         setDataCurrent(currentList);
     }, [listOrderHistory, itemPerPage, currentPage]);
+
+    useEffect(() => {
+        const paramSearchHistory: IParamHistorySearch = {
+            ...paramHistorySearch,
+            page: currentPage,
+            pageSize: itemPerPage
+        }
+        getDataOrderHistory(paramSearchHistory)
+    }, [itemPerPage, currentPage])
+    
 
     useEffect(() => {
         setCurrentPage(START_PAGE);

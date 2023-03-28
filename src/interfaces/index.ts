@@ -58,12 +58,15 @@ export interface IDataChangePasswordRequest {
   };
 }
 export interface IParamHistorySearch {
+  page?: number;
+  pageSize?: number;
   symbolCode: string;
   orderState: number;
   orderSide: number;
   fromDate: number;
   toDate: number;
   orderType: number;
+  teamId?: string;
 }
 
 export interface IClientHoldingInfoReq {

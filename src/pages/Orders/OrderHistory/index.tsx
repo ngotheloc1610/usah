@@ -8,10 +8,14 @@ import { useEffect, useState } from 'react';
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
 import { IParamHistorySearch } from '../../../interfaces';
 import moment from 'moment';
-import { convertDatetoTimeStamp } from '../../../helper/utils';
+import { convertDatetoTimeStamp, defindConfigGet } from '../../../helper/utils';
+import { API_GET_ORDER_HISTORY } from '../../../constants/api.constant';
+import axios from 'axios';
+import { success } from '../../../constants';
 
 const OrderHistory = () => {
     const tradingModel: any = tmpb;
+    const api_url = window.globalThis.apiUrl;
     const currentDate = moment().format(FORMAT_DATE);
     const [listOrderHistory, setListOrderHistory] = useState([]);
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamHistorySearch>({
@@ -24,6 +28,19 @@ const OrderHistory = () => {
     });
 
     const [isDownload, setIsDownLoad] = useState(false);
+
+    const urlGetOrderHistory = `${api_url}${API_GET_ORDER_HISTORY}`;
+
+    const getDataOrderHistory = (params : IParamHistorySearch) => {
+        axios.get(urlGetOrderHistory, defindConfigGet(params)).then((resp) => {
+            if (resp.status === success) {
+                console.log(resp.data);
+            }
+        },
+        (error) => {
+            console.log(error);
+        });
+    }
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -83,7 +100,9 @@ const OrderHistory = () => {
                             listOrderHistory={listOrderHistory}
                             paramHistorySearch={paramHistorySearch}
                             isDownLoad={isDownload}
-                            resetFlagDownload={handleDownLoad} />
+                            resetFlagDownload={handleDownLoad} 
+                            getDataOrderHistory={getDataOrderHistory}
+                        />
                     </div>
                 </div>
             </div>
