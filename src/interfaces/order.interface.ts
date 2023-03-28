@@ -1,4 +1,4 @@
-import { IMeta, IParamHistorySearch } from ".";
+import { IMeta, IParamHistorySearch, IParamOrderHistory } from ".";
 
 export interface ITickerInfo {
     symbolId: number;
@@ -66,12 +66,20 @@ export interface IOrderBook {
     bidPrice: string;
 }
 
+// export interface IPropListOrderHistory {
+//     listOrderHistory: IOrderHistory[];
+//     paramHistorySearch: IParamHistorySearch;
+//     isDownLoad: boolean;
+//     getDataOrderHistory: (params: IParamHistorySearch) => void;
+//     resetFlagDownload: (isDownload: boolean) => void;
+// }
 export interface IPropListOrderHistory {
-    listOrderHistory: IOrderHistory[];
-    paramHistorySearch: IParamHistorySearch;
+    listOrderHistory: IDataOrderHistory[];
+    paramHistorySearch: IParamOrderHistory;
     isDownLoad: boolean;
-    getDataOrderHistory: (params: IParamHistorySearch) => void;
+    getDataOrderHistory: (params: IParamOrderHistory) => void;
     resetFlagDownload: (isDownload: boolean) => void;
+    setParamHistorySearch: (params: IParamOrderHistory) => void;
 }
 
 export interface IPropListTradeHistory {
@@ -707,10 +715,7 @@ export interface IOrderPortfolio {
 
 export interface IReqOrderHistory {
     config: string;
-    data: {
-        meta: IMeta;
-        data: IDataResOrderHistory;
-    }
+    data:IDataResOrderHistory;
     status: number;
 }
 

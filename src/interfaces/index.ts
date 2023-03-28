@@ -76,7 +76,7 @@ export interface IParamOrderHistory {
   fromDate: number;
   toDate: number;
   orderType: number;
-  teamId: string;
+  teamId?: string;
 }
 
 export interface IClientHoldingInfoReq {
