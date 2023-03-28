@@ -58,11 +58,6 @@ export interface IDataChangePasswordRequest {
   };
 }
 
-export interface IParamPagination {
-  page: number;
-  pageSize: number;
-}
-
 export interface IParamHistorySearch {
   symbolCode: string;
   orderState: number;
@@ -70,7 +65,18 @@ export interface IParamHistorySearch {
   fromDate: number;
   toDate: number;
   orderType: number;
-  teamId?: string;
+}
+
+export interface IParamOrderHistory {
+  page: number;
+  pageSize: number;
+  symbolCode: string;
+  orderState: number;
+  orderSide: number;
+  fromDate: number;
+  toDate: number;
+  orderType: number;
+  teamId: string;
 }
 
 export interface IClientHoldingInfoReq {
