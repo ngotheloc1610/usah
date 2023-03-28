@@ -7,4 +7,6 @@ window.globalThis = {
     "flagMsgCode": "true",
     "timeOutCancelResponse": 10000,
     "timeOutMultiOrderResponse": 30000,
+    "marketDepthLenghtOrderBook": 15,
+    "marketDepthLenghtDashboard": 10
 }
