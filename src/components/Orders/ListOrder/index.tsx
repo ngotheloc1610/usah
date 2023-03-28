@@ -80,7 +80,6 @@ const ListOrder = (props: IPropsListOrder) => {
         const listOrder = wsService.getListOrder().subscribe(response => {
             const listOrderSortDate: IListOrderMonitoring[] = response.orderList.sort((a, b) => b.time - a.time);
             setDataOrder(listOrderSortDate);
-            processListOrder(response.orderList);
         });
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
@@ -219,40 +218,6 @@ const ListOrder = (props: IPropsListOrder) => {
     const sendListOrder = () => {
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         prepareMessagee(accountId);
-    }
-
-    const processListOrder = (orderList: IListOrderMonitoring[]) => {
-        const temp: any[] = [];
-        const warchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-        const ownWatchList = warchList.filter(o => o.accountId === accId);
-        orderList.forEach((item: IListOrderMonitoring) => {
-            const idx = temp.findIndex(o => o?.symbolCode === item?.symbolCode);
-            const idxWatchList = ownWatchList.findIndex(o => o?.symbolCode === item?.symbolCode);
-            if (idx < 0 && idxWatchList < 0) {
-                temp.push({
-                    symbolCode: item.symbolCode
-                });
-            }
-        });
-        if (temp.length > 0) {
-            subscribeQuoteEvent(temp);
-        }
-    }
-
-    const subscribeQuoteEvent = (symbolList: any[]) => {
-        const pricingServicePb: any = psbp;
-        const rpc: any = rspb;
-        const wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            symbolList.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
-            })
-            let rpcMsg = new rpc.RpcMessage();
-            rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
-            rpcMsg.setPayloadData(subscribeQuoteEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
     }
 
     const prepareMessagee = (accountId: string) => {
