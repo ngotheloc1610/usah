@@ -119,7 +119,6 @@ const OrderHistory = () => {
                             paramHistorySearch={paramHistorySearch}
                             isDownLoad={isDownload}
                             resetFlagDownload={handleDownLoad} 
-                            getDataOrderHistory={getDataOrderHistory}
                             setParamHistorySearch={setParamHistorySearch}
                         />
                     </div>

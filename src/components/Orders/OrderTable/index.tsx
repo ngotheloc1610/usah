@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { IParamHistorySearch } from "../../../interfaces";
 
 function OrderTable(props: IPropListOrderHistory) {
-    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload, getDataOrderHistory, setParamHistorySearch } = props;
+    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload, setParamHistorySearch } = props;
     const tradingModelPb: any = tspb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
     const [showModalDetail, setShowModalDetail] = useState(false)
@@ -124,10 +124,19 @@ function OrderTable(props: IPropListOrderHistory) {
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
         setCurrentPage(START_PAGE);
+        setParamHistorySearch({
+            ...paramHistorySearch,
+            page: START_PAGE,
+            pageSize: item
+        })
     }
 
     const getCurrentPage = (item: number) => {
         setCurrentPage(item);
+        setParamHistorySearch({
+            ...paramHistorySearch,
+            page: item,
+        })
     }
 
     const getTickerName = (symbolCode: string) => {
@@ -225,6 +234,47 @@ function OrderTable(props: IPropListOrderHistory) {
             <th className="text-ellipsis fz-14 w-200">Comment</th>
         </tr>
     )
+
+    // const _renderOrderHistoryTableBody = () => (
+    //     dataCurrent?.map((item, index) => (
+    //         <tr className="align-middle" key={index}>
+    //             <td className="w-180"><span className="text-ellipsis fm">{item.externalOrderId}</span></td>
+    //             <td className="text-ellipsis text-start w-110">
+    //                 <div title={getTickerName(item?.symbolCode)}>{item?.symbolCode}</div>
+    //             </td>
+    //             <td className="text-center w-120">
+    //                 <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
+    //             </td>
+
+    //             <td className="text-start w-120">
+    //                 <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
+    //             </td>
+
+    //             <td className="text-center w-120">{ORDER_TYPE.get(item.orderType)}</td>
+
+    //             <td className="text-ellipsis text-end w-140">
+    //                 <div>{formatNumber(item.amount)}</div>
+    //                 <div>{formatNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString())}</div>
+    //             </td>
+
+    //             <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
+
+    //             <td className="text-ellipsis text-end w-120">
+    //                 <div className="">{formatCurrency(item.price)}</div>
+    //                 <div>{(convertNumber(item?.lastPrice) > 0 && convertNumber(item?.filledAmount)) ? formatCurrency(item?.lastPrice) : '-'}</div>
+    //             </td>
+    //             <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-'}</td>
+    //             <td className="td w-200 text-center">
+    //                 <div>{formatOrderTime(item.time)}</div>
+    //                 {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+    //                 {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
+    //             </td>
+
+    //             <td className="text-start fz-14 w-200">{getMessageDisplay(item.msgCode, item.state, item.comment)}</td>
+
+    //         </tr>
+    //     ))
+    // )
 
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
