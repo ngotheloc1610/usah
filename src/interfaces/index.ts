@@ -69,14 +69,14 @@ export interface IParamHistorySearch {
 
 export interface IParamOrderHistory {
   page: number;
-  pageSize: number;
-  symbolCode: string;
-  orderState: number;
-  orderSide: number;
-  fromDate: number;
-  toDate: number;
-  orderType: number;
-  teamId?: string;
+  page_size: number;
+  symbol_code: string;
+  order_state: number;
+  order_side: number;
+  order_type: number;
+  from_time: number;
+  to_time: number;
+  account_id: string;
 }
 
 export interface IClientHoldingInfoReq {
@@ -89,4 +89,9 @@ export interface IClientHoldingInforData {
   symbol: string;
   symbolsfx: string;
   ownQty: number;
+}
+
+export interface IAccountID {
+  label: string;
+  value: string;
 }

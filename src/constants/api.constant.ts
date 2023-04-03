@@ -20,4 +20,6 @@ export const API_CLIENT_HOLDING_INFO = '/v1/market/pspl/client-holding-info';
 
 export const API_RESET_TEAM_PASSWORD = "/v1/auth/lp/teams/reset-password";
 
-export const API_GET_ORDER_HISTORY = "/v1/market/get-order-history";
+export const API_GET_ORDER_HISTORY = "/v1/market/lp/orders/history";
+
+export const API_GET_ACCOUNT_ID = "/v1/auth/lp/teams/accounts"

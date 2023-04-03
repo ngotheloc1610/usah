@@ -76,9 +76,13 @@ export interface IOrderBook {
 export interface IPropListOrderHistory {
     listOrderHistory: IDataOrderHistory[];
     paramHistorySearch: IParamOrderHistory;
+    setParamHistorySearch: (params: IParamOrderHistory) => void;
     isDownLoad: boolean;
     resetFlagDownload: (isDownload: boolean) => void;
-    setParamHistorySearch: (params: IParamOrderHistory) => void;
+    isSearch: boolean;
+    resetFlagSearch: (isSearch: boolean) => void;
+    totalItem: number;
+    isLastPage: boolean;
 }
 
 export interface IPropListTradeHistory {
@@ -627,23 +631,24 @@ export interface IDataHistory {
 
 export interface IDataOrderHistory {
     id:number;
-    orderId: string;
-    externalOrderId: string;
-    accountId: string;
-    symbolCode: string;
-    submittedId: string;
-    orderType: string;
-    orderSide: string;
-    orderStatus: string;
+    order_id: string;
+    external_order_id: string;
+    account_id: string;
+    poem_id: string;
+    symbol_code: string;
+    submitted_id: string;
+    order_type: string;
+    order_side: string;
+    order_status: string;
     price: number;
     volume: number;
-    currencyCode: string;
-    execPrice: number;
-    execVolume: number;
-    execTime: number;
-    orderTime: number;
-    msgCode: string;
-    withdrawAmount: number;
+    currency_code: string;
+    exec_price: number;
+    exec_volume: number;
+    exec_time: number;
+    order_time: number;
+    msg_code: string;
+    withdraw_amount: number;
     comment: string;
 }
 
@@ -663,6 +668,7 @@ export interface IDataHistoryDownload {
     orderDateTime: string;
     executedDateTime: string;
     comment: string;
+    accountId: string;
 }
 
 export interface ITradeHistoryDownload {
@@ -710,19 +716,4 @@ export interface IOrderPortfolio {
     totalSellAmount: string;
     totalSellVolume: number;
     unrealizedPl: string;
-}
-
-export interface IReqOrderHistory {
-    config: string;
-    data:IDataResOrderHistory;
-    status: number;
-}
-
-export interface IDataResOrderHistory {
-    count: number;
-    page_size: number;
-    next_page: number;
-    prev_page: number;
-    results: [IDataOrderHistory];
-    total_page: number;
 }
