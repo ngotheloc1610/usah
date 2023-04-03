@@ -78,6 +78,8 @@ const MultipleOrders = () => {
     const ref: any = useRef();
     const pricingServicePb: any = pspb;
 
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
@@ -117,7 +119,7 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
-            console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            debugLogFlag && console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                 tmp = RESPONSE_RESULT.success;
@@ -130,7 +132,7 @@ const MultipleOrders = () => {
                 setListSelected([]);
             }
             setIsLoading(false);
-            console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            debugLogFlag && console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
         return () => {
@@ -822,7 +824,7 @@ const MultipleOrders = () => {
             rpcMsg.setPayloadData(multiOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log(`Send multiOrder with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            debugLogFlag && console.log(`Send multiOrder with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             setShowModalConfirmMultiOrders(false);
         }
     }
@@ -1073,7 +1075,7 @@ const MultipleOrders = () => {
         if (lotSize === 0) {
             setVolume(volume);
             setInvalidVolume(true);
-            console.log("Volume invalid because minLot=0 with symbolCode=", ticker);
+            debugLogFlag && console.log("Volume invalid because minLot=0 with symbolCode=", ticker);
             return;
         }
 

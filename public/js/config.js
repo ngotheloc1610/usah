@@ -8,5 +8,6 @@ window.globalThis = {
     "timeOutCancelResponse": 10000,
     "timeOutMultiOrderResponse": 30000,
     "marketDepthLenghtOrderBook": 15,
-    "marketDepthLenghtDashboard": 10
+    "marketDepthLenghtDashboard": 10,
+    "debugLogFlag": false
 }

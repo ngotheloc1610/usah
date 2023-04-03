@@ -36,6 +36,7 @@ const unsubscribeTradeEventSubject = new Subject();
 const orderEventSubject = new Subject();
 const tradeSubject = new Subject();
 let isRender = true;
+const debugLogFlag = window.globalThis.debugLogFlag;
 const startWs = async () => {
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
     if (!token) {
@@ -46,7 +47,7 @@ const startWs = async () => {
     socket.binaryType = "arraybuffer";
 
     socket.onopen = (e) =>{
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON OPEN", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON OPEN", e);
         wsConnected = true;
         if (isRender) {
             socketSubject.next('SOCKET_CONNECTED');
@@ -58,7 +59,7 @@ const startWs = async () => {
     
     socket.onerror = (e) => {
 
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON ERROR", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON ERROR", e);
 
         socket.close();
         wsConnected = false;
@@ -84,7 +85,7 @@ const startWs = async () => {
     }
 
     socket.onclose = (e) => {
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON CLOSE -> RECONNECT WEBSOKET", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON CLOSE -> RECONNECT WEBSOKET", e);
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         isRender = false;
@@ -95,7 +96,7 @@ const startWs = async () => {
     socket.onmessage = (e) => {
         const msg = rpc.RpcMessage.deserializeBinary(e.data);
         const payloadClass = msg.getPayloadClass();
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON MESSAGE", payloadClass);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON MESSAGE", payloadClass);
         if(payloadClass === rpc.RpcMessage.Payload.QUOTE_EVENT){
             const quoteEvent = pricingService.QuoteEvent.deserializeBinary(msg.getPayloadData());     
             quoteSubject.next(quoteEvent.toObject());
@@ -177,7 +178,7 @@ const startWs = async () => {
     }
 
     const intervalId = setInterval(() => {
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
         socket.send("PING")
     }, 30000 )
 }
