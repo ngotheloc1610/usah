@@ -52,6 +52,8 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || '0';
 
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
         const currentTicker = tickerList.find(item => item.symbolCode === params.tickerCode);
@@ -168,7 +170,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            debugLogFlag && console.log("Send request order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             wsService.getOrderSubject().subscribe(resp => {
+                debugLogFlag && console.log("Received order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msg = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -180,6 +184,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msg, TYPE_ORDER_RES.Order, resp[MSG_CODE]);
+                debugLogFlag && console.log("Finised process order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             });
 
             handleCloseConfirmPopup(true);
@@ -217,7 +222,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            debugLogFlag && console.log("Send request cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             wsService.getCancelSubject().subscribe(resp => {
+                debugLogFlag && console.log("Received cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msgText = resp[MSG_TEXT];
                 if (resp?.orderList?.length > 1) {
@@ -256,6 +263,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         handleOrderCancelIdResponse(item?.orderId);
                     }
                 })
+                debugLogFlag && console.log("Finised process cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             });
             handleCloseConfirmPopup(false);
         }
