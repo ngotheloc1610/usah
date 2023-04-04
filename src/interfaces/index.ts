@@ -72,6 +72,7 @@ export interface IClientHoldingInfoReq {
     data: IClientHoldingInforData[];
   };
 }
+
 export interface IClientHoldingInforData {
   symbol: string;
   symbolsfx: string;
