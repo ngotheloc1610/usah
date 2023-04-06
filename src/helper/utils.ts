@@ -3,7 +3,7 @@ import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
-import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo } from '../interfaces/order.interface';
+import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo, IListOrderMonitoring } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
@@ -472,4 +472,52 @@ export const convertValueDecreaseLostSize = (newValue: number, lostSize: number)
 export const calcOwnedVolAccountId = (totalBuy: number, totalSell: number) => {
     const ownedVolume = totalBuy - totalSell;
     return ownedVolume > 0 ? ownedVolume : 0;
+}
+
+export const sortDateTime = (listData: IListOrderMonitoring[], isAsc: boolean) => {
+    if(listData) {
+        if(isAsc) {
+            listData.sort((a, b) => a?.time?.toString().localeCompare(b?.time?.toString()))
+            return listData
+        }
+        listData.sort((a, b) => b?.time?.toString().localeCompare(a?.time?.toString()))
+        return listData
+    }
+    return []
+}
+
+export const sortPrice = (listData: IListOrderMonitoring[], isAsc: boolean) => {
+    if(listData) {
+        if(isAsc) {
+            listData.sort((a, b) => convertNumber(a?.price) - convertNumber(b?.price));
+            return listData
+        }
+        listData.sort((a, b) => convertNumber(b?.price) - convertNumber(a?.price));
+        return listData
+    }
+    return []
+}
+
+export const sortSide = (listData: IListOrderMonitoring[], isAsc: boolean) => {
+    if(listData) {
+        if(isAsc) {
+            listData.sort((a, b) => a?.side - b?.side);
+            return listData
+        }
+        listData.sort((a, b) => b?.side - a?.side);
+        return listData
+    }
+    return []
+}
+
+export const sortTicker = (listData: IListOrderMonitoring[], isAsc: boolean) => {
+    if(listData) {
+        if(isAsc) {
+            listData.sort((a, b) => a?.symbolCode.localeCompare(b?.symbolCode))
+            return listData
+        }
+        listData.sort((a, b) => b?.symbolCode.localeCompare(a?.symbolCode))
+        return listData
+    }
+    return []
 }

@@ -280,3 +280,7 @@ export const RETURN_LOGIN_TIME = 5;
 export const TIME_OUT_CANCEL_RESPONSE_DEFAULT = 10000;
 
 export const TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT = 30000;
+
+export const SORT_MONITORING_SCREEN = 'sort_monitor_screen';
+
+export const SORT_MODIFY_CANCEL_SCREEN = 'sort_modify_cancel_screen';
