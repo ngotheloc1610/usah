@@ -140,7 +140,8 @@ const OrderBook = (props: IOrderBookProps) => {
         return arrAsk.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between py-1 lh-sm ">
-                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                    {/* <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div> */}
+                    <div></div>
                     <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
                 <td className="fw-bold text-center lh-sm">
@@ -187,7 +188,8 @@ const OrderBook = (props: IOrderBookProps) => {
                 <td className=" lh-sm fw-bold text-center fw-600">
                     {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className=" lh-sm text-end bg-danger-light fw-600 d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                    {/* <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div> */}
+                    <div></div>
                     <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
             </tr>
