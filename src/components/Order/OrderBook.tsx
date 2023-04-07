@@ -188,7 +188,6 @@ const OrderBook = (props: IOrderBookProps) => {
                 <td className=" lh-sm fw-bold text-center fw-600">
                     {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className=" lh-sm text-end bg-danger-light fw-600 d-flex justify-content-between">
-                    {/* <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div> */}
                     <div></div>
                     <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>

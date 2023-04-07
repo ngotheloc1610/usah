@@ -408,7 +408,6 @@ const ListTicker = (props: IListTickerProps) => {
                 <td className="text-danger d-flex justify-content-between">
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                     <div></div>
-                    {/* <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div> */}
                 </td>
             </tr>
         ));
