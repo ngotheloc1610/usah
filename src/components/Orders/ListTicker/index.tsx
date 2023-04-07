@@ -365,7 +365,8 @@ const ListTicker = (props: IListTickerProps) => {
         return arr.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
                 <td className="text-success d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
+                    {/* <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div> */}
+                    <div></div>
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
                 <td className="text-center">
@@ -406,7 +407,7 @@ const ListTicker = (props: IListTickerProps) => {
                     {item.price !== '-' ? formatCurrency(item.price.toString()) : '-'}</td>
                 <td className="text-danger d-flex justify-content-between">
                     <div>{item.volume !== '-' ? formatNumber(item.volume.toString()) : '-'}</div>
-                    <div>{`${item.numOrders !== 0 ? `(${item.numOrders})` : ''}`}</div>
+                    <div></div>
                 </td>
             </tr>
         ));
