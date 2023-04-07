@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
 import moment from 'moment';
+import { Autocomplete } from '@mui/material';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -485,6 +486,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     </>}
                 </>
             }
+            {
+                (isModify || isCancel) && (
+                    <>
+                        <div className='row mt-2'>
+                            <div className='col-5 lh-lg pt-1'><b>Team ID 12345</b></div>
+                            <div className='col-7'>
+                                <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' type='password' placeholder='Password' />
+                            </div>
+                        </div>
+                    </>
+                )
+            }
         </>
     )
 
@@ -500,7 +513,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>{_renderContentFormConfirm()}</Modal.Body>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '5px' }}>{_renderContentFormConfirm()}</Modal.Body>
             <Modal.Footer className='justify-content-center'>
                 {!isModify && !isCancel &&
                     <>

@@ -148,12 +148,18 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
             <div className='fs-18 fw-600 text-center'>Are you sure <span className="text-danger">Cancel</span> All Order?</div>
 
-            <div className="row" style={{marginTop: '20px'}}>
+            <div className="row" style={{marginTop: '10px'}}>
                 <div className="col-10 fs-18 text-center">
                     Total order you have selected
                 </div>
                 <div className="col-2 fs-18">
                     {totalOrder}
+                </div>
+            </div>
+            <div className='mt-2 d-flex px-3 mt-1'>
+                <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID 12345</b></div>
+                <div className='ms-3 w-50'>
+                    <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' type='password' placeholder='Password' />
                 </div>
             </div>
             </Modal.Body>
