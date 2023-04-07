@@ -1641,7 +1641,10 @@ proto.SessionSettings.toObject = function(includeInstance, msg) {
     dayOfWeek: jspb.Message.getFieldWithDefault(msg, 1, 0),
     openTime: jspb.Message.getFieldWithDefault(msg, 2, 0),
     closeTime: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    preOrderTime: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    preOrderTime: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    externalOpenTime: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    externalPrecloseTime: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    externalCloseTime: jspb.Message.getFieldWithDefault(msg, 7, 0)
   };
 
   if (includeInstance) {
@@ -1693,6 +1696,18 @@ proto.SessionSettings.deserializeBinaryFromReader = function(msg, reader) {
     case 4:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setPreOrderTime(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setExternalOpenTime(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setExternalPrecloseTime(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readInt64());
+      msg.setExternalCloseTime(value);
       break;
     default:
       reader.skipField();
@@ -1748,6 +1763,27 @@ proto.SessionSettings.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt64(
       4,
+      f
+    );
+  }
+  f = message.getExternalOpenTime();
+  if (f !== 0) {
+    writer.writeInt64(
+      5,
+      f
+    );
+  }
+  f = message.getExternalPrecloseTime();
+  if (f !== 0) {
+    writer.writeInt64(
+      6,
+      f
+    );
+  }
+  f = message.getExternalCloseTime();
+  if (f !== 0) {
+    writer.writeInt64(
+      7,
       f
     );
   }
@@ -1823,6 +1859,60 @@ proto.SessionSettings.prototype.getPreOrderTime = function() {
  */
 proto.SessionSettings.prototype.setPreOrderTime = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional int64 external_open_time = 5;
+ * @return {number}
+ */
+proto.SessionSettings.prototype.getExternalOpenTime = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.SessionSettings} returns this
+ */
+proto.SessionSettings.prototype.setExternalOpenTime = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
+ * optional int64 external_preclose_time = 6;
+ * @return {number}
+ */
+proto.SessionSettings.prototype.getExternalPrecloseTime = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.SessionSettings} returns this
+ */
+proto.SessionSettings.prototype.setExternalPrecloseTime = function(value) {
+  return jspb.Message.setProto3IntField(this, 6, value);
+};
+
+
+/**
+ * optional int64 external_close_time = 7;
+ * @return {number}
+ */
+proto.SessionSettings.prototype.getExternalCloseTime = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.SessionSettings} returns this
+ */
+proto.SessionSettings.prototype.setExternalCloseTime = function(value) {
+  return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 

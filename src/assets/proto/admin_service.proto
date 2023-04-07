@@ -14,3 +14,25 @@ message AdminGetPendingOrderListResponse {
   	string msg_text = 2;
 	repeated Order order = 3;
 }
+
+//Update order status
+message AdminOrderUpdateStatusRequest {
+	Order order = 1;
+}
+
+message AdminOrderUpdateStatusResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	Order order = 3;
+}
+
+//Order Manual
+message AdminOrderManualRequest {
+	Order order = 1;
+}
+
+message AdminOrderManualResponse {
+	MsgCode msg_code = 1;
+	string msg_text = 2;
+	Order order = 3;
+}

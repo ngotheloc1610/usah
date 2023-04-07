@@ -194,7 +194,9 @@ proto.Order.toObject = function(includeInstance, msg) {
     submittedId: jspb.Message.getFieldWithDefault(msg, 35, ""),
     msgCode: jspb.Message.getFieldWithDefault(msg, 36, 0),
     groupType: jspb.Message.getFieldWithDefault(msg, 37, 0),
-    externalState: jspb.Message.getFieldWithDefault(msg, 38, 0)
+    externalState: jspb.Message.getFieldWithDefault(msg, 38, 0),
+    allowMatching: jspb.Message.getBooleanFieldWithDefault(msg, 39, false),
+    existedInBo: jspb.Message.getBooleanFieldWithDefault(msg, 40, false)
   };
 
   if (includeInstance) {
@@ -382,6 +384,14 @@ proto.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 38:
       var value = /** @type {!proto.ExternalState} */ (reader.readEnum());
       msg.setExternalState(value);
+      break;
+    case 39:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setAllowMatching(value);
+      break;
+    case 40:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setExistedInBo(value);
       break;
     default:
       reader.skipField();
@@ -675,6 +685,20 @@ proto.Order.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0.0) {
     writer.writeEnum(
       38,
+      f
+    );
+  }
+  f = message.getAllowMatching();
+  if (f) {
+    writer.writeBool(
+      39,
+      f
+    );
+  }
+  f = message.getExistedInBo();
+  if (f) {
+    writer.writeBool(
+      40,
       f
     );
   }
@@ -1362,6 +1386,42 @@ proto.Order.prototype.getExternalState = function() {
  */
 proto.Order.prototype.setExternalState = function(value) {
   return jspb.Message.setProto3EnumField(this, 38, value);
+};
+
+
+/**
+ * optional bool allow_matching = 39;
+ * @return {boolean}
+ */
+proto.Order.prototype.getAllowMatching = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 39, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setAllowMatching = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 39, value);
+};
+
+
+/**
+ * optional bool existed_in_bo = 40;
+ * @return {boolean}
+ */
+proto.Order.prototype.getExistedInBo = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 40, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.Order} returns this
+ */
+proto.Order.prototype.setExistedInBo = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 40, value);
 };
 
 
@@ -2815,7 +2875,8 @@ proto.ExternalState = {
   EXTERNAL_STATE_REJECTED: 7,
   EXTERNAL_STATE_EXPIRED: 8,
   EXTERNAL_STATE_MODIFIED: 9,
-  EXTERNAL_STATE_UNLOCK: 10
+  EXTERNAL_STATE_UNLOCK: 10,
+  EXTERNAL_STATE_CANCEL_REJECT: 11
 };
 
 goog.object.extend(exports, proto);
