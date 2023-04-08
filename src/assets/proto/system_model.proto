@@ -61,10 +61,13 @@ enum GroupType {
 }
 
 message SessionSettings {
-	int32 day_of_week		= 1;  // SUNDAY ~ 0, MONDAY ~ 1, TUESDAY ~ 2, etc...
-	int64 open_time			= 2; // Minutes couting from 00:00 
-	int64 close_time		= 3; // Minutes couting from 00:00 
-	int64 pre_order_time	= 4; // Minutes couting from 00:00 
+	int32 day_of_week		  = 1;  // SUNDAY ~ 0, MONDAY ~ 1, TUESDAY ~ 2, etc...
+	int64 open_time			  = 2; // Minutes couting from 00:00 
+	int64 close_time		  = 3; // Minutes couting from 00:00 
+	int64 pre_order_time	  = 4; // Minutes couting from 00:00 
+	int64 external_open_time = 5; // Start forwarding order to Blue Ocean - season session
+	int64 external_preclose_time = 6; //Stop forwarding order to Blue Ocean - season session
+	int64 external_close_time = 7; // Restart matching in USAH, Blue Ocean is closed and all unexecuted orders are canceled successfully
 }
 
 message Holiday {

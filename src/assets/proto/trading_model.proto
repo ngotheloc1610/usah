@@ -42,6 +42,8 @@ message Order {
   MsgCode msg_code = 36;
   GroupType group_type = 37;
   ExternalState external_state = 38; // External system result state
+  bool allow_matching = 39; // True -> Allow matching in USAH, False -> Not allow matching in USAH
+  bool existed_in_bo = 40; // True -> Order is existing in BO, False -> Order isn't existing in BO
 }
 
 message Trade {
@@ -202,4 +204,5 @@ enum ExternalState {
   EXTERNAL_STATE_EXPIRED = 8;  // Expired — the order has been canceled upon expiration.
   EXTERNAL_STATE_MODIFIED = 9; // Order has been modified success (REPLACED ER)
   EXTERNAL_STATE_UNLOCK = 10; // Use this enum to unlock order from USAH core, show in orderbook
+  EXTERNAL_STATE_CANCEL_REJECT = 11; // Send cancel request to BO but received ER = CANCEL_REJECT
 }
