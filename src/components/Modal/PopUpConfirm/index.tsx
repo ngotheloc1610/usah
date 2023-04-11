@@ -42,8 +42,17 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             let tmp = 0;
             let msgText = resp[MSG_TEXT];
             if (resp?.orderList?.length > 1) {
+                const listOrderCancel = resp?.orderList
+                let msgCode = resp[MSG_CODE]
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
+                    const idx = listOrderCancel.findIndex(item => item.msgCode === systemModelPb.MsgCode.MT_RET_AUTH_ACCOUNT_INVALID)
+                    if(idx >= 0) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_AUTH_ACCOUNT_INVALID);
+                        msgCode = listOrderCancel[idx].msgCode
+                    } else {
+                        tmp = RESPONSE_RESULT.success;
+                    }
                 } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                     tmp = RESPONSE_RESULT.error;
                     msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
@@ -53,7 +62,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 }else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, msgCode);
             } else if (resp?.orderList?.length === 1) {
                 const order = resp?.orderList[0];
                 if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
