@@ -234,6 +234,12 @@ export const DEFAULT_ITEM_PER_PAGE = 10;
 
 export const DEFAULT_TIME_ZONE = 'SG';
 
+export const TEAM_CODE = 'team_code';
+
+export const TEAM_ID = 'team_id';
+
+export const TEAM_ROLE = 'team_role';
+
 export const STATUS_ORDER = {
     success: 'SUCCESS',
     rejected: 'REJECTED'

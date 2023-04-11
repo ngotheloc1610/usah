@@ -8,7 +8,7 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE, TEAM_CODE, TEAM_ID, TEAM_ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
@@ -84,6 +84,9 @@ const App = () => {
         setIsLogin(true);
         localStorage.removeItem(ACCOUNT_ID);
         localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(TEAM_CODE);
+        localStorage.removeItem(TEAM_ID);
+        localStorage.removeItem(TEAM_ROLE);
         localStorage.removeItem(EXPIRE_TIME);
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
@@ -103,6 +106,9 @@ const App = () => {
       setIsForgotPassword(false);
       localStorage.removeItem(ACCOUNT_ID);
       localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+      localStorage.removeItem(TEAM_CODE);
+      localStorage.removeItem(TEAM_ID);
+      localStorage.removeItem(TEAM_ROLE);
       localStorage.removeItem(EXPIRE_TIME);
       localStorage.removeItem(ROLE);
       localStorage.removeItem(POEM_ID);
@@ -155,6 +161,9 @@ const App = () => {
   setIsShowIdleTimeOut(false);
   localStorage.removeItem(ACCOUNT_ID);
   localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+  localStorage.removeItem(TEAM_CODE);
+  localStorage.removeItem(TEAM_ID);
+  localStorage.removeItem(TEAM_ROLE);
   localStorage.removeItem(EXPIRE_TIME);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(POEM_ID);

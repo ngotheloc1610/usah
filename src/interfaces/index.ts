@@ -19,6 +19,9 @@ export interface IDataLoginResquest {
   min_order_value: number;
   max_order_value: number;
   max_order_volume: number;
+  team_code: string;
+  team_id: number;
+  team_role: string;
 }
 export interface IDataLogin {
   meta: IMeta;

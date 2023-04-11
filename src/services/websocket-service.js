@@ -4,7 +4,7 @@ import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
-import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from '../constants/general.constant';
+import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, TEAM_ROLE, TEAM_ID, TEAM_CODE } from '../constants/general.constant';
 import { toast } from 'react-toastify';
 import { INVALID_TOKEN } from '../constants';
 import moment from 'moment';
@@ -70,6 +70,9 @@ const startWs = async () => {
         if (currentTime >= expiredTime) {
             // TODO: navigate to login screen when expired token
             localStorage.removeItem(ACCOUNT_ID);
+            localStorage.removeItem(TEAM_CODE);
+            localStorage.removeItem(TEAM_ID);
+            localStorage.removeItem(TEAM_ROLE);
             localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             localStorage.removeItem(EXPIRE_TIME);
             localStorage.removeItem(ROLE);

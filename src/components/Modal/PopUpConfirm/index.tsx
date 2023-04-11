@@ -1,5 +1,5 @@
 
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
@@ -33,8 +33,12 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const rProtoBuff: any = rpc;
 
     const [isDisableConfirmBtn, setIsDisableConfirmBtn] = useState(false);
+    const [teamPassword, setTeamPassword] = useState('');
 
     const debugLogFlag = window.globalThis.debugLogFlag;
+
+    const teamId = localStorage.getItem(TEAM_ID) || '0';
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
@@ -80,6 +84,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             } else {
                 tmp = RESPONSE_RESULT.error;
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                listOrder?.forEach(order => {
+                    if (handleOrderCancelIdResponse) {
+                        handleOrderCancelIdResponse(order?.orderId);
+                    }
+                })
             }
             
             handleCloseConfirmPopup(false);
@@ -138,6 +147,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
                 cancelOrder.addOrder(order);
             });
+
+            // TODO: Need flag ON/OFF to check password team
+            cancelOrder.setTeamCode(teamCode);
+            cancelOrder.setTeamPassword(teamPassword);
+
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
@@ -147,6 +161,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             setIsDisableConfirmBtn(true);
         }
     }
+
+    const handleTeamPassword = (event: any) => {
+        setTeamPassword(event.target.value);
+    }
+
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -166,9 +185,12 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 </div>
             </div>
             <div className='mt-2 d-flex px-3 mt-1'>
-                <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID 12345</b></div>
+                <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamId}</b></div>
                 <div className='ms-3 w-50'>
-                    <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' type='password' placeholder='Password' />
+                    <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
+                        value={teamPassword} type='password' 
+                        onChange={handleTeamPassword}
+                        placeholder='Password' />
                 </div>
             </div>
             </Modal.Body>
@@ -176,7 +198,8 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                     DISCARD
                 </Button>
-                <Button variant="primary" disabled={isDisableConfirmBtn} onClick={sendRes}>
+                {/* TODO: Need flag ON/OFF to check password team */}
+                <Button variant="primary" disabled={isDisableConfirmBtn || teamPassword === ''} onClick={sendRes}>
                     CONFIRM
                 </Button>
             </Modal.Footer>

@@ -7,7 +7,7 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -45,7 +45,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [outOfPrice, setOutOfPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [isDisableInput, setIsDisableInput] = useState(false);
-
+    const [teamPassword, setTeamPassword] = useState('');
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
@@ -54,6 +54,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || '0';
 
     const debugLogFlag = window.globalThis.debugLogFlag;
+
+    const teamId = localStorage.getItem(TEAM_ID) || '0';
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -81,17 +84,25 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const handleCancelRes = (resp: any) => {
         let tmp = 0;
-            let msgText = resp[MSG_TEXT];
-            if (resp?.orderList?.length > 1) {
-                updateMessageResponse(tmp, resp[MSG_CODE], msgText)
-            } else if (resp?.orderList?.length === 1) {
-                const order = resp?.orderList[0];
-                updateMessageResponse(tmp, order?.msgCode, msgText)
-            } else {
-                tmp = RESPONSE_RESULT.error;
-                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+        let msgText = resp[MSG_TEXT];
+        if (resp?.orderList?.length > 1) {
+            updateMessageResponse(tmp, resp[MSG_CODE], msgText)
+        } else if (resp?.orderList?.length === 1) {
+            const order = resp?.orderList[0];
+            updateMessageResponse(tmp, order?.msgCode, msgText)
+        } else {
+            tmp = RESPONSE_RESULT.error;
+            handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+            if (handleOrderCancelIdResponse) {
+                handleOrderCancelIdResponse(params?.orderId || '');
             }
-            handleCloseConfirmPopup(false);
+        }
+        resp?.orderList?.forEach(item => {
+            if (item && handleOrderCancelIdResponse) {
+                handleOrderCancelIdResponse(item?.orderId);
+            }
+        })
+        handleCloseConfirmPopup(false);
     }
 
     const updateMessageResponse = (statusRes: number, msgCode: number, msgText: string) => {
@@ -134,6 +145,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
             modifyOrder.setHiddenConfirmFlg(params.confirmationConfig);
+
+            // TODO: Need flag ON/OFF to check password team
+            modifyOrder.setTeamCode(teamCode);
+            modifyOrder.setTeamPassword(teamPassword);
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
@@ -260,6 +275,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
             }
             cancelOrder.addOrder(order);
+
+            // TODO: Need flag ON/OFF to check password team
+            cancelOrder.setTeamCode(teamCode);
+            cancelOrder.setTeamPassword(teamPassword);
+
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
@@ -434,6 +454,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionPrice = convertNumber(priceModify.toString()) > 0;
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
+        
+        // TODO: Need flag ON/OFF to check password team
+        if (teamPassword === '') {
+            return false;
+        }
+        
         if (isModify) {
             if (new Decimal(calValue()).lt(new Decimal(minOrderValue))) {
                 return false;
@@ -450,6 +476,10 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const calValue = () => {
         if (isModify) return (convertNumber(volumeModify) * convertNumber(priceModify.toString())).toFixed(2).toString();
         return (convertNumber(params.volume) * convertNumber(params.price)).toFixed(2);
+    }
+
+    const handleTeamPassword = (event: any) => {
+        setTeamPassword(event.target.value);
     }
 
     const _renderErrorMinValue = () => (
@@ -489,9 +519,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 (isModify || isCancel) && (
                     <>
                         <div className='row mt-2'>
-                            <div className='col-5 lh-lg pt-1'><b>Team ID 12345</b></div>
+                            <div className='col-5 lh-lg pt-1'><b>Team ID {teamId}</b></div>
                             <div className='col-7'>
-                                <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' type='password' placeholder='Password' />
+                                <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
+                                    type='password' 
+                                    onChange={handleTeamPassword}
+                                    placeholder='Password' />
                             </div>
                         </div>
                     </>
@@ -526,7 +559,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
                 {(isModify || isCancel) &&
                     <>
-                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
                             DISCARD
                         </Button>
                         <Button variant="primary" onClick={sendOrder}
