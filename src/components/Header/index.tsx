@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import queryString from 'query-string';
 import ReduxPersist from '../../config/ReduxPersist';
 import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TIME_ZONE } from '../../constants/general.constant';
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, TIME_ZONE } from '../../constants/general.constant';
 
 import { LOGO } from '../../assets';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
@@ -100,6 +100,9 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem(ACCOUNT_ID);
+    localStorage.removeItem(TEAM_CODE);
+    localStorage.removeItem(TEAM_ID);
+    localStorage.removeItem(TEAM_ROLE);
     localStorage.removeItem(ROLE);
     localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
     localStorage.removeItem(EXPIRE_TIME);
