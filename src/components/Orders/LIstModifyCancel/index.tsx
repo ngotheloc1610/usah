@@ -6,8 +6,8 @@ import { wsService } from "../../../services/websocket-service";
 import { useEffect, useState } from "react";
 import { IListOrderModifyCancel, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber } from "../../../helper/utils";
+import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM, SORT_MODIFY_CANCEL_SCREEN } from "../../../constants/general.constant";
+import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber, sortDateTime, sortPrice, sortSide, sortTicker } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -43,21 +43,33 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const [orderEventList, setOrderEventList] = useState<any[]>([]);
 
+    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
+
+    const stateSortDefault = {
+        feild: 'date',
+        sortAsc: false,
+        accountId: accountId
+    }
+
+    const stateSortList = JSON.parse(localStorage.getItem(SORT_MODIFY_CANCEL_SCREEN) || '[]')
+    const index = stateSortList.findIndex(item => item.accountId === accountId)
+    const stateSort = index >= 0 ? stateSortList[index] : stateSortDefault
+
     // sort ticker
-    const [isTickerAsc, setIsTickerAsc] = useState(false);
-    const [isSortTicker, setIsSortTicker] = useState(false);
+    const [isTickerAsc, setIsTickerAsc] = useState(stateSort.field === 'ticker' ? stateSort.sortAsc : false);
+    const [isSortTicker, setIsSortTicker] = useState(stateSort.field === 'ticker');
 
     // sort price
-    const [isPriceAsc, setIsPriceAsc] = useState(false);
-    const [isSortPrice, setIsSortPrice] = useState(false);
+    const [isPriceAsc, setIsPriceAsc] = useState(stateSort.field === 'price' ? stateSort.sortAsc : false);
+    const [isSortPrice, setIsSortPrice] = useState(stateSort.field === 'price');
 
     // sort orderSide
-    const [isSideAsc, setIsSideAsc] = useState(false);
-    const [isSortSide, setIsSortSide] = useState(false);
+    const [isSideAsc, setIsSideAsc] = useState(stateSort.field === 'side' ? stateSort.sortAsc : false);
+    const [isSortSide, setIsSortSide] = useState(stateSort.field === 'side');
 
     // sort dateTime
-    const [isSortDateTime, setIsSortDateTime] = useState(true);
-    const [isDateTimeAsc, setIsDateTimeAsc] = useState(false);
+    const [isDateTimeAsc, setIsDateTimeAsc] = useState(stateSort.field === 'date' ? stateSort.sortAsc : false);
+    const [isSortDateTime, setIsSortDateTime] = useState(stateSort.field ? stateSort.field === 'date' : true);
 
     const [cancelListId, setCancelListId] = useState<string[]>([]);
 
@@ -65,15 +77,34 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
 
     useEffect(() => {
-        const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
-        const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
+        let currentList: IListOrderModifyCancel[] = []
+        if(isSortDateTime) {
+            const listOrderSort: IListOrderModifyCancel[] = sortDateTime(listOrder, isDateTimeAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
+
+        if(isSortPrice) {
+            const listOrderSort: IListOrderModifyCancel[] = sortPrice(listOrder, isPriceAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
+        if(isSortSide) {
+            const listOrderSort: IListOrderModifyCancel[] = sortSide(listOrder, isSideAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
+        if(isSortTicker) {
+            const listOrderSort: IListOrderModifyCancel[] = sortTicker(listOrder, isTickerAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
         if (currentList.length <= 0 && isSearch) {
             currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1);
             if (resetIsSearch) {
                 resetIsSearch(false);
             }
         }
-        setDataOrder(currentList);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrder, itemPerPage, currentPage])
 
@@ -439,58 +470,29 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setSelectedList([]);
     }
 
+    
     const handleSortTicker = () => {
         setIsSortTicker(true);
         setIsSortPrice(false);
         setIsSortSide(false);
         setIsSortDateTime(false);
         const temp = [...dataOrder];
-        if (isTickerAsc) {
-            // sort DESC
-            temp.sort((a, b) => b?.symbolCode.localeCompare(a?.symbolCode))
-            setIsTickerAsc(false);
-            setDataOrder(temp);
-            return;
+        const stateSortTmp = {
+            field: 'ticker',
+            sortAsc: !isTickerAsc,
+            accountId: accountId
         }
-        // sort ASC
-        temp.sort((a, b) => a?.symbolCode.localeCompare(b?.symbolCode))
-        setIsTickerAsc(true);
-        setDataOrder(temp);
-    }
 
-    const handleSortSide = () => {
-        setIsSortTicker(false);
-        setIsSortPrice(false);
-        setIsSortDateTime(false);
-        setIsSortSide(true);
-        const temp = [...dataOrder];
-        if (isSideAsc) {
-            temp.sort((a, b) => b?.side - a?.side);
-            setIsSideAsc(false);
-            setDataOrder(temp);
-            return;
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
         }
-        temp.sort((a, b) => a?.side - b?.side);
-        setIsSideAsc(true);
-        setDataOrder(temp);
-    }
 
-    const handleSortPrice = () => {
-        setIsSortTicker(false);
-        setIsSortDateTime(false);
-        setIsSortSide(false);
-        setIsSortPrice(true);
-        const temp = [...dataOrder];
-        if (isPriceAsc) {
-            temp.sort((a, b) => convertNumber(b?.price) - convertNumber(a?.price));
-            setIsPriceAsc(false);
-            setDataOrder(temp);
-            return;
-        }
-        temp.sort((a, b) => convertNumber(a?.price) - convertNumber(b?.price));
-        setIsPriceAsc(true);
-        setDataOrder(temp);
-        return;
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        const tmp = sortTicker(temp, !isTickerAsc)
+        setDataOrder(tmp);
+        setIsTickerAsc(isTickerAsc ? false : true);
     }
 
     const handleSortDateTime = () => {
@@ -499,17 +501,70 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setIsSortSide(false);
         setIsSortDateTime(true);
         const temp = [...dataOrder];
-        if (isDateTimeAsc) {
-            // sort DESC
-            temp.sort((a, b) => b?.time?.toString().localeCompare(a?.time?.toString()))
-            setIsDateTimeAsc(false);
-            setDataOrder(temp);
-            return;
+        const stateSortTmp = {
+            field: 'date',
+            sortAsc: !isDateTimeAsc,
+            accountId: accountId
         }
-        // sort ASC
-        temp.sort((a, b) => a?.time?.toString().localeCompare(b?.time?.toString()))
-        setIsDateTimeAsc(true);
-        setDataOrder(temp);
+
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+
+        const tmp = sortDateTime(temp, !isDateTimeAsc)
+        setDataOrder(tmp);
+        setIsDateTimeAsc(isDateTimeAsc ? false : true);
+    }
+
+    const handleSortSide = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortDateTime(false);
+        setIsSortSide(true);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'side',
+            sortAsc: !isSideAsc,
+            accountId: accountId
+        }
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        const tmp = sortSide(temp, !isSideAsc)
+        setDataOrder(tmp);
+        setIsSideAsc(isSideAsc ? false : true);
+    }
+
+    const handleSortPrice = () => {
+        setIsSortTicker(false);
+        setIsSortDateTime(false);
+        setIsSortSide(false);
+        setIsSortPrice(true);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'price',
+            sortAsc: !isPriceAsc,
+            accountId: accountId
+        }
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        
+        const tmp = sortPrice(temp, !isPriceAsc)
+        setDataOrder(tmp);
+        setIsPriceAsc(isPriceAsc ? false : true);
     }
 
     const getListModifyCancelData = () => (
