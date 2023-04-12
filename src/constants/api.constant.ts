@@ -17,3 +17,8 @@ export const API_RESET_PASSWORD = '/v1/auth/lp/reset-password';
 export const API_FORGOT_PASSWORD = '/v1/auth/lp/forgot-password';
 
 export const API_CLIENT_HOLDING_INFO = '/v1/market/pspl/client-holding-info';
+
+export const API_RESET_TEAM_PASSWORD = "/v1/auth/lp/teams/reset-password";
+
+
+
