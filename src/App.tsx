@@ -101,7 +101,6 @@ const App = () => {
 
   const checkLoginPage = () => {
     const path = window.location.pathname;
-    console.log("path:", path)
     if (path.includes('/login')) {
       setIsLogin(true);
       setIsBlocked(false);
