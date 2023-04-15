@@ -561,6 +561,8 @@ export interface ISymbolQuote {
     prevClosePrice: string;
     ceiling: string;
     floor: string;
+    change?: string;
+    pctChange?: string;
 }
 
 export interface IOrderListResponse {
