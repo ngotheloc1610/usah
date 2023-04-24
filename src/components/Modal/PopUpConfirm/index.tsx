@@ -39,6 +39,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const teamId = localStorage.getItem(TEAM_ID) || '0';
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
@@ -163,6 +164,20 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         setTeamPassword(event.target.value);
     }
 
+    const _disableBtnConfirm = () => {
+        const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
+        if(idx > 0) {
+            return teamPassword === ''
+        } 
+        return isDisableConfirmBtn
+    }
+
+    const checkShowInputTeamPW = () => {
+        const checkTeamCode = teamCode && teamCode !== 'null'
+        const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
+        return checkTeamCode && idx > 0
+    }
+
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -181,22 +196,26 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                     {totalOrder}
                 </div>
             </div>
-            <div className='mt-2 d-flex px-3 mt-1'>
-                <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamId}</b></div>
-                <div className='ms-3 w-50'>
-                    <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
-                        value={teamPassword} type='password' 
-                        onChange={handleTeamPassword}
-                        placeholder='Password' />
+            {checkShowInputTeamPW() && (
+                <div className='mt-2 d-flex px-3 mt-1'>
+                    <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamCode}</b></div>
+                    <div className='ms-3 w-50'>
+                        <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
+                            value={teamPassword} type='password' 
+                            onChange={handleTeamPassword}
+                            placeholder='Password' 
+                            autoComplete='new-password'
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
             </Modal.Body>
             <Modal.Footer className='justify-content-center'>
                 <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                     DISCARD
                 </Button>
                 {/* TODO: Need flag ON/OFF to check password team */}
-                <Button variant="primary" disabled={isDisableConfirmBtn || teamPassword === ''} onClick={sendRes}>
+                <Button variant="primary" disabled={_disableBtnConfirm()} onClick={sendRes}>
                     CONFIRM
                 </Button>
             </Modal.Footer>

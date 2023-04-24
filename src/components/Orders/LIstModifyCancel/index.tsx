@@ -349,6 +349,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             side: item.side,
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
+            uid: item.uid
         }
         setParamModifyCancel(param);
         if (value === TITLE_CONFIRM['modify']) {

@@ -57,6 +57,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const teamId = localStorage.getItem(TEAM_ID) || '0';
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -450,12 +451,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionPrice = convertNumber(priceModify.toString()) > 0;
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
-        
-        // TODO: Need flag ON/OFF to check password team
-        if (teamPassword === '') {
-            return false;
+        const checkAccId = params.uid?.toString() === accountId
+        if(!checkAccId && teamCode && teamCode !== 'null' && teamPassword === '') {
+            return false
         }
-        
+        // TODO: Need flag ON/OFF to check password team
         if (isModify) {
             if (new Decimal(calValue()).lt(new Decimal(minOrderValue))) {
                 return false;
@@ -485,6 +485,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
+    const checkShowInputTeamPW = () => {
+        const isModifyCancel = isModify || isCancel
+        const checkTeamCode = teamCode && teamCode !== 'null'
+        const checkAccId = params.uid?.toString() !== accountId
+        return isModifyCancel && checkTeamCode && checkAccId
+    }
+
     const _renderContentFormConfirm = () => (
         <>
             <div className='row'>
@@ -512,15 +519,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 </>
             }
             {
-                (isModify || isCancel) && (
+                checkShowInputTeamPW() && (
                     <>
                         <div className='row mt-2'>
-                            <div className='col-5 lh-lg pt-1'><b>Team ID {teamId}</b></div>
+                            <div className='col-5 lh-lg pt-1'><b>Team ID {teamCode}</b></div>
                             <div className='col-7'>
                                 <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
                                     type='password' 
                                     onChange={handleTeamPassword}
-                                    placeholder='Password' />
+                                    placeholder='Password' 
+                                    autoComplete='new-password'
+                                />
                             </div>
                         </div>
                     </>
