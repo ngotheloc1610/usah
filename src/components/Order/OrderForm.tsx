@@ -73,7 +73,6 @@ const OrderForm = (props: IOrderForm) => {
 
     const maxOrderVolume = localStorage.getItem(MAX_ORDER_VOLUME) || Number.MAX_SAFE_INTEGER;
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || Number.MAX_SAFE_INTEGER;
-    const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
     const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     
     const checkSymbolValid = (symbolCode: string) => {
@@ -264,7 +263,7 @@ const OrderForm = (props: IOrderForm) => {
         setIsOutOfDailyPrice(false);
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
         setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
-        setIsMaxOrderVol(volume > maxOrderVolume);
+        setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
     }, [price, volume, minLot])
 
     useEffect(() => {
@@ -585,7 +584,7 @@ const OrderForm = (props: IOrderForm) => {
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
             setInvalidVolume(volume % lotSize !== 0 || volume < 1);
-            setIsMaxOrderVol(volume > maxOrderVolume);
+            setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
         }
     }
 
