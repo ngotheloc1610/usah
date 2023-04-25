@@ -284,3 +284,5 @@ export const TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT = 30000;
 export const SORT_MONITORING_SCREEN = 'sort_monitor_screen';
 
 export const SORT_MODIFY_CANCEL_SCREEN = 'sort_modify_cancel_screen';
+
+export const ROLE_TEAM_LEAD = 'leader';
