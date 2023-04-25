@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
@@ -346,27 +346,27 @@ const Dashboard = () => {
         </div>
     )
 
-    const getTickerInfo = (value: ISymbolQuote) => {
+    const getTickerInfo = useCallback((value: ISymbolQuote) => {
         setVolumeTrade(value?.volume);
         setSymbolCode(value?.symbolCode);
         setSymbolQuote(value);
-    }
+    }, []);
 
-    const getPriceOrder = (value: IAskAndBidPrice) => {
+    const getPriceOrder = useCallback((value: IAskAndBidPrice) => {
         setQuoteInfo(value);
-    }
+    }, [])
 
-    const messageSuccess = (item: string) => {
+    const messageSuccess = useCallback((item: string) => {
         setMsgSuccess(item);
-    }
+    }, [])
 
-    const handleTickerSearch = (value: string) => {
-        setSymbolCode(value)
-    }
+    const handleTickerSearch = useCallback((value: string) => {
+        setSymbolCode(value);
+    }, [])
 
-    const getSide = (value: number) => {
+    const getSide = useCallback((value: number) => {
         setSide(value);
-    }
+    }, [])
 
     return (
         <div className="site-main">

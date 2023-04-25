@@ -34,10 +34,11 @@ export function formatNumber(item: string): string {
 // To format price --after the dot is 2 decimals.
 export function formatCurrency(item: string): string {
     if (item) {
-        if (isNaN(Number(item))) {
+        const newItem = item?.replaceAll(',', '');
+        if (isNaN(Number(newItem))) {
             return '0';
         }
-        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(item));
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(newItem));
     }
     return '-';
 }
@@ -146,9 +147,11 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    if (prevClosePrice) {
-        const lastPriceValue = new Decimal(lastPrice);
-        return lastPriceValue.minus(prevClosePrice).toFixed(2);
+    if (prevClosePrice && lastPrice) {
+        const _newLastPrice = lastPrice?.replaceAll(',', '');
+        const _newPrevClosePrice = prevClosePrice?.replaceAll(',', '');
+        const lastPriceValue = new Decimal(_newLastPrice);
+        return lastPriceValue.minus(_newPrevClosePrice).toFixed(2);
     }
     return '';
 }
@@ -156,8 +159,9 @@ export const calcChange = (lastPrice: string, prevClosePrice: string) => {
 export const calcPctChange = (lastPrice: string, prevClosePrice: string) => {
     if (calcChange(lastPrice, prevClosePrice)) {
         const change = new Decimal(calcChange(lastPrice, prevClosePrice));
-        if (convertNumber(prevClosePrice) !== 0) {
-            return change.div(prevClosePrice).mul(100).toFixed(2);
+        const _newPrevClosePrice = prevClosePrice?.replaceAll(',', '');
+        if (convertNumber(_newPrevClosePrice) !== 0) {
+            return change.div(_newPrevClosePrice).mul(100).toFixed(2);
         }
     }
     return '';

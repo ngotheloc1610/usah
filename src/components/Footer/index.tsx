@@ -1,6 +1,7 @@
 import { Colors } from '../../themes';
 import './Footer.css';
 import { LOGO } from '../../assets';
+import React from 'react';
 
 const _renderContactUs = () => (
     <div className='fs-12'>
@@ -50,4 +51,4 @@ const _renderElementFooter = () => (
 const Footer = () => {
     return <>{_renderElementFooter()}</>
 }
-export default Footer;
+export default React.memo(Footer);

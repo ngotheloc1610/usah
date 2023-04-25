@@ -89,20 +89,6 @@ const OrderBook = (props: IOrderBookProps) => {
                 }
                 setQuote(temp);
             }
-
-            let tempLastQuote = [...lastQuote];
-            quotes.forEach(item => {
-                const index = tempLastQuote.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (index >= 0) {
-                    tempLastQuote[index] = {
-                        ...tempLastQuote[index],
-                        asksList: item?.asksList,
-                        bidsList: item?.bidsList,
-                        currentPrice: checkValue(tempLastQuote[index]?.currentPrice, item?.currentPrice)
-                    }
-                }
-            });
-            setLastQuote(tempLastQuote);
         }
 
     }
