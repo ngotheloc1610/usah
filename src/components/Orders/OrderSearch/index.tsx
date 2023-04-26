@@ -27,11 +27,12 @@ interface IPropsOrderSearchHistory {
     paramHistorySearch: IParamOrderHistory;
     isErrorAccountId: boolean;
     setParamHistorySearch: (param: IParamOrderHistory) => void;
+    resetListOrder: (param: []) => void;
 }
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     // const { paramSearch, handleDownLoad } = props;
-    const { resetFlagSearch, handleDownLoad, paramHistorySearch, setParamHistorySearch, isErrorAccountId } = props;
+    const { resetFlagSearch, handleDownLoad, paramHistorySearch, setParamHistorySearch, isErrorAccountId, resetListOrder } = props;
     const tradingModelPb: any = tmpb;
     const api_url = window.globalThis.apiUrl;
     const [symbolCode, setSymbolCode] = useState('');
@@ -63,12 +64,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
         axios.post(urlGetAccountId, {}, defindConfigPost()).then(resp => {
             if(resp.status === success) {
-                const listAccId = resp.data.accountDetails;
+                const listAccId = resp.data;
                 const tmpList: IAccountID[] = [];
                 listAccId.forEach(item => {
                     tmpList.push({
-                        value: item.accountId,
-                        label: item.accountId
+                        value: item.account_id,
+                        label: item.account_id
                     })
                 })
                 setListAccountId(tmpList);
@@ -163,6 +164,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const handleSearch = () => {
         if(fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime){
             setIsErrorDate(true);
+            resetListOrder([]);
             return;
         }else setIsErrorDate(false);
         
@@ -299,7 +301,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <div className="row g-2">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                        <input type="date" className="form-control form-control-sm date-picker input-select"
                             value={fromDatetime ? moment(fromDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
                             onChange={(event) => handleChangeFromDate(event.target.value)}
@@ -309,7 +311,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 {/* <div className='col-md-2 seperate'>~</div> */}
                 <div className="col-md-6">
                     <div className="input-group input-group-sm">
-                        <input type="date" className="form-control form-control-sm border-end-0 date-picker input-select"
+                        <input type="date" className="form-control form-control-sm date-picker input-select"
                             value={toDatetime ? moment(toDatetime).format(FORMAT_DATE) : ''}
                             max="9999-12-31"
                             onChange={(event) => handleChangeToDate(event.target.value)}
@@ -334,7 +336,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             </div>
             <div className="card-body bg-gradient-light">
                 <div className="row g-2 d-flex align-items-end me-0">
-                    <div className="row col-xxl-5 col-xl-6">
+                    <div className="row col-xxl-5 col-xl-6 pe-xl-0">
                         {teamCode !== "null" && _renderAccountId()}
                         {_renderTicker()}
                         {_renderOrderStatus()}

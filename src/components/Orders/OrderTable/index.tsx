@@ -128,24 +128,45 @@ function OrderTable(props: IPropListOrderHistory) {
                         //     executedDateTime: formatOrderTime(item.time),
                         //     comment: getMessageDisplay(item.msgCode, item.state, item.comment)
                         // });
-                        data.push({
-                            accountId: item.account_id,
-                            orderNo: item?.external_order_id,
-                            tickerCode: item?.symbol_code,
-                            tickerName: getTickerName(item?.symbol_code),
-                            orderSide: getSideName(convertNumber(item.order_side)) || '',
-                            orderStatus: getStateName(convertNumber(item.order_status)) || '',
-                            orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
-                            orderVolume: item.volume,
-                            remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
-                            executedVolume: item.exec_volume,
-                            orderPrice: formatCurrency(item.price.toString()),
-                            lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
-                            withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
-                            orderDateTime: formatOrderTime(item.order_time),
-                            executedDateTime: formatOrderTime(item.exec_time),
-                            comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
-                        });
+                        if(teamCode !== "null"){
+                            data.push({
+                                accountId: item.account_id,
+                                orderNo: item?.external_order_id,
+                                tickerCode: item?.symbol_code,
+                                tickerName: getTickerName(item?.symbol_code),
+                                orderSide: getSideName(convertNumber(item.order_side)) || '',
+                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
+                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
+                                orderVolume: item.volume,
+                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
+                                executedVolume: item.exec_volume,
+                                orderPrice: formatCurrency(item.price.toString()),
+                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
+                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
+                                orderDateTime: formatOrderTime(item.order_time),
+                                executedDateTime: formatOrderTime(item.exec_time),
+                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
+                            });
+                        }else{
+                            data.push({
+                                orderNo: item?.external_order_id,
+                                tickerCode: item?.symbol_code,
+                                tickerName: getTickerName(item?.symbol_code),
+                                orderSide: getSideName(convertNumber(item.order_side)) || '',
+                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
+                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
+                                orderVolume: item.volume,
+                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
+                                executedVolume: item.exec_volume,
+                                orderPrice: formatCurrency(item.price.toString()),
+                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
+                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
+                                orderDateTime: formatOrderTime(item.order_time),
+                                executedDateTime: formatOrderTime(item.exec_time),
+                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
+                            });
+                        }
+                        
                     }
                 });
                 exportCSV(data, `orderHistory_${dateTimeCurrent}`);

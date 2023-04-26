@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
-import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
-import * as psbp from "../../models/proto/pricing_service_pb";
+import { ILastQuote, ISymbolInfo, ISymbolQuote } from "../../interfaces/order.interface";
 import * as qmpb from "../../models/proto/query_model_pb";
-import * as rpcpb from '../../models/proto/rpc_pb';
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
+import React from "react";
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
@@ -23,22 +22,28 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [listData, setListData] = useState<ISymbolQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const [symbolList, setSymbolList] = useState<ISymbolQuote[]>([]);
+    const [symbol, setSymbol] = useState<any>();
+    const [symbolCodes, setSymbolCodes] = useState<string[]>([]);
+    const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
+    const [symbolQuoteEvent, setSymbolQuoteEvent] = useState<ISymbolQuote[]>([]);
 
     const queryModelPb: any = qmpb;
 
     useEffect(() => {
         const symbols = wsService.getSymbolListSubject().subscribe(resp => {
             if (resp && resp.symbolList) {
-                const temp: any[] = [];
+                const symbCodes: string[] = [];
+                const symbolMap = new Map();
                 resp.symbolList.forEach(item => {
                     if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                        temp.push(item);
+                        symbolMap.set(item?.symbolCode, item);
+                        symbCodes.push(item?.symbolCode);
                     }
                 })
-                setSymbolList(temp);
+                setSymbol(symbolMap);
+                setSymbolCodes(symbCodes);
             }
-        })
+        });
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
@@ -65,106 +70,122 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     useEffect(() => {
         processLastQuote(lastQuotes)
-    }, [lastQuotes, symbolList])
+    }, [lastQuotes, symbolCodes, symbol])
+
+    useEffect(() => {
+        setUpDataDisplay();
+    }, [quoteMap, symbolCodes, JSON.stringify(symbolQuoteEvent)])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
+        const itemQuoteMap = new Map();
         if (quotes.length > 0) {
-            let temp: ISymbolQuote[] = [];
-            symbolList.forEach(symbol => {
+            quotes.forEach(quote => {
+                let symbolInfo: any = null;
                 if (symbol) {
-                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
-                    if (element) {
-                        const symbolQuote: ISymbolQuote = {
-                            symbolCode: symbol.symbolCode,
-                            symbolId: symbol.symbolId,
-                            symbolName: symbol.symbolName,
-                            prevClosePrice: symbol.prevClosePrice,
-                            high: element?.high || '0',
-                            low: element?.low || '0',
-                            lastPrice: element.currentPrice,
-                            open: element.open || '0',
-                            volume: element.volumePerDay,
-                            ceiling: symbol.ceiling,
-                            floor: symbol.floor
-                        };
-                        const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
-                        if (index < 0) {
-                            temp.push(symbolQuote);
-                        }
-                    }
+                    symbolInfo = symbol.get(quote?.symbolCode);
                 }
+                const prepareQuote: ISymbolQuote = {
+                    symbolCode: quote?.symbolCode,
+                    symbolId: symbolInfo?.symbolId || 0,
+                    symbolName: symbolInfo?.symbolName,
+                    prevClosePrice: formatCurrency(symbolInfo?.prevClosePrice),
+                    high: formatCurrency(quote?.high || '0.00'),
+                    low: formatCurrency(quote?.low || '0.00'),
+                    lastPrice: formatCurrency(quote?.currentPrice),
+                    open: formatCurrency(quote?.open || '0.00'),
+                    volume: quote?.volumePerDay,
+                    ceiling: formatCurrency(symbolInfo?.ceiling),
+                    floor: formatCurrency(symbolInfo?.floor),
+                    change: calcChange(quote?.currentPrice, symbolInfo?.prevClosePrice),
+                    pctChange: calcPctChange(quote?.currentPrice, symbolInfo?.prevClosePrice)
+                }
+                itemQuoteMap.set(quote?.symbolCode, prepareQuote);
             });
-            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
-            setListData(temp);
         } else {
-            let temp: ISymbolQuote[] = [];
-            symbolList.forEach(symbol => {
-                if (symbol) {
-                    const symbolQuote: ISymbolQuote = {
-                        symbolCode: symbol.symbolCode,
-                        symbolId: symbol.symbolId,
-                        symbolName: symbol.symbolName,
-                        prevClosePrice: symbol.prevClosePrice,
-                        high: '0',
-                        low: '0',
-                        lastPrice: '0',
-                        open: '0',
+            symbolCodes.forEach(symbolCode => {
+                const symbolInfo = symbol.get(symbolCode);
+                if (symbolInfo) {
+                    const quote: ISymbolQuote = {
+                        symbolCode: symbolInfo.symbolCode,
+                        symbolId: symbolInfo.symbolId,
+                        symbolName: symbolInfo.symbolName,
+                        prevClosePrice: formatCurrency(symbolInfo?.prevClosePrice),
+                        high: '0.00',
+                        low: '0.00',
+                        lastPrice: '0.00',
+                        open: '0.00',
                         volume: '0',
-                        ceiling: symbol.ceiling,
-                        floor: symbol.floor
+                        ceiling: formatCurrency(symbolInfo?.ceiling),
+                        floor: formatCurrency(symbolInfo?.floor),
+                        change: '0.00',
+                        pctChange: '0.00'
                     };
-                    const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
-                    if (index < 0) {
-                        temp.push(symbolQuote);
-                    }
+                    itemQuoteMap.set(symbolCode, quote);
                 }
             });
-            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
-            setListData(temp);
         }
+        setQuoteMap(itemQuoteMap);
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
-        const tempSymbolsList = [...symbolList];
-        const tempLastQuotes = [...lastQuotes];
         if (quotes && quotes.length > 0) {
-            // update symbolList
-            quotes.forEach(item => {
-                const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx >= 0) {
-                    tempSymbolsList[idx] = {
-                        ...tempSymbolsList[idx],
-                        lastPrice: checkValue(tempSymbolsList[idx].lastPrice, item.currentPrice),
-                        volume: checkValue(tempSymbolsList[idx].volume, item.volumePerDay),
-                        high: checkValue(tempSymbolsList[idx].high, item.high),
-                        low: checkValue(tempSymbolsList[idx].low, item.low),
-                        open: checkValue(tempSymbolsList[idx].open, item.open),
-                    }
-                }
-            });
-            setSymbolList(tempSymbolsList);
+            const tempSymbolQuote: ISymbolQuote[] = [];
+            quotes.forEach(quote => {
+                if (quote && quoteMap) {
+                    let quoteUpdate = quoteMap.get(quote?.symbolCode);
+                    if (quoteUpdate) {
+                        // IMPORTANT: Must replace comma because Number(1,000) => exception
+                        const _lastPrice = checkValue(quoteUpdate?.lastPrice?.replaceAll(',', ''), quote?.currentPrice);
+                        const _volume = checkValue(quoteUpdate?.volume?.replaceAll(',', ''), quote?.volumePerDay);
+                        const _high = checkValue(quoteUpdate?.high?.replaceAll(',', ''), quote?.high);
+                        const _low = checkValue(quoteUpdate?.low?.replaceAll(',', ''), quote?.low);
+                        const _open = checkValue(quoteUpdate?.open?.replaceAll(',', ''), quote?.open);
+                        quoteUpdate = {
+                            ...quoteUpdate,
+                            lastPrice: formatCurrency(_lastPrice),
+                            volume: _volume,
+                            high: formatCurrency(_high),
+                            low: formatCurrency(_low),
+                            open: formatCurrency(_open),
+                            change: calcChange(_lastPrice, quoteUpdate?.prevClosePrice.replaceAll(',', '')),
+                            pctChange: calcPctChange(_lastPrice, quoteUpdate?.prevClosePrice.replaceAll(',', ''))
+                        }
+                        quoteMap.set(quote?.symbolCode, quoteUpdate);
 
-            // update last quote
-            quotes.forEach(item => {
-                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (index >= 0) {
-                    tempLastQuotes[index] = {
-                        ...tempLastQuotes[index],
-                        asksList: item.asksList,
-                        bidsList: item.bidsList,
-                        currentPrice: checkValue(tempLastQuotes[index]?.currentPrice, item?.currentPrice),
-                        quoteTime: checkValue(tempLastQuotes[index]?.quoteTime, item?.quoteTime),
-                        scale: checkValue(tempLastQuotes[index]?.scale, item?.scale),
-                        tickPerDay: checkValue(tempLastQuotes[index]?.tickPerDay, item?.tickPerDay),
-                        volumePerDay: checkValue(tempLastQuotes[index]?.volumePerDay, item?.volumePerDay),
-                        high: checkValue(tempLastQuotes[index]?.high, item?.high),
-                        low: checkValue(tempLastQuotes[index]?.low, item?.low),
-                        open: checkValue(tempLastQuotes[index]?.open, item?.open),
+                        tempSymbolQuote.push({
+                            symbolCode: quote?.symbolCode,
+                            symbolId: quoteUpdate?.symbolId || 0,
+                            symbolName: quoteUpdate.symbolName,
+                            prevClosePrice: quoteUpdate?.prevClosePrice,
+                            high: quote?.high || '0.00',
+                            low: quote?.low || '0.00',
+                            lastPrice: quote?.currentPrice,
+                            open: quote?.open || '0.00',
+                            volume: quote?.volumePerDay,
+                            ceiling: quoteUpdate?.ceiling,
+                            floor: quoteUpdate?.floor,
+                            change: calcChange(quote?.currentPrice, quoteUpdate?.prevClosePrice?.replaceAll(',', '')),
+                            pctChange: calcPctChange(quote?.currentPrice, quoteUpdate?.prevClosePrice?.replaceAll(',', ''))
+                        })
                     }
                 }
             });
-            setLastQuotes(tempLastQuotes);
+            setSymbolQuoteEvent(tempSymbolQuote);
         }
+    }
+
+    const setUpDataDisplay = () => {
+        let data: ISymbolQuote[] = [];
+        if (quoteMap) {
+            symbolCodes.forEach(symbolCode => {
+                const quote = quoteMap.get(symbolCode);
+                if (quote) {
+                    data.push(quote);
+                }
+            });
+            data = data.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
+        }
+        setListData(data);
     }
 
     const onClickTickerInfo = (item: ISymbolQuote) => {
@@ -192,36 +213,38 @@ const TickerDashboard = (props: ITickerDashboard) => {
         </tr>
     )
 
-    const renderDataListCompany = () => (
-        listData.map((item: ISymbolQuote, index) => (
-            <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode && 'table-active'}`}>
+    const renderDataListCompany = () => {
+        return listData.map((item: ISymbolQuote, index) => (
+            <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode ? 'table-active' : ''}`}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.prevClosePrice)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.ceiling)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.floor)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.open)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.high)}</td>
-                <td className="text-end w-header fw-600">{formatCurrency(item.low)}</td>
+                <td className="text-end w-header fw-600">{item.prevClosePrice}</td>
+                <td className="text-end w-header fw-600">{item.ceiling}</td>
+                <td className="text-end w-header fw-600">{item.floor}</td>
+                <td className="text-end w-header fw-600">{item.open}</td>
+                <td className="text-end w-header fw-600">{item.high}</td>
+                <td className="text-end w-header fw-600">{item.low}</td>
                 <td className="text-end w-header fw-600">
-                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{formatCurrency(item.lastPrice)}</span>}
-                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{formatCurrency(item.lastPrice)}</span>}
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{item.lastPrice}</span>}
+                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{item.lastPrice}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
-                        {calcChange(item.lastPrice, item.prevClosePrice)}
+                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item?.change))}>
+                        {item?.change}
                      </span>}
                      {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
-                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(calcChange(item.lastPrice, item.prevClosePrice)))}>
-                        {calcPctChange(item.lastPrice, item.prevClosePrice)}%
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item?.change))}>
+                        {item?.pctChange}%
                     </span>}
                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
             </tr>
         ))
-    )
+    }
+
+    const renderDataList = useMemo(() => renderDataListCompany(), [listData, symbolCode])
 
     const _renderTableData = () => (
         <div className="tableFixHead max-height-72">
@@ -231,7 +254,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 </thead>
 
                 <tbody className="bt-none fs-14">
-                    {renderDataListCompany()}
+                    {renderDataList}
                 </tbody>
             </table>
         </div>
@@ -257,4 +280,4 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
 TickerDashboard.defaultProps = defaultProps
 
-export default TickerDashboard
+export default React.memo(TickerDashboard)

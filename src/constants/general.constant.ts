@@ -307,3 +307,4 @@ export const LIST_OPTION_PAGINATION = [
         value: 150
     },
 ]
+export const ROLE_TEAM_LEAD = 'leader';

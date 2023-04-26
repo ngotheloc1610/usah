@@ -23,3 +23,4 @@ export const API_RESET_TEAM_PASSWORD = "/v1/auth/lp/teams/reset-password";
 export const API_GET_ORDER_HISTORY = "/v1/market/lp/orders/history";
 
 export const API_GET_ACCOUNT_ID = "/v1/auth/lp/teams/accounts"
+export const API_CHANGE_TEAM_PASSWORD = '/v1/auth/lp/teams/change-password';
