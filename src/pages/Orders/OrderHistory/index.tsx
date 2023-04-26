@@ -75,6 +75,7 @@ const OrderHistory = () => {
         }).catch(function (error) {
             if (error.response.status === unAuthorised) {
                 setIsErrorAccountId(true);
+                setListOrderHistory([]);
                 return;
             }
         });
@@ -136,6 +137,10 @@ const OrderHistory = () => {
         setIsDownLoad(value);
     }
 
+    const resetListOrder = (value) => {
+        setListOrderHistory(value);
+    }
+
     const _renderOrderHistory = () => {
         return (
             <div className="site-main">
@@ -147,6 +152,7 @@ const OrderHistory = () => {
                             paramHistorySearch={paramHistorySearch}
                             setParamHistorySearch={setParamHistorySearch}
                             isErrorAccountId={isErrorAccountId}
+                            resetListOrder={resetListOrder}
                         />
                         <OrderTable
                             listOrderHistory={listOrderHistory}

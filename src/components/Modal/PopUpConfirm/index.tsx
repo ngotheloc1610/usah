@@ -42,7 +42,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
-            debugLogFlag && console.log("Received cancel all order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
             let msgText = resp[MSG_TEXT];
             if (resp?.orderList?.length > 1) {
@@ -93,7 +92,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             
             handleCloseConfirmPopup(false);
             setIsDisableConfirmBtn(false);
-            debugLogFlag && console.log("Finised process cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
         });
 
         return () => {
@@ -157,7 +155,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            debugLogFlag && console.log("Send request cancel all order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             setIsDisableConfirmBtn(true);
         }
     }

@@ -5,8 +5,9 @@ import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
 import ReduxPersist from '../../config/ReduxPersist';
-import { ACCOUNT_ID, SOCKET_CONNECTED } from '../../constants/general.constant';
+import { ACCOUNT_ID, SOCKET_CONNECTED, TEAM_ROLE, ROLE_TEAM_LEAD } from '../../constants/general.constant';
 import { useState, useEffect } from 'react';
+import SettingTeamPassword from '../../components/Setting/SettingTeamPassword';
 
 const SettingScreen = () => {
     const systemServicePb: any = sspb
@@ -31,6 +32,9 @@ const SettingScreen = () => {
         secretKey: "",
         tradingRights: 0,
     })
+
+    const [isSettingTeamPw, setIsSettingTeamPw] = useState(false)
+    const account_role_team = localStorage.getItem(TEAM_ROLE) || ''
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -76,6 +80,7 @@ const SettingScreen = () => {
         setIsSetting(true);
         setIsNotification(false);
         setIsChangePassword(true);
+        setIsSettingTeamPw(false)
     }
 
     const handleDisplayNotification = () => {
@@ -89,13 +94,22 @@ const SettingScreen = () => {
             <li className="nav-item item-setting dropdown">
                 <a href="#" className="nav-link active" type="button" data-bs-toggle="dropdown" aria-expanded="false">Setting</a>
                 <ul className="dropdown-menu show">
-                    <li><a className={isChangePassword ? 'dropdown-item item-setting-password active' : 'dropdown-item item-setting-password'} onClick={handleDisplayChangePassword}>
-                        Change Password
+                    <li><a className={isChangePassword ? 'dropdown-item item-setting-password active' :'dropdown-item item-setting-password'} onClick={handleDisplayChangePassword}>
+                        Change Account Password
                     </a></li>
-                    {/* Bug 55562 Delete the Notification Setting screen */}
-                    {/* <li><a className={isNotification ? 'dropdown-item item-setting-notification active' : 'dropdown-item item-setting-notification'} onClick={handleDisplayNotification}>
-                        Notification
-                    </a></li> */}
+                    {account_role_team === ROLE_TEAM_LEAD && (
+                        <li>
+                            <a 
+                                className={isSettingTeamPw ? 'dropdown-item item-setting-password active' : 'dropdown-item item-setting-password'} 
+                                onClick={() => {
+                                    setIsSettingTeamPw(true)
+                                    setIsChangePassword(false)
+                                }}
+                            >
+                            Change Team ID Password
+                            </a>
+                        </li>
+                    )}
                 </ul>
             </li>
         </ul>
@@ -115,7 +129,12 @@ const SettingScreen = () => {
                         {_renderNav()}
                     </div>
                     <div className="col-md-9">
-                        <Setting isChangePassword={isChangePassword} isNotification={isNotification} customerInfoDetail={customerInfoDetail} />
+                        {isChangePassword && (
+                            <Setting isChangePassword={isChangePassword} isNotification={isNotification} customerInfoDetail={customerInfoDetail} />
+                        )}
+                        {isSettingTeamPw && account_role_team === ROLE_TEAM_LEAD && (
+                            <SettingTeamPassword />
+                        )}
                     </div>
                 </div>
             </div>

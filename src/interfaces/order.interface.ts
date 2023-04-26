@@ -577,6 +577,8 @@ export interface ISymbolQuote {
     prevClosePrice: string;
     ceiling: string;
     floor: string;
+    change?: string;
+    pctChange?: string;
 }
 
 export interface IOrderListResponse {
@@ -668,7 +670,7 @@ export interface IDataHistoryDownload {
     orderDateTime: string;
     executedDateTime: string;
     comment: string;
-    accountId: string;
+    accountId?: string;
 }
 
 export interface ITradeHistoryDownload {

@@ -19,6 +19,7 @@ import { success } from '../../constants';
 import { FIRST_PAGE } from '../../constants/news.constant';
 import { Link } from 'react-router-dom';
 import moment from 'moment-timezone';
+import React from 'react';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -292,4 +293,4 @@ const Header = () => {
     <div>{_renderHeaderTemplate()}</div>
   </>
 };
-export default Header;
+export default React.memo(Header);
