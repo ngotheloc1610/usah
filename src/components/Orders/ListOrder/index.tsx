@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
@@ -80,6 +80,25 @@ const ListOrder = (props: IPropsListOrder) => {
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
     const myRef: any = useRef();
 
+    const processSortData = useCallback((listData: IListOrderMonitoring[]) => {
+        if(isSortDateTime) {
+            const listOrderSort: IListOrderMonitoring[] = sortDateTime(listData, isDateTimeAsc)
+            setDataOrder(listOrderSort);
+        }
+        if(isSortPrice) {
+            const listOrderSort: IListOrderMonitoring[] = sortPrice(listData, isPriceAsc)
+            setDataOrder(listOrderSort);
+        }
+        if(isSortSide) {
+            const listOrderSort: IListOrderMonitoring[] = sortSide(listData, isSideAsc)
+            setDataOrder(listOrderSort);
+        }
+        if(isSortTicker) {
+            const listOrderSort: IListOrderMonitoring[] = sortTicker(listData, isTickerAsc)
+            setDataOrder(listOrderSort);
+        }
+    }, [isSortDateTime, isSortPrice, isSortSide, isSortTicker])
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -89,22 +108,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
         const listOrder = wsService.getListOrder().subscribe(response => {
             const dataResp = response.orderList
-            if(isSortDateTime) {
-                const listOrderSort: IListOrderMonitoring[] = sortDateTime(dataResp, isDateTimeAsc)
-                setDataOrder(listOrderSort);
-            }
-            if(isSortPrice) {
-                const listOrderSort: IListOrderMonitoring[] = sortPrice(dataResp, isPriceAsc)
-                setDataOrder(listOrderSort);
-            }
-            if(isSortSide) {
-                const listOrderSort: IListOrderMonitoring[] = sortSide(dataResp, isSideAsc)
-                setDataOrder(listOrderSort);
-            }
-            if(isSortTicker) {
-                const listOrderSort: IListOrderMonitoring[] = sortTicker(dataResp, isTickerAsc)
-                setDataOrder(listOrderSort);
-            }
+            processSortData(dataResp)
         });
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
@@ -170,8 +174,8 @@ const ListOrder = (props: IPropsListOrder) => {
             tmpList.unshift({
                 ...order,
                 time: convertNumber(order?.executedDatetime)
-    
             });
+            
         } else {
             tmpList[idx] = {
                 ...tmpList[idx],
@@ -179,7 +183,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 price: order?.price
             }
         }
-        setDataOrder(tmpList);
+        processSortData(tmpList)
     }
 
     const handleOrderCanceledAndFilled = (order) => {
@@ -213,7 +217,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 time: convertNumber(order?.executedDatetime),
             });
         }
-        setDataOrder(tmpList);
+        processSortData(tmpList)
     }
 
     const handleOrderModified = (order) => {
