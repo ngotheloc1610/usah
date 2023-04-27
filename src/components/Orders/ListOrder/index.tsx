@@ -97,7 +97,7 @@ const ListOrder = (props: IPropsListOrder) => {
             const listOrderSort: IListOrderMonitoring[] = sortTicker(listData, isTickerAsc)
             setDataOrder(listOrderSort);
         }
-    }, [isSortDateTime, isSortPrice, isSortSide, isSortTicker])
+    }, [isSortDateTime, isSortPrice, isSortSide, isSortTicker, isSideAsc, isTickerAsc, isDateTimeAsc, isPriceAsc])
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
