@@ -24,3 +24,5 @@ export const ORDER_RESPONSE = {
 export const INVALID_TOKEN = 'Invalid Token';
 
 export const RESET_PASSWORD_SUCCESS = 'Reset password success';
+
+export const notFound = 404;

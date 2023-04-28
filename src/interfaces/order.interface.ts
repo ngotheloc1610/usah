@@ -86,11 +86,15 @@ export interface IPropListOrderHistory {
 }
 
 export interface IPropListTradeHistory {
-    getDataTradeHistory: IListTradeHistory[];
     isSearchData: boolean;
     changeStatusSearch: (status: boolean) => void;
     isDownload: boolean;
     resetStatusDownload: (item: boolean) => void;
+    paramSearch: IParamSearchTradeHistory;
+    handleChangePage : (value: number) => void;
+    handleChangeItemPerPage : (item: number) => void;
+    handleChangeNextPage: () => void;
+    handleUnAuthorisedAcc: (item: boolean) => void
 }
 
 export interface IStateListOrder {
@@ -288,6 +292,23 @@ export interface ITradeHistory {
     price: string;
     tickerCode: string;
     tickerName: string;
+}
+
+export interface IListTradeHistoryAPI {
+    id: number;
+    volume: string;
+    exec_time : string;
+    exec_price : string;
+    exec_volume : string;
+    order_id : string;
+    order_type : number;
+    price: string;
+    order_side : number;
+    symbol_code: string;
+    external_order_id : string;
+    account_id : string;
+    submitted_id: string;
+    currency_code : number 
 }
 
 export interface IListTradeHistory {
@@ -687,15 +708,29 @@ export interface ITradeHistoryDownload {
     tickerName: string;
 }
 export interface IParamSearchTradeHistory {
-    symbolCode: string;
-    side: number;
-    fromDate: number;
-    toDate: number;
-    orderType: number;
+    symbol_code: string;
+    order_side: number;
+    from_time: number;
+    to_time: number;
+    order_type: number;
+    account_id: string;
+    page_size:number;
+    page: number
 }
+
+export interface IParamSearchComponentTradeHistory {
+    symbol_code: string;
+    order_side: number;
+    from_time: number;
+    to_time: number;
+    order_type: number;
+    account_id: string;
+}
+
 export interface IPropsSearchTradeHistory {
-    getParamSearch: (item: IParamSearchTradeHistory) => void
-    handleDownload: (item: boolean) => void
+    getParamSearch: (item: IParamSearchComponentTradeHistory) => void;
+    handleDownload: (item: boolean) => void;
+    isUnAuthorised: boolean
 }
 
 export interface IState {

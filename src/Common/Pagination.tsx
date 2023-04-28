@@ -2,7 +2,6 @@ import { LIST_OPTION_PAGINATION } from '../constants/general.constant';
 import { convertNumber } from '../helper/utils';
 import '../pages/Orders/OrderHistory/orderHistory.scss'
 import Pagination from "react-js-pagination";
-
 interface IPropsPagination {
     totalItem: number;
     itemPerPage: number;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { IDataOrderHistory, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
 import { wsService } from "../../../services/websocket-service";
@@ -11,30 +11,26 @@ import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { IAccountID, IParamHistorySearch, IParamOrderHistory } from '../../../interfaces';
+import { IAccountID, IParamOrderHistory } from '../../../interfaces';
 import moment from 'moment';
 import axios from 'axios';
 import { success } from '../../../constants';
-import { API_GET_ACCOUNT_ID } from '../../../constants/api.constant';
-
-// interface IPropsOrderSearchHistory {
-//     paramSearch: (param: IParamHistorySearch) => void;
-//     handleDownLoad: (isDownload: boolean) => void;
-// }
+import { API_GET_ACCOUNT_BY_TEAM_CODE } from '../../../constants/api.constant';
 interface IPropsOrderSearchHistory {
     resetFlagSearch: (isSearch: boolean) => void;
     handleDownLoad: (isDownload: boolean) => void;
     paramHistorySearch: IParamOrderHistory;
     isErrorAccountId: boolean;
     setParamHistorySearch: (param: IParamOrderHistory) => void;
-    resetListOrder: (param: []) => void;
+    resetListOrder: (param: IDataOrderHistory[]) => void;
 }
 
 function OrderHistorySearch(props: IPropsOrderSearchHistory) {
-    // const { paramSearch, handleDownLoad } = props;
     const { resetFlagSearch, handleDownLoad, paramHistorySearch, setParamHistorySearch, isErrorAccountId, resetListOrder } = props;
+
     const tradingModelPb: any = tmpb;
     const api_url = window.globalThis.apiUrl;
+
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
@@ -44,13 +40,12 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [fromDatetime, setFromDatetime] = useState(0);
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
-
     const [isErrorDate, setIsErrorDate] = useState(false);
-
     const [accountId, setAccountId] = useState(localStorage.getItem(ACCOUNT_ID) || '');
     const [listAccountId, setListAccountId] = useState<IAccountID[]>([]);
+
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
 
     const defaultAccountId = {
         label: accountId,
@@ -60,11 +55,11 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const prevParamSearch = useRef<IParamOrderHistory>();
 
     useEffect(() => {
-        const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_ID}`;
+        const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
 
         axios.post(urlGetAccountId, {}, defindConfigPost()).then(resp => {
             if(resp.status === success) {
-                const listAccId = resp.data;
+                const listAccId = resp.data.data;
                 const tmpList: IAccountID[] = [];
                 listAccId.forEach(item => {
                     tmpList.push({
@@ -80,22 +75,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     useEffect(() => {
         prevParamSearch.current = paramHistorySearch;
     }, [paramHistorySearch]);
-
-    // useEffect(() => {
-    //     const currentDate = moment().format(FORMAT_DATE);
-    //     const paramSearchHistory: IParamHistorySearch = {
-    //         symbolCode: symbolCode,
-    //         orderState: orderState,
-    //         orderSide: side,
-    //         fromDate: convertDatetoTimeStamp(currentDate, FROM_DATE_TIME),
-    //         toDate: convertDatetoTimeStamp(currentDate, TO_DATE_TIME),
-    //         orderType: orderType
-    //     };
-    //     setFromDatetime(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
-    //     setToDatetime(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
-    //     paramSearch(paramSearchHistory);
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [])
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
@@ -146,20 +125,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             {(value === RESPONSE_RESULT.error && content !== '') && _rendetMessageError(content)}
         </>
     )
-
-    // const handleSearch = () => {
-    //     // before the core handles the filter but now the font end handle filter
-    //     fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
-    //     const paramSearchHistory: IParamHistorySearch = {
-    //         symbolCode: symbolCode,
-    //         orderState: orderState,
-    //         orderSide: side,
-    //         fromDate: fromDatetime,
-    //         toDate: toDatetime,
-    //         orderType: orderType
-    //     }
-    //     paramSearch(paramSearchHistory);
-    // }
 
     const handleSearch = () => {
         if(fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime){
