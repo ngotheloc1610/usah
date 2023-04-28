@@ -206,7 +206,7 @@ const ListOrder = (props: IPropsListOrder) => {
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
-                time: convertNumber(order?.executedDatetime),
+                // time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
                 price: orderPrice
