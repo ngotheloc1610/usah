@@ -1,4 +1,4 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, TEAM_CODE } from "../../../constants/general.constant";
+import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, TEAM_CODE, ITEM_PER_PAGE_SMALL } from "../../../constants/general.constant";
 import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistoryAPI, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
@@ -14,7 +14,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const { isDownload, resetStatusDownload, paramSearch, handleChangeItemPerPage, handleChangePage, handleChangeNextPage, handleUnAuthorisedAcc } = props
     const tradingModelPb: any = tspb;
     const [listTradeSortDate, setListTradeSortDate] = useState<IListTradeHistoryAPI[]>([])
-    const [totalItem, setTotalItem] = useState(10)
+    const [totalItem, setTotalItem] = useState(ITEM_PER_PAGE_SMALL)
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [loading, setLoading] = useState(false)
     const [isLastPage, setIsLastPage] = useState(false)
@@ -25,50 +25,43 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const teamCode = localStorage.getItem(TEAM_CODE) || ''
 
     useEffect(() => {
-        if (window.globalThis.flagRmsApi === 'true') {
-                    axios.post(urlTradeHistory, paramSearch, defindConfigPost()).then((resp) => {
-                        if (resp?.status === success) {
-                            const resultData = resp?.data?.results;
-                            const totalRecord = resp?.data?.count;
-                            const lastPage = resp?.data?.total_page
-                            handleUnAuthorisedAcc(false)
-                            setLoading(false)
+        axios.post(urlTradeHistory, paramSearch, defindConfigPost()).then((resp) => {
+            if (resp?.status === success) {
+                const dataResp = resp?.data?.data;
+                const resultData = dataResp.results;
+                const totalRecord = dataResp.count;
+                const lastPage = dataResp.total_page;
+                handleUnAuthorisedAcc(false);
+                setLoading(false);
 
-                            if(paramSearch.page === START_PAGE || paramSearch.page_size !== DEFAULT_ITEM_PER_PAGE) {
-                                const listTradeSort = resultData.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)))
-                                setListTradeSortDate(listTradeSort)
-                            } else {
-                                const tmpData = [
-                                    ...listTradeSortDate,
-                                    ...resultData
-                                ]
-                                const listTradeSort = tmpData.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)))
-                                setListTradeSortDate(listTradeSort)
-                            }
-
-                            //check lastPage
-                            if(paramSearch.page === lastPage) {
-                                setIsLastPage(true)
-                            }else {
-                                setIsLastPage(false)
-                            }
-
-                            // totalItem
-                            if(paramSearch.page_size < DEFAULT_ITEM_PER_PAGE) {
-                                setTotalItem(totalRecord)
-                            } else {
-                                setTotalItem(10)
-                            }
-                        }
-                    },
-                        (error: any) => {
-                            const msgCode = error.response.status
-                            if(msgCode === unAuthorised) {
-                                handleUnAuthorisedAcc(true)
-                                setListTradeSortDate([])
-                            }
-                    });
+                if(paramSearch.page === START_PAGE || paramSearch.page_size !== DEFAULT_ITEM_PER_PAGE) {
+                    const listTradeSort = resultData.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+                    setListTradeSortDate(listTradeSort);
+                } else {
+                    const tmpData = [
+                        ...listTradeSortDate,
+                        ...resultData
+                    ]
+                    const listTradeSort = tmpData.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
+                    setListTradeSortDate(listTradeSort);
                 }
+
+                //check lastPage
+                setIsLastPage(paramSearch.page === lastPage);
+
+                // totalItem
+                paramSearch.page_size < DEFAULT_ITEM_PER_PAGE ? setTotalItem(totalRecord) : setTotalItem(ITEM_PER_PAGE_SMALL)
+                
+            }
+        },
+            (error: any) => {
+                const msgCode = error.response.status
+                if(msgCode === unAuthorised) {
+                    handleUnAuthorisedAcc(true)
+                    setListTradeSortDate([])
+                }
+        });
+        
     }, [paramSearch])
 
     useEffect(() => {

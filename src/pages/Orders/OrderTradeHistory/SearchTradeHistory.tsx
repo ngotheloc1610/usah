@@ -6,7 +6,7 @@ import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDE
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
-import { IParamSearchComponentTradeHistory, IPropsSearchTradeHistory } from '../../../interfaces/order.interface';
+import { IParamSearchComponentTradeHistory, IPropsSearchTradeHistory, IRespListAccId, IDataListAcc } from '../../../interfaces/order.interface';
 import axios from 'axios';
 import { success, notFound } from '../../../constants';
 import { API_GET_ACCOUNT_BY_TEAM_CODE } from '../../../constants/api.constant';
@@ -28,7 +28,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const currentAccountId = localStorage.getItem(ACCOUNT_ID) || ''
     
     const [accountId, setAccountId] = useState(currentAccountId)
-    const [listAccId, setListAccId] = useState([])
+    const [listAccId, setListAccId] = useState<string[]>([])
     const teamCode = localStorage.getItem(TEAM_CODE) || ''
     
     const [isShowAccInputBox, setIsShowAccInputBox] = useState(false)
@@ -43,10 +43,10 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         const api_url = window.globalThis.apiUrl;
         const urlGetAccId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
         if(teamCode && teamCode !== 'null') {
-            axios.post(urlGetAccId, {}, defindConfigPost()).then((resp: any) => {
+            axios.post<IRespListAccId, IRespListAccId>(urlGetAccId, {}, defindConfigPost()).then((resp: IRespListAccId) => {
                 if(resp.status === success) {
                     setIsShowAccInputBox(true)
-                    const listAccId = resp.data.accountDetails.map(item => item.accountId )
+                    const listAccId = resp?.data?.data?.map(item => item.account_id )
                     setListAccId(listAccId)
                 }
                 if (resp.status === notFound) {
@@ -183,7 +183,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
         </div>
     )
     const handleChangeAccountId = (event:any , values: any) => {
-        values ? setAccountId(values.value) : setAccountId('*');
+        values ? setAccountId(values) : setAccountId('*');
     }
 
     const handleKeyUpAccountId = (event:any) => {
