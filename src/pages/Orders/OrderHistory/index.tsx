@@ -1,7 +1,7 @@
 import OrderHistorySearch from '../../../components/Orders/OrderSearch'
 import OrderTable from '../../../components/Orders/OrderTable'
 import * as tmpb from "../../../models/proto/trading_model_pb";
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, FORMAT_DATE, FROM_DATE_TIME, START_PAGE, TO_DATE_TIME } from '../../../constants/general.constant';
 import { IParamOrderHistory } from '../../../interfaces';
 import moment from 'moment';
@@ -72,17 +72,17 @@ const OrderHistory = () => {
         getDataOrderHistory(paramHistorySearch);
     }, [paramHistorySearch])
 
-    const handleSearch = (value: boolean) => {
+    const handleSearch = useCallback((value: boolean) => {
         setIsSearch(value);
-    }
+    }, [])
 
-    const handleDownLoad = (value: boolean) => {
+    const handleDownLoad = useCallback((value: boolean) => {
         setIsDownLoad(value);
-    }
+    }, [])
 
-    const resetListOrder = (value: IDataOrderHistory[]) => {
+    const resetListOrder = useCallback((value: IDataOrderHistory[]) => {
         setListOrderHistory(value);
-    }
+    }, [])
 
     const _renderOrderHistory = () => {
         return (

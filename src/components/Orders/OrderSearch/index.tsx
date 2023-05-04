@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { IDataOrderHistory, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -46,11 +46,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
 
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
-
-    const defaultAccountId = {
-        label: accountId,
-        value: accountId
-    }
+    
+    const defaultAccountId = useMemo(() => {
+        return {
+            label: accountId,
+            value: accountId
+        }
+    }, [])
 
     const prevParamSearch = useRef<IParamOrderHistory>();
 
@@ -335,4 +337,4 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 }
 
-export default OrderHistorySearch
+export default React.memo(OrderHistorySearch)

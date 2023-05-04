@@ -3,7 +3,7 @@ import {formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber 
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
@@ -307,4 +307,4 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 }
 
-export default OrderTable
+export default React.memo(OrderTable)
