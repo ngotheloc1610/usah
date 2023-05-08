@@ -1,4 +1,4 @@
-import { IParamHistorySearch } from ".";
+import { IMeta, IParamHistorySearch, IParamOrderHistory } from ".";
 
 export interface ITickerInfo {
     symbolId: number;
@@ -66,11 +66,23 @@ export interface IOrderBook {
     bidPrice: string;
 }
 
+// export interface IPropListOrderHistory {
+//     listOrderHistory: IOrderHistory[];
+//     paramHistorySearch: IParamHistorySearch;
+//     isDownLoad: boolean;
+//     getDataOrderHistory: (params: IParamHistorySearch) => void;
+//     resetFlagDownload: (isDownload: boolean) => void;
+// }
 export interface IPropListOrderHistory {
-    listOrderHistory: IOrderHistory[];
-    paramHistorySearch: IParamHistorySearch;
+    listOrderHistory: IDataOrderHistory[];
+    paramHistorySearch: IParamOrderHistory;
+    setParamHistorySearch: (params: IParamOrderHistory) => void;
     isDownLoad: boolean;
     resetFlagDownload: (isDownload: boolean) => void;
+    isSearch: boolean;
+    resetFlagSearch: (isSearch: boolean) => void;
+    totalItem: number;
+    isLastPage: boolean;
 }
 
 export interface IPropListTradeHistory {
@@ -640,6 +652,28 @@ export interface IDataHistory {
     executedDateTime: string;
 }
 
+export interface IDataOrderHistory {
+    id:number;
+    order_id: string;
+    external_order_id: string;
+    account_id: string;
+    poem_id: string;
+    symbol_code: string;
+    submitted_id: string;
+    order_type: string;
+    order_side: string;
+    order_status: string;
+    price: number;
+    volume: number;
+    currency_code: string;
+    exec_price: number;
+    exec_volume: number;
+    exec_time: number;
+    order_time: number;
+    msg_code: string;
+    withdraw_amount: number;
+    comment: string;
+}
 
 export interface IDataHistoryDownload {
     orderNo: string;
@@ -657,6 +691,7 @@ export interface IDataHistoryDownload {
     orderDateTime: string;
     executedDateTime: string;
     comment: string;
+    accountId?: string;
 }
 
 export interface ITradeHistoryDownload {

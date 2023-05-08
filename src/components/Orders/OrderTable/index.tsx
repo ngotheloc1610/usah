@@ -1,9 +1,9 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, ORDER_TYPE_NAME, SIDE, START_PAGE, STATE } from "../../../constants/general.constant";
-import { calcPendingVolume, formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber } from "../../../helper/utils";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
+import {formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IOrderHistory, IDataHistoryDownload } from "../../../interfaces/order.interface";
-import { useEffect, useState } from "react";
+import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
+import React, { useEffect, useState } from "react";
 import ModalMatching from "../../Modal/ModalMatching";
 import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
@@ -11,50 +11,63 @@ import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../c
 import { toast } from "react-toastify";
 
 function OrderTable(props: IPropListOrderHistory) {
-    const { listOrderHistory, paramHistorySearch, isDownLoad, resetFlagDownload } = props;
+    const { listOrderHistory,
+        paramHistorySearch,
+        isDownLoad,
+        resetFlagDownload,
+        setParamHistorySearch,
+        isSearch, 
+        resetFlagSearch, 
+        totalItem,
+        isLastPage
+    } = props;
+
     const tradingModelPb: any = tspb;
+    const systemModelPb: any = stpb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
-    const [showModalDetail, setShowModalDetail] = useState(false)
+
+    const [showModalDetail, setShowModalDetail] = useState(false);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
-    const [totalItem, setTotalItem] = useState<number>(0);
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
-    const [dataCurrent, setDataCurrent] = useState<IOrderHistory[]>([]);
-    const [dataDownload, setDataDownload] = useState<IOrderHistory[]>([]);
+    const [dataCurrent, setDataCurrent] = useState<IDataOrderHistory[]>([]);
+    const [dataDownload, setDataDownload] = useState<IDataOrderHistory[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const systemModelPb: any = stpb;
-    
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+
     useEffect(() => {
-        let historySortDate: IOrderHistory[] = listOrderHistory.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
-        if (paramHistorySearch.symbolCode) {
-            historySortDate = historySortDate.filter(item => item.symbolCode === paramHistorySearch.symbolCode);
-        }
-        if (paramHistorySearch.orderState > 0) {
-            // TODO: ORDER_STATE_PARTIAL and ORDER_STATE_MATCHED show name as 'Partially done'.
-            if (paramHistorySearch.orderState === tradingModelPb.OrderState.ORDER_STATE_PARTIAL) {
-                historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState ||
-                    item.state === tradingModelPb.OrderState.ORDER_STATE_MATCHED)
-            } else {
-                historySortDate = historySortDate.filter(item => item.state === paramHistorySearch.orderState);
+        let historySortDate: IDataOrderHistory[] = listOrderHistory?.sort((a, b) => (b.order_time?.toString())?.localeCompare(a.order_time?.toString()));
+        setDataDownload(historySortDate);
+        setDataCurrent(historySortDate);
+        setIsLoading(false);
+    }, [listOrderHistory]);
+
+    const handleScrollToTop =  () => {
+        const tableElement = document.getElementById("table-order");
+        tableElement?.scrollTo({top: 0, behavior: "smooth"});
+    }
+
+    useEffect(() => {
+        if(isSearch){
+            setCurrentPage(START_PAGE);
+            handleScrollToTop();
+        } 
+        // after search, reset flag = false
+        if(resetFlagSearch) resetFlagSearch(false);
+    }, [isSearch])
+
+    const handleScroll = (e: any) => {
+        if(paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
+            if(e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
+                setIsLoading(true);
+                setParamHistorySearch({
+                    ...paramHistorySearch,
+                    page: paramHistorySearch.page + 1
+                })
             }
         }
-        if (paramHistorySearch.orderSide > 0) {
-            historySortDate = historySortDate.filter(item => item.side === paramHistorySearch.orderSide);
-        }
-
-        if (paramHistorySearch.orderType !== tradingModelPb.OrderType.OP_NONE) {
-            historySortDate = historySortDate.filter(item => item.orderType === paramHistorySearch.orderType);
-        }
-
-        setDataDownload(historySortDate);
-        setTotalItem(historySortDate.length);
-        const currentList = renderCurrentList(currentPage, itemPerPage, historySortDate);
-        setDataCurrent(currentList);
-    }, [listOrderHistory, itemPerPage, currentPage]);
-
-    useEffect(() => {
-        setCurrentPage(START_PAGE);
-    }, [paramHistorySearch])
+    }
 
     useEffect(() => {
         if (isDownLoad) {
@@ -63,23 +76,45 @@ function OrderTable(props: IPropListOrderHistory) {
             if (dataDownload?.length > 0) {
                 dataDownload.forEach(item => {
                     if (item) {
-                        data.push({
-                            orderNo: item?.externalOrderId,
-                            tickerCode: item?.symbolCode,
-                            tickerName: getTickerName(item?.symbolCode),
-                            orderSide: getSideName(item.side) || '',
-                            orderStatus: getStateName(item.state) || '',
-                            orderType: ORDER_TYPE.get(item.orderType) || '',
-                            orderVolume: convertNumber(item.amount),
-                            remainingVolume: convertNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString()),
-                            executedVolume: convertNumber(item.filledAmount),
-                            orderPrice: formatCurrency(item.price),
-                            lastPrice: convertNumber(item.lastPrice) > 0 ? formatCurrency(item.lastPrice) : '-',
-                            withdrawQuantity: item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-',
-                            orderDateTime: formatOrderTime(item.time),
-                            executedDateTime: formatOrderTime(item.time),
-                            comment: getMessageDisplay(item.msgCode, item.state, item.comment)
-                        });
+                        if(teamCode !== "null"){
+                            data.push({
+                                accountId: item.account_id,
+                                orderNo: item?.external_order_id,
+                                tickerCode: item?.symbol_code,
+                                tickerName: getTickerName(item?.symbol_code),
+                                orderSide: getSideName(convertNumber(item.order_side)) || '',
+                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
+                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
+                                orderVolume: item.volume,
+                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
+                                executedVolume: item.exec_volume,
+                                orderPrice: formatCurrency(item.price.toString()),
+                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
+                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
+                                orderDateTime: formatOrderTime(item.order_time),
+                                executedDateTime: formatOrderTime(item.exec_time),
+                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
+                            });
+                        }else{
+                            data.push({
+                                orderNo: item?.external_order_id,
+                                tickerCode: item?.symbol_code,
+                                tickerName: getTickerName(item?.symbol_code),
+                                orderSide: getSideName(convertNumber(item.order_side)) || '',
+                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
+                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
+                                orderVolume: item.volume,
+                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
+                                executedVolume: item.exec_volume,
+                                orderPrice: formatCurrency(item.price.toString()),
+                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
+                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
+                                orderDateTime: formatOrderTime(item.order_time),
+                                executedDateTime: formatOrderTime(item.exec_time),
+                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
+                            });
+                        }
+                        
                     }
                 });
                 exportCSV(data, `orderHistory_${dateTimeCurrent}`);
@@ -97,10 +132,21 @@ function OrderTable(props: IPropListOrderHistory) {
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
         setCurrentPage(START_PAGE);
+        setParamHistorySearch({
+            ...paramHistorySearch,
+            page: START_PAGE,
+            page_size: item
+        })
+        handleScrollToTop();
     }
 
     const getCurrentPage = (item: number) => {
         setCurrentPage(item);
+        setParamHistorySearch({
+            ...paramHistorySearch,
+            page: item,
+        })
+        handleScrollToTop();
     }
 
     const getTickerName = (symbolCode: string) => {
@@ -119,10 +165,10 @@ function OrderTable(props: IPropListOrderHistory) {
         setShowModalDetail(isShowDetail);
     }
 
-    const checkDisplayLastUpdatedTime = (item: IOrderHistory) => {
-        const isCheckItemFilledAmount = convertNumber(item.filledAmount) > 0;
-        const isOrderReceived = item.state === tradingModelPb.OrderState.ORDER_STATE_PLACED;
-        if ((getStateName(item?.state) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && !isCheckItemFilledAmount)) {
+    const checkDisplayLastUpdatedTime = (item: IDataOrderHistory) => {
+        const isCheckItemFilledAmount = convertNumber(item.exec_volume) > 0;
+        const isOrderReceived = convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_PLACED;
+        if ((getStateName(convertNumber(item.order_status)) === STATE[0].name && !isCheckItemFilledAmount) || (isOrderReceived && !isCheckItemFilledAmount)) {
             return false;
         }
         return true;
@@ -141,7 +187,8 @@ function OrderTable(props: IPropListOrderHistory) {
         return MESSAGE_ERROR.get(msgCode) || '-';
     }
 
-    const calcRemainQty = (state: number, execQty: string, originQty: string) => {
+    const calcRemainQty = (state: number, execQty: number, originQty: number) => {
+        
         switch (state) {
             case tradingModelPb.OrderState.ORDER_STATE_CANCELED:
             case tradingModelPb.OrderState.ORDER_STATE_REJECTED:
@@ -156,6 +203,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
+            {teamCode !== "null" && <th className="text-ellipsis-sp fz-14 w-120">Account Id</th>}
             <th className="text-ellipsis-sp fz-14 w-180">Order No</th>
             <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
             <th className="text-center fz-14 w-120" >Order Side</th>
@@ -182,39 +230,40 @@ function OrderTable(props: IPropListOrderHistory) {
     const _renderOrderHistoryTableBody = () => (
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
-                <td className="w-180"><span className="text-ellipsis fm">{item.externalOrderId}</span></td>
+                {teamCode !== "null" && <td className="w-120"><span className="text-ellipsis fm">{item.account_id}</span></td>}
+                <td className="w-180"><span className="text-ellipsis fm">{item.external_order_id}</span></td>
                 <td className="text-ellipsis text-start w-110">
-                    <div title={getTickerName(item?.symbolCode)}>{item?.symbolCode}</div>
+                    <div title={getTickerName(item?.symbol_code)}>{item?.symbol_code}</div>
                 </td>
                 <td className="text-center w-120">
-                    <span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span>
+                    <span className={`${convertNumber(item.order_side) === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(convertNumber(item.order_side))}</span>
                 </td>
 
                 <td className="text-start w-120">
-                    <span className={`${item.state === statusPlace && 'text-info'}`}>{getStateName(item.state)}</span>
+                    <span className={`${convertNumber(item.order_status) === statusPlace && 'text-info'}`}>{getStateName(convertNumber(item.order_status))}</span>
                 </td>
 
-                <td className="text-center w-120">{ORDER_TYPE.get(item.orderType)}</td>
+                <td className="text-center w-120">{ORDER_TYPE.get(convertNumber(item.order_type))}</td>
 
                 <td className="text-ellipsis text-end w-140">
-                    <div>{formatNumber(item.amount)}</div>
-                    <div>{formatNumber(calcRemainQty(item.state, item.filledAmount, item.amount).toString())}</div>
+                    <div>{formatNumber(item.volume.toString())}</div>
+                    <div>{formatNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString())}</div>
                 </td>
 
-                <td className="text-end w-120">{formatNumber(item.filledAmount)}</td>
+                <td className="text-end w-120">{formatNumber(item.exec_volume?.toString())}</td>
 
                 <td className="text-ellipsis text-end w-120">
-                    <div className="">{formatCurrency(item.price)}</div>
-                    <div>{(convertNumber(item?.lastPrice) > 0 && convertNumber(item?.filledAmount)) ? formatCurrency(item?.lastPrice) : '-'}</div>
+                    <div className="">{formatCurrency(item.price.toString())}</div>
+                    <div>{(item?.exec_price > 0 && item?.exec_volume) ? formatCurrency(item?.exec_price.toString()) : '-'}</div>
                 </td>
-                <td className="text-end">{item.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdrawAmount) : '-'}</td>
+                <td className="text-end">{convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-'}</td>
                 <td className="td w-200 text-center">
-                    <div>{formatOrderTime(item.time)}</div>
-                    {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.executedDatetime))}</div>}
+                    <div>{formatOrderTime(item.order_time)}</div>
+                    {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.exec_time))}</div>}
                     {!checkDisplayLastUpdatedTime(item) && <div >-</div>}
                 </td>
 
-                <td className="text-start fz-14 w-200">{getMessageDisplay(item.msgCode, item.state, item.comment)}</td>
+                <td className="text-start fz-14 w-200">{getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)}</td>
 
             </tr>
         ))
@@ -228,8 +277,15 @@ function OrderTable(props: IPropListOrderHistory) {
                         <thead>
                             {_renderOrderHistoryTableHeader()}
                         </thead>
-                        <tbody>
+                        <tbody id="table-order" onScroll={handleScroll}>
                             {_renderOrderHistoryTableBody()}
+                            {isLoading && (
+                                <tr className="text-center">
+                                    <td className="spinner-border spinner-border-sm" role="status">
+                                        <span className="sr-only"></span>
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -251,4 +307,4 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 }
 
-export default OrderTable
+export default React.memo(OrderTable)

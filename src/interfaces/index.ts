@@ -57,6 +57,7 @@ export interface IDataChangePasswordRequest {
     new_password: string;
   };
 }
+
 export interface IParamHistorySearch {
   symbolCode: string;
   orderState: number;
@@ -64,6 +65,18 @@ export interface IParamHistorySearch {
   fromDate: number;
   toDate: number;
   orderType: number;
+}
+
+export interface IParamOrderHistory {
+  page: number;
+  page_size: number;
+  symbol_code: string;
+  order_state: number;
+  order_side: number;
+  order_type: number;
+  from_time: number;
+  to_time: number;
+  account_id: string;
 }
 
 export interface IClientHoldingInfoReq {
@@ -77,4 +90,9 @@ export interface IClientHoldingInforData {
   symbol: string;
   symbolsfx: string;
   ownQty: number;
+}
+
+export interface IAccountID {
+  label: string;
+  value: string;
 }

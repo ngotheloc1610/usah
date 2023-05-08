@@ -568,7 +568,6 @@ a{
     .pl-30{
         padding-left: 4px !important;
     }
-
 }
 .dataTables_length{
     margin-right: 50px;
@@ -624,10 +623,19 @@ table.tableBodyScroll tbody {
     table-layout: fixed;
   }
 
-.ticker-input{
-    background-color: #fff;
+.ticker-input,
+.account-input{
+    background-color: #fff !important;
+    input{
+        margin-right: 20%;
+    }
 }
 
 .mg-right-24 {
     margin-right: 24px;
 }
+
+#table-order {
+    max-height: 430px;
+}
+

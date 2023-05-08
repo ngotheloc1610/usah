@@ -1,4 +1,4 @@
-import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid, IStyleBidsAsk, IParamOrderModifyCancel } from "../interfaces/order.interface";
+import { ITickerInfo, IHistorySearchStatus, ILastQuote, ISymbolInfo, IAskAndBidPrice, IListAskBid, IStyleBidsAsk, IParamOrderModifyCancel, IDataOrderHistory } from "../interfaces/order.interface";
 import { IReportList } from "../interfaces/report.interface"
 import { INewsNav, INotificationList, INotificationDetail, INews, } from "../interfaces/news.interface"
 import * as tdpb from '../models/proto/trading_model_pb';
