@@ -58,6 +58,7 @@ export interface IParamOrderModifyCancel {
     side: number;
     confirmationConfig: boolean;
     tickerId: string;
+    uid?: number
 }
 
 export interface IOrderBook {
@@ -160,7 +161,7 @@ export interface IListOrderMonitoring {
     time: number;
     tp: string;
     triggerPrice: string;
-    uid: string;
+    uid: number;
     filledAmount: string;
     isChecked?: boolean;
     orderSideChange?: number;
@@ -194,7 +195,7 @@ export interface IListOrderModifyCancel {
     time: number;
     tp: string;
     triggerPrice: string;
-    uid: string;
+    uid: number;
     filledAmount: string;
     isChecked?: boolean;
     orderSideChange?: number;

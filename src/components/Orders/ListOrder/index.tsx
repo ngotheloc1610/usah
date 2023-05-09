@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN } from "../../../constants/general.constant";
+import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -46,6 +46,7 @@ const ListOrder = (props: IPropsListOrder) => {
     })
 
     const accountId = localStorage.getItem(ACCOUNT_ID) || ''
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
 
     const stateSortDefault = {
         feild: 'date',
@@ -334,6 +335,7 @@ const ListOrder = (props: IPropsListOrder) => {
             side: item.side,
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
+            uid: item.uid
         }
         setParamModifyCancel(param);
         setIsModify(true);
@@ -351,6 +353,7 @@ const ListOrder = (props: IPropsListOrder) => {
             side: item.side,
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
+            uid: item.uid
         }
         setParamModifyCancel(param)
         setIsCancel(true)
@@ -573,9 +576,11 @@ const ListOrder = (props: IPropsListOrder) => {
                                 checked={selectedList.length === dataOrder.length && dataOrder.length > 0}
                             />
                         </th>
-                        <th className="sorting_disabled">
-                            <span className="text-ellipsis">Account ID</span>
-                        </th>
+                        {teamCode && teamCode !== 'null' && (
+                            <th className="sorting_disabled">
+                                <span className="text-ellipsis">Account ID</span>
+                            </th>
+                        )}
                         <th className="sorting_disabled">
                             <span className="text-ellipsis">Order No</span>
                         </th>
@@ -638,7 +643,9 @@ const ListOrder = (props: IPropsListOrder) => {
                                 id="all" />
                         </div>
                     </td>
-                    <td className="fm">{item.uid}</td>
+                    {teamCode && teamCode !== 'null' && (
+                        <td className="fm">{item.uid}</td>
+                    )}
                     <td className="fm">{item.externalOrderId}</td>
                     <td title={getTicker(item.symbolCode)?.symbolName}>{getTicker(item.symbolCode)?.symbolCode}</td>
                     <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
