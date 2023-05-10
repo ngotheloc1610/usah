@@ -310,3 +310,5 @@ export const LIST_OPTION_PAGINATION = [
 export const ROLE_TEAM_LEAD = 'leader';
 
 export const GET_DATA_ALL_ACCOUNT = '*';
+
+export const ITEM_PER_PAGE_SMALL = 10

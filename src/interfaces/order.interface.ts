@@ -755,3 +755,16 @@ export interface IOrderPortfolio {
     totalSellVolume: number;
     unrealizedPl: string;
 }
+
+export interface IDataListAcc {
+    account_id: string;
+}
+
+export interface IRespListAccId {
+    config: string;
+    data: {
+        meta: IMeta;
+        data: IDataListAcc[];
+    }
+    status: number;
+}
