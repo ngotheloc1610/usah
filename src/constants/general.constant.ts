@@ -285,7 +285,7 @@ export const SORT_MONITORING_SCREEN = 'sort_monitor_screen';
 
 export const SORT_MODIFY_CANCEL_SCREEN = 'sort_modify_cancel_screen';
 
-export const LIST_OPTION_PAGINATION = [
+export const LIST_OPTION_PAGINATION_FULL = [
     {
         title: "10",
         value: 10
@@ -305,6 +305,25 @@ export const LIST_OPTION_PAGINATION = [
     {
         title: "All",
         value: 150
+    },
+]
+
+export const LIST_OPTION_PAGINATION = [
+    {
+        title: "10",
+        value: 10
+    },
+    {
+        title: "25",
+        value: 25
+    },
+    {
+        title: "50",
+        value: 50
+    },
+    {
+        title: "100",
+        value: 100
     },
 ]
 export const ROLE_TEAM_LEAD = 'leader';

@@ -203,6 +203,23 @@ export interface IListOrderModifyCancel {
     priceChange?: string;
 }
 
+export interface IListPendingOrder {
+    id: number,
+    order_id: string,
+    external_order_id: string,
+    account_id: string,
+    symbol_code: string,
+    submitted_id: string,
+    order_type: number,
+    order_side: number,
+    price: number,
+    volume: number,
+    currency_code: string,
+    exec_price: number,
+    exec_volume: number,
+    exec_time: number
+}
+
 export interface ISymbolMultiOrder {
     no: string;
     orderSide: string;

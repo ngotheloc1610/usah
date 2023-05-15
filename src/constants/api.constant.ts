@@ -26,3 +26,5 @@ export const API_CHANGE_TEAM_PASSWORD = '/v1/auth/lp/teams/change-password';
 export const API_TRADE_HISTORY = '/v1/market/lp/trades/history';
 
 export const API_GET_ACCOUNT_BY_TEAM_CODE = '/v1/auth/lp/teams/accounts'
+
+export const API_GET_PENDING_ORDER = "/v1/market/lp/orders/pending"

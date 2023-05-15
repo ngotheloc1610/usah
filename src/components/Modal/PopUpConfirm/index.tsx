@@ -175,7 +175,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const checkShowInputTeamPW = () => {
         const checkTeamCode = teamCode && teamCode !== 'null'
         const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
-        return checkTeamCode && idx > 0
+        return checkTeamCode && idx >= 0
     }
 
     return <>

@@ -1,4 +1,4 @@
-import { LIST_OPTION_PAGINATION } from '../constants/general.constant';
+import { LIST_OPTION_PAGINATION, LIST_OPTION_PAGINATION_FULL } from '../constants/general.constant';
 import { convertNumber } from '../helper/utils';
 import '../pages/Orders/OrderHistory/orderHistory.scss'
 import Pagination from "react-js-pagination";
@@ -8,10 +8,11 @@ interface IPropsPagination {
     currentPage: number;
     getItemPerPage: (item: number) => void;
     getCurrentPage: (item: number) => void;
+    isShowAllRecord?: boolean;
 }
 
 function PaginationComponent(props: IPropsPagination) {
-    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage } = props;
+    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage, isShowAllRecord } = props;
 
     const handleChangePage = (pageNumber: number) => {
         // avoid set page when current page dont change value
@@ -28,9 +29,15 @@ function PaginationComponent(props: IPropsPagination) {
                         value={itemPerPage}
                         onChange={(event) => getItemPerPage(convertNumber(event.target.value))}
                     >
-                        {LIST_OPTION_PAGINATION.map((item, index) => {
-                            return <option value={item.value} key={index}>{item.title}</option>
-                        })}
+                        {
+                        isShowAllRecord
+                            ? LIST_OPTION_PAGINATION_FULL.map((item, index) => {
+                                return <option value={item.value} key={index}>{item.title}</option>
+                            }) :
+                            LIST_OPTION_PAGINATION.map((item, index) => {
+                                return <option value={item.value} key={index}>{item.title}</option>
+                            }) 
+                        }
                     </select>
                     entries
                 </label>

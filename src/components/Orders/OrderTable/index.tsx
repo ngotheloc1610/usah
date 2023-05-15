@@ -290,7 +290,7 @@ function OrderTable(props: IPropListOrderHistory) {
                     </table>
                 </div>
                 <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
-                    getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+                    getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage} isShowAllRecord={true}
                 />
                 {/* {dataCurrent.length > 0 && <p className="text-end border-top pt-3">
                     <a className="btn btn-success text-white ps-4 pe-4" onClick={handleDownload}><i className="bi bi-cloud-download"></i> Download</a>
