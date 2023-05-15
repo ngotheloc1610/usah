@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
-import { IListOrderMonitoring, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import { IListOrderMonitoring, IParamOrderModifyCancel, IListOrderApiRes } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as psbp from "../../../models/proto/pricing_service_pb";
-import { formatNumber, sortDateTime, sortPrice, sortSide, sortTicker } from "../../../helper/utils";
+import { formatNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
@@ -16,6 +16,9 @@ import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
+import axios from "axios";
+import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
+import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from "../../../constants/general.constant";
 interface IPropsListOrder {
     getMsgSuccess: string;
     setMessageSuccess: (item: string) => void;
@@ -101,16 +104,62 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [isSortDateTime, isSortPrice, isSortSide, isSortTicker, isSideAsc, isTickerAsc, isDateTimeAsc, isPriceAsc])
 
     useEffect(() => {
+        const api_url = window.globalThis.apiUrl;
+        const urlGetPendingOrder = `${api_url}${API_GET_PENDING_ORDER}`;
+        const param = {
+            account_id: GET_DATA_ALL_ACCOUNT,
+            page: START_PAGE,
+            page_size: PAGE_SIZE_GET_ALL_ORDER_LIST,
+            order_side: 0,
+            order_type: 0,
+            symbol_code: ''
+        }
+        axios.post(urlGetPendingOrder, param, defindConfigPost()).then((resp) => {
+            const resData : IListOrderApiRes[] = resp.data.results
+            const tmp: IListOrderMonitoring[] = []
+            resData.forEach((item: IListOrderApiRes) => {
+                const tmpData: IListOrderMonitoring = {
+                    externalOrderId: item.external_order_id,
+                    amount: item.volume.toString(),
+                    entry: '',
+                    executeMode: '',
+                    expireTime: '',
+                    fee: '',
+                    note: '',
+                    orderFilling: '', 
+                    orderId: item.order_id,
+                    orderMode: 0,
+                    orderTime: 0,
+                    orderType: item.order_type,
+                    pl: '',
+                    price: item.price.toString(),
+                    reason: '',
+                    route: '',
+                    side: item.order_side,
+                    sl: '',
+                    slippage: '',
+                    state: '1',
+                    swap: '',
+                    symbolCode: item.symbol_code,
+                    time: item.exec_time ,
+                    tp: '',
+                    triggerPrice: '',
+                    uid: convertNumber(item.account_id),
+                    filledAmount: item.exec_volume.toString(),
+                }
+                tmp.push(tmpData)
+            })
+            setDataOrder(tmp)
+        })
+    }, [])
+
+    useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
                 sendListOrder();
             }
         });
 
-        const listOrder = wsService.getListOrder().subscribe(response => {
-            const dataResp = response.orderList
-            processSortData(dataResp)
-        });
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
             setOrderEventList(resp.orderList);
@@ -118,7 +167,6 @@ const ListOrder = (props: IPropsListOrder) => {
 
         return () => {
             ws.unsubscribe();
-            listOrder.unsubscribe();
             orderEvent.unsubscribe();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
