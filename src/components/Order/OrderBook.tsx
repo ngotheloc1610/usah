@@ -1,4 +1,4 @@
-import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH_DASHBOARD } from "../../constants/general.constant"
+import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH_DASHBOARD, MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { DEFAULT_DATA_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
@@ -95,7 +95,8 @@ const OrderBook = (props: IOrderBookProps) => {
     const renderAskList = (quote: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = quote.asksList;
         let arr: IAskAndBidPrice[] = [];
-        const markerDepthLenght = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD
+        const marketDepthDashboard = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD;
+        const markerDepthLenght = isDashboard ? marketDepthDashboard : MARKET_DEPTH_LENGTH;
         let counter = markerDepthLenght - 1;
         while (counter >= 0) {
             if (askItems[counter]) {
@@ -141,7 +142,8 @@ const OrderBook = (props: IOrderBookProps) => {
         let bidItems: IAskAndBidPrice[] = quote.bidsList;
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
-        const markerDepthLenght = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD
+        const marketDepthDashboard = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD;
+        const markerDepthLenght = isDashboard ? marketDepthDashboard : MARKET_DEPTH_LENGTH;
         while (counter < markerDepthLenght) {
             if (bidItems[counter]) {
                 arr.push({
