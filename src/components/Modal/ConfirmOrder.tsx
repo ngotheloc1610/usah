@@ -139,8 +139,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
-    const prepareMessageModify = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageModify = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
@@ -163,7 +162,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -248,8 +247,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessageCancel = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageCancel = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
@@ -268,7 +266,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -287,10 +285,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const sendOrder = () => {
+    const sendOrder = (param: IParamOrderModifyCancel) => {
+        const uid = param.uid?.toString() || ''
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
-            prepareMessageCancel(accountId);
+            prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
                 handleOrderCancelId(params?.orderId || '');
             }
@@ -308,7 +307,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
                 return;
             }
-            prepareMessageModify(accountId);
+            prepareMessageModify(accountId, uid);
         } else {
             callSigleOrderRequest(accountId);
         }
@@ -561,7 +560,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={disablePlaceOrder()}>
+                        <Button className='w-px-150' variant="primary" onClick={() => sendOrder(params)} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>
@@ -571,7 +570,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
                             DISCARD
                         </Button>
-                        <Button variant="primary" onClick={sendOrder}
+                        <Button variant="primary" onClick={() => sendOrder(params)}
                             disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
                             CONFIRM
                         </Button>
