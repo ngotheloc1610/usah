@@ -109,7 +109,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     }
 
     const prepareMessageCancelAll = (accountId: string) => {
-        const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
@@ -132,14 +131,14 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setOrderId(item.orderId);
                 order.setAmount(`${item.amount}`);
                 order.setPrice(`${item.price}`);
-                order.setUid(uid);
+                order.setUid(item.uid);
                 order.setSymbolCode(item.symbolCode);
                 order.setOrderType(item.orderType);
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                 order.setSide(item.side);
-                order.setSubmittedId(uid);
+                order.setSubmittedId(accountId);
 
                 if(flagMsgCode) {
                     order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -220,7 +219,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                     DISCARD
                 </Button>
                 {/* TODO: Need flag ON/OFF to check password team */}
-                <Button variant="primary" disabled={_disableBtnConfirm()} onClick={sendRes}>
+                <Button variant="primary" disabled={_disableBtnConfirm()} onClick={() => sendRes()}>
                     CONFIRM
                 </Button>
             </Modal.Footer>
