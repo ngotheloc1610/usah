@@ -785,3 +785,20 @@ export interface IRespListAccId {
     }
     status: number;
 }
+
+export interface IListOrderApiRes {
+    account_id: string;
+    currency_code: string;
+    exec_price: number;
+    exec_time: number;
+    exec_volume: number;
+    external_order_id: string;
+    id: number;
+    order_id: string;
+    order_side: number;
+    order_type: number;
+    price: number;
+    submitted_id: string;
+    symbol_code: string;
+    volume: number;
+}

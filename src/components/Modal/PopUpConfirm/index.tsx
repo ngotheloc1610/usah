@@ -166,7 +166,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const _disableBtnConfirm = () => {
         const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
-        if(idx > 0) {
+        if(idx >= 0) {
             return teamPassword === ''
         } 
         return isDisableConfirmBtn

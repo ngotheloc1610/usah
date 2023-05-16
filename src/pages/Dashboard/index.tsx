@@ -372,23 +372,21 @@ const Dashboard = () => {
             <div className="container">
                 {setGeneralTemplate()}
                 <div className="row">
-                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 ">
+                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
                         <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />
                     </div>
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-2 mb-3">
-                        <div className="max-height-72">
-                            <OrderBook isDashboard={isDashboard}
-                                listDataTicker={handleSymbolList}
-                                itemTickerSearch={handleTickerSearch}
-                                listTickerSearch={listTickerSearch}
-                                tickerDetailLastQuote={getPriceOrder}
-                                symbolCode={symbolCode}
-                                handleSide={getSide}
-                            />
-                        </div>
+                        <OrderBook isDashboard={isDashboard}
+                            listDataTicker={handleSymbolList}
+                            itemTickerSearch={handleTickerSearch}
+                            listTickerSearch={listTickerSearch}
+                            tickerDetailLastQuote={getPriceOrder}
+                            symbolCode={symbolCode}
+                            handleSide={getSide}
+                        />
                     </div>
-                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3">
-                        <div className="card flex-grow-1 h-94">
+                    <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-3 mb-3">
+                        <div className="card flex-grow-1">
                             <div className="card-header">
                                 <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
                             </div>
