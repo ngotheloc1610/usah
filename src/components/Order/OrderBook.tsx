@@ -184,7 +184,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderHeaderOrderBook = () => (
         ORDER_BOOK_HEADER.map((item: string, index: number) => (
             <th className="text-uppercase text-center" key={index}>
-                <span className="text-ellipsis lh-base">{item.split(' ')[0]}<br />{item.split(' ')[1]}</span>
+                <span className="text-ellipsis lh-base fs-13">{item.split(' ')[0]}<br />{item.split(' ')[1]}</span>
             </th>
         ))
     )
@@ -244,8 +244,8 @@ const OrderBook = (props: IOrderBookProps) => {
         <>
             {!isDashboard && _renderTilte()}
             {isDashboard && _renderSearchBox()}
-            <div className="text-uppercase small text-secondary mb-4">
-                <div className="table-responsive border border-1">
+            <div className="text-uppercase small text-secondary">
+                <div className="table-responsive border border-1 max-height-66">
                     <table cellPadding="0" cellSpacing="0" className="table border table-sm mb-0">
                         <thead>
                             <tr className="align-middle">
