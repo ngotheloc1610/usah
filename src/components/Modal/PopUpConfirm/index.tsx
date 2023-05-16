@@ -34,6 +34,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const [isDisableConfirmBtn, setIsDisableConfirmBtn] = useState(false);
     const [teamPassword, setTeamPassword] = useState('');
+    const [isHiddenPassword, setIsHiddenPassword] = useState(true);
 
     const debugLogFlag = window.globalThis.debugLogFlag;
 
@@ -199,12 +200,16 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             {checkShowInputTeamPW() && (
                 <div className='mt-2 d-flex px-3 mt-1'>
                     <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamCode}</b></div>
-                    <div className='ms-3 w-50'>
-                        <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
-                            value={teamPassword} type='password' 
+                    <div className='ms-3 w-50 position-relative'>
+                        <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass'
+                            value={teamPassword}
+                            type={isHiddenPassword ? 'password' : 'text'}
                             onChange={handleTeamPassword}
                             placeholder='Password' 
                             autoComplete='new-password'
+                        />
+                        <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 cf-pw-icon`} 
+                            onClick={() => setIsHiddenPassword(!isHiddenPassword)}
                         />
                     </div>
                 </div>
