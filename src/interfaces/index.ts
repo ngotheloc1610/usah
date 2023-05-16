@@ -79,6 +79,22 @@ export interface IParamOrderHistory {
   account_id: string;
 }
 
+export interface IParamPendingOrder {
+  page: number;
+  page_size: number;
+  symbol_code: string;
+  order_side: number;
+  order_type: number;
+  account_id: string;
+}
+
+export interface IParamSearchPendingOrder {
+  symbol_code: string;
+  order_side: number;
+  order_type: number;
+  account_id: string;
+}
+
 export interface IClientHoldingInfoReq {
   data: {
     meta: IMeta;

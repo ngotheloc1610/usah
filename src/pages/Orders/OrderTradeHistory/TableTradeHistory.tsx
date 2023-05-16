@@ -205,7 +205,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             </div>
             <PaginationComponent totalItem={totalItem} itemPerPage={paramSearch.page_size || DEFAULT_ITEM_PER_PAGE} 
                 currentPage={paramSearch.page_size === DEFAULT_ITEM_PER_PAGE ? 1 : paramSearch.page}
-                getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+                getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage} isShowAllRecord={true}
             />
         </div>
     )
