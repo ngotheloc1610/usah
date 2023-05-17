@@ -76,12 +76,17 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handleSearch = () => {
-        fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
+        // In case from/to time is not selected (clear)
+        // value will be current date time
+        const currentDate = moment().format(FORMAT_DATE);
+        const fromTime = fromDatetime || convertDatetoTimeStamp(currentDate, FROM_DATE_TIME)
+        const toTime = toDatetime || convertDatetoTimeStamp(currentDate, TO_DATE_TIME)
+        fromTime > toTime ? setIsErrorDate(true) : setIsErrorDate(false);
         const param: IParamSearchComponentTradeHistory= {
             order_side: side,
             symbol_code: symbolCode,
-            from_time: fromDatetime,
-            to_time: toDatetime,
+            from_time: fromTime,
+            to_time: toTime,
             order_type: orderType,
             account_id: accountId
         }
