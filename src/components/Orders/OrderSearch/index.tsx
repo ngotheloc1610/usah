@@ -138,26 +138,27 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
         if(fromTime > toTime){
             setIsErrorDate(true);
             resetListOrder([]);
-        } else setIsErrorDate(false);
-        
-        const paramSearchHistory: IParamOrderHistory = {
-            ...paramHistorySearch,
-            page: START_PAGE,
-            symbol_code: symbolCode,
-            order_state: orderState,
-            order_side: side,
-            from_time: fromTime,
-            to_time: toTime,
-            order_type: orderType,
-            account_id: accountId
+        } else {
+            setIsErrorDate(false);
+            const paramSearchHistory: IParamOrderHistory = {
+                ...paramHistorySearch,
+                page: START_PAGE,
+                symbol_code: symbolCode,
+                order_state: orderState,
+                order_side: side,
+                from_time: fromTime,
+                to_time: toTime,
+                order_type: orderType,
+                account_id: accountId
+            }
+            // avoid re-search when params dont change
+            const prevParam = prevParamSearch.current;
+            const currentParam = paramSearchHistory;
+            if(JSON.stringify(prevParam) === JSON.stringify(currentParam)) return;
+    
+            setParamHistorySearch(paramSearchHistory);
+            resetFlagSearch(true);
         }
-        // avoid re-search when params dont change
-        const prevParam = prevParamSearch.current;
-        const currentParam = paramSearchHistory;
-        if(JSON.stringify(prevParam) === JSON.stringify(currentParam)) return;
-
-        setParamHistorySearch(paramSearchHistory);
-        resetFlagSearch(true);
     }
 
     const handleChangeAccountId = (event:any , values: any) => {
