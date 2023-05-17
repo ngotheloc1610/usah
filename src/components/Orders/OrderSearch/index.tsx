@@ -43,7 +43,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [isErrorDate, setIsErrorDate] = useState(false);
     const [accountId, setAccountId] = useState(localStorage.getItem(ACCOUNT_ID) || '');
     const [listAccountId, setListAccountId] = useState<IAccountID[]>([]);
-
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
     
@@ -52,7 +51,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             label: accountId,
             value: accountId
         }
-    }, [])
+    }, [accountId])
 
     const prevParamSearch = useRef<IParamOrderHistory>();
 
@@ -197,6 +196,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
                 defaultValue={defaultAccountId}
+                value={defaultAccountId}
+                getOptionLabel={(option) => option.value === "*" ? "" : option.value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
