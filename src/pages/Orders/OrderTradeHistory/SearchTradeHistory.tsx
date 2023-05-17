@@ -200,6 +200,8 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
                 defaultValue={currentAccountId}
+                value={accountId}
+                getOptionLabel={(option) => option === "*" ? "" : option}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />
         </div>
@@ -243,7 +245,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 )}
                 <div className='row g-2 align-items-end'>
                     <div className="col-xl-5 ">
-                        {isUnAuthorised && <div className='text-danger'>Sorry. You have no rights to view Order History of this account</div>}
+                        {isUnAuthorised && <div className='text-danger'>Sorry. You have no rights to view Trade History of this account</div>}
                     </div>
                     <div className="col-xl-5 ">
                         {isErrorDate && <div className='text-danger'>Period is incorrect, the to date must be greater than the from date</div>}
