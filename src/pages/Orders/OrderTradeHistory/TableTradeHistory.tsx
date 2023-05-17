@@ -55,11 +55,11 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             }
         },
             (error: any) => {
-                const msgCode = error.response.status
-                if(msgCode === unAuthorised) {
+                const msgCode = error.response.data.meta.code
+                if(msgCode && msgCode === unAuthorised) {
                     handleUnAuthorisedAcc(true)
-                    setListTradeSortDate([])
                 }
+                setListTradeSortDate([])
         });
         
     }, [paramSearch])
