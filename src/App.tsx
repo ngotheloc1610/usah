@@ -208,7 +208,7 @@ const App = () => {
         {isLogin && <Login />}
         {isResetPassword && <ResetPassword />}
         {isForgotPassword && <ForgotPassword />}
-        {isBlocked && <Blocked />}
+        {isBlocked && !isResetTeamPassword && <Blocked />}
         {isResetTeamPassword && <ResetTeamPassword />}
       </PersistGate>
     </Provider>
