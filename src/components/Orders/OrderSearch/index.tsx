@@ -129,11 +129,16 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 
     const handleSearch = () => {
-        if(fromDatetime > 0 && toDatetime > 0 && fromDatetime > toDatetime){
+        // In case from/to time is not selected (clear)
+        // value will be current date time
+        const currentDate = moment().format(FORMAT_DATE);
+        const fromTime = fromDatetime || convertDatetoTimeStamp(currentDate, FROM_DATE_TIME)
+        const toTime = toDatetime || convertDatetoTimeStamp(currentDate, TO_DATE_TIME)
+        
+        if(fromTime > toTime){
             setIsErrorDate(true);
             resetListOrder([]);
-            return;
-        }else setIsErrorDate(false);
+        } else setIsErrorDate(false);
         
         const paramSearchHistory: IParamOrderHistory = {
             ...paramHistorySearch,
@@ -141,8 +146,8 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             symbol_code: symbolCode,
             order_state: orderState,
             order_side: side,
-            from_time: fromDatetime,
-            to_time: toDatetime,
+            from_time: fromTime,
+            to_time: toTime,
             order_type: orderType,
             account_id: accountId
         }
