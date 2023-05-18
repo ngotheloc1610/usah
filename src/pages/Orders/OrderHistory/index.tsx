@@ -10,6 +10,7 @@ import { API_GET_ORDER_HISTORY } from '../../../constants/api.constant';
 import axios from 'axios';
 import { success, unAuthorised } from '../../../constants';
 import { IDataOrderHistory } from '../../../interfaces/order.interface';
+import { isEmpty } from 'lodash';
 
 const OrderHistory = () => {
     const tradingModel: any = tmpb;
@@ -24,6 +25,8 @@ const OrderHistory = () => {
     const [isDownload, setIsDownLoad] = useState(false);
     const [isSearch, setIsSearch] = useState(false);
     const [isLastPage, setIsLastPage] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamOrderHistory>({
         page: START_PAGE,
@@ -39,7 +42,7 @@ const OrderHistory = () => {
 
     const getDataOrderHistory = (params : IParamOrderHistory) => {
         const urlGetOrderHistory = `${api_url}${API_GET_ORDER_HISTORY}`;
-
+        setIsLoading(true)
         axios.post(urlGetOrderHistory, params, defindConfigPost()).then((resp) => {
             if (resp.status === success) {
                 const data = resp.data.results;
@@ -48,15 +51,16 @@ const OrderHistory = () => {
 
                 paramHistorySearch.page_size < DEFAULT_ITEM_PER_PAGE ? setTotalItem(totalRecord) : setTotalItem(10)
 
-                paramHistorySearch.page === lastPage ? setIsLastPage(true) : setIsLastPage(false);
+                paramHistorySearch.page >= lastPage ? setIsLastPage(true) : setIsLastPage(false);
 
-                if(paramHistorySearch.page === START_PAGE ||  paramHistorySearch.page_size !== DEFAULT_ITEM_PER_PAGE){
-                    setListOrderHistory(data);
-                }else{
-                    const tmpData = [...listOrderHistory, ...data];
-                    setListOrderHistory(tmpData);
+                if(!isEmpty(data)) {
+                    if(paramHistorySearch.page === START_PAGE ||  paramHistorySearch.page_size !== DEFAULT_ITEM_PER_PAGE){
+                        setListOrderHistory(data);
+                    }else{
+                        const tmpData = [...listOrderHistory, ...data];
+                        setListOrderHistory(tmpData);
+                    }
                 }
-
                 setIsErrorAccountId(false);
             }
         }).catch(function (error) {
@@ -65,6 +69,8 @@ const OrderHistory = () => {
                 setListOrderHistory([]);
                 return;
             }
+        }).finally(() => {
+            setIsLoading(false)
         });
     }
 
@@ -107,6 +113,7 @@ const OrderHistory = () => {
                             resetFlagSearch={handleSearch}
                             totalItem={totalItem}
                             isLastPage={isLastPage}
+                            isLoading={isLoading}
                         />
                     </div>
                 </div>

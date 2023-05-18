@@ -19,7 +19,8 @@ function OrderTable(props: IPropListOrderHistory) {
         isSearch, 
         resetFlagSearch, 
         totalItem,
-        isLastPage
+        isLastPage,
+        isLoading
     } = props;
 
     const tradingModelPb: any = tspb;
@@ -31,7 +32,6 @@ function OrderTable(props: IPropListOrderHistory) {
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const [dataCurrent, setDataCurrent] = useState<IDataOrderHistory[]>([]);
     const [dataDownload, setDataDownload] = useState<IDataOrderHistory[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
 
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
@@ -40,7 +40,6 @@ function OrderTable(props: IPropListOrderHistory) {
         let historySortDate: IDataOrderHistory[] = listOrderHistory?.sort((a, b) => (b.order_time?.toString())?.localeCompare(a.order_time?.toString()));
         setDataDownload(historySortDate);
         setDataCurrent(historySortDate);
-        setIsLoading(false);
     }, [listOrderHistory]);
 
     const handleScrollToTop =  () => {
@@ -60,7 +59,6 @@ function OrderTable(props: IPropListOrderHistory) {
     const handleScroll = (e: any) => {
         if(paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
             if(e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
-                setIsLoading(true);
                 setParamHistorySearch({
                     ...paramHistorySearch,
                     page: paramHistorySearch.page + 1
