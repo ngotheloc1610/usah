@@ -73,7 +73,7 @@ const App = () => {
 
   useEffect(() => {
     checkLoginPage();
-  }, [isLogin, isResetPassword])
+  }, [isLogin, isResetPassword, isResetTeamPassword])
 
   useEffect(() => {
     const session = sessionStorage.getItem(KEY_SESSION_STORAGE.SESSION);
