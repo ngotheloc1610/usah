@@ -84,6 +84,7 @@ export interface IPropListOrderHistory {
     resetFlagSearch: (isSearch: boolean) => void;
     totalItem: number;
     isLastPage: boolean;
+    isLoading: boolean;
 }
 
 export interface IPropListTradeHistory {
