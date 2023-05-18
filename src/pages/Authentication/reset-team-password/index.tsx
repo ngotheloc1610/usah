@@ -2,7 +2,7 @@ import './ResetTeamPassword.scss';
 import { useEffect, useState } from 'react';
 import { API_RESET_TEAM_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST } from '../../../constants/general.constant';
+import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST, KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { errorPastPassword, RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
@@ -35,6 +35,7 @@ const ResetTeamPassword = () => {
             const intervalId = setInterval(() => {
                 setCountDown(countDown - 1);
             }, 1000);
+            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             return () => clearInterval(intervalId);
         }
     }, [isSuccess, countDown]);
