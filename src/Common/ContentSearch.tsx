@@ -39,10 +39,10 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
     const defaultAccountId = useMemo(() => {
         return {
-            label: currentAccount,
-            value: currentAccount
+            label: accountId,
+            value: accountId
         }
-    }, [])
+    }, [accountId])
 
     useEffect(() => {
         const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
@@ -141,6 +141,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
                 defaultValue={defaultAccountId}
+                value={defaultAccountId}
+                getOptionLabel={(option) => option.value === "*" ? "" : option.value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
