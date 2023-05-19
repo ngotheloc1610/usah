@@ -4,8 +4,7 @@ import ListModifyCancel from '../../../components/Orders/LIstModifyCancel'
 import tmpb from '../../../models/proto/trading_model_pb';
 import './OrderModifyCancel.scss'
 import { IParamPendingOrder, IParamSearchPendingOrder } from '../../../interfaces';
-import { ACCOUNT_ID, START_PAGE } from '../../../constants/general.constant';
-import { DEFAULT_ITEM_PER_PAGE } from '../../../constants/order.constant';
+import { ACCOUNT_ID, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from '../../../constants/general.constant';
 
 const OrderModifyCancel = () => {
     const tradingModel: any = tmpb;
@@ -13,6 +12,7 @@ const OrderModifyCancel = () => {
     const [orderSide, setOrderSide] = useState(0);
     const [symbolCode, setSymbolCode] = useState('');
     const [orderType, setOrerType] = useState(tradingModel.OrderType.OP_NONE);
+    const [isSearch, setIsSearch] = useState(false);
     const accountId = localStorage.getItem(ACCOUNT_ID) || '';
 
     const [paramSearch, setParamSearch] = useState<IParamPendingOrder>({
@@ -21,25 +21,10 @@ const OrderModifyCancel = () => {
         order_type: tradingModelPb.OrderType.OP_NONE,
         account_id: accountId,
         page: START_PAGE, 
-        page_size: DEFAULT_ITEM_PER_PAGE,
+        page_size: PAGE_SIZE_GET_ALL_ORDER_LIST,
     });
 
     const [isUnAuthorised, setIsUnAuthorised] = useState(false);
-
-    const handleChangePage = useCallback((value: number) => {
-        setParamSearch(prev => ({
-            ...prev,
-            page: value
-        }))
-    }, [])
-
-    const handleChangeItemPerPage = useCallback((value: number) => {
-        setParamSearch(prev => ({
-            ...prev,
-            page: START_PAGE,
-            page_size: value
-        }))
-    }, [])
 
     const handleUnAuthorisedAcc = useCallback((value: boolean) => {
         setIsUnAuthorised(value)
@@ -49,10 +34,14 @@ const OrderModifyCancel = () => {
         const tmpParam = {
             ...paramSearch,
             ...param,
-            page: START_PAGE,
         }
         setParamSearch(tmpParam)
+        setIsSearch(true);
     }, [paramSearch])
+
+    const resetIsSearch = useCallback((value: boolean) => {
+        setIsSearch(value);
+    }, [])
 
     return <div className="site-main mt-3">
         <div className="container">
@@ -66,8 +55,8 @@ const OrderModifyCancel = () => {
                     symbolCode={symbolCode} 
                     orderType={orderType}
                     paramSearch={paramSearch}
-                    handleChangePage={handleChangePage}
-                    handleChangeItemPerPage={handleChangeItemPerPage}
+                    isSearch={isSearch}
+                    resetIsSearch={resetIsSearch}
                     handleUnAuthorisedAcc={handleUnAuthorisedAcc}
                 />
             </div>

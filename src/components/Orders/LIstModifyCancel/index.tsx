@@ -8,7 +8,7 @@ import { IListOrderModifyCancel, IListPendingOrder, IParamOrderModifyCancel } fr
 import * as qspb from "../../../models/proto/query_service_pb"
 import { ACCOUNT_ID, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM, SORT_MODIFY_CANCEL_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { DEFAULT_ITEM_PER_PAGE } from '../../../constants/order.constant';
-import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost } from "../../../helper/utils";
+import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost, renderCurrentList } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
@@ -23,9 +23,9 @@ interface IPropsListModifyCancel {
     orderSide: number;
     symbolCode: string;
     orderType: number;
+    isSearch: boolean;
+    resetIsSearch: (value: boolean) => void;
     paramSearch: IParamPendingOrder;
-    handleChangePage: (value: number) => void;
-    handleChangeItemPerPage:(value: number) => void;
     handleUnAuthorisedAcc:(value: boolean) => void;
 }
 
@@ -35,9 +35,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         symbolCode,
         orderType,
         paramSearch,
-        handleChangePage,
-        handleChangeItemPerPage,
-        handleUnAuthorisedAcc 
+        isSearch,
+        resetIsSearch,
+        handleUnAuthorisedAcc
     } = props;
 
     const tradingModelPb: any = tspb;
@@ -56,8 +56,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
     const [dataSelectedList, setSelectedList] = useState<any[]>([]);
-    const [totalItem, setTotalItem] = useState(0);
+    const totalItem = listOrder.length;
     const [orderEventList, setOrderEventList] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(START_PAGE);
+    const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
+
 
     const accountId = localStorage.getItem(ACCOUNT_ID) || '';
 
@@ -100,9 +103,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         axios.post(urlPendingOrder, paramSearch, defindConfigPost()).then((resp) => {
             if (resp?.status === success) {
                 const resultData = resp?.data?.results;
-                const totalRecord = resp.data.count;
-
-                setTotalItem(totalRecord);
+                
                 setListPendingOrder(resultData);
                 handleUnAuthorisedAcc(false);
             }
@@ -158,32 +159,51 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
         setListOrderFull(listOrderConvert);
     }, [listPendingOrder])
-
+    
     useEffect(() => {
-        const totaltem = listPendingOrder.length - cancelListId.length;
-        setTotalItem(totaltem);
-    }, [cancelListId])
-
-    useEffect(() => {
+        let currentList: IListOrderModifyCancel[] = []
         if(isSortDateTime) {
             const listOrderSort: IListOrderModifyCancel[] = sortDateTime(listOrder, isDateTimeAsc)
-            setDataOrder(listOrderSort);
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
         }
 
         if(isSortPrice) {
             const listOrderSort: IListOrderModifyCancel[] = sortPrice(listOrder, isPriceAsc)
-            setDataOrder(listOrderSort);
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
         }
         if(isSortSide) {
             const listOrderSort: IListOrderModifyCancel[] = sortSide(listOrder, isSideAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
             setDataOrder(listOrderSort);
         }
         if(isSortTicker) {
             const listOrderSort: IListOrderModifyCancel[] = sortTicker(listOrder, isTickerAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
             setDataOrder(listOrderSort);
         }
-    }, [listOrder])
+        if (currentList.length === 0 && isSearch) {
+            currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1);
+            if (resetIsSearch) {
+                resetIsSearch(false);
+            }
+        }
+    }, [listOrder, itemPerPage, currentPage])
 
+    useEffect(() => {
+        setCurrentPage(currentPage);
+    }, [isCancel])
+
+    useEffect(() => {
+        if(isSearch) setCurrentPage(START_PAGE);
+        if (resetIsSearch) {
+            resetIsSearch(false);
+        }
+    }, [isSearch])
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -355,11 +375,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const getItemPerPage = (item: number) => {
-        handleChangeItemPerPage(item)
+        setItemPerPage(item);
+        setCurrentPage(START_PAGE)  
     }
 
     const getCurrentPage = (item: number) => {
-        handleChangePage(item)
+        setCurrentPage(item); 
     }
 
     const sendListOrder = () => {
@@ -728,8 +749,8 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </table>
             </div>
         </div>
-        <PaginationComponent totalItem={totalItem} itemPerPage={paramSearch.page_size || DEFAULT_ITEM_PER_PAGE} 
-                currentPage={paramSearch.page}
+        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} 
+                currentPage={currentPage}
             getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage} isShowAllRecord={false}
         />
         {isCancel && <ConfirmOrder isCancel={isCancel}
