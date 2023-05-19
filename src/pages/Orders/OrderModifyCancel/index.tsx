@@ -5,7 +5,6 @@ import tmpb from '../../../models/proto/trading_model_pb';
 import './OrderModifyCancel.scss'
 import { IParamPendingOrder, IParamSearchPendingOrder } from '../../../interfaces';
 import { ACCOUNT_ID, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from '../../../constants/general.constant';
-import { DEFAULT_ITEM_PER_PAGE } from '../../../constants/order.constant';
 
 const OrderModifyCancel = () => {
     const tradingModel: any = tmpb;
@@ -40,9 +39,9 @@ const OrderModifyCancel = () => {
         setIsSearch(true);
     }, [paramSearch])
 
-    const resetIsSearch = (value: boolean) => {
+    const resetIsSearch = useCallback((value: boolean) => {
         setIsSearch(value);
-    }
+    }, [])
 
     return <div className="site-main mt-3">
         <div className="container">

@@ -185,7 +185,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             setDataOrder(currentList);
             setDataOrder(listOrderSort);
         }
-        if (currentList.length <= 0 && isSearch) {
+        if (currentList.length === 0 && isSearch) {
             currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1);
             if (resetIsSearch) {
                 resetIsSearch(false);
@@ -196,10 +196,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     useEffect(() => {
         setCurrentPage(currentPage);
     }, [isCancel])
-
-    useEffect(() => {
-        setCurrentPage(START_PAGE);
-    }, [orderSide])
 
     useEffect(() => {
         if(isSearch) setCurrentPage(START_PAGE);
