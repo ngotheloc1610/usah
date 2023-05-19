@@ -111,7 +111,6 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                             dataDownload.push(...response.data.data.results)
                             setDownloadPercent(Math.round((i/totalPage) * 100))
                         }
-                        console.log({dataDownload, response})
                     }
                     if (dataDownload.length  > 0) {
                         dataDownload.forEach((item) => {
