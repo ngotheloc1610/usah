@@ -232,6 +232,8 @@ export const PAGE_SIZE = 10;
 
 export const DEFAULT_ITEM_PER_PAGE = 150;
 
+export const MAX_ITEM_REQUEST = 500;
+
 export const DEFAULT_TIME_ZONE = 'SG';
 
 export const TEAM_CODE = 'team_code';

@@ -26,7 +26,7 @@ const OrderHistory = () => {
     const [isSearch, setIsSearch] = useState(false);
     const [isLastPage, setIsLastPage] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [totalRecord, setTotalRecords] = useState<number>(0);
 
     const [paramHistorySearch, setParamHistorySearch] = useState<IParamOrderHistory>({
         page: START_PAGE,
@@ -48,6 +48,8 @@ const OrderHistory = () => {
                 const data = resp.data.results;
                 const totalRecord = resp.data.count;
                 const lastPage = resp.data.total_page;
+
+                setTotalRecords(totalRecord)
 
                 paramHistorySearch.page_size < DEFAULT_ITEM_PER_PAGE ? setTotalItem(totalRecord) : setTotalItem(10)
 
@@ -114,6 +116,7 @@ const OrderHistory = () => {
                             totalItem={totalItem}
                             isLastPage={isLastPage}
                             isLoading={isLoading}
+                            totalRecord={totalRecord}
                         />
                     </div>
                 </div>
