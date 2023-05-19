@@ -42,7 +42,7 @@ const SettingTeamPassword = () => {
             if (code === errorPastPassword) {
                 toast.error(MESSAGE_TOAST.ERROR_PASSWORD_SHOULD_DIFF);
             } else {
-                toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE);
+                toast.error(error.response.data.data);
             }  
         })
     }
