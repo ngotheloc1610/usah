@@ -1,5 +1,5 @@
 import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, MAX_ITEM_REQUEST, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
-import {formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
+import { formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
@@ -19,8 +19,8 @@ function OrderTable(props: IPropListOrderHistory) {
         isDownLoad,
         resetFlagDownload,
         setParamHistorySearch,
-        isSearch, 
-        resetFlagSearch, 
+        isSearch,
+        resetFlagSearch,
         totalItem,
         isLastPage,
         isLoading,
@@ -46,23 +46,23 @@ function OrderTable(props: IPropListOrderHistory) {
         setDataCurrent(historySortDate);
     }, [listOrderHistory]);
 
-    const handleScrollToTop =  () => {
+    const handleScrollToTop = () => {
         const tableElement = document.getElementById("table-order");
-        tableElement?.scrollTo({top: 0, behavior: "smooth"});
+        tableElement?.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     useEffect(() => {
-        if(isSearch){
+        if (isSearch) {
             setCurrentPage(START_PAGE);
             handleScrollToTop();
-        } 
+        }
         // after search, reset flag = false
-        if(resetFlagSearch) resetFlagSearch(false);
+        if (resetFlagSearch) resetFlagSearch(false);
     }, [isSearch])
 
     const handleScroll = (e: any) => {
-        if(paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
-            if(e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
+        if (paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
+            if (e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
                 setParamHistorySearch({
                     ...paramHistorySearch,
                     page: paramHistorySearch.page + 1
@@ -96,19 +96,27 @@ function OrderTable(props: IPropListOrderHistory) {
                 const urlGetOrderHistory = `${api_url}${API_GET_ORDER_HISTORY}`;
                 try {
                     setIsShowProcessModal(true)
-                    for(let i = START_PAGE; i <= totalPage; i++) {
-                            const param = {
-                                ...paramHistorySearch,
-                                page_size: MAX_ITEM_REQUEST,
-                                page: i
-                            }
-                            const response = await axios.post(urlGetOrderHistory, param, {...defindConfigPost(), signal});
-                            if(response) {
-                                dataDownload.push(...response.data.results)
-                                setDownloadPercent(Math.round((i/totalPage) * 100))
-                            }
+                    for (let i = START_PAGE; i <= totalPage; i++) {
+                        const param = {
+                            ...paramHistorySearch,
+                            page_size: MAX_ITEM_REQUEST,
+                            page: i
+                        }
+                        const response = await axios.post(urlGetOrderHistory, param, { ...defindConfigPost(), signal });
+                        if (response.status === 200) {
+                            dataDownload.push(...response.data.results)
+                            setDownloadPercent(Math.round((i / totalPage) * 100))
+                        } else if (response.status === 401) {
+                            toast.error("Unauthorized")
+                            return
+                        } else if (response.status === 400) {
+                            toast.error("Bad request")
+                            return
+                        } else {
+                            toast.error("Internal server error")
+                            return
+                        }
                     }
-
                     if (dataDownload.length > 0) {
                         dataDownload.forEach(item => {
                             if (item) {
@@ -129,8 +137,8 @@ function OrderTable(props: IPropListOrderHistory) {
                                     executedDateTime: formatOrderTime(item.exec_time),
                                     comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
                                 }
-                                if(teamCode !== "null"){
-                                    data.push({accountId: item.account_id, ...obj})
+                                if (teamCode !== "null") {
+                                    data.push({ accountId: item.account_id, ...obj })
                                 } else {
                                     data.push(obj)
                                 }
@@ -140,10 +148,12 @@ function OrderTable(props: IPropListOrderHistory) {
                     } else {
                         toast.warn('Do not have record to download');
                     }
-                    resetFlagAndCloseModal()
                 } catch (error) {
                     abortController.abort();
+                    toast.error("Network Error")
                     console.error('Error fetching data:', error);
+                } finally {
+                    resetFlagAndCloseModal()
                 }
             };
             fetchData();
@@ -212,7 +222,7 @@ function OrderTable(props: IPropListOrderHistory) {
     }
 
     const calcRemainQty = (state: number, execQty: number, originQty: number) => {
-        
+
         switch (state) {
             case tradingModelPb.OrderState.ORDER_STATE_CANCELED:
             case tradingModelPb.OrderState.ORDER_STATE_REJECTED:
@@ -223,7 +233,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 return convertNumber(originQty) - convertNumber(execQty);
         }
     }
-    
+
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>

@@ -107,9 +107,18 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                             page: i
                         }
                         const response = await axios.post(urlTradeHistory, param, {...defindConfigPost(), signal});
-                        if(response) {
+                        if(response.status === 200) {
                             dataDownload.push(...response.data.data.results)
                             setDownloadPercent(Math.round((i/totalPage) * 100))
+                        } else if (response.status === 401) {
+                            toast.error("Unauthorized")
+                            return
+                        } else if (response.status === 400) {
+                            toast.error("Bad request")
+                            return
+                        } else {
+                            toast.error("Internal server error")
+                            return
                         }
                     }
                     if (dataDownload.length  > 0) {
@@ -141,10 +150,12 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                     } else {
                         toast.warn('Do not have record to download')
                     }
-                    resetFlagAndCloseModal()
                 } catch (error) {
                     abortController.abort();
+                    toast.error("Network Error")
                     console.error('Error fetching data:', error);
+                } finally {
+                    resetFlagAndCloseModal()
                 }
             };
             fetchData();
