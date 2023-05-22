@@ -588,8 +588,11 @@ a{
 .w-100p{
     width: 100px;
 }
+.w-70{
+    width: 70px;
+}
 .w-80{
-   width: 80px;
+    width: 80px;
 }
 .w-200{
     width: 200px;
@@ -627,7 +630,7 @@ table.tableBodyScroll tbody {
 .account-input{
     background-color: #fff !important;
     input{
-        margin-right: 20%;
+        margin-right: 15%;
     }
 }
 
@@ -637,5 +640,6 @@ table.tableBodyScroll tbody {
 
 #table-order {
     max-height: 430px;
+    overflow-x: hidden !important;
 }
 

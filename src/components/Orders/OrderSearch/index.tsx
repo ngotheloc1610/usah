@@ -204,6 +204,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 defaultValue={defaultAccountId}
                 value={defaultAccountId}
                 getOptionLabel={(option) => option.value === "*" ? "" : option.value}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
