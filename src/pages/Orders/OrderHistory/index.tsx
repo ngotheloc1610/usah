@@ -53,14 +53,13 @@ const OrderHistory = () => {
 
                 paramHistorySearch.page >= lastPage ? setIsLastPage(true) : setIsLastPage(false);
 
-                if(!isEmpty(data)) {
-                    if(paramHistorySearch.page === START_PAGE ||  paramHistorySearch.page_size !== DEFAULT_ITEM_PER_PAGE){
-                        setListOrderHistory(data);
-                    }else{
-                        const tmpData = [...listOrderHistory, ...data];
-                        setListOrderHistory(tmpData);
-                    }
+                if(paramHistorySearch.page === START_PAGE ||  paramHistorySearch.page_size !== DEFAULT_ITEM_PER_PAGE){
+                    setListOrderHistory(data);
+                }else{
+                    const tmpData = [...listOrderHistory, ...data];
+                    setListOrderHistory(tmpData);
                 }
+                
                 setIsErrorAccountId(false);
             }
         }).catch(function (error) {
