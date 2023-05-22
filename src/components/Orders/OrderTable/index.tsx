@@ -202,21 +202,21 @@ function OrderTable(props: IPropListOrderHistory) {
     (
         <tr>
             {teamCode !== "null" && <th className="text-ellipsis-sp fz-14 w-120">Account Id</th>}
-            <th className="text-ellipsis-sp fz-14 w-180">Order No</th>
-            <th className="text-ellipsis text-start fz-14 w-110">Ticker Code</th >
-            <th className="text-center fz-14 w-120" >Order Side</th>
+            <th className="text-ellipsis-sp fz-14 w-160">Order No</th>
+            <th className="text-wrap text-start fz-14 w-80">Ticker Code</th >
+            <th className="text-wrap text-center fz-14 w-70" >Order Side</th>
             <th className="text-start fz-14 w-120" > Order Status</th>
-            <th className="text-center fz-14 w-120" >Order Type</th>
+            <th className="text-wrap text-center fz-14 w-70" >Order Type</th>
             <th className="text-ellipsis text-end fz-14 w-140">
                 <div>Order Quantity</div>
                 <div>Remaining Quantity</div>
             </th>
-            <th className="text-end fz-14 w-120"> Executed Quantity </th>
+            <th className="text-end fz-14 w-100p"> Executed Quantity </th>
             <th className="text-ellipsis text-end fz-14 w-120">
                 <div>Order Price</div>
                 <div>Executed Price</div>
             </th>
-            <th className="text-end text-nowrap fz-14 w-120" >Withdraw Quantity</th>
+            <th className="text-end text-wrap fz-14 w-100p" >Withdraw Quantity</th>
             <th className="text-ellipsis text-end fz-14 w-200">
                 <div className="mg-right-24"> Order Datetime </div>
                 <div className="mg-right-24"> Last Updated time </div>
@@ -229,11 +229,11 @@ function OrderTable(props: IPropListOrderHistory) {
         dataCurrent?.map((item, index) => (
             <tr className="align-middle" key={index}>
                 {teamCode !== "null" && <td className="w-120"><span className="text-ellipsis fm">{item.account_id}</span></td>}
-                <td className="w-180"><span className="text-ellipsis fm">{item.external_order_id}</span></td>
-                <td className="text-ellipsis text-start w-110">
+                <td className="w-160"><span className="text-ellipsis fm">{item.external_order_id}</span></td>
+                <td className="text-wrap text-start w-80">
                     <div title={getTickerName(item?.symbol_code)}>{item?.symbol_code}</div>
                 </td>
-                <td className="text-center w-120">
+                <td className="text-center w-70">
                     <span className={`${convertNumber(item.order_side) === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(convertNumber(item.order_side))}</span>
                 </td>
 
@@ -241,20 +241,20 @@ function OrderTable(props: IPropListOrderHistory) {
                     <span className={`${convertNumber(item.order_status) === statusPlace && 'text-info'}`}>{getStateName(convertNumber(item.order_status))}</span>
                 </td>
 
-                <td className="text-center w-120">{ORDER_TYPE.get(convertNumber(item.order_type))}</td>
+                <td className="text-center w-70">{ORDER_TYPE.get(convertNumber(item.order_type))}</td>
 
                 <td className="text-ellipsis text-end w-140">
                     <div>{formatNumber(item.volume.toString())}</div>
                     <div>{formatNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString())}</div>
                 </td>
 
-                <td className="text-end w-120">{formatNumber(item.exec_volume?.toString())}</td>
+                <td className="text-end w-100p">{formatNumber(item.exec_volume?.toString())}</td>
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price.toString())}</div>
                     <div>{(item?.exec_price > 0 && item?.exec_volume) ? formatCurrency(item?.exec_price.toString()) : '-'}</div>
                 </td>
-                <td className="text-end">{convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-'}</td>
+                <td className="text-end w-100p">{convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-'}</td>
                 <td className="td w-200 text-center">
                     <div>{formatOrderTime(item.order_time)}</div>
                     {checkDisplayLastUpdatedTime(item) && <div >{formatOrderTime(convertNumber(item.exec_time))}</div>}
