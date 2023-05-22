@@ -103,18 +103,23 @@ function OrderTable(props: IPropListOrderHistory) {
                             page: i
                         }
                         const response = await axios.post(urlGetOrderHistory, param, { ...defindConfigPost(), signal });
-                        if (response.status === 200) {
-                            dataDownload.push(...response.data.results)
-                            setDownloadPercent(Math.round((i / totalPage) * 100))
-                        } else if (response.status === 401) {
-                            toast.error("Unauthorized")
-                            return
-                        } else if (response.status === 400) {
-                            toast.error("Bad request")
-                            return
-                        } else {
-                            toast.error("Internal server error")
-                            return
+                        switch (response.status) {
+                            case 200:
+                                dataDownload.push(...response.data.results)
+                                setDownloadPercent(Math.round((i / totalPage) * 100))
+                                break;
+                            case 401:
+                                toast.error("Unauthorized")
+                                abortController.abort()
+                                break;
+                            case 400:
+                                toast.error("Bad request")
+                                abortController.abort()
+                                break;
+                            default:
+                                toast.error("Internal server error")
+                                abortController.abort()
+                                break;
                         }
                     }
                     if (dataDownload.length > 0) {
@@ -148,9 +153,10 @@ function OrderTable(props: IPropListOrderHistory) {
                     } else {
                         toast.warn('Do not have record to download');
                     }
-                } catch (error) {
+                } catch (error: any) {
                     abortController.abort();
-                    toast.error("Network Error")
+                    // we dont show error message in cancel case
+                    error.message !== "canceled" && toast.error("Network Error")
                     console.error('Error fetching data:', error);
                 } finally {
                     resetFlagAndCloseModal()
