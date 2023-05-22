@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { API_GET_ORDER_HISTORY } from "../../../constants/api.constant";
 import ProgressBarModal from "../../Modal/ProgressBarModal";
+import { badRequest, success, unAuthorised } from "../../../constants";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory,
@@ -104,15 +105,15 @@ function OrderTable(props: IPropListOrderHistory) {
                         }
                         const response = await axios.post(urlGetOrderHistory, param, { ...defindConfigPost(), signal });
                         switch (response.status) {
-                            case 200:
+                            case success:
                                 dataDownload.push(...response.data.results)
                                 setDownloadPercent(Math.round((i / totalPage) * 100))
                                 break;
-                            case 401:
+                            case unAuthorised:
                                 toast.error("Unauthorized")
                                 abortController.abort()
                                 break;
-                            case 400:
+                            case badRequest:
                                 toast.error("Bad request")
                                 abortController.abort()
                                 break;

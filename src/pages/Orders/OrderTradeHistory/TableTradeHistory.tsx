@@ -8,7 +8,7 @@ import moment from "moment";
 import {toast} from 'react-toastify'
 import axios from "axios";
 import { API_TRADE_HISTORY } from "../../../constants/api.constant";
-import { success, unAuthorised } from "../../../constants";
+import { badRequest, success, unAuthorised } from "../../../constants";
 import ProgressBarModal from "../../../components/Modal/ProgressBarModal";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
@@ -109,15 +109,15 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                         const response = await axios.post(urlTradeHistory, param, {...defindConfigPost(), signal});
                         
                         switch (response.status) {
-                            case 200:
+                            case success:
                                 dataDownload.push(...response.data.data.results)
                                 setDownloadPercent(Math.round((i/totalPage) * 100))
                                 break;
-                            case 401:
+                            case unAuthorised:
                                 toast.error("Unauthorized")
                                 abortController.abort()
                                 break;
-                            case 400:
+                            case badRequest:
                                 toast.error("Bad request")
                                 abortController.abort()
                                 break;
