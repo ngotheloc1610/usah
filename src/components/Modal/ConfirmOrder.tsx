@@ -47,6 +47,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [isDisableInput, setIsDisableInput] = useState(false);
     const [teamPassword, setTeamPassword] = useState('');
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
+    const [isHiddenPassword, setIsHiddenPassword] = useState(true);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
@@ -138,8 +139,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
-    const prepareMessageModify = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageModify = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
@@ -162,7 +162,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -247,8 +247,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessageCancel = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageCancel = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
@@ -267,7 +266,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -286,10 +285,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const sendOrder = () => {
+    const sendOrder = (param: IParamOrderModifyCancel) => {
+        const uid = param.uid?.toString() || ''
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
-            prepareMessageCancel(accountId);
+            prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
                 handleOrderCancelId(params?.orderId || '');
             }
@@ -307,7 +307,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
                 return;
             }
-            prepareMessageModify(accountId);
+            prepareMessageModify(accountId, uid);
         } else {
             callSigleOrderRequest(accountId);
         }
@@ -523,12 +523,15 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <>
                         <div className='row mt-2'>
                             <div className='col-5 lh-lg pt-1'><b>Team ID {teamCode}</b></div>
-                            <div className='col-7'>
-                                <input className='d-block w-100 py-1 px-2 border border-1 rounded-pill py-2 px-3' 
-                                    type='password' 
+                            <div className='col-7 position-relative'>
+                                <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
+                                    type={isHiddenPassword ? 'password' : 'text'}
                                     onChange={handleTeamPassword}
                                     placeholder='Password' 
                                     autoComplete='new-password'
+                                />
+                                <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 md-pw-icon`}
+                                    onClick={() => setIsHiddenPassword(!isHiddenPassword)}
                                 />
                             </div>
                         </div>
@@ -557,7 +560,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={disablePlaceOrder()}>
+                        <Button className='w-px-150' variant="primary" onClick={() => sendOrder(params)} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>
@@ -567,7 +570,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
                             DISCARD
                         </Button>
-                        <Button variant="primary" onClick={sendOrder}
+                        <Button variant="primary" onClick={() => sendOrder(params)}
                             disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
                             CONFIRM
                         </Button>

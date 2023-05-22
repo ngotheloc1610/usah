@@ -73,17 +73,16 @@ const App = () => {
 
   useEffect(() => {
     checkLoginPage();
-  }, [isLogin, isResetPassword])
+  }, [isLogin, isResetPassword, isResetTeamPassword])
 
   useEffect(() => {
     const session = sessionStorage.getItem(KEY_SESSION_STORAGE.SESSION);
     const startLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.START_LOAD));
     const endLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.END_LOAD));
-    if (!session && !isForgotPassword && !isForgotPassword && !isLogin) {
+    if (!session && !isForgotPassword && !isResetPassword && !isResetTeamPassword && !isLogin) {
       if (endLoad - startLoad < 0) setIsBlocked(true);
       else {
         setIsBlocked(false);
-        setIsLogin(true);
         localStorage.removeItem(ACCOUNT_ID);
         localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
         localStorage.removeItem(TEAM_CODE);
@@ -209,7 +208,7 @@ const App = () => {
         {isLogin && <Login />}
         {isResetPassword && <ResetPassword />}
         {isForgotPassword && <ForgotPassword />}
-        {isBlocked && <Blocked />}
+        {isBlocked && !isResetTeamPassword && <Blocked />}
         {isResetTeamPassword && <ResetTeamPassword />}
       </PersistGate>
     </Provider>

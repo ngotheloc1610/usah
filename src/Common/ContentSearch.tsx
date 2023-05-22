@@ -32,7 +32,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [accountId, setAccountId] = useState(currentAccount);
 
-    const {listAccId , isErrorAccount} = useFetchApiAccount()
+    const {listAccId , isShowAccountId} = useFetchApiAccount();
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -112,7 +112,9 @@ const ContentSearch = (props: IPropsContentSearch) => {
                 onChange={handleChangeAccountId}
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
-                defaultValue={currentAccount}
+                defaultValue={accountId}
+                value={accountId}
+                getOptionLabel={(option) => option === "*" ? "" : option}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
@@ -170,7 +172,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
         <div>
             <div className="card-body bg-gradient-light mb-3">
                 <div className="row g-2 align-items-end">
-                    {isErrorAccount && _renderAccountId()}
+                    {isShowAccountId && _renderAccountId()}
                     {_renderTicker()}
                     {_renderOrderType()}
                     {_renderOrderSide()}

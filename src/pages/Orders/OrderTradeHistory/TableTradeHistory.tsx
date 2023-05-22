@@ -1,14 +1,15 @@
-import { SIDE, ORDER_TYPE_NAME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, TEAM_CODE, ITEM_PER_PAGE_SMALL } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber, renderCurrentList, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
+import { SIDE, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, TEAM_CODE, ITEM_PER_PAGE_SMALL, MAX_ITEM_REQUEST } from "../../../constants/general.constant";
+import { formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
 import { IPropListTradeHistory, IListTradeHistoryAPI, ITradeHistoryDownload } from '../../../interfaces/order.interface'
 import PaginationComponent from '../../../Common/Pagination'
 import * as tspb from '../../../models/proto/trading_model_pb';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
 import {toast} from 'react-toastify'
 import axios from "axios";
 import { API_TRADE_HISTORY } from "../../../constants/api.constant";
-import { success, unAuthorised } from "../../../constants";
+import { badRequest, success, unAuthorised } from "../../../constants";
+import ProgressBarModal from "../../../components/Modal/ProgressBarModal";
 
 function TableTradeHistory(props: IPropListTradeHistory) {
     const { isDownload, resetStatusDownload, paramSearch, handleChangeItemPerPage, handleChangePage, handleChangeNextPage, handleUnAuthorisedAcc } = props
@@ -18,6 +19,10 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const [loading, setLoading] = useState(false)
     const [isLastPage, setIsLastPage] = useState(false)
+    const [isShowProcessModal, setIsShowProcessModal] = useState<boolean>(false);
+    const [downloadPercent, setDownloadPercent] = useState<number>(0);
+    const abortController = new AbortController();
+    const [totalRecord, setTotalRecords] = useState<number>(0);
 
     const api_url = window.globalThis.apiUrl;
     const urlTradeHistory = `${api_url}${API_TRADE_HISTORY}`;
@@ -33,7 +38,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
                 const lastPage = dataResp.total_page;
                 handleUnAuthorisedAcc(false);
                 setLoading(false);
-
+                setTotalRecords(totalRecord);
                 if(paramSearch.page === START_PAGE || paramSearch.page_size !== DEFAULT_ITEM_PER_PAGE) {
                     const listTradeSort = resultData.sort((a, b) => (b?.executedDatetime)?.localeCompare((a?.executedDatetime)));
                     setListTradeSortDate(listTradeSort);
@@ -55,11 +60,11 @@ function TableTradeHistory(props: IPropListTradeHistory) {
             }
         },
             (error: any) => {
-                const msgCode = error.response.status
-                if(msgCode === unAuthorised) {
+                const msgCode = error.response.data.meta.code
+                if(msgCode && msgCode === unAuthorised) {
                     handleUnAuthorisedAcc(true)
-                    setListTradeSortDate([])
                 }
+                setListTradeSortDate([])
         });
         
     }, [paramSearch])
@@ -71,36 +76,99 @@ function TableTradeHistory(props: IPropListTradeHistory) {
         }
     }, [paramSearch])
 
+    const resetFlagAndCloseModal = () => {
+        if (resetStatusDownload) {
+            resetStatusDownload(false);
+        }
+        setIsShowProcessModal(false)
+        setDownloadPercent(0)
+    }
+
+    const handleCancelDownload = () => {
+        abortController.abort();
+        resetFlagAndCloseModal();
+    }
+
     useEffect(() => {
         if(isDownload) {
             const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
             const data: ITradeHistoryDownload[] = []
-            if(listTradeSortDate.length > 0) {
-                listTradeSortDate.forEach((item) => {
-                    if (item) {
-                        data.push({
-                            orderNo: item.external_order_id,
-                            tickerCode: getTickerCode(item?.symbol_code),
-                            tickerName: getTickerName(item?.symbol_code),
-                            orderSide: getSideName(item.order_side),
-                            orderType: ORDER_TYPE.get(item.order_type) || '-',
-                            orderQuantity: convertNumber(item.volume),
-                            orderPrice: formatCurrency(item.price),
-                            executedQuantity: convertNumber(item.exec_volume),
-                            executedPrice: convertNumber(item.exec_price),
-                            matchedValue: convertNumber(calcMatchedValue(item).toString()),
-                            executedDatetime: formatOrderTime(Number(item.exec_time)),
-                        })
-                    }
-                })
-                exportCSV(data, `tradeHistory_${dateTimeCurrent}`)
-            }else {
-                toast.warn('Do not have record to download')
-            }
+            const dataDownload: IListTradeHistoryAPI[] = []
+            const totalPage = Math.ceil(totalRecord / MAX_ITEM_REQUEST)
 
-            if(resetStatusDownload) {
-                resetStatusDownload(false)
-            }
+            const fetchData = async () => {
+                const signal = abortController.signal;
+                try {
+                    setIsShowProcessModal(true)
+                    for(let i = START_PAGE; i <= totalPage; i++) {
+                        const param = {
+                            ...paramSearch,
+                            page_size: MAX_ITEM_REQUEST,
+                            page: i
+                        }
+                        const response = await axios.post(urlTradeHistory, param, {...defindConfigPost(), signal});
+                        
+                        switch (response.status) {
+                            case success:
+                                dataDownload.push(...response.data.data.results)
+                                setDownloadPercent(Math.round((i/totalPage) * 100))
+                                break;
+                            case unAuthorised:
+                                toast.error("Unauthorized")
+                                abortController.abort()
+                                break;
+                            case badRequest:
+                                toast.error("Bad request")
+                                abortController.abort()
+                                break;
+                            default:
+                                toast.error("Internal server error")
+                                abortController.abort()
+                                break;
+                        }
+                    }
+                    if (dataDownload.length  > 0) {
+                        dataDownload.forEach((item) => {
+                            if (item) {
+                            
+                                let obj: ITradeHistoryDownload = {
+                                    orderNo: item.external_order_id,
+                                    tickerCode: getTickerCode(item?.symbol_code),
+                                    tickerName: getTickerName(item?.symbol_code),
+                                    orderSide: getSideName(item.order_side),
+                                    orderType: ORDER_TYPE.get(item.order_type) || '-',
+                                    orderQuantity: convertNumber(item.volume),
+                                    orderPrice: formatCurrency(item.price),
+                                    executedQuantity: convertNumber(item.exec_volume),
+                                    executedPrice: convertNumber(item.exec_price),
+                                    matchedValue: convertNumber(calcMatchedValue(item).toString()),
+                                    executedDatetime: formatOrderTime(Number(item.exec_time)),
+                                }
+                                if(teamCode !== "null"){
+                                    data.push({accountId: item.account_id, ...obj})
+                                } else {
+                                    data.push(obj)
+                                }
+                                
+                            }
+                        })
+                        exportCSV(data, `tradeHistory_${dateTimeCurrent}`)
+                    } else {
+                        toast.warn('Do not have record to download')
+                    }
+                } catch (error: any) {
+                    abortController.abort();
+                    // we dont show error message in cancel case
+                    error.message !== "canceled" && toast.error("Network Error")
+                    console.error('Error fetching data:', error);
+                } finally {
+                    resetFlagAndCloseModal()
+                }
+            };
+            fetchData();
+        }
+        return () => {
+            abortController.abort()
         }
     }, [isDownload])
 
@@ -213,6 +281,10 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     return (
         <>
             {_renderTradeHistoryTable()}
+            {isShowProcessModal && <ProgressBarModal
+                handleCancel={handleCancelDownload}
+                percent={downloadPercent}
+            />}
         </>
     )
 }

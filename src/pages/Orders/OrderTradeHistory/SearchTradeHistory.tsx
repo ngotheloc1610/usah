@@ -25,7 +25,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const currentAccountId = localStorage.getItem(ACCOUNT_ID) || '';
     const [accountId, setAccountId] = useState(currentAccountId);
     
-    const {listAccId, isErrorAccount} = useFetchApiAccount();
+    const {listAccId, isShowAccountId} = useFetchApiAccount();
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
@@ -53,12 +53,17 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handleSearch = () => {
-        fromDatetime > toDatetime ? setIsErrorDate(true) : setIsErrorDate(false);
+        // In case from/to time is not selected (clear)
+        // value will be current date time
+        const currentDate = moment().format(FORMAT_DATE);
+        const fromTime = fromDatetime || convertDatetoTimeStamp(currentDate, FROM_DATE_TIME)
+        const toTime = toDatetime || convertDatetoTimeStamp(currentDate, TO_DATE_TIME)
+        fromTime > toTime ? setIsErrorDate(true) : setIsErrorDate(false);
         const param: IParamSearchComponentTradeHistory= {
             order_side: side,
             symbol_code: symbolCode,
-            from_time: fromDatetime,
-            to_time: toDatetime,
+            from_time: fromTime,
+            to_time: toTime,
             order_type: orderType,
             account_id: accountId
         }
@@ -86,7 +91,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderTicker = () => (
-        <div className= {`${isErrorAccount ? 'col-xl-6 ps-0 pe-2' : 'col-xl-3'}`}>
+        <div className= {`${isShowAccountId ? 'col-xl-6 ps-0 pe-2' : 'col-xl-3'}`}>
             <label className="d-block text-secondary mb-1">Ticker Code</label>
             <Autocomplete
                 className='ticker-input'
@@ -100,7 +105,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderOrderSide = () => (
-        <div className={`${isErrorAccount ? 'col-xl-5 ps-1 pe-0' : 'col-xl-2 pl-30'}`}>
+        <div className={`${isShowAccountId ? 'col-xl-5 ps-1 pe-0' : 'col-xl-2 pl-30'}`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
 
@@ -125,7 +130,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderOrderType = () => (
-        <div className={`${isErrorAccount ? 'col-xl-3' : 'col-xl-1'} ps-0 pe-2`}>
+        <div className={`${isShowAccountId ? 'col-xl-3' : 'col-xl-1'} ps-0 pe-2`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
                 {_renderListOrderType()}
@@ -134,7 +139,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderDateTime = () => (
-        <div className={`${isErrorAccount ? 'col-xl-7' : 'col-xl-4'} px-0`}>
+        <div className={`${isShowAccountId ? 'col-xl-7' : 'col-xl-4'} px-0`}>
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
@@ -177,6 +182,8 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
                 defaultValue={currentAccountId}
+                value={accountId}
+                getOptionLabel={(option) => option === "*" ? "" : option}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />
         </div>
@@ -188,7 +195,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <h6 className="card-title fs-6 mb-0">Trade History</h6>
             </div>
             <div className="card-body bg-gradient-light">
-                {isErrorAccount ? (
+                {isShowAccountId ? (
                     <div className="row g-2 align-items-end">
                         <div className='row col-xl-6'>
                             {_renderAccId()}
@@ -220,7 +227,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 )}
                 <div className='row g-2 align-items-end'>
                     <div className="col-xl-5 ">
-                        {isUnAuthorised && <div className='text-danger'>Sorry. You have no rights to view Order History of this account</div>}
+                        {isUnAuthorised && <div className='text-danger'>Sorry. You have no rights to view Trade History of this account</div>}
                     </div>
                     <div className="col-xl-5 ">
                         {isErrorDate && <div className='text-danger'>Period is incorrect, the to date must be greater than the from date</div>}

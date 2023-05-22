@@ -1,5 +1,5 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
-import {formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber } from "../../../helper/utils";
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, MAX_ITEM_REQUEST, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
+import { formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
 import * as tspb from '../../../models/proto/trading_model_pb';
 import PaginationComponent from '../../../Common/Pagination'
 import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
@@ -9,6 +9,10 @@ import moment from "moment";
 import * as stpb from '../../../models/proto/system_model_pb';
 import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { API_GET_ORDER_HISTORY } from "../../../constants/api.constant";
+import ProgressBarModal from "../../Modal/ProgressBarModal";
+import { badRequest, success, unAuthorised } from "../../../constants";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory,
@@ -16,51 +20,50 @@ function OrderTable(props: IPropListOrderHistory) {
         isDownLoad,
         resetFlagDownload,
         setParamHistorySearch,
-        isSearch, 
-        resetFlagSearch, 
+        isSearch,
+        resetFlagSearch,
         totalItem,
-        isLastPage
+        isLastPage,
+        isLoading,
+        totalRecord
     } = props;
 
     const tradingModelPb: any = tspb;
     const systemModelPb: any = stpb;
     const statusPlace = tradingModelPb.OrderState.ORDER_STATE_PLACED;
-
     const [showModalDetail, setShowModalDetail] = useState(false);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const [dataCurrent, setDataCurrent] = useState<IDataOrderHistory[]>([]);
-    const [dataDownload, setDataDownload] = useState<IDataOrderHistory[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
     const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const api_url = window.globalThis.apiUrl;
+    const [isShowProcessModal, setIsShowProcessModal] = useState<boolean>(false);
+    const [downloadPercent, setDownloadPercent] = useState<number>(0);
+    const abortController = new AbortController();
 
     useEffect(() => {
         let historySortDate: IDataOrderHistory[] = listOrderHistory?.sort((a, b) => (b.order_time?.toString())?.localeCompare(a.order_time?.toString()));
-        setDataDownload(historySortDate);
         setDataCurrent(historySortDate);
-        setIsLoading(false);
     }, [listOrderHistory]);
 
-    const handleScrollToTop =  () => {
+    const handleScrollToTop = () => {
         const tableElement = document.getElementById("table-order");
-        tableElement?.scrollTo({top: 0, behavior: "smooth"});
+        tableElement?.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     useEffect(() => {
-        if(isSearch){
+        if (isSearch) {
             setCurrentPage(START_PAGE);
             handleScrollToTop();
-        } 
+        }
         // after search, reset flag = false
-        if(resetFlagSearch) resetFlagSearch(false);
+        if (resetFlagSearch) resetFlagSearch(false);
     }, [isSearch])
 
     const handleScroll = (e: any) => {
-        if(paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
-            if(e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
-                setIsLoading(true);
+        if (paramHistorySearch.page_size === DEFAULT_ITEM_PER_PAGE) {
+            if (e.target.offsetHeight + e.target.scrollTop + 1 >= e.target.scrollHeight && !isLoading && !isLastPage && e.target.scrollTop > 10) {
                 setParamHistorySearch({
                     ...paramHistorySearch,
                     page: paramHistorySearch.page + 1
@@ -69,63 +72,101 @@ function OrderTable(props: IPropListOrderHistory) {
         }
     }
 
+    const resetFlagAndCloseModal = () => {
+        if (resetFlagDownload) {
+            resetFlagDownload(false);
+        }
+        setIsShowProcessModal(false)
+        setDownloadPercent(0)
+    }
+
+    const handleCancelDownload = () => {
+        abortController.abort();
+        resetFlagAndCloseModal();
+    }
+
     useEffect(() => {
         if (isDownLoad) {
             const dateTimeCurrent = moment(new Date()).format(FORMAT_DATE_DOWLOAD);
+            const dataDownload: IDataOrderHistory[] = [];
             const data: IDataHistoryDownload[] = [];
-            if (dataDownload?.length > 0) {
-                dataDownload.forEach(item => {
-                    if (item) {
-                        if(teamCode !== "null"){
-                            data.push({
-                                accountId: item.account_id,
-                                orderNo: item?.external_order_id,
-                                tickerCode: item?.symbol_code,
-                                tickerName: getTickerName(item?.symbol_code),
-                                orderSide: getSideName(convertNumber(item.order_side)) || '',
-                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
-                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
-                                orderVolume: item.volume,
-                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
-                                executedVolume: item.exec_volume,
-                                orderPrice: formatCurrency(item.price.toString()),
-                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
-                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
-                                orderDateTime: formatOrderTime(item.order_time),
-                                executedDateTime: formatOrderTime(item.exec_time),
-                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
-                            });
-                        }else{
-                            data.push({
-                                orderNo: item?.external_order_id,
-                                tickerCode: item?.symbol_code,
-                                tickerName: getTickerName(item?.symbol_code),
-                                orderSide: getSideName(convertNumber(item.order_side)) || '',
-                                orderStatus: getStateName(convertNumber(item.order_status)) || '',
-                                orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
-                                orderVolume: item.volume,
-                                remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
-                                executedVolume: item.exec_volume,
-                                orderPrice: formatCurrency(item.price.toString()),
-                                lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
-                                withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
-                                orderDateTime: formatOrderTime(item.order_time),
-                                executedDateTime: formatOrderTime(item.exec_time),
-                                comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
-                            });
-                        }
-                        
-                    }
-                });
-                exportCSV(data, `orderHistory_${dateTimeCurrent}`);
-            } else {
-                toast.warn('Do not have record to download');
-            }
+            const totalPage = Math.ceil(totalRecord / MAX_ITEM_REQUEST)
 
-            // after download, reset flag = false
-            if (resetFlagDownload) {
-                resetFlagDownload(false);
-            }
+            const fetchData = async () => {
+                const signal = abortController.signal;
+                const urlGetOrderHistory = `${api_url}${API_GET_ORDER_HISTORY}`;
+                try {
+                    setIsShowProcessModal(true)
+                    for (let i = START_PAGE; i <= totalPage; i++) {
+                        const param = {
+                            ...paramHistorySearch,
+                            page_size: MAX_ITEM_REQUEST,
+                            page: i
+                        }
+                        const response = await axios.post(urlGetOrderHistory, param, { ...defindConfigPost(), signal });
+                        switch (response.status) {
+                            case success:
+                                dataDownload.push(...response.data.results)
+                                setDownloadPercent(Math.round((i / totalPage) * 100))
+                                break;
+                            case unAuthorised:
+                                toast.error("Unauthorized")
+                                abortController.abort()
+                                break;
+                            case badRequest:
+                                toast.error("Bad request")
+                                abortController.abort()
+                                break;
+                            default:
+                                toast.error("Internal server error")
+                                abortController.abort()
+                                break;
+                        }
+                    }
+                    if (dataDownload.length > 0) {
+                        dataDownload.forEach(item => {
+                            if (item) {
+                                const obj = {
+                                    orderNo: item?.external_order_id,
+                                    tickerCode: item?.symbol_code,
+                                    tickerName: getTickerName(item?.symbol_code),
+                                    orderSide: getSideName(convertNumber(item.order_side)) || '',
+                                    orderStatus: getStateName(convertNumber(item.order_status)) || '',
+                                    orderType: ORDER_TYPE.get(convertNumber(item.order_type)) || '',
+                                    orderVolume: item.volume,
+                                    remainingVolume: convertNumber(calcRemainQty(convertNumber(item.order_status), item.exec_volume, item.volume).toString()),
+                                    executedVolume: item.exec_volume,
+                                    orderPrice: formatCurrency(item.price.toString()),
+                                    lastPrice: item.exec_price > 0 ? formatCurrency(item.exec_price.toString()) : '-',
+                                    withdrawQuantity: convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-',
+                                    orderDateTime: formatOrderTime(item.order_time),
+                                    executedDateTime: formatOrderTime(item.exec_time),
+                                    comment: getMessageDisplay(convertNumber(item.msg_code), convertNumber(item.order_status), item.comment)
+                                }
+                                if (teamCode !== "null") {
+                                    data.push({ accountId: item.account_id, ...obj })
+                                } else {
+                                    data.push(obj)
+                                }
+                            }
+                        });
+                        exportCSV(data, `orderHistory_${dateTimeCurrent}`);
+                    } else {
+                        toast.warn('Do not have record to download');
+                    }
+                } catch (error: any) {
+                    abortController.abort();
+                    // we dont show error message in cancel case
+                    error.message !== "canceled" && toast.error("Network Error")
+                    console.error('Error fetching data:', error);
+                } finally {
+                    resetFlagAndCloseModal()
+                }
+            };
+            fetchData();
+        }
+        return () => {
+            abortController.abort()
         }
     }, [isDownLoad])
 
@@ -188,7 +229,7 @@ function OrderTable(props: IPropListOrderHistory) {
     }
 
     const calcRemainQty = (state: number, execQty: number, originQty: number) => {
-        
+
         switch (state) {
             case tradingModelPb.OrderState.ORDER_STATE_CANCELED:
             case tradingModelPb.OrderState.ORDER_STATE_REJECTED:
@@ -199,7 +240,7 @@ function OrderTable(props: IPropListOrderHistory) {
                 return convertNumber(originQty) - convertNumber(execQty);
         }
     }
-    
+
     const _renderOrderHistoryTableHeader = () =>
     (
         <tr>
@@ -303,6 +344,10 @@ function OrderTable(props: IPropListOrderHistory) {
     return (
         <>
             {_renderOrderHistoryTable()}
+            {isShowProcessModal && <ProgressBarModal
+                handleCancel={handleCancelDownload}
+                percent={downloadPercent}
+            />}
         </>
     )
 }
