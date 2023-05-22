@@ -85,6 +85,7 @@ export interface IPropListOrderHistory {
     totalItem: number;
     isLastPage: boolean;
     isLoading: boolean;
+    totalRecord: number;
 }
 
 export interface IPropListTradeHistory {
@@ -725,6 +726,7 @@ export interface ITradeHistoryDownload {
     orderSide?: string;
     tickerCode: string;
     tickerName: string;
+    accountId?: string;
 }
 export interface IParamSearchTradeHistory {
     symbol_code: string;
@@ -802,4 +804,9 @@ export interface IListOrderApiRes {
     submitted_id: string;
     symbol_code: string;
     volume: number;
+}
+
+export interface IProgressBarModal {
+    percent: number;
+    handleCancel: () => void;
 }
