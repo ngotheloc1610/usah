@@ -149,7 +149,7 @@ const ListOrder = (props: IPropsListOrder) => {
                 }
                 tmp.push(tmpData)
             })
-            setDataOrder(tmp)
+            processSortData(tmp)
         })
     }, [])
 
