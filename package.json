@@ -51,10 +51,10 @@
     "xlsx": "^0.18.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && (rd /s /q build-lp && move build build-lp) || move build build-lp",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build && (rd /s /q build-lp && move build build-lp) || move build build-lp",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -76,7 +76,8 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.194",
-    "@types/redux-logger": "^3.0.9"
+    "@types/redux-logger": "^3.0.9",
+    "react-app-rewired": "^2.2.1"
   },
   "homepage": "/lp"
 }
