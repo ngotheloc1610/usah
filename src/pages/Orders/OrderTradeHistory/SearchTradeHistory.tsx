@@ -184,6 +184,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 defaultValue={currentAccountId}
                 value={accountId}
                 getOptionLabel={(option) => option === "*" ? "" : option}
+                isOptionEqualToValue={(option, value) => option === value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />
         </div>

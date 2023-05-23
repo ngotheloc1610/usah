@@ -5,7 +5,7 @@ import * as smpb from '../../../models/proto/system_model_pb';
 import { wsService } from "../../../services/websocket-service";
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, 
     START_PAGE, 
-    STATE_HISTORY_SEARCH, TEAM_CODE, TO_DATE_TIME } from '../../../constants/general.constant';
+    STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
@@ -177,6 +177,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
                 defaultValue={accountId}
                 value={accountId}
                 getOptionLabel={(option) => option === "*" ? "" : option}
+                isOptionEqualToValue={(option, value) => option === value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>

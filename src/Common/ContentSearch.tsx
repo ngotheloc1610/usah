@@ -115,6 +115,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
                 defaultValue={accountId}
                 value={accountId}
                 getOptionLabel={(option) => option === "*" ? "" : option}
+                isOptionEqualToValue={(option, value) => option === value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
