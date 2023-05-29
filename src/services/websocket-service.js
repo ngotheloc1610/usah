@@ -4,7 +4,7 @@ import tradingService from '../models/proto/trading_service_pb';
 import * as queryService from  '../models/proto/query_service_pb';
 import systemService from '../models/proto/system_service_pb';
 import { Subject } from 'rxjs';
-import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME } from '../constants/general.constant';
+import { KEY_LOCAL_STORAGE, ACCOUNT_ID, EXPIRE_TIME, ROLE, POEM_ID, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, TEAM_ROLE, TEAM_ID, TEAM_CODE } from '../constants/general.constant';
 import { toast } from 'react-toastify';
 import { INVALID_TOKEN } from '../constants';
 import moment from 'moment';
@@ -36,6 +36,7 @@ const unsubscribeTradeEventSubject = new Subject();
 const orderEventSubject = new Subject();
 const tradeSubject = new Subject();
 let isRender = true;
+const debugLogFlag = window.globalThis.debugLogFlag;
 const startWs = async () => {
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
     if (!token) {
@@ -46,7 +47,7 @@ const startWs = async () => {
     socket.binaryType = "arraybuffer";
 
     socket.onopen = (e) =>{
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON OPEN", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON OPEN", e);
         wsConnected = true;
         if (isRender) {
             socketSubject.next('SOCKET_CONNECTED');
@@ -58,7 +59,7 @@ const startWs = async () => {
     
     socket.onerror = (e) => {
 
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON ERROR", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON ERROR", e);
 
         socket.close();
         wsConnected = false;
@@ -69,6 +70,9 @@ const startWs = async () => {
         if (currentTime >= expiredTime) {
             // TODO: navigate to login screen when expired token
             localStorage.removeItem(ACCOUNT_ID);
+            localStorage.removeItem(TEAM_CODE);
+            localStorage.removeItem(TEAM_ID);
+            localStorage.removeItem(TEAM_ROLE);
             localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             localStorage.removeItem(EXPIRE_TIME);
             localStorage.removeItem(ROLE);
@@ -84,7 +88,7 @@ const startWs = async () => {
     }
 
     socket.onclose = (e) => {
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON CLOSE -> RECONNECT WEBSOKET", e);
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "ON CLOSE -> RECONNECT WEBSOKET", e);
         socketSubject.next('SOCKET_DISCONNECT');
         wsConnected = false;
         isRender = false;
@@ -176,7 +180,7 @@ const startWs = async () => {
     }
 
     const intervalId = setInterval(() => {
-        console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
+        debugLogFlag && console.log(moment().format('YYYY-MM-DD HH:mm:ss'), "PING");
         socket.send("PING")
     }, 30000 )
 }

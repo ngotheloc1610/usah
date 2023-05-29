@@ -2,37 +2,53 @@ import PaginationComponent from "../../../Common/Pagination";
 import "./ListModifyCancel.css";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import * as pspb from "../../../models/proto/pricing_service_pb";
 import { wsService } from "../../../services/websocket-service";
-import { useEffect, useState } from "react";
-import { IListOrderModifyCancel, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
+import React, { useEffect, useState } from "react";
+import { IListOrderModifyCancel, IListPendingOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
-import { ACCOUNT_ID, DEFAULT_ITEM_PER_PAGE, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM } from "../../../constants/general.constant";
-import { renderCurrentList, calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber } from "../../../helper/utils";
+import { ACCOUNT_ID, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM, SORT_MODIFY_CANCEL_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
+import { DEFAULT_ITEM_PER_PAGE } from '../../../constants/order.constant';
+import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost, renderCurrentList } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
 import PopUpConfirm from "../../Modal/PopUpConfirm";
 import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
+import axios from "axios";
+import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
+import { IParamPendingOrder } from "../../../interfaces";
+import { success, unAuthorised } from "../../../constants";
 
 interface IPropsListModifyCancel {
     orderSide: number;
     symbolCode: string;
-    isSearch: boolean;
     orderType: number;
+    isSearch: boolean;
     resetIsSearch: (value: boolean) => void;
+    paramSearch: IParamPendingOrder;
+    handleUnAuthorisedAcc:(value: boolean) => void;
 }
 
 const ListModifyCancel = (props: IPropsListModifyCancel) => {
-    const { orderSide, symbolCode, isSearch, orderType, resetIsSearch } = props;
+    const { 
+        orderSide,
+        symbolCode,
+        orderType,
+        paramSearch,
+        isSearch,
+        resetIsSearch,
+        handleUnAuthorisedAcc
+    } = props;
+
+    const tradingModelPb: any = tspb;
+
     const [listOrderFull, setListOrderFull] = useState<IListOrderModifyCancel[]>([]);
+    const [listPendingOrder, setListPendingOrder] = useState<IListPendingOrder[]>([]);
     const [listOrder, setListOrder] = useState<IListOrderModifyCancel[]>([]);
     const [dataOrder, setDataOrder] = useState<IListOrderModifyCancel[]>([]);
     const [statusOrder, setStatusOrder] = useState(0);
-    const tradingModelPb: any = tspb;
     const [isModify, setIsModify] = useState<boolean>(false);
     const [isCancel, setIsCancel] = useState<boolean>(false);
-    const [statusCancel, setStatusCancel] = useState(0);
     const [statusModify, setStatusModify] = useState(0);
     
     const [paramModifyCancel, setParamModifyCancel] = useState<IParamOrderModifyCancel>(DEFAULT_DATA_MODIFY_CANCEL);
@@ -40,41 +56,154 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderModifyCancel[]>([]);
     const [dataSelectedList, setSelectedList] = useState<any[]>([]);
+    const totalItem = listOrder.length;
+    const [orderEventList, setOrderEventList] = useState<any[]>([]);
     const [currentPage, setCurrentPage] = useState(START_PAGE);
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
 
-    const [orderEventList, setOrderEventList] = useState<any[]>([]);
+
+    const accountId = localStorage.getItem(ACCOUNT_ID) || '';
+
+    const stateSortDefault = {
+        feild: 'date',
+        sortAsc: false,
+        accountId: accountId
+    }
+
+    const stateSortList = JSON.parse(localStorage.getItem(SORT_MODIFY_CANCEL_SCREEN) || '[]')
+    const index = stateSortList.findIndex(item => item.accountId === accountId)
+    const stateSort = index >= 0 ? stateSortList[index] : stateSortDefault
+
+    // sort ticker
+    const [isTickerAsc, setIsTickerAsc] = useState(stateSort.field === 'ticker' ? stateSort.sortAsc : false);
+    const [isSortTicker, setIsSortTicker] = useState(stateSort.field === 'ticker');
+
+    // sort price
+    const [isPriceAsc, setIsPriceAsc] = useState(stateSort.field === 'price' ? stateSort.sortAsc : false);
+    const [isSortPrice, setIsSortPrice] = useState(stateSort.field === 'price');
+
+    // sort orderSide
+    const [isSideAsc, setIsSideAsc] = useState(stateSort.field === 'side' ? stateSort.sortAsc : false);
+    const [isSortSide, setIsSortSide] = useState(stateSort.field === 'side');
+
+    // sort dateTime
+    const [isDateTimeAsc, setIsDateTimeAsc] = useState(stateSort.field === 'date' ? stateSort.sortAsc : false);
+    const [isSortDateTime, setIsSortDateTime] = useState(stateSort.field ? stateSort.field === 'date' : true);
 
     const [cancelListId, setCancelListId] = useState<string[]>([]);
 
-    const totalItem = listOrder.length;
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
-
-    const pricingServicePb: any = pspb;
-    const rpc: any = rpcpb;
+    const teamCode = localStorage.getItem(TEAM_CODE) || ''
+    
+    const api_url = window.globalThis.apiUrl;
+    
+    const getDataPendingOrder = (param: IParamPendingOrder) => {
+        const urlPendingOrder = `${api_url}${API_GET_PENDING_ORDER}`;
+        
+        axios.post(urlPendingOrder, paramSearch, defindConfigPost()).then((resp) => {
+            if (resp?.status === success) {
+                const resultData = resp?.data?.results;
+                
+                setListPendingOrder(resultData);
+                handleUnAuthorisedAcc(false);
+            }
+        },
+            (error: any) => {
+                const msgCode = error.response.status
+                if(msgCode === unAuthorised) {
+                    setListPendingOrder([]);
+                    handleUnAuthorisedAcc(true);
+                }
+        });
+    }
 
     useEffect(() => {
-        const listOrderSortDate: IListOrderModifyCancel[] = listOrder.sort((a, b) => (b?.time.toString())?.localeCompare(a?.time.toString()));
-        const currentList = renderCurrentList(currentPage, itemPerPage, listOrderSortDate);
-        if (currentList.length <= 0 && isSearch) {
+        getDataPendingOrder(paramSearch);
+    }, [JSON.stringify(paramSearch)])
+
+    /* convert field API -> WS when callAPI get orderList */
+    useEffect(() => {
+        const listOrderConvert: IListOrderModifyCancel[] = []
+        if(listPendingOrder.length > 0){
+            listPendingOrder.forEach((item) => {
+                listOrderConvert.push({
+                    externalOrderId: item.external_order_id,
+                    amount: item.volume.toString(),
+                    entry: '',
+                    executeMode: '',
+                    expireTime: '',
+                    fee: '',
+                    note: '',
+                    orderFilling: '',
+                    orderId: item.order_id,
+                    orderMode: 0,
+                    orderTime: 0,
+                    orderType: item.order_type,
+                    pl: '',
+                    price: item.price.toString(),
+                    reason: '',
+                    route: '',
+                    side: item.order_side,
+                    sl: '',
+                    slippage: '',
+                    state: '',
+                    swap: '',
+                    symbolCode: item.symbol_code,
+                    time: item.exec_time,
+                    tp: '',
+                    triggerPrice: '',
+                    uid: convertNumber(item.account_id),
+                    filledAmount: item.exec_volume.toString(),
+                })
+            })
+        }
+        setListOrderFull(listOrderConvert);
+    }, [listPendingOrder])
+    
+    useEffect(() => {
+        let currentList: IListOrderModifyCancel[] = []
+        if(isSortDateTime) {
+            const listOrderSort: IListOrderModifyCancel[] = sortDateTime(listOrder, isDateTimeAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
+
+        if(isSortPrice) {
+            const listOrderSort: IListOrderModifyCancel[] = sortPrice(listOrder, isPriceAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+        }
+        if(isSortSide) {
+            const listOrderSort: IListOrderModifyCancel[] = sortSide(listOrder, isSideAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+            setDataOrder(listOrderSort);
+        }
+        if(isSortTicker) {
+            const listOrderSort: IListOrderModifyCancel[] = sortTicker(listOrder, isTickerAsc)
+            currentList = renderCurrentList(currentPage, itemPerPage, listOrderSort);
+            setDataOrder(currentList);
+            setDataOrder(listOrderSort);
+        }
+        if (currentList.length === 0 && isSearch) {
             currentPage === START_PAGE ? setCurrentPage(START_PAGE) : setCurrentPage(currentPage - 1);
             if (resetIsSearch) {
                 resetIsSearch(false);
             }
         }
-        setDataOrder(currentList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrder, itemPerPage, currentPage])
 
     useEffect(() => {
         setCurrentPage(currentPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isCancel])
 
     useEffect(() => {
-        setCurrentPage(START_PAGE);
-    }, [orderSide])
-
+        if(isSearch) setCurrentPage(START_PAGE);
+        if (resetIsSearch) {
+            resetIsSearch(false);
+        }
+    }, [isSearch])
+    
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
@@ -82,18 +211,12 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             }
         });
 
-        const listOrder = wsService.getListOrder().subscribe(response => {
-            setListOrderFull(response.orderList);
-        });
-
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
-            console.log("OrderEvent: ", resp.orderList);
             setOrderEventList(resp.orderList);
         })
 
         return () => {
             ws.unsubscribe();
-            listOrder.unsubscribe();
             orderEvent.unsubscribe();
         }
     }, []);
@@ -107,19 +230,15 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 newSelectList.splice(newSelectList.indexOf(item), 1);
             }
         });
-
         setSelectedList(newSelectList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataOrder])
 
     useEffect(() => {
         processOrderList(listOrderFull);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [listOrderFull, symbolCode, orderSide, orderType])
 
     useEffect(() => {
         processOrderEvent(orderEventList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderEventList]);
 
     const processOrderEvent = (orderList) => {
@@ -161,7 +280,6 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         }
     }
 
-
     const handleOrderPlaced = (order) => {
         const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
@@ -194,13 +312,17 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const handleOrderParital = (order) => {
         const tmpList = [...listOrderFull];
         const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
+        let orderPrice = order?.price;
+        if (order?.orderType === tradingModelPb.OrderType.OP_MARKET) {
+            orderPrice = order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price;
+        }
         if (idx >= 0) {
             tmpList[idx] = {
                 ...tmpList[idx],
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
-                price: order?.lastPrice
+                price: orderPrice
             }
         } else {
             tmpList.unshift({
@@ -254,11 +376,11 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
 
     const getItemPerPage = (item: number) => {
         setItemPerPage(item);
-        setCurrentPage(START_PAGE)
+        setCurrentPage(START_PAGE)  
     }
 
     const getCurrentPage = (item: number) => {
-        setCurrentPage(item);
+        setCurrentPage(item); 
     }
 
     const sendListOrder = () => {
@@ -303,6 +425,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
             side: item.side,
             confirmationConfig: false,
             tickerId: item.symbolCode.toString(),
+            uid: item.uid
         }
         setParamModifyCancel(param);
         if (value === TITLE_CONFIRM['modify']) {
@@ -350,8 +473,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 
             </>
         }
-        if (typeOrderRes === TYPE_ORDER_RES.Cancel && statusCancel === 0) {
-            setStatusCancel(value);
+        if (typeOrderRes === TYPE_ORDER_RES.Cancel) {
             return <>
                 {(value === RESPONSE_RESULT.success && content !== '') && _renderMessageSuccess(content, typeOrderRes)}
                 {(value === RESPONSE_RESULT.error && content !== '') && _renderMessageError(content, msgCode)}
@@ -425,6 +547,103 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         setSelectedList([]);
     }
 
+    
+    const handleSortTicker = () => {
+        setIsSortTicker(true);
+        setIsSortPrice(false);
+        setIsSortSide(false);
+        setIsSortDateTime(false);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'ticker',
+            sortAsc: !isTickerAsc,
+            accountId: accountId
+        }
+
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        const tmp = sortTicker(temp, !isTickerAsc)
+        setDataOrder(tmp);
+        setIsTickerAsc(isTickerAsc ? false : true);
+    }
+
+    const handleSortDateTime = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortSide(false);
+        setIsSortDateTime(true);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'date',
+            sortAsc: !isDateTimeAsc,
+            accountId: accountId
+        }
+
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+
+        const tmp = sortDateTime(temp, !isDateTimeAsc)
+        setDataOrder(tmp);
+        setIsDateTimeAsc(isDateTimeAsc ? false : true);
+    }
+
+    const handleSortSide = () => {
+        setIsSortTicker(false);
+        setIsSortPrice(false);
+        setIsSortDateTime(false);
+        setIsSortSide(true);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'side',
+            sortAsc: !isSideAsc,
+            accountId: accountId
+        }
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        const tmp = sortSide(temp, !isSideAsc)
+        setDataOrder(tmp);
+        setIsSideAsc(isSideAsc ? false : true);
+    }
+
+    const handleSortPrice = () => {
+        setIsSortTicker(false);
+        setIsSortDateTime(false);
+        setIsSortSide(false);
+        setIsSortPrice(true);
+        const temp = [...dataOrder];
+        const stateSortTmp = {
+            field: 'price',
+            sortAsc: !isPriceAsc,
+            accountId: accountId
+        }
+        if(index >= 0) {
+            stateSortList[index] = stateSortTmp
+        } else {
+            stateSortList.push(stateSortTmp)
+        }
+
+        localStorage.setItem(SORT_MODIFY_CANCEL_SCREEN, JSON.stringify(stateSortList))
+        
+        const tmp = sortPrice(temp, !isPriceAsc)
+        setDataOrder(tmp);
+        setIsPriceAsc(isPriceAsc ? false : true);
+    }
+
     const getListModifyCancelData = () => (
         dataOrder.map((item, index) => {
             return <tr key={index} className="odd">
@@ -437,6 +656,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                             id="all" />
                     </div>
                 </td>
+                {teamCode && teamCode !== 'null' &&  <td className="fm">{item.uid}</td>}
                 <td className="fm">{item.externalOrderId}</td>
                 <td title={getTickerName(item.symbolCode)}>{getTickerCode(item.symbolCode.toString())}</td>
                 <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
@@ -446,7 +666,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
                 <td className="text-end">{formatOrderTime(item.time)}</td>
                 <td className="text-end">
-                    {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                     <a className="btn-edit-order mr-10" onClick={() => handleModifyCancel(item, TITLE_CONFIRM['modify'])}>
                         <i className="bi bi-pencil-fill"></i>
                     </a>
@@ -479,20 +699,29 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                                     checked={dataSelectedList.length === dataOrder.length && dataOrder.length > 0}
                                 />
                             </th>
+                            {teamCode && teamCode !== 'null' &&  <th className="sorting_disabled">
+                                <span className="text-ellipsis">Account Id</span>
+                            </th>}
                             <th className="sorting_disabled">
                                 <span className="text-ellipsis">Order No</span>
                             </th>
-                            <th className="sorting_disabled">
+                            <th className="sorting_disabled pointer-style" onClick={handleSortTicker}>
                                 <span className="text-ellipsis">Ticker</span>
+                                {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
+                                {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
                             </th>
-                            <th className="sorting_disabled text-center">
+                            <th className="sorting_disabled text-center pointer-style" onClick={handleSortSide}>
                                 <span className="text-ellipsis">Side</span>
+                                {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
+                                {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
                             </th>
                             <th className="sorting_disabled text-center">
                                 <span className="text-ellipsis">Type</span>
                             </th>
-                            <th className="text-end sorting_disabled">
+                            <th className="text-end sorting_disabled pointer-style" onClick={handleSortPrice}>
                                 <span className="text-ellipsis">Price</span>
+                                {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
+                                {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
                             </th>
                             <th className="text-end sorting_disabled">
                                 <span className="text-ellipsis">Quantity</span>
@@ -500,8 +729,10 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                             <th className="text-end sorting_disabled">
                                 <span className="text-ellipsis">Pending</span>
                             </th>
-                            <th className="text-end sorting_disabled">
+                            <th className="text-end sorting_disabled pointer-style" onClick={handleSortDateTime}>
                                 <span className="text-ellipsis">Datetime</span>
+                                {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
+                                {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
                             </th>
                             <th className="text-end sorting_disabled">
                                 {(dataSelectedList.length > 0) && 
@@ -518,8 +749,9 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 </table>
             </div>
         </div>
-        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} currentPage={currentPage}
-            getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage}
+        <PaginationComponent totalItem={totalItem} itemPerPage={itemPerPage} 
+                currentPage={currentPage}
+            getItemPerPage={getItemPerPage} getCurrentPage={getCurrentPage} isShowAllRecord={false}
         />
         {isCancel && <ConfirmOrder isCancel={isCancel}
             handleCloseConfirmPopup={togglePopup}
@@ -540,4 +772,4 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         />}
     </div>
 }
-export default ListModifyCancel;
+export default React.memo(ListModifyCancel);

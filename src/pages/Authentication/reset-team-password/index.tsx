@@ -1,16 +1,15 @@
-import './ResetPassword.scss';
-import '../Login/Login.scss';
+import './ResetTeamPassword.scss';
 import { useEffect, useState } from 'react';
-import { API_RESET_PASSWORD } from '../../../constants/api.constant';
+import { API_RESET_TEAM_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
-import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST } from '../../../constants/general.constant';
+import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST, KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
 import queryString from 'query-string';
 import { errorPastPassword, RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
 import { toast } from 'react-toastify';
 import { _renderMsgError, _renderResetTokenErrorMessage } from '../../../helper/utils-ui';
 
-const ResetPassword = () => {
+const ResetTeamPassword = () => {
 
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,19 +22,20 @@ const ResetPassword = () => {
     const [errMess, setErrMess] = useState('');
     const [isExpiredResetToken, setIsExpiredResetToken] = useState(false);
     const [countDown, setCountDown] = useState(RETURN_LOGIN_TIME);
-
-    const apiUrl = `${window.globalThis.apiUrl}${API_RESET_PASSWORD}`;
+    
+    const apiUrl = `${window.globalThis.apiUrl}${API_RESET_TEAM_PASSWORD}`;
     const paramStr = window.location.search;
     const queryParam = queryString.parse(paramStr);
-
+    
     useEffect(() => {
         if (isSuccess) {
             if (countDown === 0) {
-                window.location.href = `${process.env.PUBLIC_URL}/login/lp`;
+                window.location.href = `${process.env.PUBLIC_URL}`;
             }
             const intervalId = setInterval(() => {
                 setCountDown(countDown - 1);
             }, 1000);
+            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             return () => clearInterval(intervalId);
         }
     }, [isSuccess, countDown]);
@@ -48,22 +48,23 @@ const ResetPassword = () => {
         setCheckNewPass(!validationPassword(newPassword));
 
         if (validationPassword(newPassword) && newPassword === confirmPassword) {
-            handleResetPassword();
+            handleResetTeamPassword();
         }
     }
 
     const renderSuccessMessage = () => (
+        
         <>
             <div className='text-success d-inline'>Password is updated and you can now use your new password to sign in </div>
-            <a href={`${window.location.origin}${process.env.PUBLIC_URL}/login/lp`}>{`${window.location.origin}${process.env.PUBLIC_URL}/login/lp`}</a>.
-            <div className='text-success mt-3'>You will be redirected to LOGIN page after <strong>{countDown}</strong> seconds.</div>
+            <a href={`${window.location.origin}${process.env.PUBLIC_URL}`}>{`${window.location.origin}${process.env.PUBLIC_URL}`}</a>.
+            <div className='text-success mt-3'>You will be redirected to LP Web Trading in <strong>{countDown}</strong> seconds.</div>
         </>
     )
 
-    const handleResetPassword = () => {
+    const handleResetTeamPassword = () => {
         const param = {
             new_password: newPassword,
-            reset_token: queryParam?.reset_token
+            reset_token: queryParam.reset_token
         }
         axios.post(apiUrl, param).then(resp => {
             switch (resp?.data?.meta?.code) {
@@ -113,7 +114,7 @@ const ResetPassword = () => {
         setConfirmPassword(event.target.value);
     }
 
-    const _renderResetPasswordTemplate = () => (
+    const _renderResetTeamPasswordTemplate = () => (
         <div className="h-full page login">
             <div className="h-full site-main d-flex align-items-center">
                 <div className="container">
@@ -127,7 +128,7 @@ const ResetPassword = () => {
                             </h3>
                             <div className="card card-login shadow">
                                 <div className="card-body">
-                                    <h4 className="text-primary-custom">Reset Password</h4>
+                                    <h4 className="text-primary-custom">Reset Team Password</h4>
                                     <div className="mb-3">
                                         <label className="d-block mb-1 text-secondary">New Password</label>
                                         <div className="input-group">
@@ -178,8 +179,8 @@ const ResetPassword = () => {
     )
 
     return <>
-        {_renderResetPasswordTemplate()}
+        {_renderResetTeamPasswordTemplate()}
     </>
 }
 
-export default ResetPassword
+export default ResetTeamPassword

@@ -2129,7 +2129,9 @@ proto.ModifyOrderRequest.toObject = function(includeInstance, msg) {
     randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
     hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
     hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    teamCode: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    teamPassword: jspb.Message.getFieldWithDefault(msg, 9, "")
   };
 
   if (includeInstance) {
@@ -2194,6 +2196,14 @@ proto.ModifyOrderRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTeamCode(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTeamPassword(value);
       break;
     default:
       reader.skipField();
@@ -2271,6 +2281,20 @@ proto.ModifyOrderRequest.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       7,
+      f
+    );
+  }
+  f = message.getTeamCode();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = message.getTeamPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
       f
     );
   }
@@ -2420,6 +2444,42 @@ proto.ModifyOrderRequest.prototype.getHiddenConfirmFlg = function() {
  */
 proto.ModifyOrderRequest.prototype.setHiddenConfirmFlg = function(value) {
   return jspb.Message.setProto3BooleanField(this, 7, value);
+};
+
+
+/**
+ * optional string team_code = 8;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getTeamCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setTeamCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional string team_password = 9;
+ * @return {string}
+ */
+proto.ModifyOrderRequest.prototype.getTeamPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ModifyOrderRequest} returns this
+ */
+proto.ModifyOrderRequest.prototype.setTeamPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 
@@ -2689,7 +2749,9 @@ proto.CancelOrderRequest.toObject = function(includeInstance, msg) {
     randomNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
     hashPassword: jspb.Message.getFieldWithDefault(msg, 5, ""),
     hashPasswordOnly8: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
+    hiddenConfirmFlg: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    teamCode: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    teamPassword: jspb.Message.getFieldWithDefault(msg, 9, "")
   };
 
   if (includeInstance) {
@@ -2754,6 +2816,14 @@ proto.CancelOrderRequest.deserializeBinaryFromReader = function(msg, reader) {
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setHiddenConfirmFlg(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTeamCode(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTeamPassword(value);
       break;
     default:
       reader.skipField();
@@ -2831,6 +2901,20 @@ proto.CancelOrderRequest.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       7,
+      f
+    );
+  }
+  f = message.getTeamCode();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = message.getTeamPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
       f
     );
   }
@@ -2980,6 +3064,42 @@ proto.CancelOrderRequest.prototype.getHiddenConfirmFlg = function() {
  */
 proto.CancelOrderRequest.prototype.setHiddenConfirmFlg = function(value) {
   return jspb.Message.setProto3BooleanField(this, 7, value);
+};
+
+
+/**
+ * optional string team_code = 8;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getTeamCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setTeamCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional string team_password = 9;
+ * @return {string}
+ */
+proto.CancelOrderRequest.prototype.getTeamPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.CancelOrderRequest} returns this
+ */
+proto.CancelOrderRequest.prototype.setTeamPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 

@@ -78,6 +78,8 @@ const MultipleOrders = () => {
     const ref: any = useRef();
     const pricingServicePb: any = pspb;
 
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
@@ -922,53 +924,53 @@ const MultipleOrders = () => {
                     return;
                 }
 
-                if (!checkSymbol(obj.Ticker)) {
+                if (!checkSymbol(obj?.Ticker?.trim())) {
                     toast.error("Symbol doesn't exist");
                     return;
                 }
 
-                if (isNaN(Number(obj.Quantity.replaceAll(',', '')))) {
+                if (isNaN(Number(obj?.Quantity?.trim().replaceAll(',', '')))) {
                     toast.error('Invalid quantity');
                     return;
                 }
 
-                if (isNaN(Number(obj.Price.replaceAll(',', '')))) {
+                if (isNaN(Number(obj?.Price?.trim().replaceAll(',', '')))) {
                     toast.error('Invalid price');
                     return;
                 }
 
-                if (!checkSideValid(obj.OrderSide)) {
+                if (!checkSideValid(obj?.OrderSide?.trim())) {
                     toast.error('Invalid order side');
                     return;
                 }
 
-                if (!checkOrderTypeValid(obj.OrderType)) {
+                if (!checkOrderTypeValid(obj?.OrderType?.trim())) {
                     toast.error('Invalid order type');
                     return;
                 }
 
                 let bestAsk = 0;
                 let bestBid = 0;
-                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj.Ticker);
+                const tempQuote = lastQuotes.find(ite => ite?.symbolCode === obj?.Ticker?.trim());
                 if (tempQuote) {
                     bestAsk = tempQuote?.asksList?.length > 0 ? convertNumber(tempQuote?.asksList[0]?.price) : 0;
                     bestBid = tempQuote?.bidsList?.length > 0 ? convertNumber(tempQuote?.bidsList[0]?.price) : 0;
                 }
-                let tempPrice = obj.Price.replaceAll(',', '');
-                if (obj.OrderType.toLowerCase() === 'market') {
-                    tempPrice = obj.OrderSide.toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
+                let tempPrice = obj.Price.trim().replaceAll(',', '');
+                if (obj.OrderType.trim().toLowerCase() === 'market') {
+                    tempPrice = obj.OrderSide.trim().toLowerCase() === 'buy' ? bestAsk.toString() : bestBid.toString();
                 }
           
                 if (Object.values(obj).filter(x => x).length > 0) {
                     const tmp: ISymbolMultiOrder = {
                         no: (list.length).toString(),
-                        orderSide: obj.OrderSide,
+                        orderSide: obj.OrderSide.trim(),
                         price: formatCurrency(tempPrice),
-                        ticker: obj.Ticker,
+                        ticker: obj.Ticker.trim(),
                         volume: obj.Quantity || obj.Volume,
-                        msgCode: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
-                        message: getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker, obj.Quantity || obj.Volume, tempPrice)?.message : '',
-                        orderType: obj.OrderType.toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
+                        msgCode: getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice)?.msgCode : null,
+                        message: getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice) ? getStatusOrder(obj.Ticker.trim(), obj.Quantity || obj.Volume, tempPrice)?.message : '',
+                        orderType: obj.OrderType.trim().toLowerCase() === 'limit' ? tradingModel.OrderType.OP_LIMIT : tradingModel.OrderType.OP_MARKET
                     }
                     list.push(tmp);
                 }
@@ -1070,7 +1072,7 @@ const MultipleOrders = () => {
         if (lotSize === 0) {
             setVolume(volume);
             setInvalidVolume(true);
-            console.log("Volume invalid because minLot=0 with symbolCode=", ticker);
+            debugLogFlag && console.log("Volume invalid because minLot=0 with symbolCode=", ticker);
             return;
         }
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import OrderForm from '../../../components/Order/OrderForm';
 import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
-import OrderBookTickerDetail from '../../../components/Orders/OrderBookCommon/OrderBookTickerDetail';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
 import { IAskAndBidPrice, IListTradeHistory, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
@@ -471,7 +470,6 @@ const OrderBookCommon = () => {
                                     <div className="col-md-9">
                                         <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} handleSide={getSide} getTicerLastQuote={assgnDataFormNewOrder} />
                                         <div className="card card-ticker w-pr-100">
-                                            <OrderBookTickerDetail symbolCode={tickerSelect} />
                                         </div>
                                     </div>
                                     <div className="col-md-3">

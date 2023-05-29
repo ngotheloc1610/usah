@@ -13,8 +13,10 @@ export const pageSizeTicker = 8;
 export const pageFirst = 1;
 export const success = 200;
 export const unAuthorised = 401;
+export const badRequest = 400;
 export const errorPastPassword = 1501;
 export const multipleLoginFail = 1200;
+export const deactiveAccount = 1400;
 
 export const ORDER_RESPONSE = {
     REJECT: 'Reject',
@@ -24,3 +26,5 @@ export const ORDER_RESPONSE = {
 export const INVALID_TOKEN = 'Invalid Token';
 
 export const RESET_PASSWORD_SUCCESS = 'Reset password success';
+
+export const notFound = 404;

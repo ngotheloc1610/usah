@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH } from '../../../../constants/general.constant';
+import { LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT } from '../../../../constants/general.constant';
 import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_COLUMN_GAB, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
 import { IAskAndBidPrice, IAsksBidsList, ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
 import './OrderBoolListBidsAsk.scss';
@@ -33,6 +33,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const [bidsList, setBidsList] = useState<IAsksBidsList[]>([]);
     const [totalAsks, setTotalAsks] = useState('');
     const [totalBids, setTotalBids] = useState('');
+
+    const marketDepthLength = window.globalThis.marketDepthLenghtOrderBook || MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT
 
     useEffect(() => {
         const lastQuoteResponse = wsService.getDataLastQuotes().subscribe(lastQuote => {
@@ -111,8 +113,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
 
         setAsksList(getListAsksBids(askList, LIST_PRICE_TYPE.askList));
         setBidsList(getListAsksBids(bidList, LIST_PRICE_TYPE.bidList));
-
-        while (counter < MARKET_DEPTH_LENGTH) {
+        while (counter < marketDepthLength) {
             if (askList[counter] || bidList[counter]) {
                 const tradableBid = (bidList[counter] && bidList[counter].tradable) ? bidList[counter].tradable : false;
                 const volumeBid = (bidList[counter] && bidList[counter].volume) ? bidList[counter].volume : '-';
@@ -289,18 +290,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <td className="text-end border-end border-bottom-0">&nbsp;</td>
             </tr>
             <tr>
-                <td className="text-end border-end border-bottom-0">&nbsp;</td>
-                <td className="text-end border-end border-bottom-0">&nbsp;</td>
-                <td className="text-end border-end border-bottom-0">
-                    <span className="text-danger">&nbsp;</span>
-                </td>
-                <td className="text-end border-end border-bottom-0">
-                    <span className="text-success">&nbsp;</span>
-                </td>
-                <td className="text-end border-end border-bottom-0">&nbsp;</td>
-                <td className="text-end border-end border-bottom-0">&nbsp;</td>
-            </tr>
-            <tr>
                 <td className="text-end border-end border-bottom-0">
                     {styleListBidsAsk.earmarkSpreadSheet && <strong>{convertNumber(totalBids) === 0 ? '-' : formatNumber(totalBids)}</strong>}
                     {styleListBidsAsk.spreadsheet && <strong>{convertNumber(totalAsks) === 0 ? '-' : formatNumber(totalAsks)}</strong>}
@@ -324,7 +313,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
     const _renderTableEarmarkSpreadSheet = () => (
-        <table className="table table-sm table-hover border mb-0">
+        <table className="table table-sm table-hover border mb-0 h-100">
             <thead>
                 <tr>
                     {styleListBidsAsk.earmarkSpreadSheet && _renderTitleStyleEarmarkSpreadSheet()}
@@ -364,7 +353,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     const _renderDataStyleGirdAsk = () => {
         const temp: IListAskBid[] = [];
         let idx = 0;
-        while(idx < MARKET_DEPTH_LENGTH) {
+        while(idx < marketDepthLength) {
             if (listAsksBids[idx]) {
                 temp.push(listAsksBids[idx])
             } else {
@@ -522,14 +511,8 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
-                <tr>
-                    <td className="text-end" colSpan={5}>&nbsp;</td>
-                </tr>
                 {_renderDataStyleColumnsAsk()}
                 {_renderDataStyleColumnsBids()}
-                <tr>
-                    <td className="text-end" colSpan={5}>&nbsp; </td>
-                </tr>
                 <tr>
                     <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
@@ -568,9 +551,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                 <tr>
                     <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
-                <tr>
-                    <td className="text-end" colSpan={5}>&nbsp;</td>
-                </tr>
                 {_renderDataStyleColumnsGapAsk()}
                 {_renderDataStyleColumnsGapBid()}
                 <tr>
@@ -578,9 +558,6 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
                     <td className="text-end">
 
                     </td>
-                </tr>
-                <tr>
-                    <td className="text-end" colSpan={5}>&nbsp;</td>
                 </tr>
                 <tr>
                     <td className="text-end" colSpan={2}>&nbsp;</td>
@@ -596,7 +573,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
 
-    return <div className="order-block table-responsive mb-2 fz-14">
+    return <div className="order-block table-responsive mb-2 fz-14 h-100">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
         {styleListBidsAsk.grid && _renderTableGidBids()}
         {styleListBidsAsk.columns && _renderTableColumns()}

@@ -1,98 +1,78 @@
-import { wsService } from "../../../services/websocket-service";
-import * as qspb from "../../../models/proto/query_service_pb"
-import * as rpcpb from "../../../models/proto/rpc_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
-import { useState, useEffect } from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, SOCKET_CONNECTED, SOCKET_RECONNECTED, TO_DATE_TIME } from '../../../constants/general.constant';
+import { useState,} from 'react';
+import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE, } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
-import { IListTradeHistory, IParamSearchTradeHistory } from "../../../interfaces/order.interface";
+import { IParamSearchTradeHistory, IParamSearchComponentTradeHistory } from "../../../interfaces/order.interface";
 
 const OrderTradeHistory = () => {
     const tradingModelPb: any = tmpb;
-    const [getDataTradeHistory, setDataTradeHistory] = useState<IListTradeHistory[]>([]);
-    const [getDataTradeHistoryRes, setDataTradeHistoryRes] = useState<IListTradeHistory[]>([]);
-    const [orderSide, setOrderSide] = useState(0);
-    const [symbolCode, setSymbolCode] = useState('');
-    const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE)
-    
     const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
+    const fromDateDefault = convertDatetoTimeStamp(today, FROM_DATE_TIME);
+    const toDateDefault = convertDatetoTimeStamp(today, TO_DATE_TIME);
 
-    const [fromDate, setFromDate] = useState(convertDatetoTimeStamp(today, FROM_DATE_TIME));
-    const [toDate, setToDate] = useState(convertDatetoTimeStamp(today, TO_DATE_TIME));
     const [isSearchData, setIsSearchData] = useState(false);
+    const [isDownload, setIsDownload] = useState(false)
+    const [isUnAuthorised, setIsUnAuthorised] = useState(false)
 
-    useEffect(() => {
-        const ws = wsService.getSocketSubject().subscribe(resp => {
-            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendTradeHistoryReq(symbolCode, fromDate, toDate);
-            }
-        });
-
-        const tradeHistoryRes = wsService.getTradeHistory().subscribe(res => {
-            setDataTradeHistoryRes(res?.tradeList);
-        });
-
-        return () => {
-            ws.unsubscribe();
-            tradeHistoryRes.unsubscribe();
-        };
-    }, [symbolCode, orderSide, fromDate, toDate])
-
-    useEffect(() => {
-        processTradeHistory(getDataTradeHistoryRes);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [getDataTradeHistoryRes, orderSide, orderType])
-
-    const processTradeHistory = (tradeList: IListTradeHistory[]) => {
-        let tradeListFilter = tradeList;
-        if ([tradingModelPb.Side.BUY, tradingModelPb.Side.SELL].includes(orderSide)) {
-            tradeListFilter = tradeListFilter.filter(item => item.side === orderSide);
-        }
-        if (orderType !== tradingModelPb.OrderType.OP_NONE) {
-            tradeListFilter = tradeListFilter.filter(item => item.orderType === orderType);
-        }
-        setDataTradeHistory(tradeListFilter);
-
+    const accoutId = localStorage.getItem(ACCOUNT_ID) || ''
+    
+    const paramSearchDefault = {
+        symbol_code: '',
+        order_side: 0,
+        from_time: fromDateDefault,
+        to_time: toDateDefault,
+        order_type: tradingModelPb.OrderType.OP_NONE,
+        account_id: accoutId,
+        page: START_PAGE, 
+        page_size: DEFAULT_ITEM_PER_PAGE,
     }
 
-    const sendTradeHistoryReq = (symbolCodeSeach: string, fromDateSearch: number, toDateSearch: number) => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+    const [paramSearch, setParamSearch] = useState<IParamSearchTradeHistory>(paramSearchDefault)
 
-        const queryServicePb: any = qspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let tradeHistoryRequest = new queryServicePb.GetTradeHistoryRequest();
-            tradeHistoryRequest.setAccountId(Number(accountId));
-            tradeHistoryRequest.setSymbolCode(symbolCodeSeach);
-            tradeHistoryRequest.setFromDatetime(fromDateSearch);
-            tradeHistoryRequest.setToDatetime(toDateSearch);
-            const rpcPb: any = rpcpb;
-            let rpcMsg = new rpcPb.RpcMessage();
-            rpcMsg.setPayloadClass(rpcPb.RpcMessage.Payload.TRADE_HISTORY_REQ);
-            rpcMsg.setPayloadData(tradeHistoryRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
+    const getParamSearch = (param: IParamSearchComponentTradeHistory) => {
+        const tmpParam = {
+            ...paramSearch,
+            ...param,
+            page: START_PAGE,
         }
-    }
-
-    const getParamSearch = (param: IParamSearchTradeHistory) => {
-        setOrderSide(param.side);
-        const tmpFromDate = param.fromDate ? param.fromDate : 0;
-        const tmpToDate = param.toDate ? param.toDate : convertDatetoTimeStamp(today, TO_DATE_TIME);
-        setFromDate(tmpFromDate);
-        setToDate(tmpToDate);
-        setIsSearchData(true);
-        setSymbolCode(param.symbolCode);
-        sendTradeHistoryReq(param.symbolCode, tmpFromDate, tmpToDate);
-        setOrderType(param.orderType);
+        setParamSearch(tmpParam)
     }
 
     const changeStatusSearch = (value: boolean) => {
         setIsSearchData(value);
+    }
+
+    const handleDownload = (value: boolean) => {
+        setIsDownload(value)
+    }
+
+    const handleChangeNextPage = () => {
+        setParamSearch(prev => ({
+            ...prev,
+            page: prev.page + 1
+        }))
+    }
+
+    const handleChangePage = (value: number) => {
+        setParamSearch(prev => ({
+            ...prev,
+            page: value
+        }))
+    }
+
+    const handleChangeItemPerPage = (value: number) => {
+        setParamSearch(prev => ({
+            ...prev,
+            page: START_PAGE,
+            page_size: value
+        }))
+    }
+
+    const handleUnAuthorisedAcc = (value: boolean) => {
+        setIsUnAuthorised(value)
     }
 
     const _renderTradeHistory = () => {
@@ -100,8 +80,18 @@ const OrderTradeHistory = () => {
             <div className="site-main">
                 <div className="container">
                     <div className="card shadow-sm mb-3">
-                        <SearchTradeHistory getParamSearch={getParamSearch}/>
-                        <TableTradeHistory getDataTradeHistory={getDataTradeHistory} isSearchData={isSearchData} changeStatusSearch={changeStatusSearch} />
+                        <SearchTradeHistory getParamSearch={getParamSearch} handleDownload={handleDownload} isUnAuthorised={isUnAuthorised}/>
+                        <TableTradeHistory 
+                            isSearchData={isSearchData} 
+                            changeStatusSearch={changeStatusSearch} 
+                            isDownload={isDownload} 
+                            resetStatusDownload={handleDownload}
+                            paramSearch={paramSearch}
+                            handleChangePage={handleChangePage}
+                            handleChangeNextPage={handleChangeNextPage}
+                            handleChangeItemPerPage={handleChangeItemPerPage}
+                            handleUnAuthorisedAcc={handleUnAuthorisedAcc}
+                        />
                     </div>
                 </div>
             </div>

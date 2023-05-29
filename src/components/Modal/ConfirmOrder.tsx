@@ -7,7 +7,7 @@ import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 import { Button, Modal } from 'react-bootstrap';
 import Decimal from 'decimal.js';
 import moment from 'moment';
+import { Autocomplete } from '@mui/material';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -44,13 +45,20 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [outOfPrice, setOutOfPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [isDisableInput, setIsDisableInput] = useState(false);
-
+    const [teamPassword, setTeamPassword] = useState('');
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
+    const [isHiddenPassword, setIsHiddenPassword] = useState(true);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
 
     const maxOrderValue = localStorage.getItem(MAX_ORDER_VALUE) || '0';
+
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
+    const teamId = localStorage.getItem(TEAM_ID) || '0';
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -65,6 +73,56 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        const cancelReq = wsService.getCancelSubject().subscribe(resp => {
+            handleCancelRes(resp)
+        });
+
+        return () => {
+            cancelReq.unsubscribe()
+        }
+    }, [])
+
+    const handleCancelRes = (resp: any) => {
+        let tmp = 0;
+        let msgText = resp[MSG_TEXT];
+        if (resp?.orderList?.length > 1) {
+            updateMessageResponse(tmp, resp[MSG_CODE], msgText)
+        } else if (resp?.orderList?.length === 1) {
+            const order = resp?.orderList[0];
+            updateMessageResponse(tmp, order?.msgCode, msgText)
+        } else {
+            tmp = RESPONSE_RESULT.error;
+            handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+            if (handleOrderCancelIdResponse) {
+                handleOrderCancelIdResponse(params?.orderId || '');
+            }
+        }
+        resp?.orderList?.forEach(item => {
+            if (item && handleOrderCancelIdResponse) {
+                handleOrderCancelIdResponse(item?.orderId);
+            }
+        })
+        handleCloseConfirmPopup(false);
+    }
+
+    const updateMessageResponse = (statusRes: number, msgCode: number, msgText: string) => {
+        const systemModelPb: any = smpb;
+        if ( msgCode === systemModelPb.MsgCode.MT_RET_OK) {
+            statusRes = RESPONSE_RESULT.success;
+        } else if (msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
+            statusRes = RESPONSE_RESULT.error;
+            msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) || '';
+        } else if (msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+            statusRes = RESPONSE_RESULT.success;
+            msgText = CANCEL_SUCCESSFULLY;
+        } else {
+            statusRes = RESPONSE_RESULT.error;
+        }
+        handleOrderResponse(statusRes, msgText, TYPE_ORDER_RES.Cancel, msgCode);
+    }
+
 
     const handleVolumeModify = (valueVolume: string) => {
         const symbolInfo = symbols.find(o => o?.symbolCode === params?.tickerCode)
@@ -81,14 +139,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         setIsInvalidMaxQty(new Decimal(params?.volume).lt(new Decimal(tempVolumeChange)));
     }
 
-    const prepareMessageModify = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageModify = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
             let currentDate = new Date();
             let modifyOrder = new tradingServicePb.ModifyOrderRequest();
             modifyOrder.setHiddenConfirmFlg(params.confirmationConfig);
+
+            // TODO: Need flag ON/OFF to check password team
+            modifyOrder.setTeamCode(teamCode);
+            modifyOrder.setTeamPassword(teamPassword);
 
             let order = new tradingModelPb.Order();
             order.setOrderId(params.orderId);
@@ -101,7 +162,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -186,8 +247,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         }
     }
 
-    const prepareMessageCancel = (accountId: string) => {
-        const uid = accountId;
+    const prepareMessageCancel = (accountId: string, uid: string) => {
         let wsConnected = wsService.getWsConnected();
         const systemModelPb: any = smpb;
         if (wsConnected) {
@@ -206,65 +266,30 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
             order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
             order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
-            order.setSubmittedId(uid);
+            order.setSubmittedId(accountId);
 
             if(flagMsgCode) {
                 order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
             }
             cancelOrder.addOrder(order);
+
+            // TODO: Need flag ON/OFF to check password team
+            cancelOrder.setTeamCode(teamCode);
+            cancelOrder.setTeamPassword(teamPassword);
+
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            wsService.getCancelSubject().subscribe(resp => {
-                let tmp = 0;
-                let msgText = resp[MSG_TEXT];
-                if (resp?.orderList?.length > 1) {
-                    if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                        tmp = RESPONSE_RESULT.success;
-                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
-                        tmp = RESPONSE_RESULT.error;
-                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                    } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
-                        tmp = RESPONSE_RESULT.success;
-                        msgText = CANCEL_SUCCESSFULLY;
-                    } else {
-                        tmp = RESPONSE_RESULT.error;
-                    }
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-                } else if (resp?.orderList?.length === 1) {
-                    const order = resp?.orderList[0];
-                    if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
-                        tmp = RESPONSE_RESULT.success;
-                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
-                        tmp = RESPONSE_RESULT.error;
-                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                    } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
-                        tmp = RESPONSE_RESULT.success;
-                        msgText = CANCEL_SUCCESSFULLY;
-                    } else {
-                        tmp = RESPONSE_RESULT.error;
-                    }
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
-                } else {
-                    tmp = RESPONSE_RESULT.error;
-                    handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
-                }
-                resp?.orderList?.forEach(item => {
-                    if (item && handleOrderCancelIdResponse) {
-                        handleOrderCancelIdResponse(item?.orderId);
-                    }
-                })
-            });
-            handleCloseConfirmPopup(false);
         }
     }
 
-    const sendOrder = () => {
+    const sendOrder = (param: IParamOrderModifyCancel) => {
+        const uid = param.uid?.toString() || ''
         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
-            prepareMessageCancel(accountId);
+            prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
                 handleOrderCancelId(params?.orderId || '');
             }
@@ -282,7 +307,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             if (convertNumber(calValue()) < convertNumber(minOrderValue)) {
                 return;
             }
-            prepareMessageModify(accountId);
+            prepareMessageModify(accountId, uid);
         } else {
             callSigleOrderRequest(accountId);
         }
@@ -426,6 +451,11 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         let isConditionPrice = convertNumber(priceModify.toString()) > 0;
         let isConditionVolume = convertNumber(volumeModify) > 0;
         let isChangePriceOrModify = convertNumber(params.volume) !== convertNumber(volumeModify) || convertNumber(params.price.toString()) !== convertNumber(priceModify.toString());
+        const checkAccId = params.uid?.toString() === accountId
+        if(!checkAccId && teamCode && teamCode !== 'null' && teamPassword === '') {
+            return false
+        }
+        // TODO: Need flag ON/OFF to check password team
         if (isModify) {
             if (new Decimal(calValue()).lt(new Decimal(minOrderValue))) {
                 return false;
@@ -444,12 +474,23 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return (convertNumber(params.volume) * convertNumber(params.price)).toFixed(2);
     }
 
+    const handleTeamPassword = (event: any) => {
+        setTeamPassword(event.target.value);
+    }
+
     const _renderErrorMinValue = () => (
         <>
             <div className='text-danger text-end'>{`The order is less than USD ${formatNumber(minOrderValue || '')}. `}</div>
             <div className='text-danger text-end text-nowrap'>Kindly revise the number of shares.</div>
         </>
     )
+
+    const checkShowInputTeamPW = () => {
+        const isModifyCancel = isModify || isCancel
+        const checkTeamCode = teamCode && teamCode !== 'null'
+        const checkAccId = params.uid?.toString() !== accountId
+        return isModifyCancel && checkTeamCode && checkAccId
+    }
 
     const _renderContentFormConfirm = () => (
         <>
@@ -477,6 +518,26 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     </>}
                 </>
             }
+            {
+                checkShowInputTeamPW() && (
+                    <>
+                        <div className='row mt-2'>
+                            <div className='col-5 lh-lg pt-1'><b>Team ID {teamCode}</b></div>
+                            <div className='col-7 position-relative'>
+                                <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
+                                    type={isHiddenPassword ? 'password' : 'text'}
+                                    onChange={handleTeamPassword}
+                                    placeholder='Password' 
+                                    autoComplete='new-password'
+                                />
+                                <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 md-pw-icon`}
+                                    onClick={() => setIsHiddenPassword(!isHiddenPassword)}
+                                />
+                            </div>
+                        </div>
+                    </>
+                )
+            }
         </>
     )
 
@@ -492,24 +553,24 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>{_renderContentFormConfirm()}</Modal.Body>
+            <Modal.Body style={{ marginTop: '10px', marginBottom: '5px' }}>{_renderContentFormConfirm()}</Modal.Body>
             <Modal.Footer className='justify-content-center'>
                 {!isModify && !isCancel &&
                     <>
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={sendOrder} disabled={disablePlaceOrder()}>
+                        <Button className='w-px-150' variant="primary" onClick={() => sendOrder(params)} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>
                 }
                 {(isModify || isCancel) &&
                     <>
-                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
+                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
                             DISCARD
                         </Button>
-                        <Button variant="primary" onClick={sendOrder}
+                        <Button variant="primary" onClick={() => sendOrder(params)}
                             disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
                             CONFIRM
                         </Button>

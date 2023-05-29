@@ -1,5 +1,5 @@
 
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
@@ -10,8 +10,8 @@ import { TYPE_ORDER_RES } from '../../../constants/order.constant';
 import { useEffect, useState } from 'react';
 import './PopUpConfirm.scss';
 import { Button, Modal } from 'react-bootstrap';
-import { MESSAGE_ERROR } from '../../../constants/message.constant';
 import moment from 'moment';
+import { MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../../constants/message.constant';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -33,21 +33,41 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     const rProtoBuff: any = rpc;
 
     const [isDisableConfirmBtn, setIsDisableConfirmBtn] = useState(false);
+    const [teamPassword, setTeamPassword] = useState('');
+    const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
+    const teamId = localStorage.getItem(TEAM_ID) || '0';
+    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
             let tmp = 0;
             let msgText = resp[MSG_TEXT];
             if (resp?.orderList?.length > 1) {
+                const listOrderCancel = resp?.orderList
+                let msgCode = resp[MSG_CODE]
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
-                    tmp = RESPONSE_RESULT.success;
+                    const idx = listOrderCancel.findIndex(item => item.msgCode === systemModelPb.MsgCode.MT_RET_AUTH_ACCOUNT_INVALID)
+                    if(idx >= 0) {
+                        tmp = RESPONSE_RESULT.error;
+                        msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_AUTH_ACCOUNT_INVALID);
+                        msgCode = listOrderCancel[idx].msgCode
+                    } else {
+                        tmp = RESPONSE_RESULT.success;
+                    }
                 } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                     tmp = RESPONSE_RESULT.error;
                     msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                } else {
+                } else if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msgText = CANCEL_SUCCESSFULLY;
+                }else {
                     tmp = RESPONSE_RESULT.error;
                 }
-                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, msgCode);
             } else if (resp?.orderList?.length === 1) {
                 const order = resp?.orderList[0];
                 if (order?.msgCode === systemModelPb.MsgCode.MT_RET_OK) {
@@ -55,13 +75,21 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID) {
                     tmp = RESPONSE_RESULT.error;
                     msgText = MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_UNKNOWN_ORDER_ID);
-                } else {
+                } else if (order?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
+                    tmp = RESPONSE_RESULT.success;
+                    msgText = CANCEL_SUCCESSFULLY;
+                }else {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, order?.msgCode);
             } else {
                 tmp = RESPONSE_RESULT.error;
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Cancel, resp[MSG_CODE]);
+                listOrder?.forEach(order => {
+                    if (handleOrderCancelIdResponse) {
+                        handleOrderCancelIdResponse(order?.orderId);
+                    }
+                })
             }
             
             handleCloseConfirmPopup(false);
@@ -72,6 +100,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             multiCancelOrder.unsubscribe();
         }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const sendRes = () => {
@@ -80,7 +109,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     }
 
     const prepareMessageCancelAll = (accountId: string) => {
-        const uid = accountId;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
@@ -103,14 +131,14 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 order.setOrderId(item.orderId);
                 order.setAmount(`${item.amount}`);
                 order.setPrice(`${item.price}`);
-                order.setUid(uid);
+                order.setUid(item.uid);
                 order.setSymbolCode(item.symbolCode);
                 order.setOrderType(item.orderType);
                 order.setExecuteMode(tradingModelPb.ExecutionMode.MARKET);
                 order.setOrderMode(tradingModelPb.OrderMode.REGULAR);
                 order.setRoute(tradingModelPb.OrderRoute.ROUTE_WEB);
                 order.setSide(item.side);
-                order.setSubmittedId(uid);
+                order.setSubmittedId(accountId);
 
                 if(flagMsgCode) {
                     order.setMsgCode(systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM);
@@ -118,6 +146,11 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
                 cancelOrder.addOrder(order);
             });
+
+            // TODO: Need flag ON/OFF to check password team
+            cancelOrder.setTeamCode(teamCode);
+            cancelOrder.setTeamPassword(teamPassword);
+
             let rpcMsg = new rProtoBuff.RpcMessage();
             rpcMsg.setPayloadClass(rProtoBuff.RpcMessage.Payload.CANCEL_ORDER_REQ);
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
@@ -126,6 +159,25 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             setIsDisableConfirmBtn(true);
         }
     }
+
+    const handleTeamPassword = (event: any) => {
+        setTeamPassword(event.target.value);
+    }
+
+    const _disableBtnConfirm = () => {
+        const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
+        if(idx >= 0) {
+            return teamPassword === ''
+        } 
+        return isDisableConfirmBtn
+    }
+
+    const checkShowInputTeamPW = () => {
+        const checkTeamCode = teamCode && teamCode !== 'null'
+        const idx = listOrder.findIndex((item) => item.uid.toString() !== accountId)
+        return checkTeamCode && idx >= 0
+    }
+
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -136,7 +188,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
             <Modal.Body style={{ marginTop: '10px', marginBottom: '10px' }}>
             <div className='fs-18 fw-600 text-center'>Are you sure <span className="text-danger">Cancel</span> All Order?</div>
 
-            <div className="row" style={{marginTop: '20px'}}>
+            <div className="row" style={{marginTop: '10px'}}>
                 <div className="col-10 fs-18 text-center">
                     Total order you have selected
                 </div>
@@ -144,12 +196,30 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                     {totalOrder}
                 </div>
             </div>
+            {checkShowInputTeamPW() && (
+                <div className='mt-2 d-flex px-3 mt-1'>
+                    <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamCode}</b></div>
+                    <div className='ms-3 w-50 position-relative'>
+                        <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass'
+                            value={teamPassword}
+                            type={isHiddenPassword ? 'password' : 'text'}
+                            onChange={handleTeamPassword}
+                            placeholder='Password' 
+                            autoComplete='new-password'
+                        />
+                        <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 cf-pw-icon`} 
+                            onClick={() => setIsHiddenPassword(!isHiddenPassword)}
+                        />
+                    </div>
+                </div>
+            )}
             </Modal.Body>
             <Modal.Footer className='justify-content-center'>
                 <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                     DISCARD
                 </Button>
-                <Button variant="primary" disabled={isDisableConfirmBtn} onClick={sendRes}>
+                {/* TODO: Need flag ON/OFF to check password team */}
+                <Button variant="primary" disabled={_disableBtnConfirm()} onClick={() => sendRes()}>
                     CONFIRM
                 </Button>
             </Modal.Footer>

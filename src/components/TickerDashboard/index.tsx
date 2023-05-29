@@ -247,7 +247,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataList = useMemo(() => renderDataListCompany(), [listData, symbolCode])
 
     const _renderTableData = () => (
-        <div className="tableFixHead max-height-69">
+        <div className="tableFixHead max-height-72">
             <table id="table" className="table table-sm table-hover mb-0" >
                 <thead>
                     {headerTable()}

@@ -19,6 +19,9 @@ export interface IDataLoginResquest {
   min_order_value: number;
   max_order_value: number;
   max_order_volume: number;
+  team_code: string;
+  team_id: number;
+  team_role: string;
 }
 export interface IDataLogin {
   meta: IMeta;
@@ -54,6 +57,7 @@ export interface IDataChangePasswordRequest {
     new_password: string;
   };
 }
+
 export interface IParamHistorySearch {
   symbolCode: string;
   orderState: number;
@@ -63,14 +67,48 @@ export interface IParamHistorySearch {
   orderType: number;
 }
 
+export interface IParamOrderHistory {
+  page: number;
+  page_size: number;
+  symbol_code: string;
+  order_state: number;
+  order_side: number;
+  order_type: number;
+  from_time: number;
+  to_time: number;
+  account_id: string;
+}
+
+export interface IParamPendingOrder {
+  page: number;
+  page_size: number;
+  symbol_code: string;
+  order_side: number;
+  order_type: number;
+  account_id: string;
+}
+
+export interface IParamSearchPendingOrder {
+  symbol_code: string;
+  order_side: number;
+  order_type: number;
+  account_id: string;
+}
+
 export interface IClientHoldingInfoReq {
   data: {
     meta: IMeta;
     data: IClientHoldingInforData[];
   };
 }
+
 export interface IClientHoldingInforData {
   symbol: string;
   symbolsfx: string;
   ownQty: number;
+}
+
+export interface IAccountID {
+  label: string;
+  value: string;
 }

@@ -201,3 +201,23 @@ message PreTradingSessionResponse {
 	MsgCode msg_code		= 1;
 	string msg_text			= 2;
 }
+
+// Close External Trading Session
+message CloseExternalTradingSessionRequest {		//US Summer Time in Blue Ocean, cancel all unexecuted leave orders in BO
+}
+
+// Close External Trading Session
+message CloseExternalTradingSessionResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
+
+// Unlock After Close External Trading
+message UnlockAfterCloseExternalTradingRequest {	//BO is closed, get all orders in waitinglist and send to start matching process
+}
+
+// Unlock After Close External Trading
+message UnlockAfterCloseExternalTradingResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}

@@ -568,7 +568,6 @@ a{
     .pl-30{
         padding-left: 4px !important;
     }
-
 }
 .dataTables_length{
     margin-right: 50px;
@@ -586,14 +585,20 @@ a{
 .w-180{
     width: 180px;
 }
-.w-100{
+.w-100p{
     width: 100px;
 }
+.w-70{
+    width: 70px;
+}
 .w-80{
-   width: 80px;
+    width: 80px;
 }
 .w-200{
     width: 200px;
+}
+.w-210{
+    width: 210px;
 }
 .w-110{
     width: 110px;
@@ -621,10 +626,20 @@ table.tableBodyScroll tbody {
     table-layout: fixed;
   }
 
-.ticker-input{
-    background-color: #fff;
+.ticker-input,
+.account-input{
+    background-color: #fff !important;
+    input{
+        margin-right: 15%;
+    }
 }
 
 .mg-right-24 {
     margin-right: 24px;
 }
+
+#table-order {
+    max-height: 430px;
+    overflow-x: hidden !important;
+}
+

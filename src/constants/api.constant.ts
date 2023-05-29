@@ -17,3 +17,14 @@ export const API_RESET_PASSWORD = '/v1/auth/lp/reset-password';
 export const API_FORGOT_PASSWORD = '/v1/auth/lp/forgot-password';
 
 export const API_CLIENT_HOLDING_INFO = '/v1/market/pspl/client-holding-info';
+
+export const API_RESET_TEAM_PASSWORD = "/v1/auth/lp/teams/reset-password";
+
+export const API_GET_ORDER_HISTORY = "/v1/market/lp/orders/history";
+
+export const API_CHANGE_TEAM_PASSWORD = '/v1/auth/lp/teams/change-password';
+export const API_TRADE_HISTORY = '/v1/market/lp/trades/history';
+
+export const API_GET_ACCOUNT_BY_TEAM_CODE = '/v1/auth/lp/teams/accounts'
+
+export const API_GET_PENDING_ORDER = "/v1/market/lp/orders/pending"

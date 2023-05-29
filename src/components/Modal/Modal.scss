@@ -152,3 +152,14 @@
 .ml-px--10 {
   margin-left: -10px;
 }
+
+input {
+  outline: none;
+}
+
+.md-pw-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+}

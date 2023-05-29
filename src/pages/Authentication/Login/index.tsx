@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE } from '../../../constants/general.constant';
 import axios from 'axios';
 import { IReqLogin } from '../../../interfaces';
-import { multipleLoginFail, success } from '../../../constants';
+import { deactiveAccount, multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -89,6 +89,9 @@ const Login = () => {
                     localStorage.setItem(MIN_ORDER_VALUE, data.min_order_value?.toString());
                     localStorage.setItem(MAX_ORDER_VALUE, data.max_order_value?.toString());
                     localStorage.setItem(MAX_ORDER_VOLUME, data.max_order_volume?.toString());
+                    localStorage.setItem(TEAM_CODE, data.team_code);
+                    localStorage.setItem(TEAM_ID, data.team_id?.toString());
+                    localStorage.setItem(TEAM_ROLE, data.team_role);
 
                     sessionStorage.setItem(KEY_SESSION_STORAGE.SESSION, data.access_token.toString());
 
@@ -102,9 +105,9 @@ const Login = () => {
             }
         },
             (error) => {
-                if (error.response.data.meta.code === multipleLoginFail) {
+                if (error.response.data.meta.code === multipleLoginFail || error.response.data.meta.code === deactiveAccount) {
                     setIsMultiLoginFail(true);
-                    return
+                    return;
                 }
                 setIsMultiLoginFail(false);
                 setIsMessErr(true);

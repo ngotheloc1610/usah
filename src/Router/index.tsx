@@ -14,6 +14,7 @@ import MultiTraderControl from "../pages/Orders/MultiTraderControl";
 import Login from "../pages/Authentication/Login";
 import ResetPassword from "../pages/Authentication/reset-password";
 import ForgotPassword from "../pages/Authentication/forgot-password";
+import ResetTeamPassword from "../pages/Authentication/reset-team-password";
 
 const RouterDom = () => {
   return (
@@ -29,6 +30,7 @@ const RouterDom = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/teams/reset-password" element={ResetTeamPassword} />
       </Routes>
     </BrowserRouter>
   )

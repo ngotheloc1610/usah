@@ -113,7 +113,11 @@ export const SIDE_NAME = {
     sell: 'sell'
 };
 
-export const MARKET_DEPTH_LENGTH = 3;
+export const MARKET_DEPTH_LENGTH_DASHBOARD = 10;
+
+export const MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT = 15;
+
+export const MARKET_DEPTH_LENGTH = 3
 
 export const MSG_CODE = 'msgCode';
 
@@ -226,9 +230,17 @@ export const START_PAGE = 1;
 
 export const PAGE_SIZE = 10;
 
-export const DEFAULT_ITEM_PER_PAGE = 10;
+export const DEFAULT_ITEM_PER_PAGE = 150;
+
+export const MAX_ITEM_REQUEST = 500;
 
 export const DEFAULT_TIME_ZONE = 'SG';
+
+export const TEAM_CODE = 'team_code';
+
+export const TEAM_ID = 'team_id';
+
+export const TEAM_ROLE = 'team_role';
 
 export const STATUS_ORDER = {
     success: 'SUCCESS',
@@ -270,3 +282,56 @@ export const RETURN_LOGIN_TIME = 5;
 export const TIME_OUT_CANCEL_RESPONSE_DEFAULT = 10000;
 
 export const TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT = 30000;
+
+export const SORT_MONITORING_SCREEN = 'sort_monitor_screen';
+
+export const SORT_MODIFY_CANCEL_SCREEN = 'sort_modify_cancel_screen';
+
+export const LIST_OPTION_PAGINATION_FULL = [
+    {
+        title: "10",
+        value: 10
+    },
+    {
+        title: "25",
+        value: 25
+    },
+    {
+        title: "50",
+        value: 50
+    },
+    {
+        title: "100",
+        value: 100
+    },
+    {
+        title: "All",
+        value: 150
+    },
+]
+
+export const LIST_OPTION_PAGINATION = [
+    {
+        title: "10",
+        value: 10
+    },
+    {
+        title: "25",
+        value: 25
+    },
+    {
+        title: "50",
+        value: 50
+    },
+    {
+        title: "100",
+        value: 100
+    },
+]
+export const ROLE_TEAM_LEAD = 'leader';
+
+export const GET_DATA_ALL_ACCOUNT = '*';
+
+export const ITEM_PER_PAGE_SMALL = 10;
+
+export const PAGE_SIZE_GET_ALL_ORDER_LIST = 0;

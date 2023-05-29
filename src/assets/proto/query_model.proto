@@ -25,6 +25,7 @@ message Symbol {
   ProductType product_type = 22;
   MatchingMethod matching_method = 23;
   bool cowen_flg = 24; //True -> Send order to Cowen, False -> Don't send order to Cowen
+  MatchingRule matching_rule = 25;
 }
 
 enum CalculationMode {
@@ -50,4 +51,11 @@ enum MatchingMethod {
 	MATCHING_METHOD_NONE = 0;
 	MATCHING_METHOD_EQ = 1; //Ticker is matched following to Equity matching process
 	MATCHING_METHOD_ETF = 2; //Ticker is matched following to ETF matching process
+}
+
+enum MatchingRule {
+	MATCHING_RULE_NONE = 0;
+	MATCHING_RULE_USAH = 1; //Ticker is matched only in USAH
+	MATCHING_RULE_BO = 2; //Ticker is matched only in BO
+	MATCHING_RULE_USAH_BO = 3; //Ticker is matched in USAH and BO, priority in USAH
 }

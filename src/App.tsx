@@ -8,7 +8,7 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE } from './constants/general.constant';
+import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE, TEAM_CODE, TEAM_ID, TEAM_ROLE } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
@@ -16,6 +16,7 @@ import ForgotPassword from './pages/Authentication/forgot-password';
 import Blocked from './pages/Blocked';
 import { convertNumber } from './helper/utils';
 import { setLogin } from './redux/actions/auth';
+import ResetTeamPassword from './pages/Authentication/reset-team-password';
 
 const App = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -24,6 +25,7 @@ const App = () => {
   const [idleTime, setIdleTime] = useState(0);
   const [isShowIdleTimeOut, setIsShowIdleTimeOut] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isResetTeamPassword, setIsResetTeamPassword] = useState(false);
 
   const idleEvents = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
 
@@ -37,7 +39,7 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
-    if (!token && !isForgotPassword && !isResetPassword && !isLogin) {
+    if (!token && !isForgotPassword && !isResetPassword && !isLogin && !isResetTeamPassword) {
       setIsBlocked(true);
       sessionStorage.removeItem(KEY_SESSION_STORAGE.SESSION);
     }
@@ -71,19 +73,21 @@ const App = () => {
 
   useEffect(() => {
     checkLoginPage();
-  }, [isLogin, isResetPassword])
+  }, [isLogin, isResetPassword, isResetTeamPassword])
 
   useEffect(() => {
     const session = sessionStorage.getItem(KEY_SESSION_STORAGE.SESSION);
     const startLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.START_LOAD));
     const endLoad = convertNumber(localStorage.getItem(KEY_LOCAL_STORAGE.END_LOAD));
-    if (!session && !isForgotPassword && !isForgotPassword && !isLogin) {
+    if (!session && !isForgotPassword && !isResetPassword && !isResetTeamPassword && !isLogin) {
       if (endLoad - startLoad < 0) setIsBlocked(true);
       else {
         setIsBlocked(false);
-        setIsLogin(true);
         localStorage.removeItem(ACCOUNT_ID);
         localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(TEAM_CODE);
+        localStorage.removeItem(TEAM_ID);
+        localStorage.removeItem(TEAM_ROLE);
         localStorage.removeItem(EXPIRE_TIME);
         localStorage.removeItem(ROLE);
         localStorage.removeItem(POEM_ID);
@@ -101,8 +105,12 @@ const App = () => {
       setIsBlocked(false);
       setIsResetPassword(false);
       setIsForgotPassword(false);
+      setIsResetTeamPassword(false);
       localStorage.removeItem(ACCOUNT_ID);
       localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+      localStorage.removeItem(TEAM_CODE);
+      localStorage.removeItem(TEAM_ID);
+      localStorage.removeItem(TEAM_ROLE);
       localStorage.removeItem(EXPIRE_TIME);
       localStorage.removeItem(ROLE);
       localStorage.removeItem(POEM_ID);
@@ -111,18 +119,28 @@ const App = () => {
       localStorage.removeItem(MAX_ORDER_VOLUME);
       return;
     }
-    if (path.includes('/reset-password')) {
+    if (path.includes('/reset-password') && !path.includes("/teams")) {
       setIsLogin(false);
       setIsBlocked(false);
       setIsResetPassword(true);
       setIsForgotPassword(false);
+      setIsResetTeamPassword(false);
       return;
     }
-    if (path.includes('/forgot-password')) {
+    if (path.includes('/forgot-password') && !path.includes("/teams"))  {
       setIsLogin(false);
       setIsBlocked(false);
       setIsResetPassword(false);
       setIsForgotPassword(true);
+      setIsResetTeamPassword(false);
+      return;
+    }
+    if (path.includes('/teams/reset-password')) {
+      setIsLogin(false);
+      setIsBlocked(false);
+      setIsResetPassword(false);
+      setIsForgotPassword(false);
+      setIsResetTeamPassword(true);
       return;
     }
 
@@ -155,6 +173,9 @@ const App = () => {
   setIsShowIdleTimeOut(false);
   localStorage.removeItem(ACCOUNT_ID);
   localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+  localStorage.removeItem(TEAM_CODE);
+  localStorage.removeItem(TEAM_ID);
+  localStorage.removeItem(TEAM_ROLE);
   localStorage.removeItem(EXPIRE_TIME);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(POEM_ID);
@@ -183,11 +204,12 @@ const App = () => {
     <>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {!isLogin && !isResetPassword && !isForgotPassword && !isBlocked && _renderMainPage()}
+        {!isLogin && !isResetPassword && !isForgotPassword && !isBlocked && !isResetTeamPassword && _renderMainPage()}
         {isLogin && <Login />}
         {isResetPassword && <ResetPassword />}
         {isForgotPassword && <ForgotPassword />}
-        {isBlocked && <Blocked />}
+        {isBlocked && !isResetTeamPassword && <Blocked />}
+        {isResetTeamPassword && <ResetTeamPassword />}
       </PersistGate>
     </Provider>
     {isShowIdleTimeOut && renderIdleTimeOutModel()}

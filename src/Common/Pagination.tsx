@@ -1,19 +1,22 @@
-import { useEffect } from 'react'
+import { LIST_OPTION_PAGINATION, LIST_OPTION_PAGINATION_FULL } from '../constants/general.constant';
+import { convertNumber } from '../helper/utils';
 import '../pages/Orders/OrderHistory/orderHistory.scss'
 import Pagination from "react-js-pagination";
-
 interface IPropsPagination {
     totalItem: number;
     itemPerPage: number;
     currentPage: number;
     getItemPerPage: (item: number) => void;
     getCurrentPage: (item: number) => void;
+    isShowAllRecord?: boolean;
 }
 
 function PaginationComponent(props: IPropsPagination) {
-    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage } = props;
+    const { totalItem, itemPerPage, currentPage, getItemPerPage, getCurrentPage, isShowAllRecord } = props;
 
     const handleChangePage = (pageNumber: number) => {
+        // avoid set page when current page dont change value
+        if (pageNumber === currentPage) return;
         getCurrentPage(pageNumber);
     }
 
@@ -24,12 +27,17 @@ function PaginationComponent(props: IPropsPagination) {
                     Show
                     <select name="table_length" aria-controls="table" className="form-select form-select-sm form-select-inline"
                         value={itemPerPage}
-                        onChange={(event) => getItemPerPage(Number(event.target.value))}
+                        onChange={(event) => getItemPerPage(convertNumber(event.target.value))}
                     >
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
+                        {
+                        isShowAllRecord
+                            ? LIST_OPTION_PAGINATION_FULL.map((item, index) => {
+                                return <option value={item.value} key={index}>{item.title}</option>
+                            }) :
+                            LIST_OPTION_PAGINATION.map((item, index) => {
+                                return <option value={item.value} key={index}>{item.title}</option>
+                            }) 
+                        }
                     </select>
                     entries
                 </label>

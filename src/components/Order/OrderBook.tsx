@@ -1,12 +1,11 @@
-import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
-import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
-import { DEFAULT_DATA_TICKER, DEFAULT_CURRENT_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
+import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH_DASHBOARD, MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
+import { IAskAndBidPrice, ILastQuote, ITickerInfo, ISymbolQuote } from "../../interfaces/order.interface"
+import { DEFAULT_DATA_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
 import '../TickerDashboard/TickerDashboard.scss';
 import * as tdpb from '../../models/proto/trading_model_pb';
 import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
 import { useEffect, useMemo, useState } from "react";
 import { Autocomplete, TextField } from "@mui/material";
-import TickerDetail from "./TickerDetail";
 import { wsService } from "../../services/websocket-service";
 
 
@@ -32,11 +31,20 @@ const OrderBook = (props: IOrderBookProps) => {
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [quote, setQuote] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [ticker, setTicker] = useState<string>('');
+    const [quoteMap, setQuoteMap] = useState<Map<string, ILastQuote>>();
 
     useEffect(() => {
         const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
             if (lastQuote && lastQuote.quotesList) {
-                setLastQuote(lastQuote.quotesList);
+                const tmpLastQuote = lastQuote.quotesList;
+                const tmpQuoteMap = new Map();
+                tmpLastQuote.forEach((item: ILastQuote) => {
+                    if(item) {
+                        tmpQuoteMap.set(item.symbolCode, item);
+                    }
+                })
+                setQuoteMap(tmpQuoteMap);
+                setLastQuote(tmpLastQuote);
             }
         });
 
@@ -61,7 +69,18 @@ const OrderBook = (props: IOrderBookProps) => {
 
     useEffect(() => {
         processLastQuote(lastQuote);
-    }, [lastQuote, ticker])
+    }, [lastQuote])
+
+    useEffect(() => {
+        if(quoteMap && ticker) {
+            let quoteUpdate = quoteMap.get(ticker);
+            if(quoteUpdate) {
+                setQuote(quoteUpdate)
+            } else {
+                processLastQuote(lastQuote)
+            }
+        }
+    }, [ticker])
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
@@ -69,7 +88,10 @@ const OrderBook = (props: IOrderBookProps) => {
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         const item = quotes.find(o => o?.symbolCode === ticker)
-        item ? setQuote(item) : setQuote(DEFAULT_DATA_TICKER)
+        item ? setQuote(item) : setQuote({
+            ...DEFAULT_DATA_TICKER,
+            symbolCode: ticker
+        })
     }
 
     const processQuoteEvent = (quotes: ILastQuote[]) => {
@@ -88,6 +110,7 @@ const OrderBook = (props: IOrderBookProps) => {
                     open: checkValue(temp?.open, item?.open)
                 }
                 setQuote(temp);
+                quoteMap?.set(item.symbolCode, temp)
             }
         }
 
@@ -96,7 +119,9 @@ const OrderBook = (props: IOrderBookProps) => {
     const renderAskList = (quote: ILastQuote) => {
         let askItems: IAskAndBidPrice[] = quote.asksList;
         let arr: IAskAndBidPrice[] = [];
-        let counter = MARKET_DEPTH_LENGTH - 1;
+        const marketDepthDashboard = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD;
+        const markerDepthLenght = isDashboard ? marketDepthDashboard : MARKET_DEPTH_LENGTH;
+        let counter = markerDepthLenght - 1;
         while (counter >= 0) {
             if (askItems[counter]) {
                 arr.push({
@@ -125,13 +150,14 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderAskPrice = () => {
         return arrAsk.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.BUY)}>
-                <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                <td className="text-end bg-success-light fw-600 text-success d-flex justify-content-between py-1 lh-sm ">
+                    {/* <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div> */}
+                    <div></div>
                     <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
-                <td className="fw-bold text-center">
+                <td className="fw-bold text-center lh-sm">
                     {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
-                <td className="text-end fw-600" >&nbsp;</td>
+                <td className="text-end fw-600 lh-sm" >&nbsp;</td>
             </tr>
         ));
     }
@@ -140,7 +166,9 @@ const OrderBook = (props: IOrderBookProps) => {
         let bidItems: IAskAndBidPrice[] = quote.bidsList;
         let arr: IAskAndBidPrice[] = [];
         let counter = 0;
-        while (counter < MARKET_DEPTH_LENGTH) {
+        const marketDepthDashboard = window.globalThis.marketDepthLenghtDashboard || MARKET_DEPTH_LENGTH_DASHBOARD;
+        const markerDepthLenght = isDashboard ? marketDepthDashboard : MARKET_DEPTH_LENGTH;
+        while (counter < markerDepthLenght) {
             if (bidItems[counter]) {
                 arr.push({
                     numOrders: bidItems[counter].numOrders,
@@ -168,11 +196,11 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderBidPrice = () => {
         return arrBid.map((item: IAskAndBidPrice, index: number) => (
             <tr key={index} onClick={() => handleTicker(item, tradingModel.Side.SELL)}>
-                <td className="text-end fw-600">&nbsp;</td>
-                <td className="fw-bold text-center fw-600">
+                <td className=" lh-sm text-end fw-600">&nbsp;</td>
+                <td className=" lh-sm fw-bold text-center fw-600">
                     {item.price !== '-' && symbolCode ? formatCurrency(item.price.toString()) : '-'}</td>
-                <td className="text-end bg-danger-light fw-600 d-flex justify-content-between">
-                    <div>{`${item.numOrders !== 0 && symbolCode ? `(${item.numOrders})` : ''}`}</div>
+                <td className=" lh-sm text-end bg-danger-light fw-600 d-flex justify-content-between">
+                    <div></div>
                     <div>{item.volume !== '-' && symbolCode ? formatNumber(item.volume.toString()) : '-'}</div>
                 </td>
             </tr>
@@ -182,7 +210,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const _renderHeaderOrderBook = () => (
         ORDER_BOOK_HEADER.map((item: string, index: number) => (
             <th className="text-uppercase text-center" key={index}>
-                <span className="text-ellipsis">{item.split(' ')[0]}<br />{item.split(' ')[1]}</span>
+                <span className="text-ellipsis lh-base fs-13">{item.split(' ')[0]}<br />{item.split(' ')[1]}</span>
             </th>
         ))
     )
@@ -242,18 +270,20 @@ const OrderBook = (props: IOrderBookProps) => {
         <>
             {!isDashboard && _renderTilte()}
             {isDashboard && _renderSearchBox()}
-            <div className="text-uppercase small text-secondary mb-4">
-                <div className="table-responsive">
+            <div className="text-uppercase small text-secondary">
+                <div className="table-responsive border border-1 max-height-66">
                     <table cellPadding="0" cellSpacing="0" className="table border table-sm mb-0">
                         <thead>
                             <tr className="align-middle">
                                 {_renderHeaderOrderBook()}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody ref={(el) => {
+                            if (el) el.style.setProperty('border-top', 'none', 'important');
+                        }}>
                             {_renderAskPrice()}
                             <tr className="bg-light">
-                                <td className="text-center" colSpan={3}>
+                                <td className="text-center lh-sm" colSpan={3}>
                                     <span className="fs-5 fw-bold text-primary">{(quote && quote.currentPrice !== '' && symbolCode) ? formatCurrency(quote.currentPrice) : '-'}</span>
                                 </td>
                             </tr>

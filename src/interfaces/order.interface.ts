@@ -1,4 +1,4 @@
-import { IParamHistorySearch } from ".";
+import { IMeta, IParamHistorySearch, IParamOrderHistory } from ".";
 
 export interface ITickerInfo {
     symbolId: number;
@@ -58,6 +58,7 @@ export interface IParamOrderModifyCancel {
     side: number;
     confirmationConfig: boolean;
     tickerId: string;
+    uid?: number
 }
 
 export interface IOrderBook {
@@ -66,15 +67,37 @@ export interface IOrderBook {
     bidPrice: string;
 }
 
+// export interface IPropListOrderHistory {
+//     listOrderHistory: IOrderHistory[];
+//     paramHistorySearch: IParamHistorySearch;
+//     isDownLoad: boolean;
+//     getDataOrderHistory: (params: IParamHistorySearch) => void;
+//     resetFlagDownload: (isDownload: boolean) => void;
+// }
 export interface IPropListOrderHistory {
-    listOrderHistory: IOrderHistory[];
-    paramHistorySearch: IParamHistorySearch;
+    listOrderHistory: IDataOrderHistory[];
+    paramHistorySearch: IParamOrderHistory;
+    setParamHistorySearch: (params: IParamOrderHistory) => void;
+    isDownLoad: boolean;
+    resetFlagDownload: (isDownload: boolean) => void;
+    isSearch: boolean;
+    resetFlagSearch: (isSearch: boolean) => void;
+    totalItem: number;
+    isLastPage: boolean;
+    isLoading: boolean;
+    totalRecord: number;
 }
 
 export interface IPropListTradeHistory {
-    getDataTradeHistory: IListTradeHistory[];
     isSearchData: boolean;
     changeStatusSearch: (status: boolean) => void;
+    isDownload: boolean;
+    resetStatusDownload: (item: boolean) => void;
+    paramSearch: IParamSearchTradeHistory;
+    handleChangePage : (value: number) => void;
+    handleChangeItemPerPage : (item: number) => void;
+    handleChangeNextPage: () => void;
+    handleUnAuthorisedAcc: (item: boolean) => void
 }
 
 export interface IStateListOrder {
@@ -140,7 +163,7 @@ export interface IListOrderMonitoring {
     time: number;
     tp: string;
     triggerPrice: string;
-    uid: string;
+    uid: number;
     filledAmount: string;
     isChecked?: boolean;
     orderSideChange?: number;
@@ -174,12 +197,29 @@ export interface IListOrderModifyCancel {
     time: number;
     tp: string;
     triggerPrice: string;
-    uid: string;
+    uid: number;
     filledAmount: string;
     isChecked?: boolean;
     orderSideChange?: number;
     volumeChange?: string;
     priceChange?: string;
+}
+
+export interface IListPendingOrder {
+    id: number,
+    order_id: string,
+    external_order_id: string,
+    account_id: string,
+    symbol_code: string,
+    submitted_id: string,
+    order_type: number,
+    order_side: number,
+    price: number,
+    volume: number,
+    currency_code: string,
+    exec_price: number,
+    exec_volume: number,
+    exec_time: number
 }
 
 export interface ISymbolMultiOrder {
@@ -272,6 +312,23 @@ export interface ITradeHistory {
     price: string;
     tickerCode: string;
     tickerName: string;
+}
+
+export interface IListTradeHistoryAPI {
+    id: number;
+    volume: string;
+    exec_time : string;
+    exec_price : string;
+    exec_volume : string;
+    order_id : string;
+    order_type : number;
+    price: string;
+    order_side : number;
+    symbol_code: string;
+    external_order_id : string;
+    account_id : string;
+    submitted_id: string;
+    currency_code : number 
 }
 
 export interface IListTradeHistory {
@@ -615,6 +672,28 @@ export interface IDataHistory {
     executedDateTime: string;
 }
 
+export interface IDataOrderHistory {
+    id:number;
+    order_id: string;
+    external_order_id: string;
+    account_id: string;
+    poem_id: string;
+    symbol_code: string;
+    submitted_id: string;
+    order_type: string;
+    order_side: string;
+    order_status: string;
+    price: number;
+    volume: number;
+    currency_code: string;
+    exec_price: number;
+    exec_volume: number;
+    exec_time: number;
+    order_time: number;
+    msg_code: string;
+    withdraw_amount: number;
+    comment: string;
+}
 
 export interface IDataHistoryDownload {
     orderNo: string;
@@ -632,6 +711,7 @@ export interface IDataHistoryDownload {
     orderDateTime: string;
     executedDateTime: string;
     comment: string;
+    accountId?: string;
 }
 
 export interface ITradeHistoryDownload {
@@ -646,16 +726,32 @@ export interface ITradeHistoryDownload {
     orderSide?: string;
     tickerCode: string;
     tickerName: string;
+    accountId?: string;
 }
 export interface IParamSearchTradeHistory {
-    symbolCode: string;
-    side: number;
-    fromDate: number;
-    toDate: number;
-    orderType: number;
+    symbol_code: string;
+    order_side: number;
+    from_time: number;
+    to_time: number;
+    order_type: number;
+    account_id: string;
+    page_size:number;
+    page: number
 }
+
+export interface IParamSearchComponentTradeHistory {
+    symbol_code: string;
+    order_side: number;
+    from_time: number;
+    to_time: number;
+    order_type: number;
+    account_id: string;
+}
+
 export interface IPropsSearchTradeHistory {
-    getParamSearch: (item: IParamSearchTradeHistory) => void
+    getParamSearch: (item: IParamSearchComponentTradeHistory) => void;
+    handleDownload: (item: boolean) => void;
+    isUnAuthorised: boolean
 }
 
 export interface IState {
@@ -678,4 +774,39 @@ export interface IOrderPortfolio {
     totalSellAmount: string;
     totalSellVolume: number;
     unrealizedPl: string;
+}
+
+export interface IDataListAcc {
+    account_id: string;
+}
+
+export interface IRespListAccId {
+    config: string;
+    data: {
+        meta: IMeta;
+        data: IDataListAcc[];
+    }
+    status: number;
+}
+
+export interface IListOrderApiRes {
+    account_id: string;
+    currency_code: string;
+    exec_price: number;
+    exec_time: number;
+    exec_volume: number;
+    external_order_id: string;
+    id: number;
+    order_id: string;
+    order_side: number;
+    order_type: number;
+    price: number;
+    submitted_id: string;
+    symbol_code: string;
+    volume: number;
+}
+
+export interface IProgressBarModal {
+    percent: number;
+    handleCancel: () => void;
 }

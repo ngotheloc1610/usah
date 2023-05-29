@@ -23,6 +23,7 @@ var global = (function() {
 
 goog.exportSymbol('proto.CalculationMode', null, global);
 goog.exportSymbol('proto.MatchingMethod', null, global);
+goog.exportSymbol('proto.MatchingRule', null, global);
 goog.exportSymbol('proto.ProductType', null, global);
 goog.exportSymbol('proto.Symbol', null, global);
 goog.exportSymbol('proto.SymbolStatus', null, global);
@@ -102,7 +103,8 @@ proto.Symbol.toObject = function(includeInstance, msg) {
     gboSecCode: jspb.Message.getFieldWithDefault(msg, 21, ""),
     productType: jspb.Message.getFieldWithDefault(msg, 22, 0),
     matchingMethod: jspb.Message.getFieldWithDefault(msg, 23, 0),
-    cowenFlg: jspb.Message.getBooleanFieldWithDefault(msg, 24, false)
+    cowenFlg: jspb.Message.getBooleanFieldWithDefault(msg, 24, false),
+    matchingRule: jspb.Message.getFieldWithDefault(msg, 25, 0)
   };
 
   if (includeInstance) {
@@ -234,6 +236,10 @@ proto.Symbol.deserializeBinaryFromReader = function(msg, reader) {
     case 24:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setCowenFlg(value);
+      break;
+    case 25:
+      var value = /** @type {!proto.MatchingRule} */ (reader.readEnum());
+      msg.setMatchingRule(value);
       break;
     default:
       reader.skipField();
@@ -429,6 +435,13 @@ proto.Symbol.serializeBinaryToWriter = function(message, writer) {
   if (f) {
     writer.writeBool(
       24,
+      f
+    );
+  }
+  f = message.getMatchingRule();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      25,
       f
     );
   }
@@ -868,6 +881,24 @@ proto.Symbol.prototype.setCowenFlg = function(value) {
 
 
 /**
+ * optional MatchingRule matching_rule = 25;
+ * @return {!proto.MatchingRule}
+ */
+proto.Symbol.prototype.getMatchingRule = function() {
+  return /** @type {!proto.MatchingRule} */ (jspb.Message.getFieldWithDefault(this, 25, 0));
+};
+
+
+/**
+ * @param {!proto.MatchingRule} value
+ * @return {!proto.Symbol} returns this
+ */
+proto.Symbol.prototype.setMatchingRule = function(value) {
+  return jspb.Message.setProto3EnumField(this, 25, value);
+};
+
+
+/**
  * @enum {number}
  */
 proto.CalculationMode = {
@@ -902,6 +933,16 @@ proto.MatchingMethod = {
   MATCHING_METHOD_NONE: 0,
   MATCHING_METHOD_EQ: 1,
   MATCHING_METHOD_ETF: 2
+};
+
+/**
+ * @enum {number}
+ */
+proto.MatchingRule = {
+  MATCHING_RULE_NONE: 0,
+  MATCHING_RULE_USAH: 1,
+  MATCHING_RULE_BO: 2,
+  MATCHING_RULE_USAH_BO: 3
 };
 
 goog.object.extend(exports, proto);
