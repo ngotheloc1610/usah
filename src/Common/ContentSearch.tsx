@@ -25,8 +25,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const tradingModelPb: any = tmpb;
     
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
-    const currentAccount = localStorage.getItem(ACCOUNT_ID) || '';
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
+    const currentAccount = sessionStorage.getItem(ACCOUNT_ID) || '';
 
     const [symbolCode, setSymbolCode] = useState('');
     const [orderSideBuy, setOrderSideBuy] = useState(false);

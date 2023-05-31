@@ -789,7 +789,7 @@ const MultipleOrders = () => {
 
     const callOrderRequest = () => {
         setIsLoading(true);
-        const accountId = localStorage.getItem(ACCOUNT_ID)
+        const accountId = sessionStorage.getItem(ACCOUNT_ID)
         const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();

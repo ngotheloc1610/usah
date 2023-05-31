@@ -48,8 +48,8 @@ const ListOrder = (props: IPropsListOrder) => {
         y: 0
     })
 
-    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
 
     const stateSortDefault = {
         feild: 'date',
@@ -296,7 +296,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const sendListOrder = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         prepareMessagee(accountId);
     }
 

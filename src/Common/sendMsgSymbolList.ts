@@ -23,7 +23,7 @@ function sendMsgSymbolList() {
     }
 
     const sendMessageSymbolList = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
     }
 

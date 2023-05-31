@@ -17,7 +17,7 @@ const OrderHistory = () => {
     const api_url = window.globalThis.apiUrl;
 
     const currentDate = moment().format(FORMAT_DATE);
-    const accountId = localStorage.getItem(ACCOUNT_ID) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
 
     const [listOrderHistory, setListOrderHistory] = useState<IDataOrderHistory[]>([]);
     const [isErrorAccountId, setIsErrorAccountId] = useState(false);

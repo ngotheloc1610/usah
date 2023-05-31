@@ -13,7 +13,7 @@ const OrderModifyCancel = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [orderType, setOrerType] = useState(tradingModel.OrderType.OP_NONE);
     const [isSearch, setIsSearch] = useState(false);
-    const accountId = localStorage.getItem(ACCOUNT_ID) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
 
     const [paramSearch, setParamSearch] = useState<IParamPendingOrder>({
         symbol_code: '',

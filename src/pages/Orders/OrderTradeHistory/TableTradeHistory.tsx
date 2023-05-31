@@ -27,7 +27,7 @@ function TableTradeHistory(props: IPropListTradeHistory) {
     const api_url = window.globalThis.apiUrl;
     const urlTradeHistory = `${api_url}${API_TRADE_HISTORY}`;
 
-    const teamCode = localStorage.getItem(TEAM_CODE) || ''
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || ''
 
     useEffect(() => {
         axios.post(urlTradeHistory, paramSearch, defindConfigPost()).then((resp) => {

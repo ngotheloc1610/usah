@@ -21,7 +21,7 @@ function SummaryTrading() {
     }, [])
 
     const sendAccountPortfolio = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {

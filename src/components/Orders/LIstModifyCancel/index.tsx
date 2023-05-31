@@ -62,7 +62,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
 
 
-    const accountId = localStorage.getItem(ACCOUNT_ID) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
 
     const stateSortDefault = {
         feild: 'date',
@@ -93,7 +93,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const [cancelListId, setCancelListId] = useState<string[]>([]);
 
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
-    const teamCode = localStorage.getItem(TEAM_CODE) || ''
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || ''
     
     const api_url = window.globalThis.apiUrl;
     
@@ -384,7 +384,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     }
 
     const sendListOrder = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {

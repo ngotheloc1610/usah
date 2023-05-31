@@ -34,7 +34,7 @@ const SettingScreen = () => {
     })
 
     const [isSettingTeamPw, setIsSettingTeamPw] = useState(false)
-    const account_role_team = localStorage.getItem(TEAM_ROLE) || ''
+    const account_role_team = sessionStorage.getItem(TEAM_ROLE) || ''
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -72,7 +72,7 @@ const SettingScreen = () => {
 
     const sendMessageCustomerInfor = () => {
         
-         let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+         let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         !isSetting && buildMessageCustomInfo(accountId);
     }
 
