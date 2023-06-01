@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
+import { calcCeilFloorPrice, calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolInfo, ISymbolQuote } from "../../interfaces/order.interface";
 import * as qmpb from "../../models/proto/query_model_pb";
 import { wsService } from "../../services/websocket-service";
@@ -84,6 +84,10 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 if (symbol) {
                     symbolInfo = symbol.get(quote?.symbolCode);
                 }
+                const calcPrice = calcCeilFloorPrice(Number(quote?.currentPrice))
+                const ceilingPrice = convertNumber(quote?.currentPrice) === 0 ? symbolInfo?.ceiling : calcPrice.ceilingPrice
+                const floorPrice = convertNumber(quote?.currentPrice) === 0 ? symbolInfo?.floor : calcPrice.floorPrice
+
                 const prepareQuote: ISymbolQuote = {
                     symbolCode: quote?.symbolCode,
                     symbolId: symbolInfo?.symbolId || 0,
@@ -94,8 +98,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     lastPrice: formatCurrency(quote?.currentPrice),
                     open: formatCurrency(quote?.open || '0.00'),
                     volume: quote?.volumePerDay,
-                    ceiling: formatCurrency(symbolInfo?.ceiling),
-                    floor: formatCurrency(symbolInfo?.floor),
+                    ceiling: formatCurrency(String(ceilingPrice)),
+                    floor: formatCurrency(String(floorPrice)),
                     change: calcChange(quote?.currentPrice, symbolInfo?.prevClosePrice),
                     pctChange: calcPctChange(quote?.currentPrice, symbolInfo?.prevClosePrice)
                 }
@@ -224,15 +228,15 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{item.high}</td>
                 <td className="text-end w-header fw-600">{item.low}</td>
                 <td className="text-end w-header fw-600">
-                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{item.lastPrice}</span>}
-                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">{item.lastPrice}</span>}
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{item.lastPrice}</span>}
+                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">{item.lastPrice}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
-                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item?.change))}>
+                    {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item?.change))}>
                         {item?.change}
-                     </span>}
-                     {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
+                    </span>}
+                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">-</span>}
                 </td>
                 <td className="text-end w-change-pct fw-600 align-middle">
                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item?.change))}>
