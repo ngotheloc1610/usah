@@ -85,6 +85,7 @@ const App = () => {
         setIsBlocked(false);
         sessionStorage.removeItem(ACCOUNT_ID);
         sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
         sessionStorage.removeItem(TEAM_CODE);
         sessionStorage.removeItem(TEAM_ID);
         sessionStorage.removeItem(TEAM_ROLE);
@@ -108,6 +109,7 @@ const App = () => {
       setIsResetTeamPassword(false);
       sessionStorage.removeItem(ACCOUNT_ID);
       sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+      localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
       sessionStorage.removeItem(TEAM_CODE);
       sessionStorage.removeItem(TEAM_ID);
       sessionStorage.removeItem(TEAM_ROLE);
@@ -144,13 +146,15 @@ const App = () => {
       return;
     }
 
-      const token = sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)
-      if (token) {
+    ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
+      if (resp) {
         setIsLogin(false);
       }
       else {
         setIsLogin(true);
       }
+    });
+
   }
 
   const _renderMainPage = () => {
@@ -172,6 +176,7 @@ const App = () => {
   setIsShowIdleTimeOut(false);
   sessionStorage.removeItem(ACCOUNT_ID);
   sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+  localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
   sessionStorage.removeItem(TEAM_CODE);
   sessionStorage.removeItem(TEAM_ID);
   sessionStorage.removeItem(TEAM_ROLE);

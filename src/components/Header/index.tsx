@@ -106,6 +106,7 @@ const Header = () => {
     sessionStorage.removeItem(TEAM_ROLE);
     sessionStorage.removeItem(ROLE);
     sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
     sessionStorage.removeItem(EXPIRE_TIME);
     sessionStorage.removeItem(POEM_ID);
     localStorage.removeItem(MIN_ORDER_VALUE);
