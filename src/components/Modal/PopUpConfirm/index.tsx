@@ -38,9 +38,9 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const debugLogFlag = window.globalThis.debugLogFlag;
 
-    const teamId = localStorage.getItem(TEAM_ID) || '0';
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
-    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
+    const teamId = sessionStorage.getItem(TEAM_ID) || '0';
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const multiCancelOrder = wsService.getCancelSubject().subscribe(resp => {
@@ -104,7 +104,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
     }, [])
 
     const sendRes = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         prepareMessageCancelAll(accountId);
     }
 

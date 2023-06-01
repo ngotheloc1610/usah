@@ -97,12 +97,12 @@ const Setting = (props: ISetting) => {
     }
 
     const sendMessageAdNewsNoti = (newsAdmin: number) => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         buildMessageAdNewsNoti(accountId, newsAdmin);
     }
 
     const sendMessageMatchNoti = (matchNoti: number) => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         buildMessageMatchNoti(accountId, matchNoti);
     }
 

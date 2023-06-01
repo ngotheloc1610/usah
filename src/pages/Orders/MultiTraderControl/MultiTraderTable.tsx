@@ -17,7 +17,7 @@ const MultiTraderTable = () => {
     const [totalNetFollowAccountId, setTotalNetFollowAccountId] = useState<string[]>([]);
     const [totalGrossFollowAccountId, setTotalGrossFollowAccountId] = useState<string[]>([]);
     const [totalPlFollowAccountId, setTotalPlFollowAccountId] = useState<string[]>([]);
-    const lstId = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]');
+    const lstId = JSON.parse(sessionStorage.getItem(SUB_ACCOUNTS) || '[]');
     const listHeaderName = [...lstId, 'Total Net Position', 'Total Gross Transactions', 'Total Realized PL'];
     const [totalAccountPortfolio, setTotalAccountPortfolio] = useState<IPortfolio[]>([]);
     const [allTotalNet, setAllTotalNet] = useState(0);
@@ -179,7 +179,7 @@ const MultiTraderTable = () => {
     }
 
     const sendTradeHistoryReq = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
     }
 

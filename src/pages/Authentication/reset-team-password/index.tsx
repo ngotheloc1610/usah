@@ -35,7 +35,7 @@ const ResetTeamPassword = () => {
             const intervalId = setInterval(() => {
                 setCountDown(countDown - 1);
             }, 1000);
-            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+            sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             return () => clearInterval(intervalId);
         }
     }, [isSuccess, countDown]);

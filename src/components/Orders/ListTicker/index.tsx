@@ -40,7 +40,7 @@ const ListTicker = (props: IListTickerProps) => {
     const [isDeleteTicker, setIsDeleteTicker] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const currentAccId = localStorage.getItem(ACCOUNT_ID);
+    const currentAccId = sessionStorage.getItem(ACCOUNT_ID);
     const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
     const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
 

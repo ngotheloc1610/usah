@@ -41,10 +41,10 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [isErrorDate, setIsErrorDate] = useState(false);
-    const [accountId, setAccountId] = useState(localStorage.getItem(ACCOUNT_ID) || '');
+    const [accountId, setAccountId] = useState(sessionStorage.getItem(ACCOUNT_ID) || '');
     const [listAccountId, setListAccountId] = useState<IAccountID[]>([]);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     
     const defaultAccountId = useMemo(() => {
         return {

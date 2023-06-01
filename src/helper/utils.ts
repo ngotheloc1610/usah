@@ -184,7 +184,7 @@ export const renderCurrentList = (currentPage: number, itemPerPage: number, list
 
 export const defindConfigGet = (param: any) => {
     const data = {
-        headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` },
         params: param
     }
     return data;
@@ -192,7 +192,7 @@ export const defindConfigGet = (param: any) => {
 
 export const defindConfigPost = () => {
     const data = {
-        headers: { Authorization: `Bearer ${localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` }
+        headers: { Authorization: `Bearer ${sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)}` }
     }
     return data;
 }

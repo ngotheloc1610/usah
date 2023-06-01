@@ -38,7 +38,7 @@ const tradeSubject = new Subject();
 let isRender = true;
 const debugLogFlag = window.globalThis.debugLogFlag;
 const startWs = async () => {
-    const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
+    const token = sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
     if (!token) {
         return;
     }
@@ -64,19 +64,19 @@ const startWs = async () => {
         socket.close();
         wsConnected = false;
 
-        const tokenExpiredTime = localStorage.getItem(EXPIRE_TIME);
+        const tokenExpiredTime = sessionStorage.getItem(EXPIRE_TIME);
         const currentTime = moment().utc().valueOf();
         const expiredTime = moment(tokenExpiredTime).valueOf();
         if (currentTime >= expiredTime) {
             // TODO: navigate to login screen when expired token
-            localStorage.removeItem(ACCOUNT_ID);
-            localStorage.removeItem(TEAM_CODE);
-            localStorage.removeItem(TEAM_ID);
-            localStorage.removeItem(TEAM_ROLE);
-            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-            localStorage.removeItem(EXPIRE_TIME);
-            localStorage.removeItem(ROLE);
-            localStorage.removeItem(POEM_ID);
+            sessionStorage.removeItem(ACCOUNT_ID);
+            sessionStorage.removeItem(TEAM_CODE);
+            sessionStorage.removeItem(TEAM_ID);
+            sessionStorage.removeItem(TEAM_ROLE);
+            sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+            sessionStorage.removeItem(EXPIRE_TIME);
+            sessionStorage.removeItem(ROLE);
+            sessionStorage.removeItem(POEM_ID);
             localStorage.removeItem(MIN_ORDER_VALUE);
             localStorage.removeItem(MAX_ORDER_VOLUME);
             toast.error(INVALID_TOKEN);

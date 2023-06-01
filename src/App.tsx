@@ -38,7 +38,7 @@ const App = () => {
   })
 
   useEffect(() => {
-    const token = localStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
+    const token = sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
     if (!token && !isForgotPassword && !isResetPassword && !isLogin && !isResetTeamPassword) {
       setIsBlocked(true);
       sessionStorage.removeItem(KEY_SESSION_STORAGE.SESSION);
@@ -83,14 +83,14 @@ const App = () => {
       if (endLoad - startLoad < 0) setIsBlocked(true);
       else {
         setIsBlocked(false);
-        localStorage.removeItem(ACCOUNT_ID);
-        localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-        localStorage.removeItem(TEAM_CODE);
-        localStorage.removeItem(TEAM_ID);
-        localStorage.removeItem(TEAM_ROLE);
-        localStorage.removeItem(EXPIRE_TIME);
-        localStorage.removeItem(ROLE);
-        localStorage.removeItem(POEM_ID);
+        sessionStorage.removeItem(ACCOUNT_ID);
+        sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+        sessionStorage.removeItem(TEAM_CODE);
+        sessionStorage.removeItem(TEAM_ID);
+        sessionStorage.removeItem(TEAM_ROLE);
+        sessionStorage.removeItem(EXPIRE_TIME);
+        sessionStorage.removeItem(ROLE);
+        sessionStorage.removeItem(POEM_ID);
         localStorage.removeItem(MIN_ORDER_VALUE);
         localStorage.removeItem(MAX_ORDER_VALUE);
         localStorage.removeItem(MAX_ORDER_VOLUME);
@@ -106,14 +106,14 @@ const App = () => {
       setIsResetPassword(false);
       setIsForgotPassword(false);
       setIsResetTeamPassword(false);
-      localStorage.removeItem(ACCOUNT_ID);
-      localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-      localStorage.removeItem(TEAM_CODE);
-      localStorage.removeItem(TEAM_ID);
-      localStorage.removeItem(TEAM_ROLE);
-      localStorage.removeItem(EXPIRE_TIME);
-      localStorage.removeItem(ROLE);
-      localStorage.removeItem(POEM_ID);
+      sessionStorage.removeItem(ACCOUNT_ID);
+      sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+      sessionStorage.removeItem(TEAM_CODE);
+      sessionStorage.removeItem(TEAM_ID);
+      sessionStorage.removeItem(TEAM_ROLE);
+      sessionStorage.removeItem(EXPIRE_TIME);
+      sessionStorage.removeItem(ROLE);
+      sessionStorage.removeItem(POEM_ID);
       localStorage.removeItem(MIN_ORDER_VALUE);
       localStorage.removeItem(MAX_ORDER_VALUE);
       localStorage.removeItem(MAX_ORDER_VOLUME);
@@ -144,14 +144,13 @@ const App = () => {
       return;
     }
 
-    ReduxPersist.storeConfig.storage.getItem(KEY_LOCAL_STORAGE.AUTHEN).then(resp => {
-      if (resp) {
+      const token = sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN)
+      if (token) {
         setIsLogin(false);
       }
       else {
         setIsLogin(true);
       }
-    });
   }
 
   const _renderMainPage = () => {
@@ -171,14 +170,14 @@ const App = () => {
 
  const gotoLoginPage = () => {
   setIsShowIdleTimeOut(false);
-  localStorage.removeItem(ACCOUNT_ID);
-  localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-  localStorage.removeItem(TEAM_CODE);
-  localStorage.removeItem(TEAM_ID);
-  localStorage.removeItem(TEAM_ROLE);
-  localStorage.removeItem(EXPIRE_TIME);
-  localStorage.removeItem(ROLE);
-  localStorage.removeItem(POEM_ID);
+  sessionStorage.removeItem(ACCOUNT_ID);
+  sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+  sessionStorage.removeItem(TEAM_CODE);
+  sessionStorage.removeItem(TEAM_ID);
+  sessionStorage.removeItem(TEAM_ROLE);
+  sessionStorage.removeItem(EXPIRE_TIME);
+  sessionStorage.removeItem(ROLE);
+  sessionStorage.removeItem(POEM_ID);
   localStorage.removeItem(MIN_ORDER_VALUE);
   localStorage.removeItem(MAX_ORDER_VALUE);
   localStorage.removeItem(MAX_ORDER_VOLUME);

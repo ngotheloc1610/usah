@@ -24,8 +24,8 @@ import React from 'react';
 const Header = () => {
   const [accountId, setAccountId] = useState('');
   const [poemId, setPoemId] = useState('');
-  const roleAccount = localStorage.getItem(ROLE);
-  const subAccount = JSON.parse(localStorage.getItem(SUB_ACCOUNTS) || '[]')
+  const roleAccount = sessionStorage.getItem(ROLE);
+  const subAccount = JSON.parse(sessionStorage.getItem(SUB_ACCOUNTS) || '[]')
   const menus = (roleAccount === ROLE_ACCOUNT_DETAIL.monitor && subAccount.length > 0) ? ROUTER_MONITORING : ROUTER_TRADER;
 
   const [isShowNotification, setIsShowNotification] = useState(false);
@@ -89,8 +89,8 @@ const Header = () => {
 
 
   const _renderAccountId = () => {
-    const poemIdCurrent = localStorage.getItem(POEM_ID);
-    const accountIdCurrent = localStorage.getItem(ACCOUNT_ID);
+    const poemIdCurrent = sessionStorage.getItem(POEM_ID);
+    const accountIdCurrent = sessionStorage.getItem(ACCOUNT_ID);
     if (accountIdCurrent) {
       setAccountId(accountIdCurrent);
     }
@@ -100,14 +100,14 @@ const Header = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem(ACCOUNT_ID);
-    localStorage.removeItem(TEAM_CODE);
-    localStorage.removeItem(TEAM_ID);
-    localStorage.removeItem(TEAM_ROLE);
-    localStorage.removeItem(ROLE);
-    localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
-    localStorage.removeItem(EXPIRE_TIME);
-    localStorage.removeItem(POEM_ID);
+    sessionStorage.removeItem(ACCOUNT_ID);
+    sessionStorage.removeItem(TEAM_CODE);
+    sessionStorage.removeItem(TEAM_ID);
+    sessionStorage.removeItem(TEAM_ROLE);
+    sessionStorage.removeItem(ROLE);
+    sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+    sessionStorage.removeItem(EXPIRE_TIME);
+    sessionStorage.removeItem(POEM_ID);
     localStorage.removeItem(MIN_ORDER_VALUE);
     localStorage.removeItem(MAX_ORDER_VALUE);
     localStorage.removeItem(MAX_ORDER_VOLUME);

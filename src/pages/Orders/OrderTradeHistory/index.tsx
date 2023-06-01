@@ -17,7 +17,7 @@ const OrderTradeHistory = () => {
     const [isDownload, setIsDownload] = useState(false)
     const [isUnAuthorised, setIsUnAuthorised] = useState(false)
 
-    const accoutId = localStorage.getItem(ACCOUNT_ID) || ''
+    const accoutId = sessionStorage.getItem(ACCOUNT_ID) || ''
     
     const paramSearchDefault = {
         symbol_code: '',
