@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -168,6 +168,9 @@ const MultipleOrders = () => {
                 if (symbol) {
                     const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
                     if (element) {
+                        const calcPrice = calcCeilFloorPrice(Number(element.currentPrice))
+                        const ceilingPrice = convertNumber(element.currentPrice) === 0 ? symbol.ceiling : calcPrice.ceilingPrice
+                        const floorPrice = convertNumber(element.currentPrice) === 0 ? symbol.floor : calcPrice.floorPrice
                         const symbolQuote: ISymbolQuote = {
                             symbolCode: symbol.symbolCode,
                             symbolId: symbol.symbolId,
@@ -178,8 +181,8 @@ const MultipleOrders = () => {
                             lastPrice: element.currentPrice,
                             open: element.open || '0',
                             volume: element.volumePerDay,
-                            ceiling: symbol.ceiling,
-                            floor: symbol.floor,
+                            ceiling: ceilingPrice,
+                            floor: floorPrice,
                         };
                         const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
                         if (index < 0) {
@@ -980,8 +983,18 @@ const MultipleOrders = () => {
     }
 
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
+        const quote = lastQuotes.find(e => e?.symbolCode === symbolCode);
         const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
-        if (convertNumber(symbol?.ceiling) < convertNumber(price) || convertNumber(symbol?.floor) > convertNumber(price)) {
+        let ceilingPrice = convertNumber(symbol?.ceiling)
+        let floorPrice = convertNumber(symbol?.floor)
+
+        if(convertNumber(quote?.currentPrice) !== 0) {
+            const calcPrice = calcCeilFloorPrice(Number(quote?.currentPrice));
+            ceilingPrice = calcPrice.ceilingPrice
+            floorPrice = calcPrice.floorPrice
+        }
+        
+        if ( ceilingPrice < convertNumber(price) || floorPrice > convertNumber(price)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE,
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE)

@@ -525,3 +525,13 @@ export const sortTicker = (listData: IListOrderMonitoring[], isAsc: boolean) => 
     }
     return []
 }
+
+export const calcCeilFloorPrice = (price: number) => {
+    const rs = {
+        ceilingPrice: 0,
+        floorPrice: 0
+    }
+    rs.ceilingPrice = price + (price * 0.2)
+    rs.floorPrice = price - (price * 0.2)
+    return rs
+}
