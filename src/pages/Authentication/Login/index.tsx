@@ -82,8 +82,8 @@ const Login = () => {
                     setIsMultiLoginFail(false);
                     const data = resp.data.data;
                     sessionStorage.setItem(ACCOUNT_ID, data.account_id.toString());
-                    // save token into localStorage  => detect open 2 tab at the same time
-                    // save token into sessionStorage => get token for call api 
+                    // Using token in sessionStorage to get token for call api
+                    // Using token in LocalStorage to prevent multiple login in the same browser 
                     sessionStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
                     sessionStorage.setItem(EXPIRE_TIME, data.expire_time);
