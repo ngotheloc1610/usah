@@ -74,6 +74,7 @@ const startWs = async () => {
             sessionStorage.removeItem(TEAM_ID);
             sessionStorage.removeItem(TEAM_ROLE);
             sessionStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
+            localStorage.removeItem(KEY_LOCAL_STORAGE.AUTHEN);
             sessionStorage.removeItem(EXPIRE_TIME);
             sessionStorage.removeItem(ROLE);
             sessionStorage.removeItem(POEM_ID);
