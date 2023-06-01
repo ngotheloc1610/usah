@@ -144,6 +144,11 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         const _high = checkValue(quoteUpdate?.high?.replaceAll(',', ''), quote?.high);
                         const _low = checkValue(quoteUpdate?.low?.replaceAll(',', ''), quote?.low);
                         const _open = checkValue(quoteUpdate?.open?.replaceAll(',', ''), quote?.open);
+
+                        const calcPrice = calcCeilFloorPrice(Number(_lastPrice))
+                        const ceilingPrice = convertNumber(_lastPrice) === 0 ? quoteUpdate?.ceiling : calcPrice.ceilingPrice
+                        const floorPrice = convertNumber(_lastPrice) === 0 ? quoteUpdate?.floor : calcPrice.floorPrice
+
                         quoteUpdate = {
                             ...quoteUpdate,
                             lastPrice: formatCurrency(_lastPrice),
@@ -152,7 +157,9 @@ const TickerDashboard = (props: ITickerDashboard) => {
                             low: formatCurrency(_low),
                             open: formatCurrency(_open),
                             change: calcChange(_lastPrice, quoteUpdate?.prevClosePrice.replaceAll(',', '')),
-                            pctChange: calcPctChange(_lastPrice, quoteUpdate?.prevClosePrice.replaceAll(',', ''))
+                            pctChange: calcPctChange(_lastPrice, quoteUpdate?.prevClosePrice.replaceAll(',', '')),
+                            ceiling: formatCurrency(String(ceilingPrice)),
+                            floor: formatCurrency(String(floorPrice)),
                         }
                         quoteMap.set(quote?.symbolCode, quoteUpdate);
 
@@ -166,8 +173,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                             lastPrice: quote?.currentPrice,
                             open: quote?.open || '0.00',
                             volume: quote?.volumePerDay,
-                            ceiling: quoteUpdate?.ceiling,
-                            floor: quoteUpdate?.floor,
+                            ceiling: formatCurrency(String(ceilingPrice)),
+                            floor: formatCurrency(String(floorPrice)),
                             change: calcChange(quote?.currentPrice, quoteUpdate?.prevClosePrice?.replaceAll(',', '')),
                             pctChange: calcPctChange(quote?.currentPrice, quoteUpdate?.prevClosePrice?.replaceAll(',', ''))
                         })
