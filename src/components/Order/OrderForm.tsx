@@ -275,6 +275,8 @@ const OrderForm = (props: IOrderForm) => {
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
+            const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(symbolItem?.lastPrice), ticker)
+
             if (isRenderPrice && symbolItem) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
@@ -284,14 +286,10 @@ const OrderForm = (props: IOrderForm) => {
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
-            if(convertNumber(symbolItem?.lastPrice) === 0) {
-                setCeilingPrice(Number(ticker?.ceiling));
-                setFloorPrice(Number(ticker?.floor));
-            } else {
-                const calcPrice = calcCeilFloorPrice(Number(symbolItem?.lastPrice))
-                setCeilingPrice(calcPrice.ceilingPrice);
-                setFloorPrice(calcPrice.floorPrice);
-            }
+
+            setCeilingPrice(ceilingPrice);
+            setFloorPrice(floorPrice);
+
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
             setMinLot(convertNumber(minLot));

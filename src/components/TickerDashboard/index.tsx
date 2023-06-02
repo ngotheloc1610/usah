@@ -84,9 +84,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 if (symbol) {
                     symbolInfo = symbol.get(quote?.symbolCode);
                 }
-                const calcPrice = calcCeilFloorPrice(Number(quote?.currentPrice))
-                const ceilingPrice = convertNumber(quote?.currentPrice) === 0 ? symbolInfo?.ceiling : calcPrice.ceilingPrice
-                const floorPrice = convertNumber(quote?.currentPrice) === 0 ? symbolInfo?.floor : calcPrice.floorPrice
+                const calcPrice = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbolInfo)
 
                 const prepareQuote: ISymbolQuote = {
                     symbolCode: quote?.symbolCode,
@@ -98,8 +96,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     lastPrice: formatCurrency(quote?.currentPrice),
                     open: formatCurrency(quote?.open || '0.00'),
                     volume: quote?.volumePerDay,
-                    ceiling: formatCurrency(String(ceilingPrice)),
-                    floor: formatCurrency(String(floorPrice)),
+                    ceiling: formatCurrency(String(calcPrice.ceilingPrice)),
+                    floor: formatCurrency(String(calcPrice.floorPrice)),
                     change: calcChange(quote?.currentPrice, symbolInfo?.prevClosePrice),
                     pctChange: calcPctChange(quote?.currentPrice, symbolInfo?.prevClosePrice)
                 }
@@ -145,9 +143,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         const _low = checkValue(quoteUpdate?.low?.replaceAll(',', ''), quote?.low);
                         const _open = checkValue(quoteUpdate?.open?.replaceAll(',', ''), quote?.open);
 
-                        const calcPrice = calcCeilFloorPrice(Number(_lastPrice))
-                        const ceilingPrice = convertNumber(_lastPrice) === 0 ? quoteUpdate?.ceiling : calcPrice.ceilingPrice
-                        const floorPrice = convertNumber(_lastPrice) === 0 ? quoteUpdate?.floor : calcPrice.floorPrice
+                        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(_lastPrice), quoteUpdate)
 
                         quoteUpdate = {
                             ...quoteUpdate,

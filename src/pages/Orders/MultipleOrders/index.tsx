@@ -168,9 +168,7 @@ const MultipleOrders = () => {
                 if (symbol) {
                     const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
                     if (element) {
-                        const calcPrice = calcCeilFloorPrice(Number(element.currentPrice))
-                        const ceilingPrice = convertNumber(element.currentPrice) === 0 ? symbol.ceiling : calcPrice.ceilingPrice
-                        const floorPrice = convertNumber(element.currentPrice) === 0 ? symbol.floor : calcPrice.floorPrice
+                        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(element.currentPrice), symbol)
                         const symbolQuote: ISymbolQuote = {
                             symbolCode: symbol.symbolCode,
                             symbolId: symbol.symbolId,
@@ -181,8 +179,8 @@ const MultipleOrders = () => {
                             lastPrice: element.currentPrice,
                             open: element.open || '0',
                             volume: element.volumePerDay,
-                            ceiling: ceilingPrice,
-                            floor: floorPrice,
+                            ceiling: formatCurrency(String(ceilingPrice)),
+                            floor: formatCurrency(String(floorPrice)),
                         };
                         const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
                         if (index < 0) {
@@ -985,16 +983,9 @@ const MultipleOrders = () => {
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
         const quote = lastQuotes.find(e => e?.symbolCode === symbolCode);
         const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
-        let ceilingPrice = convertNumber(symbol?.ceiling)
-        let floorPrice = convertNumber(symbol?.floor)
+        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbol);
 
-        if(convertNumber(quote?.currentPrice) !== 0) {
-            const calcPrice = calcCeilFloorPrice(Number(quote?.currentPrice));
-            ceilingPrice = calcPrice.ceilingPrice
-            floorPrice = calcPrice.floorPrice
-        }
-        
-        if ( ceilingPrice < convertNumber(price) || floorPrice > convertNumber(price)) {
+        if (ceilingPrice < convertNumber(price) || floorPrice > convertNumber(price)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE,
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE)
