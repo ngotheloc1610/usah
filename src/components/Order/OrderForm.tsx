@@ -287,8 +287,8 @@ const OrderForm = (props: IOrderForm) => {
                 }
             }
 
-            setCeilingPrice(ceilingPrice);
-            setFloorPrice(floorPrice);
+            setCeilingPrice(+formatCurrency(String(ceilingPrice)));
+            setFloorPrice(+formatCurrency(String(floorPrice)));
 
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
