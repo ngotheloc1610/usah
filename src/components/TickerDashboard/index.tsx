@@ -84,7 +84,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 if (symbol) {
                     symbolInfo = symbol.get(quote?.symbolCode);
                 }
-                const calcPrice = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbolInfo)
+                const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbolInfo)
 
                 const prepareQuote: ISymbolQuote = {
                     symbolCode: quote?.symbolCode,
@@ -96,8 +96,8 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     lastPrice: formatCurrency(quote?.currentPrice),
                     open: formatCurrency(quote?.open || '0.00'),
                     volume: quote?.volumePerDay,
-                    ceiling: formatCurrency(String(calcPrice.ceilingPrice)),
-                    floor: formatCurrency(String(calcPrice.floorPrice)),
+                    ceiling: formatCurrency(String(ceilingPrice)),
+                    floor: formatCurrency(String(floorPrice)),
                     change: calcChange(quote?.currentPrice, symbolInfo?.prevClosePrice),
                     pctChange: calcPctChange(quote?.currentPrice, symbolInfo?.prevClosePrice)
                 }
