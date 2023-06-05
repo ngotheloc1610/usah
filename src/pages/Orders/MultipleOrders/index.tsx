@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice, calcChange, calcPctChange, checkValue } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -24,6 +24,7 @@ import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
 import moment from "moment";
 import LazyLoad from "../../../components/lazy-load";
+import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -53,7 +54,9 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]); 
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+    const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
     const [limitPrice, setLimitPrice] = useState(0);
@@ -150,18 +153,49 @@ const MultipleOrders = () => {
                 setLastQuotes(quote.quotesList);
             }
         });
+        
+        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
+            if (quote && quote.quoteList) {
+                setQuoteEvent(quote.quoteList);
+            }
+        });
 
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
+            quoteEvent.unsubscribe();
         }
     }, [])
+
+    useEffect(() => {
+        processQuoteEvent(quoteEvent);
+    }, [quoteEvent])
+
+    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
+        if (quotes && quotes.length > 0) {
+            quotes.forEach(quote => {
+                if (quote && quoteMap) {
+                    let quoteUpdate = quoteMap.get(quote?.symbolCode);
+                    if (quoteUpdate) {
+                        // IMPORTANT: Must replace comma because Number(1,000) => exception
+                        const _lastPrice = checkValue(quoteUpdate?.lastPrice?.replaceAll(',', ''), quote?.currentPrice);
+                        quoteUpdate = {
+                            ...quoteUpdate,
+                            lastPrice: formatCurrency(_lastPrice),
+                        }
+                        quoteMap.set(quote?.symbolCode, quoteUpdate);
+                    }
+                }
+            });
+        }
+    }
 
     useEffect(() => {
         processLastQuote(lastQuotes)
     }, [lastQuotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
+        const itemQuoteMap = new Map();
         if (quotes.length > 0) {
             let temp: ISymbolQuote[] = [];
             symbols.forEach(symbol => {
@@ -186,11 +220,13 @@ const MultipleOrders = () => {
                         if (index < 0) {
                             temp.push(symbolQuote);
                         }
+                        itemQuoteMap.set(symbol?.symbolCode, symbolQuote);
                     }
                 }
             });
             temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setSymbolInfor(temp);
+            setQuoteMap(itemQuoteMap)
         }
     }
 
@@ -220,6 +256,17 @@ const MultipleOrders = () => {
     const sendMessageQuotes = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
+            const rpc: any = rspb;
+            // Subcribe Quote Event
+            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
+            symbols.forEach(item => {
+                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
+            });
+            let rpcMsgQuote = new rpc.RpcMessage();
+            rpcMsgQuote.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
+            rpcMsgQuote.setPayloadData(subscribeQuoteEventReq.serializeBinary());
+            wsService.sendMessage(rpcMsgQuote.serializeBinary());
+
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
 
@@ -983,7 +1030,14 @@ const MultipleOrders = () => {
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
         const quote = lastQuotes.find(e => e?.symbolCode === symbolCode);
         const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
-        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbol);
+        let currentPrice = quote?.currentPrice;
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
 
         if (ceilingPrice < convertNumber(price) || floorPrice > convertNumber(price)) {
             return {
