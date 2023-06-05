@@ -720,7 +720,7 @@ const OrderForm = (props: IOrderForm) => {
                     {_renderPlaceButton()}
                     {isDashboard && _renderResetButton()}
                 </div>
-                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
+                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} ceilingPrice={ceilingPrice} floorPrice={floorPrice} />}
             </form>
         )
     }
