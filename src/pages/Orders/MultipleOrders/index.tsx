@@ -169,9 +169,11 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
-        listTickers.forEach((e, idx) => {
-            if(e.ticker === quoteEvent[0].symbolCode) {
-                changePrice(e.price, e, idx)
+        // Trigger check error messages everytime quoteEvent changed
+        // by calling changePrice with but value not changed
+        listTickers.forEach((e: ISymbolMultiOrder) => {
+            if(e.ticker === quoteEvent[0]?.symbolCode) {
+                changePrice(e.price, e, Number(e.no))
             }
         })
     }, [quoteEvent])
@@ -258,11 +260,10 @@ const MultipleOrders = () => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
 
-    const sendMessageQuotes = () => {
+    const subcribeQuoteEvent = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             const rpc: any = rspb;
-            // Subcribe Quote Event
             let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
             symbols.forEach(item => {
                 subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
@@ -271,13 +272,16 @@ const MultipleOrders = () => {
             rpcMsgQuote.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
             rpcMsgQuote.setPayloadData(subscribeQuoteEventReq.serializeBinary());
             wsService.sendMessage(rpcMsgQuote.serializeBinary());
+        }
+    }
 
+    const subcribeLastQuote = () => {
+        let wsConnected = wsService.getWsConnected();
+        if (wsConnected) {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-
             const symbolCodes: string[] = symbols.map(item => item.symbolCode);
             lastQuotesRequest.setSymbolCodeList(symbolCodes);
-
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -285,6 +289,11 @@ const MultipleOrders = () => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
+    }
+
+    const sendMessageQuotes = () => {
+        subcribeQuoteEvent();
+        subcribeLastQuote();
     }
 
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
