@@ -170,7 +170,7 @@ const MultipleOrders = () => {
     useEffect(() => {
         processQuoteEvent(quoteEvent);
         // Trigger check error messages everytime quoteEvent changed
-        // by calling changePrice with but value not changed
+        // by calling changePrice but value not changed
         listTickers.forEach((e: ISymbolMultiOrder) => {
             if(e.ticker === quoteEvent[0]?.symbolCode) {
                 changePrice(e.price, e, Number(e.no))
