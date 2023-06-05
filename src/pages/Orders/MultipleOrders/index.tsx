@@ -169,6 +169,11 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         processQuoteEvent(quoteEvent);
+        listTickers.forEach((e, idx) => {
+            if(e.ticker === quoteEvent[0].symbolCode) {
+                changePrice(e.price, e, idx)
+            }
+        })
     }, [quoteEvent])
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
@@ -458,18 +463,34 @@ const MultipleOrders = () => {
 
     const getCelling = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.ceiling;
-        if (tickSize) {
-            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        const symbol = lstSymbols.find(o => o?.symbolCode === ticker);
+        let currentPrice = symbol?.lastPrice
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {ceilingPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
+        if (ceilingPrice) {
+            return !isNaN(Number(ceilingPrice)) ? Number(ceilingPrice) : 0;
         }
         return 0
     }
 
     const getFloor = (ticker: string) => {
         const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.floor;
-        if (tickSize) {
-            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        const symbol = lstSymbols.find(o => o?.symbolCode === ticker);
+        let currentPrice = symbol?.lastPrice
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {floorPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
+        if (floorPrice) {
+            return !isNaN(Number(floorPrice)) ? Number(floorPrice) : 0;
         }
         return 0
     }
@@ -1240,8 +1261,8 @@ const MultipleOrders = () => {
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                const floorPrice = item.floor;
-                const ceilingPrice = item.ceiling;
+                const floorPrice = getFloor(item.symbolCode);
+                const ceilingPrice = getCelling(item.symbolCode);
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
@@ -1269,8 +1290,8 @@ const MultipleOrders = () => {
             const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const item = lstSymbols.find(o => o.symbolCode === symbolCode);
             if (item) {
-                const floorPrice = item.floor;
-                const ceilingPrice = item.ceiling;
+                const floorPrice = getFloor(item.symbolCode);
+                const ceilingPrice = getCelling(item.symbolCode);
                 const currentPrice = Number(price);
                 const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
