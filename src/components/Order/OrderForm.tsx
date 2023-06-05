@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM, MIN_ORDER_VALUE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcCeilFloorPrice, calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
@@ -264,7 +264,7 @@ const OrderForm = (props: IOrderForm) => {
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
         setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
         setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
-    }, [price, volume, minLot])
+    }, [price, volume, minLot, ceilingPrice, floorPrice])
 
     useEffect(() => {
         if (symbolCode) {
@@ -275,6 +275,8 @@ const OrderForm = (props: IOrderForm) => {
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
+            const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(symbolItem?.lastPrice), ticker)
+
             if (isRenderPrice && symbolItem) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
@@ -284,8 +286,10 @@ const OrderForm = (props: IOrderForm) => {
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
-            setFloorPrice(Number(ticker?.floor));
-            setCeilingPrice(Number(ticker?.ceiling));
+
+            setCeilingPrice(ceilingPrice);
+            setFloorPrice(floorPrice);
+
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
             setMinLot(convertNumber(minLot));
@@ -716,7 +720,7 @@ const OrderForm = (props: IOrderForm) => {
                     {_renderPlaceButton()}
                     {isDashboard && _renderResetButton()}
                 </div>
-                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
+                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} ceilingPrice={ceilingPrice} floorPrice={floorPrice} />}
             </form>
         )
     }

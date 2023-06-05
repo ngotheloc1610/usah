@@ -26,6 +26,8 @@ interface IConfirmOrder {
     params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
+    ceilingPrice?: number;
+    floorPrice?: number;
 }
 
 const flagMsgCode = window.globalThis.flagMsgCode;
@@ -34,7 +36,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse, ceilingPrice, floorPrice } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0);
@@ -541,9 +543,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
+    const isValidatePrice = () => {
+        let isValid = true
+        if((convertNumber(ceilingPrice) < convertNumber(params.price)) ||
+        convertNumber(floorPrice) > convertNumber(params.price)) {
+            isValid = false
+        }
+        return isValid
+    }
+
     const disablePlaceOrder = () => {
         return convertNumber(calValue()) === 0 ||
-               convertNumber(calValue()) > convertNumber(maxOrderValue);
+               convertNumber(calValue()) > convertNumber(maxOrderValue) || !isValidatePrice();
     }
 
     const _renderTamplate = () => (
