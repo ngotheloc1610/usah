@@ -264,7 +264,7 @@ const OrderForm = (props: IOrderForm) => {
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
         setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
         setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
-    }, [price, volume, minLot])
+    }, [price, volume, minLot, ceilingPrice, floorPrice])
 
     useEffect(() => {
         if (symbolCode) {
