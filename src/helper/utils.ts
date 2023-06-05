@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT, SPREAD } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT, LIST_TICKER_INFO } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo, IListOrderMonitoring } from '../interfaces/order.interface';
@@ -531,7 +531,10 @@ export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
         ceilingPrice: 0,
         floorPrice: 0
     }
-    rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * SPREAD)
-    rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * SPREAD)
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const sb = symbolsList.find(e => e?.symbolCode === symbol?.symbolCode)
+    const rate = (convertNumber(sb?.limitRate) / 100)
+    rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * rate)
+    rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * rate)
     return rs
 }

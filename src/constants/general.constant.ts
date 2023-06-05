@@ -335,5 +335,3 @@ export const GET_DATA_ALL_ACCOUNT = '*';
 export const ITEM_PER_PAGE_SMALL = 10;
 
 export const PAGE_SIZE_GET_ALL_ORDER_LIST = 0;
-
-export const SPREAD = 0.2;
