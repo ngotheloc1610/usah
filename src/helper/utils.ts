@@ -532,9 +532,11 @@ export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
         floorPrice: 0
     }
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const sb = symbolsList.find(e => e?.symbolCode === symbol?.symbolCode)
-    const rate = (convertNumber(sb?.limitRate) / 100)
-    rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * rate)
-    rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * rate)
+    const ticker = symbolsList.find(e => e?.symbolCode === symbol?.symbolCode)
+    if(ticker) {
+        const rate = (convertNumber(ticker?.limitRate) / 100)
+        rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * rate)
+        rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * rate)
+    }
     return rs
 }
