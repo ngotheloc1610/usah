@@ -1069,12 +1069,13 @@ const MultipleOrders = () => {
         }
         const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
 
-        if (ceilingPrice < convertNumber(price) || floorPrice > convertNumber(price)) {
+        if (+formatCurrency(ceilingPrice.toString()) < convertNumber(price) || +formatCurrency(floorPrice.toString()) > convertNumber(price)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE,
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE)
             };
         }
+        
         if ((convertNumber(price) * convertNumber(volume)) < convertNumber(minOrderValue)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE,
@@ -1177,13 +1178,13 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(symbolCode);
         const price = convertNumber(value);
         setPrice(price);
-        if (ceilingPrice === 0 && floorPrice === 0) {
+        if (+formatCurrency(ceilingPrice.toString()) === 0 && +formatCurrency(floorPrice.toString()) === 0) {
             setIsShowNotiErrorPrice(false);
             return;
         }
-        if (+price > ceilingPrice) {
+        if (+price > +formatCurrency(ceilingPrice.toString())) {
             setIsShowNotiErrorPrice(true);
-        } else if (+price < floorPrice) {
+        } else if (+price < +formatCurrency(floorPrice.toString())) {
             setIsShowNotiErrorPrice(true);
         } else {
             setIsShowNotiErrorPrice(false);
