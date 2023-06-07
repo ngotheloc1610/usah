@@ -92,26 +92,24 @@ const OrderBook = (props: IOrderBookProps) => {
     }
 
     const updateQuoteMap = (quoteEvent: ILastQuote[]) => {
-        if(quoteEvent) {
-            quoteEvent.forEach((item: ILastQuote) => {
-                if(item && quoteMap) {
-                    let quoteUpdate = quoteMap.get(item.symbolCode)
-                    if(quoteUpdate) {
-                        quoteUpdate = {
-                            ...quoteUpdate,
-                            asksList: item.asksList,
-                            bidsList: item.bidsList,
-                            currentPrice: checkValue(quoteUpdate?.currentPrice, item?.currentPrice),
-                            close: checkValue(quoteUpdate?.close, item?.close),
-                            high: checkValue(quoteUpdate?.high, item?.high),
-                            low: checkValue(quoteUpdate?.low, item?.low),
-                            open: checkValue(quoteUpdate?.open, item?.open)
-                        }
-                        quoteMap.set(item.symbolCode, quoteUpdate)
+        quoteEvent.forEach((item: ILastQuote) => {
+            if(item && quoteMap) {
+                let quoteUpdate = quoteMap.get(item.symbolCode)
+                if(quoteUpdate) {
+                    quoteUpdate = {
+                        ...quoteUpdate,
+                        asksList: item.asksList,
+                        bidsList: item.bidsList,
+                        currentPrice: checkValue(quoteUpdate?.currentPrice, item?.currentPrice),
+                        close: checkValue(quoteUpdate?.close, item?.close),
+                        high: checkValue(quoteUpdate?.high, item?.high),
+                        low: checkValue(quoteUpdate?.low, item?.low),
+                        open: checkValue(quoteUpdate?.open, item?.open)
                     }
+                    quoteMap.set(item.symbolCode, quoteUpdate)
                 }
-            })
-        }
+            }
+        })
     }
 
     const processQuoteEvent = (quotes: ILastQuote[]) => {
