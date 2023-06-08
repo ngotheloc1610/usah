@@ -36,7 +36,7 @@ export function formatCurrency(item: string): string {
     if (item) {
         const newItem = item?.replaceAll(',', '');
         if (isNaN(Number(newItem))) {
-            return '0';
+            return '0.00';
         }
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(newItem));
     }
@@ -147,7 +147,7 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    if (prevClosePrice && lastPrice) {
+    if (prevClosePrice && lastPrice && lastPrice !== '-') {
         const _newLastPrice = lastPrice?.replaceAll(',', '');
         const _newPrevClosePrice = prevClosePrice?.replaceAll(',', '');
         const lastPriceValue = new Decimal(_newLastPrice);

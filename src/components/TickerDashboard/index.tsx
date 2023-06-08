@@ -232,7 +232,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
                 <td className="text-end w-header fw-600">{item.low}</td>
                 <td className="text-end w-header fw-600">
                     {convertNumber(item.lastPrice) !== 0 && <span className={getClassName(convertNumber(item.lastPrice) - convertNumber(item.prevClosePrice))}>{item.lastPrice}</span>}
-                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">{item.lastPrice}</span>}
+                    {convertNumber(item.lastPrice) === 0 && <span className="text-center">{item.lastPrice === '-' ? '0.00' : item.lastPrice}</span>}
                 </td>
                 <td className="text-end w-header fw-600">{formatNumber(item.volume)}</td>
                 <td className="text-end w-header fw-600">
