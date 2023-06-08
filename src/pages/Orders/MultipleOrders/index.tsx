@@ -322,7 +322,7 @@ const MultipleOrders = () => {
                                 ...temps[el],
                                 state: item.state,
                                 msgCode: item.msgCode,
-                                status: checkMessageError(item.note, item.msgCode)
+                                status: checkMessageError(item.comment, item.msgCode)
                             }
                         }
                     });
