@@ -84,6 +84,10 @@ const MultipleOrders = () => {
     const debugLogFlag = window.globalThis.debugLogFlag;
 
     useEffect(() => {
+        console.log("LastQuote", quoteMap);
+    }, [quoteMap])
+
+    useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
     }, [])
@@ -153,49 +157,12 @@ const MultipleOrders = () => {
                 setLastQuotes(quote.quotesList);
             }
         });
-        
-        const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-            if (quote && quote.quoteList) {
-                setQuoteEvent(quote.quoteList);
-            }
-        });
-
+      
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
-            quoteEvent.unsubscribe();
         }
     }, [])
-
-    useEffect(() => {
-        processQuoteEvent(quoteEvent);
-        // Trigger check error messages everytime quoteEvent changed
-        // by calling changePrice but value not changed
-        listTickers.forEach((e: ISymbolMultiOrder) => {
-            if(e.ticker === quoteEvent[0]?.symbolCode) {
-                changePrice(e.price, e, Number(e.no))
-            }
-        })
-    }, [quoteEvent])
-
-    const processQuoteEvent = (quotes: IQuoteEvent[]) => {
-        if (quotes && quotes.length > 0) {
-            quotes.forEach(quote => {
-                if (quote && quoteMap) {
-                    let quoteUpdate = quoteMap.get(quote?.symbolCode);
-                    if (quoteUpdate) {
-                        // IMPORTANT: Must replace comma because Number(1,000) => exception
-                        const _lastPrice = checkValue(quoteUpdate?.lastPrice?.replaceAll(',', ''), quote?.currentPrice);
-                        quoteUpdate = {
-                            ...quoteUpdate,
-                            lastPrice: formatCurrency(_lastPrice),
-                        }
-                        quoteMap.set(quote?.symbolCode, quoteUpdate);
-                    }
-                }
-            });
-        }
-    }
 
     useEffect(() => {
         processLastQuote(lastQuotes)
@@ -260,27 +227,12 @@ const MultipleOrders = () => {
         processOrderListResponse(orderListResponse)
     }, [orderListResponse])
 
-    const subcribeQuoteEvent = () => {
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            const rpc: any = rspb;
-            let subscribeQuoteEventReq = new pricingServicePb.SubscribeQuoteEventRequest();
-            symbols.forEach(item => {
-                subscribeQuoteEventReq.addSymbolCode(item.symbolCode);
-            });
-            let rpcMsgQuote = new rpc.RpcMessage();
-            rpcMsgQuote.setPayloadClass(rpc.RpcMessage.Payload.SUBSCRIBE_QUOTE_REQ);
-            rpcMsgQuote.setPayloadData(subscribeQuoteEventReq.serializeBinary());
-            wsService.sendMessage(rpcMsgQuote.serializeBinary());
-        }
-    }
-
-    const subcribeLastQuote = () => {
+    const sendMessageQuotes = () => {
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            const symbolCodes: string[] = symbolListActive.map(item => item.symbolCode);
             lastQuotesRequest.setSymbolCodeList(symbolCodes);
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
@@ -289,11 +241,6 @@ const MultipleOrders = () => {
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
         }
-    }
-
-    const sendMessageQuotes = () => {
-        subcribeQuoteEvent();
-        subcribeLastQuote();
     }
 
     const processOrderListResponse = (orderList: IOrderListResponse[]) => {
@@ -1659,6 +1606,7 @@ const MultipleOrders = () => {
                         </div>
                     }
                 </div>
+                <div className="d-flex fz-14 mt-0 m-3 note_risk">Orders can be rejected due to price range changes</div>
                 {listTickers.length === 0 && _renderElementImport()}
                 {listTickers.length > 0 && _renderDataTableListOrder()}
 
