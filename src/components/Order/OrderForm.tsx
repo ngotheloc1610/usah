@@ -174,30 +174,28 @@ const OrderForm = (props: IOrderForm) => {
                 setIsEmptyAsk(true);
                 setIsEmptyBid(true);
             }
-            const tmpQuoteMap = new Map();
-            symbolList.forEach(symbol => {
-                if (symbol) {
-                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
-                    if (element) {
-                        const symbolQuote: ISymbolQuote = {
-                            symbolCode: symbol.symbolCode,
-                            symbolId: symbol.symbolId,
-                            symbolName: symbol.symbolName,
-                            prevClosePrice: symbol.prevClosePrice,
-                            high: element?.high || '0',
-                            low: element?.low || '0',
-                            lastPrice: element.currentPrice,
-                            open: element.open || '0',
-                            volume: element.volumePerDay,
-                            ceiling: symbol.ceiling,
-                            floor: symbol.floor
-                        };
-                        tmpQuoteMap.set(symbol.symbolCode, symbolQuote)
-                    }
-                }
-            });
-            setSymbolInfor(tmpQuoteMap);
-        }
+        } 
+        const tmpQuoteMap = new Map();
+        symbolList.forEach(symbol => {
+            if (symbol) {
+                const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
+                const symbolQuote: ISymbolQuote = {
+                    symbolCode: symbol.symbolCode,
+                    symbolId: symbol.symbolId,
+                    symbolName: symbol.symbolName,
+                    prevClosePrice: symbol.prevClosePrice,
+                    high: element?.high || '0',
+                    low: element?.low || '0',
+                    lastPrice: element?.currentPrice || '0',
+                    open: element?.open || '0',
+                    volume: element?.volumePerDay || '0',
+                    ceiling: symbol.ceiling,
+                    floor: symbol.floor
+                };
+                tmpQuoteMap.set(symbol.symbolCode, symbolQuote)
+            }
+        });
+        setSymbolInfor(tmpQuoteMap);
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
