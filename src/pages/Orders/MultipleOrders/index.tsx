@@ -84,10 +84,6 @@ const MultipleOrders = () => {
     const debugLogFlag = window.globalThis.debugLogFlag;
 
     useEffect(() => {
-        console.log("LastQuote", quoteMap);
-    }, [quoteMap])
-
-    useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
         setListTickers(listOrderDisplay);
     }, [])
@@ -1606,7 +1602,6 @@ const MultipleOrders = () => {
                         </div>
                     }
                 </div>
-                <div className="d-flex fz-14 mt-0 m-3 note_risk">Orders can be rejected due to price range changes</div>
                 {listTickers.length === 0 && _renderElementImport()}
                 {listTickers.length > 0 && _renderDataTableListOrder()}
 
