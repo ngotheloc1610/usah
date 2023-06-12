@@ -579,7 +579,7 @@ const OrderForm = (props: IOrderForm) => {
         const volume = convertNumber(value);
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
-            setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+            setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
             setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
         }
     }
