@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM, MIN_ORDER_VALUE } from '../../constants/general.constant';
 import * as tdpb from '../../models/proto/trading_model_pb';
-import { calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
+import { calcCeilFloorPrice, calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
 import NumberFormat from 'react-number-format';
 import { wsService } from '../../services/websocket-service';
@@ -54,7 +54,7 @@ const OrderForm = (props: IOrderForm) => {
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
-    const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+    const [symbolInfor, setSymbolInfor] = useState<Map<string, ISymbolQuote>>();
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
@@ -135,10 +135,7 @@ const OrderForm = (props: IOrderForm) => {
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
-                const idx = quote.quoteList?.findIndex(o => o?.symbolCode === symbolCode);
-                if (idx >= 0) {
-                    setQuoteEvent(quote.quoteList);
-                }
+                setQuoteEvent(quote.quoteList);
             }
         });
 
@@ -177,40 +174,33 @@ const OrderForm = (props: IOrderForm) => {
                 setIsEmptyAsk(true);
                 setIsEmptyBid(true);
             }
-            let temp: ISymbolQuote[] = [];
-            symbolList.forEach(symbol => {
-                if (symbol) {
-                    const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
-                    if (element) {
-                        const symbolQuote: ISymbolQuote = {
-                            symbolCode: symbol.symbolCode,
-                            symbolId: symbol.symbolId,
-                            symbolName: symbol.symbolName,
-                            prevClosePrice: symbol.prevClosePrice,
-                            high: element?.high || '0',
-                            low: element?.low || '0',
-                            lastPrice: element.currentPrice,
-                            open: element.open || '0',
-                            volume: element.volumePerDay,
-                            ceiling: symbol.ceiling,
-                            floor: symbol.floor
-                        };
-                        const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
-                        if (index < 0) {
-                            temp.push(symbolQuote);
-                        }
-                    }
-                }
-            });
-            temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
-            setSymbolInfor(temp);
-        }
+        } 
+        const tmpQuoteMap = new Map();
+        symbolList.forEach(symbol => {
+            if (symbol) {
+                const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
+                const symbolQuote: ISymbolQuote = {
+                    symbolCode: symbol.symbolCode,
+                    symbolId: symbol.symbolId,
+                    symbolName: symbol.symbolName,
+                    prevClosePrice: symbol.prevClosePrice,
+                    high: element?.high || '0',
+                    low: element?.low || '0',
+                    lastPrice: element?.currentPrice || '0',
+                    open: element?.open || '0',
+                    volume: element?.volumePerDay || '0',
+                    ceiling: symbol.ceiling,
+                    floor: symbol.floor
+                };
+                tmpQuoteMap.set(symbol.symbolCode, symbolQuote)
+            }
+        });
+        setSymbolInfor(tmpQuoteMap);
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
         // setIsRenderPrice(false);
         setIsRenderVolume(false);
-        const tempSymbolsList = [...symbolInfor];
         const tempLastQuotes = [...lastQuotes];
         if (quotes && quotes.length > 0) {
             const quote = quotes.find(o => o?.symbolCode === symbolCode);
@@ -227,16 +217,19 @@ const OrderForm = (props: IOrderForm) => {
                 }
             }
             quotes.forEach(item => {
-                const idx = tempSymbolsList.findIndex(o => o?.symbolCode === item?.symbolCode);
-                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
-                if (idx >= 0) {
-                    tempSymbolsList[idx] = {
-                        ...tempSymbolsList[idx],
-                        lastPrice: checkValue(tempSymbolsList[idx].lastPrice, item.currentPrice),
+                if(item && symbolInfor) {
+                    let quoteUpdate = symbolInfor.get(item?.symbolCode)
+                    if(quoteUpdate) {
+                        quoteUpdate = {
+                            ...quoteUpdate,
+                            lastPrice: checkValue(quoteUpdate.lastPrice, item.currentPrice),
+                        }
+                        symbolInfor.set(item.symbolCode, quoteUpdate)
                     }
-                }
 
+                }
                 // set lại last quote
+                const index = lastQuotes.findIndex(o => o?.symbolCode === item?.symbolCode);
                 if (index >= 0) {
                     tempLastQuotes[index] = {
                         ...tempLastQuotes[index],
@@ -246,7 +239,6 @@ const OrderForm = (props: IOrderForm) => {
                     }
                 }
             });
-            setSymbolInfor(tempSymbolsList);
             setLastQuotes(tempLastQuotes);
         }
     }
@@ -264,17 +256,19 @@ const OrderForm = (props: IOrderForm) => {
         setInvalidPrice(!checkPriceTickSize(price, tickSize));
         setInvalidVolume(volume % lotSize !== 0 || volume < minLot);        
         setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
-    }, [price, volume, minLot])
+    }, [price, volume, minLot, ceilingPrice, floorPrice])
 
     useEffect(() => {
         if (symbolCode) {
             setTickerName(symbolCode);
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
-            const symbolItem = symbolInfor?.find(item => item.symbolCode === symbolCode);
+            const symbolItem = symbolInfor?.get(symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
+            const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(symbolItem?.lastPrice), ticker)
+
             if (isRenderPrice && symbolItem) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
@@ -284,8 +278,10 @@ const OrderForm = (props: IOrderForm) => {
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
-            setFloorPrice(Number(ticker?.floor));
-            setCeilingPrice(Number(ticker?.ceiling));
+
+            setCeilingPrice(convertNumber(formatCurrency(ceilingPrice.toString())));
+            setFloorPrice(convertNumber(formatCurrency(floorPrice.toString())));
+
             setTickSize(Number(tickSize));
             setLotSize(Number(lotSize));
             setMinLot(convertNumber(minLot));
@@ -303,10 +299,10 @@ const OrderForm = (props: IOrderForm) => {
     }, [symbolCode, symbolInfor, quoteInfo, orderType, isRenderPrice, isRenderVolume])
     
     useEffect(() => {
-        if (quoteInfo) {
+        if (quoteInfo && symbolCode) {
             const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const ticker = tickerList.find(item => item.symbolCode === symbolCode);
-            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+            const symbolItem = symbolInfor?.get(symbolCode);
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
             const volume = convertNumber(quoteInfo.volume) === 0 ? convertNumber(calcDefaultVolumeInput(minLot, lotSize)) : convertNumber(quoteInfo.volume)
@@ -565,8 +561,8 @@ const OrderForm = (props: IOrderForm) => {
     )
 
     const resetFormNewOrder = () => {
-        if (symbolCode) {
-            const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
+        if (symbolCode && symbolInfor) {
+            const symbolItem = symbolInfor.get(symbolCode);
             convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
             setVolume(convertNumber(calcDefaultVolumeInput(minLot, lotSize)));
             setIsOutOfDailyPrice(false);
@@ -583,7 +579,7 @@ const OrderForm = (props: IOrderForm) => {
         const volume = convertNumber(value);
         if ((volume || volume === 0) && volume > -1) {
             setVolume(volume);
-            setInvalidVolume(volume % lotSize !== 0 || volume < 1);
+            setInvalidVolume(volume % lotSize !== 0 || volume < minLot);
             setIsMaxOrderVol(volume > convertNumber(maxOrderVolume));
         }
     }
@@ -716,7 +712,7 @@ const OrderForm = (props: IOrderForm) => {
                     {_renderPlaceButton()}
                     {isDashboard && _renderResetButton()}
                 </div>
-                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} />}
+                {isConfirm && <ConfirmOrder handleCloseConfirmPopup={togglePopup} handleOrderResponse={getStatusOrderResponse} params={paramOrder} ceilingPrice={ceilingPrice} floorPrice={floorPrice} />}
             </form>
         )
     }

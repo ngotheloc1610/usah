@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { isNumber } from 'util';
-import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT } from '../constants/general.constant';
+import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT, LIST_TICKER_INFO } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo, IListOrderMonitoring } from '../interfaces/order.interface';
@@ -36,7 +36,7 @@ export function formatCurrency(item: string): string {
     if (item) {
         const newItem = item?.replaceAll(',', '');
         if (isNaN(Number(newItem))) {
-            return '0';
+            return '0.00';
         }
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(newItem));
     }
@@ -147,7 +147,7 @@ export const checkValue = (preValue, currentValue) => {
 }
 
 export const calcChange = (lastPrice: string, prevClosePrice: string) => {
-    if (prevClosePrice && lastPrice) {
+    if (prevClosePrice && lastPrice && lastPrice !== '-') {
         const _newLastPrice = lastPrice?.replaceAll(',', '');
         const _newPrevClosePrice = prevClosePrice?.replaceAll(',', '');
         const lastPriceValue = new Decimal(_newLastPrice);
@@ -524,4 +524,19 @@ export const sortTicker = (listData: IListOrderMonitoring[], isAsc: boolean) => 
         return listData
     }
     return []
+}
+
+export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
+    const rs = {
+        ceilingPrice: 0,
+        floorPrice: 0
+    }
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+    const ticker = symbolsList.find(e => e?.symbolCode === symbol?.symbolCode)
+    if(ticker) {
+        const rate = (convertNumber(ticker?.limitRate) / 100)
+        rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * rate)
+        rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * rate)
+    }
+    return rs
 }

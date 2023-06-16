@@ -5,7 +5,8 @@ const initState = {
   isSplash: true,
   isLogin: true,
   secretKey: '',
-  rememberKey: ''
+  rememberKey: '',
+  tabBlock: false
 };
 
 const authReducer = (state = initState, action: AnyAction) => {
@@ -34,6 +35,12 @@ const authReducer = (state = initState, action: AnyAction) => {
         ...state,
         rememberKey: payload,
       };
+    }
+    case Types.TAB_BLOCK: {
+      return {
+        ...state,
+        tabBlock: payload
+      }
     }
     default:
       return state;

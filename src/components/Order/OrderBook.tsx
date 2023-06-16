@@ -50,10 +50,7 @@ const OrderBook = (props: IOrderBookProps) => {
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quotes => {
             if (quotes.quoteList) {
-                const idx = quotes.quoteList?.findIndex(o => o?.symbolCode === symbolCode);
-                if (idx >= 0) {
-                    setQuoteEvent(quotes.quoteList);
-                }
+                setQuoteEvent(quotes.quoteList);
             }
         });
 
@@ -94,6 +91,27 @@ const OrderBook = (props: IOrderBookProps) => {
         })
     }
 
+    const updateQuoteMap = (quoteEvent: ILastQuote[]) => {
+        quoteEvent.forEach((item: ILastQuote) => {
+            if(item && quoteMap) {
+                let quoteUpdate = quoteMap.get(item.symbolCode)
+                if(quoteUpdate) {
+                    quoteUpdate = {
+                        ...quoteUpdate,
+                        asksList: item.asksList,
+                        bidsList: item.bidsList,
+                        currentPrice: checkValue(quoteUpdate?.currentPrice, item?.currentPrice),
+                        close: checkValue(quoteUpdate?.close, item?.close),
+                        high: checkValue(quoteUpdate?.high, item?.high),
+                        low: checkValue(quoteUpdate?.low, item?.low),
+                        open: checkValue(quoteUpdate?.open, item?.open)
+                    }
+                    quoteMap.set(item.symbolCode, quoteUpdate)
+                }
+            }
+        })
+    }
+
     const processQuoteEvent = (quotes: ILastQuote[]) => {
         if (quote) {
             let temp = { ...quote };
@@ -110,10 +128,9 @@ const OrderBook = (props: IOrderBookProps) => {
                     open: checkValue(temp?.open, item?.open)
                 }
                 setQuote(temp);
-                quoteMap?.set(item.symbolCode, temp)
             }
         }
-
+        updateQuoteMap(quotes)
     }
 
     const renderAskList = (quote: ILastQuote) => {

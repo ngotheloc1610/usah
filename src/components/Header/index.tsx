@@ -20,6 +20,7 @@ import { FIRST_PAGE } from '../../constants/news.constant';
 import { Link } from 'react-router-dom';
 import moment from 'moment-timezone';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -49,6 +50,7 @@ const Header = () => {
   const [timeZone, setTimeZone] = useState(localStorage.getItem(TIME_ZONE) ? localStorage.getItem(TIME_ZONE) : DEFAULT_TIME_ZONE);
   const usTime: any = useRef();
   const zoneTime: any = useRef();
+  const isBlocked = useSelector((state: any) => state.auth.tabBlock);
 
   useEffect(() => {
     _renderAccountId()
@@ -100,6 +102,7 @@ const Header = () => {
   }
 
   const handleLogout = () => {
+    if (isBlocked) return
     sessionStorage.removeItem(ACCOUNT_ID);
     sessionStorage.removeItem(TEAM_CODE);
     sessionStorage.removeItem(TEAM_ID);
@@ -113,6 +116,7 @@ const Header = () => {
     localStorage.removeItem(MAX_ORDER_VALUE);
     localStorage.removeItem(MAX_ORDER_VOLUME);
     window.location.href = `${process.env.PUBLIC_URL}/login`;
+
   }
 
   const handleDisplaySetting = () => {
@@ -225,13 +229,13 @@ const Header = () => {
             </div>
           </li>
           <li className="nav-item dropdown d-flex">
-          <div className="small text-end mr-px-20">
-          <div><span title='Account ID' className="ms-2">{accountId}</span></div>
-          <div className="d-flex align-items-center justify-content-between">
-            <div></div>
-            <span>{poemId}</span>
-          </div>
-          </div>
+            <div className="small text-end mr-px-20">
+              <div><span title='Account ID' className="ms-2">{accountId}</span></div>
+              <div className="d-flex align-items-center justify-content-between">
+                <div></div>
+                <span>{poemId}</span>
+              </div>
+            </div>
             <a href="#" className="nav-link dropdown-toggle pl-0 nav-link-header" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
             <ul className="dropdown-menu dropdown-menu-end">
               <li><a className="dropdown-item" onClick={handleDisplaySetting}>Setting</a></li>
@@ -267,10 +271,10 @@ const Header = () => {
   const _renderHeaderMain = () => (
     <div className="header-main">
       <div className="container d-flex align-items-end">
-        <div className="site-brand" style={{marginRight: '1.5rem'}}>
+        <div className="site-brand" style={{ marginRight: '1.5rem' }}>
           <h1 className="site-title mb-0 text-center">
             <a href="" className="site-link text-decoration-none">
-              <strong style={{fontSize: '22px', display: 'grid'}}>
+              <strong style={{ fontSize: '22px', display: 'grid' }}>
                 <span>US Market Trading</span>
                 <span>(Asian Hrs)</span>
               </strong>
