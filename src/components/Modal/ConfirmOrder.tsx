@@ -526,15 +526,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         <div className='row mt-2'>
                             <div className='col-5 lh-lg pt-1'><b>Team ID {teamCode}</b></div>
                             <div className='col-7 position-relative'>
-                                <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
-                                    type={isHiddenPassword ? 'password' : 'text'}
-                                    onChange={handleTeamPassword}
-                                    placeholder='Password' 
-                                    autoComplete='new-password'
-                                />
-                                <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 md-pw-icon`}
-                                    onClick={() => setIsHiddenPassword(!isHiddenPassword)}
-                                />
+                                <form>
+                                    <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
+                                        type={isHiddenPassword ? 'password' : 'text'}
+                                        onChange={handleTeamPassword}
+                                        placeholder='Password' 
+                                        autoComplete='new-password'
+                                    />
+                                    <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 md-pw-icon`}
+                                        onClick={() => setIsHiddenPassword(!isHiddenPassword)}
+                                    />
+                                </form>
                             </div>
                         </div>
                     </>
