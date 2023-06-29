@@ -25,6 +25,7 @@ import { Button, Modal } from "react-bootstrap";
 import moment from "moment";
 import LazyLoad from "../../../components/lazy-load";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -57,6 +58,7 @@ const MultipleOrders = () => {
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]); 
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
     const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
+    const [symbolList, setSymbolList] = useState<Map<string, ISymbolList>>();
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
     const [limitPrice, setLimitPrice] = useState(0);
@@ -82,6 +84,16 @@ const MultipleOrders = () => {
     const pricingServicePb: any = pspb;
 
     const debugLogFlag = window.globalThis.debugLogFlag;
+
+    useEffect(() => {
+        const symbolMap = new Map();
+        symbolListActive.forEach((item) => {
+            if (item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE) {
+                symbolMap.set(item?.symbolCode, item);
+            }
+        })
+        setSymbolList(symbolMap)
+    }, [])
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -396,8 +408,7 @@ const MultipleOrders = () => {
     }
 
     const getLotSize = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const lotSize = lstSymbols.find(o => o?.symbolCode === ticker)?.lotSize;
+        const lotSize = symbolList?.get(ticker)?.lotSize;
         if (lotSize) {
             return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
@@ -405,8 +416,7 @@ const MultipleOrders = () => {
     }
 
     const getTickSize = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.tickSize;
+        const tickSize = symbolList?.get(ticker)?.tickSize;
         if (tickSize) {
             return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
@@ -414,9 +424,8 @@ const MultipleOrders = () => {
     }
 
     const getCelling = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = lstSymbols.find(o => o?.symbolCode === ticker);
-        let currentPrice = symbol?.lastPrice
+        const symbol = symbolList?.get(ticker);
+        let currentPrice;
         if(quoteMap) {
             const quote = quoteMap.get(symbolCode);
             if(quote) {
@@ -431,9 +440,8 @@ const MultipleOrders = () => {
     }
 
     const getFloor = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = lstSymbols.find(o => o?.symbolCode === ticker);
-        let currentPrice = symbol?.lastPrice
+        const symbol = symbolList?.get(ticker);
+        let currentPrice;
         if(quoteMap) {
             const quote = quoteMap.get(symbolCode);
             if(quote) {
@@ -448,8 +456,7 @@ const MultipleOrders = () => {
     }
 
     const getSymbolDetail = (symbolCode: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        return lstSymbols.find(o => o?.symbolCode === symbolCode);
+        return symbolList?.get(symbolCode);
     }
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
@@ -655,8 +662,7 @@ const MultipleOrders = () => {
     )
 
     const getTickerName = (ticker: string) => {
-        const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickerName = listSymbols.find(o => o?.symbolCode === ticker)?.symbolName;
+        const tickerName = symbolList?.get(ticker)?.symbolName;
         return tickerName ? tickerName : '';
     }
 
@@ -811,7 +817,6 @@ const MultipleOrders = () => {
     const callOrderRequest = () => {
         setIsLoading(true);
         const accountId = sessionStorage.getItem(ACCOUNT_ID)
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -819,7 +824,7 @@ const MultipleOrders = () => {
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
             multiOrder.setSecretKey('');
             listSelected.forEach((item: ISymbolMultiOrder) => {
-                const symbol = symbols.find(o => o.symbolCode === item.ticker);
+                const symbol = symbolList?.get(item.ticker);
                 if (symbol) {
                     let order = new tradingModel.Order();
                     order.setAmount(item.volume?.replaceAll(',', ''));
@@ -1002,7 +1007,7 @@ const MultipleOrders = () => {
 
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
         const quote = lastQuotes.find(e => e?.symbolCode === symbolCode);
-        const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
+        const symbol = symbolList?.get(symbolCode);
         let currentPrice = quote?.currentPrice;
         if(quoteMap) {
             const quote = quoteMap.get(symbolCode);
@@ -1167,8 +1172,7 @@ const MultipleOrders = () => {
     const handelUpperVolume = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            const item = symbolList?.get(symbolCode);
             if (volume < convertNumber(item?.minLot)) {
                 setVolume(convertNumber(item?.minLot));
                 return;
@@ -1188,8 +1192,7 @@ const MultipleOrders = () => {
     const handelLowerVolume = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            const item = symbolList?.get(symbolCode);
             if (volume > convertNumber(maxOrderVolume)) {
                 setVolume(convertNumber(maxOrderVolume));
                 return;
@@ -1211,8 +1214,7 @@ const MultipleOrders = () => {
     const handleUpperPrice = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            const item = symbolList?.get(symbolCode);
             if (item) {
                 const floorPrice = getFloor(item.symbolCode);
                 const ceilingPrice = getCelling(item.symbolCode);
@@ -1240,8 +1242,7 @@ const MultipleOrders = () => {
     const handleLowerPrice = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            const item = symbolList?.get(symbolCode);
             if (item) {
                 const floorPrice = getFloor(item.symbolCode);
                 const ceilingPrice = getCelling(item.symbolCode);
@@ -1275,7 +1276,6 @@ const MultipleOrders = () => {
         setSymbolCode(symbolCode ? symbolCode : '');
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
-            const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
 
             const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
@@ -1291,7 +1291,7 @@ const MultipleOrders = () => {
                 }
             }
 
-            const item = symbols.find(o => o?.symbolCode === symbolCode);
+            const item = symbolList?.get(symbolCode);
             setIsSave(false)
             if (item) {
                 setSymbolSelected(item?.symbolCode);
@@ -1309,7 +1309,7 @@ const MultipleOrders = () => {
             setVolume(0);
             setLimitPrice(0);
         }
-        const item = symbols.find(o => o?.symbolCode === symbolCode);
+        const item = symbolList?.get(symbolCode);
         if(item) {
             setIsSave(true);
             setIsValidTicker(false);

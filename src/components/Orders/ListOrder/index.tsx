@@ -7,6 +7,7 @@ import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
+import * as qmpb from "../../../models/proto/query_model_pb";
 import * as psbp from "../../../models/proto/pricing_service_pb";
 import { formatNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
@@ -27,13 +28,14 @@ interface IPropsListOrder {
 const ListOrder = (props: IPropsListOrder) => {
     const { setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
+    const queryModelPb: any = qmpb;
     const [dataOrder, setDataOrder] = useState<IListOrderMonitoring[]>([]);
     const [isShowFullData, setShowFullData] = useState(false);
     const [isCancel, setIsCancel] = useState(false);
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(DEFAULT_DATA_MODIFY_CANCEL);
     const [statusOrder, setStatusOrder] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [symbolList, setSymbolList] = useState<Map<string, ISymbolList>>();
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
@@ -326,7 +328,13 @@ const ListOrder = (props: IPropsListOrder) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+            const symbolMap = new Map();
+                res.symbolList.forEach((item) => {
+                    if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                        symbolMap.set(item?.symbolCode, item);
+                    }
+                })
+                setSymbolList(symbolMap)
         });
 
         return () => {
@@ -366,44 +374,50 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const getTicker = (symbolCode: string) => {
-        const ticker = symbolList.find(item => item.symbolCode === symbolCode);
-        return ticker;
+        if(symbolList) {
+            const ticker = symbolList.get(symbolCode);
+            return ticker;
+        }
     }
 
     const handleModify = (item: IListOrderMonitoring) => {
-        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
-        const param: IParamOrderModifyCancel = {
-            orderId: item.orderId.toString(),
-            tickerCode: item.symbolCode.split('-')[0]?.trim(),
-            tickerName: symbolName || '',
-            orderType: item.orderType,
-            volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: Number(item.price),
-            side: item.side,
-            confirmationConfig: false,
-            tickerId: item.symbolCode.toString(),
-            uid: item.uid
+        if (symbolList) {
+            const symbolName = symbolList.get(item.symbolCode)?.symbolName;
+            const param: IParamOrderModifyCancel = {
+                orderId: item.orderId.toString(),
+                tickerCode: item.symbolCode.split('-')[0]?.trim(),
+                tickerName: symbolName || '',
+                orderType: item.orderType,
+                volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
+                price: Number(item.price),
+                side: item.side,
+                confirmationConfig: false,
+                tickerId: item.symbolCode.toString(),
+                uid: item.uid
+            }
+            setParamModifyCancel(param);
+            setIsModify(true);
         }
-        setParamModifyCancel(param);
-        setIsModify(true);
     }
 
     const handleCancel = (item: IListOrderMonitoring) => {
-        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
-        const param: IParamOrderModifyCancel = {
-            orderId: item.orderId.toString(),
-            tickerCode: item.symbolCode.split('-')[0]?.trim(),
-            tickerName: symbolName || '',
-            orderType: item.orderType,
-            volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
-            price: Number(item.price),
-            side: item.side,
-            confirmationConfig: false,
-            tickerId: item.symbolCode.toString(),
-            uid: item.uid
+        if(symbolList) {
+            const symbolName = symbolList.get(item.symbolCode)?.symbolName;
+            const param: IParamOrderModifyCancel = {
+                orderId: item.orderId.toString(),
+                tickerCode: item.symbolCode.split('-')[0]?.trim(),
+                tickerName: symbolName || '',
+                orderType: item.orderType,
+                volume: calcPendingVolume(item.amount, item.filledAmount).toString(),
+                price: Number(item.price),
+                side: item.side,
+                confirmationConfig: false,
+                tickerId: item.symbolCode.toString(),
+                uid: item.uid
+            }
+            setParamModifyCancel(param)
+            setIsCancel(true)
         }
-        setParamModifyCancel(param)
-        setIsCancel(true)
     }
 
     const togglePopup = (isCloseModifyCancel: boolean) => {
@@ -694,7 +708,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         <td className="fm">{item.uid}</td>
                     )}
                     <td className="fm">{item.externalOrderId}</td>
-                    <td title={getTicker(item.symbolCode)?.symbolName}>{getTicker(item.symbolCode)?.symbolCode}</td>
+                    <td title={getTicker(item.symbolCode)?.symbolName}>{item.symbolCode}</td>
                     <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
                     <td className="text-center ">{ORDER_TYPE.get(item.orderType)}</td>
                     <td className="text-end ">{formatCurrency(item.price.toString())}</td>
