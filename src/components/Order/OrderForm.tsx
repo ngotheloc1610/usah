@@ -66,7 +66,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [symbolInfor, setSymbolInfor] = useState<Map<string, ISymbolQuote>>();
-    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map())
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
@@ -93,13 +93,11 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     useEffect(() => {
-        const symbolMap = new Map();
         listSymbols.forEach((item) => {
             if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                symbolMap.set(item?.symbolCode, item);
+                symbolListMap.set(item?.symbolCode, item);
             }
         })
-        setSymbolListMap(symbolMap)
     }, [])
     
     useEffect(() => {
@@ -109,7 +107,7 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(tradingModel.Side.NONE);
         }
         setOrderType(tradingModel.OrderType.OP_LIMIT);
-        if(symbolListMap && symbolCode) {
+        if(symbolCode) {
             const symbol = symbolListMap.get(symbolCode);
             if (symbol) {
                 setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
@@ -284,7 +282,7 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         if (symbolCode) {
             setTickerName(symbolCode);
-            const ticker = symbolListMap?.get(symbolCode);
+            const ticker = symbolListMap.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
@@ -300,7 +298,7 @@ const OrderForm = (props: IOrderForm) => {
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
-
+            
             setCeilingPrice(convertNumber(formatCurrency(ceilingPrice.toString())));
             setFloorPrice(convertNumber(formatCurrency(floorPrice.toString())));
 
@@ -322,7 +320,7 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (quoteInfo && symbolCode) {
-            const ticker = symbolListMap?.get(symbolCode);
+            const ticker = symbolListMap.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
@@ -524,7 +522,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const handlePlaceOrder = () => {
         if(symbolCode) {
-            const symbol = symbolListMap?.get(symbolCode);
+            const symbol = symbolListMap.get(symbolCode);
             if (symbol) {
                 const param = {
                     tickerCode: symbol.symbolCode,
@@ -686,7 +684,7 @@ const OrderForm = (props: IOrderForm) => {
     const _renderForm = () => {
         let existSymbol
         if(symbolCode) {
-            existSymbol = symbolListMap?.get(symbolCode);
+            existSymbol = symbolListMap.get(symbolCode);
         }
         return (
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
