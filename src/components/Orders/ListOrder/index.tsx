@@ -35,7 +35,7 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(DEFAULT_DATA_MODIFY_CANCEL);
     const [statusOrder, setStatusOrder] = useState(0);
-    const [symbolList, setSymbolList] = useState<Map<string, ISymbolList>>();
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
@@ -328,13 +328,11 @@ const ListOrder = (props: IPropsListOrder) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            const symbolMap = new Map();
                 res.symbolList.forEach((item) => {
                     if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                        symbolMap.set(item?.symbolCode, item);
+                        symbolListMap.set(item.symbolCode, item);
                     }
                 })
-                setSymbolList(symbolMap)
         });
 
         return () => {
@@ -374,15 +372,12 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const getTicker = (symbolCode: string) => {
-        if(symbolList) {
-            const ticker = symbolList.get(symbolCode);
-            return ticker;
-        }
+        const ticker = symbolListMap.get(symbolCode);
+        return ticker;
     }
 
     const handleModify = (item: IListOrderMonitoring) => {
-        if (symbolList) {
-            const symbolName = symbolList.get(item.symbolCode)?.symbolName;
+            const symbolName = symbolListMap.get(item.symbolCode)?.symbolName;
             const param: IParamOrderModifyCancel = {
                 orderId: item.orderId.toString(),
                 tickerCode: item.symbolCode.split('-')[0]?.trim(),
@@ -397,12 +392,10 @@ const ListOrder = (props: IPropsListOrder) => {
             }
             setParamModifyCancel(param);
             setIsModify(true);
-        }
     }
 
     const handleCancel = (item: IListOrderMonitoring) => {
-        if(symbolList) {
-            const symbolName = symbolList.get(item.symbolCode)?.symbolName;
+            const symbolName = symbolListMap.get(item.symbolCode)?.symbolName;
             const param: IParamOrderModifyCancel = {
                 orderId: item.orderId.toString(),
                 tickerCode: item.symbolCode.split('-')[0]?.trim(),
@@ -417,7 +410,6 @@ const ListOrder = (props: IPropsListOrder) => {
             }
             setParamModifyCancel(param)
             setIsCancel(true)
-        }
     }
 
     const togglePopup = (isCloseModifyCancel: boolean) => {

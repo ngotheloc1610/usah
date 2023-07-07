@@ -95,7 +95,7 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         listSymbols.forEach((item) => {
             if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                symbolListMap.set(item?.symbolCode, item);
+                symbolListMap.set(item.symbolCode, item);
             }
         })
     }, [])
