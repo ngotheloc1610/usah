@@ -66,7 +66,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [symbolInfor, setSymbolInfor] = useState<Map<string, ISymbolQuote>>();
-    const [symbolList, setSymbolList] = useState<Map<string, ISymbolList>>();
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
@@ -99,7 +99,7 @@ const OrderForm = (props: IOrderForm) => {
                 symbolMap.set(item?.symbolCode, item);
             }
         })
-        setSymbolList(symbolMap)
+        setSymbolListMap(symbolMap)
     }, [])
     
     useEffect(() => {
@@ -109,8 +109,8 @@ const OrderForm = (props: IOrderForm) => {
             setCurrentSide(tradingModel.Side.NONE);
         }
         setOrderType(tradingModel.OrderType.OP_LIMIT);
-        if(symbolList && symbolCode) {
-            const symbol = symbolList.get(symbolCode);
+        if(symbolListMap && symbolCode) {
+            const symbol = symbolListMap.get(symbolCode);
             if (symbol) {
                 setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
             }
@@ -284,7 +284,7 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         if (symbolCode) {
             setTickerName(symbolCode);
-            const ticker = symbolList?.get(symbolCode);
+            const ticker = symbolListMap?.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
@@ -322,7 +322,7 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (quoteInfo && symbolCode) {
-            const ticker = symbolList?.get(symbolCode);
+            const ticker = symbolListMap?.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
@@ -524,7 +524,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const handlePlaceOrder = () => {
         if(symbolCode) {
-            const symbol = symbolList?.get(symbolCode);
+            const symbol = symbolListMap?.get(symbolCode);
             if (symbol) {
                 const param = {
                     tickerCode: symbol.symbolCode,
@@ -686,7 +686,7 @@ const OrderForm = (props: IOrderForm) => {
     const _renderForm = () => {
         let existSymbol
         if(symbolCode) {
-            existSymbol = symbolList?.get(symbolCode);
+            existSymbol = symbolListMap?.get(symbolCode);
         }
         return (
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
