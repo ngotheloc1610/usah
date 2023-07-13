@@ -13,6 +13,8 @@ import { wsService } from '../../services/websocket-service';
 import { IQuoteEvent } from '../../interfaces/quotes.interface';
 import { DEFAULT_DATA_MODIFY_CANCEL } from '../../mocks';
 import Decimal from 'decimal.js';
+import { ISymbolList } from '../../interfaces/ticker.interface';
+import * as qmpb from '../../models/proto/query_model_pb';
 
 toast.configure()
 interface IOrderForm {
@@ -31,6 +33,7 @@ const OrderForm = (props: IOrderForm) => {
     const { isDashboard, messageSuccess, symbolCode, side, quoteInfo, isMonitoring, isOrderBook } = props;
     const [tickerName, setTickerName] = useState('');
     const tradingModel: any = tdpb;
+    const queryModelPb: any = qmpb;
     const [currentSide, setCurrentSide] = useState(tradingModel.Side.NONE);
     const [isConfirm, setIsConfirm] = useState(false);
     const [paramOrder, setParamOrder] = useState(DEFAULT_DATA_MODIFY_CANCEL);
@@ -63,6 +66,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [symbolInfor, setSymbolInfor] = useState<Map<string, ISymbolQuote>>();
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map())
 
     const [isRenderPrice, setIsRenderPrice] = useState(true);
     const [isRenderVolume, setIsRenderVolume] = useState(true);
@@ -89,15 +93,25 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     useEffect(() => {
+        listSymbols.forEach((item) => {
+            if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                symbolListMap.set(item.symbolCode, item);
+            }
+        })
+    }, [])
+    
+    useEffect(() => {
         setIsRenderPrice(true);
         setIsRenderVolume(true);
         if (symbolCode === '') {
             setCurrentSide(tradingModel.Side.NONE);
         }
         setOrderType(tradingModel.OrderType.OP_LIMIT);
-        const symbol = listSymbols.find(o => o?.symbolCode === symbolCode);
-        if (symbol) {
-            setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
+        if(symbolCode) {
+            const symbol = symbolListMap.get(symbolCode);
+            if (symbol) {
+                setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
+            }
         }
     }, [symbolCode])
 
@@ -268,8 +282,7 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         if (symbolCode) {
             setTickerName(symbolCode);
-            const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const ticker = symbolListMap.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const tickSize = ticker?.tickSize;
             const lotSize = ticker?.lotSize;
@@ -285,7 +298,7 @@ const OrderForm = (props: IOrderForm) => {
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
             }
-
+            
             setCeilingPrice(convertNumber(formatCurrency(ceilingPrice.toString())));
             setFloorPrice(convertNumber(formatCurrency(floorPrice.toString())));
 
@@ -307,8 +320,7 @@ const OrderForm = (props: IOrderForm) => {
 
     useEffect(() => {
         if (quoteInfo && symbolCode) {
-            const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const ticker = tickerList.find(item => item.symbolCode === symbolCode);
+            const ticker = symbolListMap.get(symbolCode);
             const symbolItem = symbolInfor?.get(symbolCode);
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
@@ -509,22 +521,23 @@ const OrderForm = (props: IOrderForm) => {
     }
 
     const handlePlaceOrder = () => {
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const symbol = symbols?.find(o => o?.symbolCode === symbolCode);
-        if (symbol) {
-            const param = {
-                tickerCode: symbol.symbolCode,
-                tickerName: symbol.symbolName,
-                orderType: orderType,
-                volume: volume.toString(),
-                price: orderType === tradingModel.OrderType.OP_LIMIT ? price : paramOrder.price,
-                side: currentSide,
-                confirmationConfig: false,
-                tickerId: symbol.symbolId?.toString()
+        if(symbolCode) {
+            const symbol = symbolListMap.get(symbolCode);
+            if (symbol) {
+                const param = {
+                    tickerCode: symbol.symbolCode,
+                    tickerName: symbol.symbolName,
+                    orderType: orderType,
+                    volume: volume.toString(),
+                    price: orderType === tradingModel.OrderType.OP_LIMIT ? price : paramOrder.price,
+                    side: currentSide,
+                    confirmationConfig: false,
+                    tickerId: symbol.symbolId?.toString()
+                }
+                setParamOrder(param);
             }
-            setParamOrder(param);
+            setIsConfirm(true);
         }
-        setIsConfirm(true);
     }
 
     const disableButtonPlace = (): boolean => {
@@ -669,8 +682,10 @@ const OrderForm = (props: IOrderForm) => {
     const _renderVolumeInput = useMemo(() => _renderInputControl(TITLE_ORDER_CONFIRM.QUANLITY, volume?.toString(), handelUpperVolume, handelLowerVolume), [volume, invalidVolume, isAllowed])
 
     const _renderForm = () => {
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const existSymbol = symbols.find(symbol => symbol.symbolCode === symbolCode);
+        let existSymbol
+        if(symbolCode) {
+            existSymbol = symbolListMap.get(symbolCode);
+        }
         return (
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                 <div className='row d-flex align-items-stretch mb-2'>
