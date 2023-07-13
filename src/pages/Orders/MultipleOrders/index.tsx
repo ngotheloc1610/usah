@@ -1216,7 +1216,7 @@ const MultipleOrders = () => {
             if (symbol) {
                 const floorPrice = getFloor(symbol.symbolCode);
                 const ceilingPrice = getCelling(symbol.symbolCode);
-                const tickSize = symbol && convertNumber(symbol.tickSize) !== 0 ? convertNumber(symbol.tickSize) : 1;
+                const tickSize = convertNumber(symbol.tickSize) !== 0 ? convertNumber(symbol.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
