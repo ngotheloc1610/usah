@@ -1,9 +1,8 @@
 import moment from 'moment';
-import { isNumber } from 'util';
 import { FORMAT_DATE_TIME_MILLIS, INVALID_DATE, KEY_LOCAL_STORAGE, LENGTH_PASSWORD, LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT, LIST_TICKER_INFO } from '../constants/general.constant';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
-import { IAskAndBidPrice, IAsksBidsList, ISymbolInfo, IListOrderMonitoring } from '../interfaces/order.interface';
+import { IAskAndBidPrice, IAsksBidsList, IListOrderMonitoring } from '../interfaces/order.interface';
 import * as smpb from '../models/proto/system_model_pb';
 import * as tmpb from '../models/proto/trading_model_pb';
 import { MESSAGE_ERROR } from '../constants/message.constant';
@@ -12,6 +11,9 @@ import { INSUFFICIENT_LIQUIDITY_FOR_THIS_TRADE } from '../constants/order.consta
 
 const systemModel: any = smpb;
 const tradingModel: any = tmpb;
+
+const numberFormat = new Intl.NumberFormat('en-US');
+const numberFormatCustom = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function formatOrderTime(date: number): string {
     // time
@@ -28,7 +30,7 @@ export function calcPendingVolume(volume: string, filledAmount: string) {
 
 // To format volume.
 export function formatNumber(item: string): string {
-    return new Intl.NumberFormat('en-US').format(Number(item));
+    return numberFormat.format(Number(item));
 }
 
 // To format price --after the dot is 2 decimals.
@@ -38,7 +40,7 @@ export function formatCurrency(item: string): string {
         if (isNaN(Number(newItem))) {
             return '0.00';
         }
-        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(newItem));
+        return numberFormatCustom.format(Number(newItem));
     }
     return '-';
 }

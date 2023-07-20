@@ -1,7 +1,19 @@
-import { formatCurrency } from '../helper/utils';
 import * as smpb from '../models/proto/system_model_pb';
 import { MIN_ORDER_VALUE } from './general.constant';
 const systemModel: any = smpb;
+
+const numberFormatCustom = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function formatCurrency(item: string): string {
+  if (item) {
+      const newItem = item?.replaceAll(',', '');
+      if (isNaN(Number(newItem))) {
+          return '0.00';
+      }
+      return numberFormatCustom.format(Number(newItem));
+  }
+  return '-';
+}
 
 export const MESSAGE_ERROR = new Map([
     [systemModel.MsgCode.MT_RET_OK, 'Success'],
