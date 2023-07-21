@@ -105,14 +105,6 @@ const OrderBookCommon = () => {
             setTradeHistory(res.tradeList);
         });
 
-        const unsubscribeQuote = wsService.getUnsubscribeQuoteSubject().subscribe(resp => {
-            if (resp.msgText === "SUCCESS") {
-                if (symbolSearch !== '') {
-                    subscribeQuoteEvent(symbolSearch);
-                }
-            }
-        });
-
         const quotes = wsService.getQuoteSubject().subscribe(resp => {
             const symbolCode = symbolSelected?.split('-')[0]?.trim();
             if (resp && resp.quoteList) {
@@ -130,16 +122,13 @@ const OrderBookCommon = () => {
         })
 
         return () => {
-            unSubscribeQuoteEvent(symbolSearch);
-            unsubscribeTradeEvent(symbolSearch);
             ws.unsubscribe();
             renderDataToScreen.unsubscribe();
-            unsubscribeQuote.unsubscribe();
             quotes.unsubscribe();
             trade.unsubscribe();
         }
     }, [symbolSelected]);
-
+    
     useEffect(() => {
         processQuotes(quoteEvent);
     }, [quoteEvent])
@@ -289,24 +278,25 @@ const OrderBookCommon = () => {
             setTickerSelect('');
             setSymbolSelected('');
             setItemTickerInfor(undefined);
+            unSubscribeQuoteEvent(symbolSearch || '');
+            unsubscribeTradeEvent(symbolSearch || '');
             return;
         }
         const txtSearch = value !== undefined ? getSymbolCode(value) : '';
         setSymbolSelected(value);
         const itemTickerInfor = listTicker.find(item => item.symbolCode === txtSearch.toUpperCase() || item.symbolName === txtSearch);
         if (itemTickerInfor) {
-            setSymbolSearch(itemTickerInfor?.symbolCode);
-            setTickerSelect(itemTickerInfor?.symbolCode);
-            assignTickerToOrderForm(itemTickerInfor?.symbolCode);
-            subscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
-            subscribeTradeEvent(itemTickerInfor?.symbolCode || '');
-            getTradeHistory(itemTickerInfor?.symbolCode || '');
-            setSymbolSearch(itemTickerInfor?.symbolCode || '');
+            setTickerSelect(itemTickerInfor.symbolCode);
+            assignTickerToOrderForm(itemTickerInfor.symbolCode);
+            subscribeQuoteEvent(itemTickerInfor.symbolCode);
+            subscribeTradeEvent(itemTickerInfor.symbolCode);
+            getTradeHistory(itemTickerInfor.symbolCode);
+            setSymbolSearch(itemTickerInfor.symbolCode);
         }
 
         if (symbolSearch) {
-            unSubscribeQuoteEvent(itemTickerInfor?.symbolCode || '');
-            unsubscribeTradeEvent(itemTickerInfor?.symbolCode || '');
+            unSubscribeQuoteEvent(symbolSearch);
+            unsubscribeTradeEvent(symbolSearch);
         }
 
         setItemTickerInfor(itemTickerInfor);
@@ -409,13 +399,13 @@ const OrderBookCommon = () => {
         }
     }
 
-    const unSubscribeQuoteEvent = (symbolId: string) => {
+    const unSubscribeQuoteEvent = (symbolCode: string) => {
         const pricingServicePb: any = pspb;
         const rpc: any = rpcpb;
         const wsConnected = wsService.getWsConnected();
         if (wsConnected) {
             let unsubscribeQuoteReq = new pricingServicePb.UnsubscribeQuoteEventRequest();
-            unsubscribeQuoteReq.addSymbolCode(symbolId);
+            unsubscribeQuoteReq.addSymbolCode(symbolCode);
             let rpcMsg = new rpc.RpcMessage();
             rpcMsg.setPayloadClass(rpc.RpcMessage.Payload.UNSUBSCRIBE_QUOTE_REQ);
             rpcMsg.setPayloadData(unsubscribeQuoteReq.serializeBinary());
