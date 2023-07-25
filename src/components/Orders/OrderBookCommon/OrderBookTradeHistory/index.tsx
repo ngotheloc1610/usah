@@ -1,23 +1,34 @@
 import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helper/utils';
 import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
+import { IStyleBidsAsk } from '../../../../interfaces/order.interface';
 interface IPropTradeOrderBook {
     getDataTradeHistory: IListTradeHistory[];
     symbolCode: string;
+    styleListBidsAsk: IStyleBidsAsk;
 }
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
-    const { getDataTradeHistory, symbolCode } = props;
+    const { getDataTradeHistory, symbolCode, styleListBidsAsk } = props;
     const _renderData = () => {
         const dataSortTime = getDataTradeHistory?.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
         if (symbolCode) {
             return dataSortTime?.map((item, index) => (
-                <tr key={index} className="odd">
-                    <td>{formatOrderTime(Number(item?.executedDatetime))}</td>
-                    <td className="text-end">{formatNumber(item?.executedVolume)}</td>
-                    <td className="text-end">{formatCurrency(item?.executedPrice)}</td>
+                <tr key={index} className="odd p-10px table-trade-history">
+                    <td className='w-60'>{formatOrderTime(Number(item?.executedDatetime))}</td>
+                    <td className="text-end w-20">{formatNumber(item?.executedVolume)}</td>
+                    <td className="text-end w-20">{formatCurrency(item?.executedPrice)}</td>
                 </tr>
             ));
         }
+    }
+
+    const getTableMaxHeight = () => {
+        const isLayoutColums = styleListBidsAsk.columns || styleListBidsAsk.columnsGap;
+        const isLayoutGrid = styleListBidsAsk.grid;
+        const isLayoutSpreadSheet = styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet;
+        if (isLayoutGrid) return '995px'
+        if (isLayoutColums) return '964px'
+        if (isLayoutSpreadSheet) return '532px'
     }
 
     return <div className="card card-trade-history">
@@ -25,30 +36,30 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
         </div>
         <div className="card-body p-0">
-            <div className="table-responsive">
                 <div id="table_trade_history_wrapper" className="dataTables_wrapper dt-bootstrap5 no-footer">
                     <div className="row">
                         <div className="col-sm-12">
                             <div className="dataTables_scroll">
                                 <div className="dataTables_scrollHead"
-                                    style={{ overflow: "hidden", position: "relative", border: "0px", width: "100%" }}>
-                                    <div className="dataTables_scrollHeadInner"
+                                    style={{position: "relative", border: "0px", width: "100%" }}>
+                                    <div
                                         style={{
                                             position: "relative",
-                                            overflow: "auto",
                                             width: "100%",
-                                            maxHeight: "449.812px"
-                                        }}>
+                                        }}
+                                    >
                                         <table width="100%" className="table table-sm table-borderless table-hover mb-0 dataTable no-footer"
                                             style={{ boxSizing: "content-box" }}>
-                                            <thead>
+                                            <thead className='table-trade-history'>
                                                 <tr>
-                                                    <th className="sorting_disabled">Datetime</th>
-                                                    <th className="text-end sorting_disabled">Vol</th>
-                                                    <th className="text-end sorting_disabled">Price</th>
+                                                    <th className="sorting_disabled w-60">Datetime</th>
+                                                    <th className="text-end sorting_disabled w-20">Vol</th>
+                                                    <th className="text-end sorting_disabled w-20">
+                                                        <span className='pe-3 fs-12px'>Price</span>
+                                                    </th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody className='d-block table-trade-history' style={{height: getTableMaxHeight()}}>
                                                 {_renderData()}
                                             </tbody>
                                         </table>
@@ -64,7 +75,6 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 }

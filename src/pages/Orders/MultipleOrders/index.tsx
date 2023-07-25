@@ -791,7 +791,7 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap"><span>Ticker Code</span></th>
+            <th className="text-start text-nowrap"><span>Ticker Code</span></th>
             <th className="text-center text-nowrap"><span>Order Type</span></th>
             <th className="text-center text-center text-nowrap"><span>Order Side</span></th>
             <th className="text-center text-nowrap"><span>Quantity</span></th>
