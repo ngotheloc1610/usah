@@ -1,26 +1,70 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helper/utils';
 import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
 import { IStyleBidsAsk } from '../../../../interfaces/order.interface';
+import { wsService } from '../../../../services/websocket-service';
 interface IPropTradeOrderBook {
-    getDataTradeHistory: IListTradeHistory[];
     symbolCode: string;
     styleListBidsAsk: IStyleBidsAsk;
 }
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
-    const { getDataTradeHistory, symbolCode, styleListBidsAsk } = props;
-    const _renderData = () => {
-        const dataSortTime = getDataTradeHistory?.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
+    const { symbolCode, styleListBidsAsk } = props;
+    const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
+    const [tradeUpdate, setTradeUpdate] = useState<IListTradeHistory[]>([]);
+    const [tradeEvent, setTradeEvent] = useState([]);
+
+    useEffect(() => {
+        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+            setTradeHistory(res.tradeList);
+        });
+
+        const trade = wsService.getTradeEvent().subscribe(trades => {
+            if (trades && trades.tradeList) {
+                setTradeEvent(trades.tradeList)
+            }
+        })
+
+        return () => {
+            renderDataToScreen.unsubscribe();
+            trade.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processTradeEvent(tradeEvent);
+    }, [tradeEvent])
+
+    const processTradeEvent = (trades: IListTradeHistory[]) => {
+        trades.forEach(item => {
+            if (item.tickerCode === symbolCode) {
+                setTradeUpdate(prevState => [item, ...prevState])
+            }
+        });
+    }
+
+    const _renderUpdateData = () => {
         if (symbolCode) {
-            return dataSortTime?.map((item, index) => (
+            return tradeUpdate?.map((item, index) => (<tr key={index} className="odd p-10px table-trade-history">
+                <td className='w-60'>{formatOrderTime(Number(item?.executedDatetime))}</td>
+                <td className="text-end w-20">{formatNumber(item?.executedVolume)}</td>
+                <td className="text-end w-20">{formatCurrency(item?.executedPrice)}</td>
+            </tr>
+            ));
+        }
+    }
+
+    const _renderData = useMemo(() => {
+        if (symbolCode) {
+            return tradeHistory?.map((item, index) => (
                 <tr key={index} className="odd p-10px table-trade-history">
                     <td className='w-60'>{formatOrderTime(Number(item?.executedDatetime))}</td>
                     <td className="text-end w-20">{formatNumber(item?.executedVolume)}</td>
                     <td className="text-end w-20">{formatCurrency(item?.executedPrice)}</td>
-                </tr>
+                    </tr>
             ));
         }
-    }
+    }, [tradeHistory, symbolCode])
 
     const getTableMaxHeight = () => {
         const isLayoutColums = styleListBidsAsk.columns || styleListBidsAsk.columnsGap;
@@ -49,6 +93,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                         }}
                                     >
                                         <table width="100%" className="table table-sm table-borderless table-hover mb-0 dataTable no-footer"
+
                                             style={{ boxSizing: "content-box" }}>
                                             <thead className='table-trade-history'>
                                                 <tr>
@@ -60,7 +105,8 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                                 </tr>
                                             </thead>
                                             <tbody className='d-block table-trade-history' style={{height: getTableMaxHeight()}}>
-                                                {_renderData()}
+                                                {_renderUpdateData()}
+                                                {_renderData}
                                             </tbody>
                                         </table>
                                     </div>
@@ -78,4 +124,4 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
         </div>
     </div>
 }
-export default OrderBookTradeHistory;
+export default React.memo(OrderBookTradeHistory);
