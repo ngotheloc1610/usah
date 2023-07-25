@@ -55,7 +55,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                                     <th className="sorting_disabled w-60">Datetime</th>
                                                     <th className="text-end sorting_disabled w-20">Vol</th>
                                                     <th className="text-end sorting_disabled w-20">
-                                                        <span className='pe-3 fs-12px'>Price</span>
+                                                        <span className='pe-3 fs-075rem'>Price</span>
                                                     </th>
                                                 </tr>
                                             </thead>
