@@ -1,16 +1,60 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helper/utils';
 import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
+import { wsService } from '../../../../services/websocket-service';
 interface IPropTradeOrderBook {
-    getDataTradeHistory: IListTradeHistory[];
     symbolCode: string;
 }
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
-    const { getDataTradeHistory, symbolCode } = props;
-    const _renderData = () => {
-        const dataSortTime = getDataTradeHistory?.sort((a, b) => b?.executedDatetime.localeCompare(a?.executedDatetime));
+    const { symbolCode } = props;
+    const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
+    const [tradeUpdate, setTradeUpdate] = useState<IListTradeHistory[]>([]);
+    const [tradeEvent, setTradeEvent] = useState([]);
+
+    useEffect(() => {
+        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
+            setTradeHistory(res.tradeList);
+        });
+
+        const trade = wsService.getTradeEvent().subscribe(trades => {
+            if (trades && trades.tradeList) {
+                setTradeEvent(trades.tradeList)
+            }
+        })
+
+        return () => {
+            renderDataToScreen.unsubscribe();
+            trade.unsubscribe();
+        }
+    }, [])
+
+    useEffect(() => {
+        processTradeEvent(tradeEvent);
+    }, [tradeEvent])
+
+    const processTradeEvent = (trades: IListTradeHistory[]) => {
+        trades.forEach(item => {
+            if (item.tickerCode === symbolCode) {
+                setTradeUpdate(prevState => [item, ...prevState])
+            }
+        });
+    }
+
+    const _renderUpdateData = () => {
         if (symbolCode) {
-            return dataSortTime?.map((item, index) => (
+            return tradeUpdate?.map((item, index) => (<tr key={index} className="odd">
+                <td>{formatOrderTime(Number(item?.executedDatetime))}</td>
+                <td className="text-end">{formatNumber(item?.executedVolume)}</td>
+                <td className="text-end">{formatCurrency(item?.executedPrice)}</td>
+            </tr>
+            ));
+        }
+    }
+
+    const _renderData = useMemo(() => {
+        if (symbolCode) {
+            return tradeHistory?.map((item, index) => (
                 <tr key={index} className="odd">
                     <td>{formatOrderTime(Number(item?.executedDatetime))}</td>
                     <td className="text-end">{formatNumber(item?.executedVolume)}</td>
@@ -18,7 +62,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                 </tr>
             ));
         }
-    }
+    }, [tradeHistory, symbolCode])
 
     return <div className="card card-trade-history">
         <div className="card-header">
@@ -40,6 +84,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                             maxHeight: "449.812px"
                                         }}>
                                         <table width="100%" className="table table-sm table-borderless table-hover mb-0 dataTable no-footer"
+
                                             style={{ boxSizing: "content-box" }}>
                                             <thead>
                                                 <tr>
@@ -49,7 +94,8 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {_renderData()}
+                                                {_renderUpdateData()}
+                                                {_renderData}
                                             </tbody>
                                         </table>
                                     </div>
@@ -68,4 +114,4 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
         </div>
     </div>
 }
-export default OrderBookTradeHistory;
+export default React.memo(OrderBookTradeHistory);

@@ -3,7 +3,7 @@ import OrderForm from '../../../components/Order/OrderForm';
 import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
 import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
 import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IListTradeHistory, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
+import { IAskAndBidPrice, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
 import { ILastQuote } from '../../../interfaces/order.interface';
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
@@ -34,14 +34,13 @@ const OrderBookCommon = () => {
             spreadsheet: false
         }
     }
-    
+
     const dispatch = useDispatch();
     const [isEarmarkSpreadSheet, setEarmarkSpreadSheet] = useState<boolean>(styleLayout?.earmarkSpreadSheet);
     const [isSpreadsheet, setSpreadsheet] = useState<boolean>(styleLayout?.spreadsheet);
     const [isGrid, setGrid] = useState<boolean>(styleLayout?.grid);
     const [isColumns, setColumns] = useState<boolean>(styleLayout?.columns);
     const [isColumnsGap, setColumnsGap] = useState<boolean>(styleLayout?.columnsGap);
-    const [tradeHistory, setTradeHistory] = useState<IListTradeHistory[]>([]);
     const [currentTicker, setCurrentTicker] = useState<ITickerInfo | any>(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [symbolId, setSymbolId] = useState<number>(0);
@@ -50,12 +49,10 @@ const OrderBookCommon = () => {
     const [listSymbolCode, setListSymbolCode] = useState<string[]>([]);
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [tickerSelect, setTickerSelect] = useState('');
-    const [tradeEvent, setTradeEvent] = useState([]);
     const [symbolSearch, setSymbolSearch] = useState('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [side, setSide] = useState(0);
     const [listStyleBidsAsk, setListStyleBidsAsk] = useState(DEFAULT_STYLE_LAYOUT);
-
     const currentDate = moment().format(FORMAT_DATE);
     const timeFrom = convertDatetoTimeStamp(currentDate, FROM_DATE_TIME);
     const timeTo = convertDatetoTimeStamp(currentDate, TO_DATE_TIME);
@@ -101,10 +98,6 @@ const OrderBookCommon = () => {
             }
         });
 
-        const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setTradeHistory(res.tradeList);
-        });
-
         const quotes = wsService.getQuoteSubject().subscribe(resp => {
             const symbolCode = symbolSelected?.split('-')[0]?.trim();
             if (resp && resp.quoteList) {
@@ -115,27 +108,15 @@ const OrderBookCommon = () => {
             }
         });
 
-        const trade = wsService.getTradeEvent().subscribe(trades => {
-            if (trades && trades.tradeList) {
-                setTradeEvent(trades.tradeList);
-            }
-        })
-
         return () => {
             ws.unsubscribe();
-            renderDataToScreen.unsubscribe();
             quotes.unsubscribe();
-            trade.unsubscribe();
         }
     }, [symbolSelected]);
-    
+
     useEffect(() => {
         processQuotes(quoteEvent);
     }, [quoteEvent])
-
-    useEffect(() => {
-        processTradeEvent(tradeEvent);
-    }, [tradeEvent])
 
     useEffect(() => {
         setQuoteInfo(undefined);
@@ -155,16 +136,6 @@ const OrderBookCommon = () => {
             }
             setCurrentTicker(itemTicker);
         }
-    }
-
-    const processTradeEvent = (trades: IListTradeHistory[]) => {
-        const tmp = [...tradeHistory];
-        trades.forEach(item => {
-            if (item.tickerCode === tickerSelect) {
-                tmp.unshift(item);
-            }
-        });
-        setTradeHistory(tmp);
     }
 
     const processQuotes = (quotes: IQuoteEvent[]) => {
@@ -435,7 +406,7 @@ const OrderBookCommon = () => {
         setSide(value);
     }
 
-    const _renderTemplateOrderBookCommon = () => (
+    return (
         <div className="site-main">
             <div className="container">
                 <div className="row g-2 align-items-center">
@@ -477,13 +448,11 @@ const OrderBookCommon = () => {
                         </div>
                     </div>
                     <div className="col-md-3">
-                        <OrderBookTradeHistory getDataTradeHistory={tradeHistory} symbolCode={tickerSelect} />
+                        <OrderBookTradeHistory symbolCode={tickerSelect} />
                     </div>
                 </div>
             </div>
         </div>
     )
-
-    return <>{_renderTemplateOrderBookCommon()}</>
 };
 export default OrderBookCommon;
