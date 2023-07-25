@@ -50,8 +50,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                 <td className="text-end w-20">{formatNumber(item?.executedVolume)}</td>
                 <td className="text-end w-20">{formatCurrency(item?.executedPrice)}</td>
             </tr>
-            ));
-        }
+        ))}
     }
 
     const _renderData = useMemo(() => {
