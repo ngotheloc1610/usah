@@ -178,6 +178,12 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         return checkTeamCode && idx >= 0
     }
 
+    const handleKeyUp = (event: any) => {
+        if (event.key === 'Enter') {
+            sendRes();
+        }
+    }
+
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -200,18 +206,17 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                 <div className='mt-2 d-flex px-3 mt-1'>
                     <div className='lh-lg pt-1 ps-3 pe-0'><b>Team ID {teamCode}</b></div>
                     <div className='ms-3 w-50 position-relative'>
-                        <form>
-                            <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass'
-                                value={teamPassword}
-                                type={isHiddenPassword ? 'password' : 'text'}
-                                onChange={handleTeamPassword}
-                                placeholder='Password' 
-                                autoComplete='new-password'
-                            />
-                            <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 cf-pw-icon`} 
-                                onClick={() => setIsHiddenPassword(!isHiddenPassword)}
-                            />
-                        </form>
+                        <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass'
+                            value={teamPassword}
+                            type={isHiddenPassword ? 'password' : 'text'}
+                            onChange={handleTeamPassword}
+                            onKeyUp={handleKeyUp}
+                            placeholder='Password' 
+                            autoComplete='new-password'
+                        />
+                        <i className={`bi ${isHiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash'} opacity-50 pad-12 cf-pw-icon`} 
+                            onClick={() => setIsHiddenPassword(!isHiddenPassword)}
+                        />
                     </div>
                 </div>
             )}
