@@ -55,7 +55,9 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
     const _renderTradeData = () => {
         if (symbolCode) {
             return (
-                <AutoSizer>{({ width, height }) => {
+                <AutoSizer onResize={() => {
+                    cache.current.clearAll();
+                }}>{({ width, height }) => {
                     return <List
                         width={width}
                         height={height}
