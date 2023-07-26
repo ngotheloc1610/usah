@@ -18,6 +18,7 @@ import { convertNumber } from './helper/utils';
 import { setTabBlock } from './redux/actions/auth';
 import ResetTeamPassword from './pages/Authentication/reset-team-password';
 import moment from 'moment';
+import 'react-virtualized/styles.css';
 
 const App = () => {
   const dispatch = useDispatch()

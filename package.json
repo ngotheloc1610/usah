@@ -77,7 +77,8 @@
   "devDependencies": {
     "@types/lodash": "^4.14.194",
     "@types/redux-logger": "^3.0.9",
-    "react-app-rewired": "^2.2.1"
+    "react-app-rewired": "^2.2.1",
+    "react-virtualized": "^9.22.5"
   },
   "homepage": "/lp"
 }
