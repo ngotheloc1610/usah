@@ -610,7 +610,12 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [triggerRender])
 
     const setUpDataDisplay = () => {
-        setListData(Array.from(dataOrder.values()));
+        const tmp: IListOrderMonitoring[] = [];
+        listData.forEach(ord => {
+            const item = dataOrder.get(ord.orderId);
+            if (item) tmp.push(item);
+        })
+        setListData(tmp);
     }
 
     const _renderHeaderTableListOrder = useMemo(() => {
