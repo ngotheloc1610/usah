@@ -21,7 +21,10 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
 
     useEffect(() => {
         const renderDataToScreen = wsService.getTradeHistory().subscribe(res => {
-            setTradeUpdate(res.tradeList);
+            if (res && res.tradeList) {
+                const tradeSort = res.tradeList.sort((a: IListTradeHistory, b: IListTradeHistory) => b.executedDatetime.localeCompare(a.executedDatetime));
+                setTradeUpdate(tradeSort);
+            }
         });
 
         const trade = wsService.getTradeEvent().subscribe(trades => {
