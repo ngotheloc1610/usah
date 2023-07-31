@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel, IListOrderApiRes } from "../../../interfaces/order.interface";
@@ -20,6 +20,7 @@ import axios from "axios";
 import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
 import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from "../../../constants/general.constant";
 import moment from "moment";
+import { Table, AutoSizer, CellMeasurerCache, CellMeasurer, Column } from 'react-virtualized';
 
 interface IPropsListOrder {
     getMsgSuccess: string;
@@ -82,6 +83,11 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isSortDateTime, setIsSortDateTime] = useState(stateSort.field ? stateSort.field === 'date' : true);
 
     const [cancelListId, setCancelListId] = useState<Map<string, string>>(new Map());
+
+    const cache = useRef(new CellMeasurerCache({
+        fixedWidth: true,
+        defaultHeight: 40
+    }))
 
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
     const myRef: any = useRef();
@@ -485,7 +491,7 @@ const ListOrder = (props: IPropsListOrder) => {
     const handleCheckedAll = (event: any) => {
         if (event.target.checked) {
             listData.forEach((item) => {
-                selectedList.set(item.orderId,item.orderId);
+                selectedList.set(item.orderId, item.orderId);
             });
         } else {
             selectedList.clear()
@@ -617,90 +623,256 @@ const ListOrder = (props: IPropsListOrder) => {
         setListData(tmp);
     }
 
-    const _renderHeaderTableListOrder = useMemo(() => {
-        return (
-            <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" value=""
-                            name="allSelect"
-                            onChange={handleCheckedAll}
-                            checked={selectedList.size === dataOrder.size && dataOrder.size > 0}
-                        />
-                    </th>
-                    {teamCode && teamCode !== 'null' && (
-                        <th className="sorting_disabled">
-                            <span className="text-ellipsis">Account ID</span>
-                        </th>
-                    )}
-                    <th className="sorting_disabled">
-                        <span className="text-ellipsis">Order No</span>
-                    </th>
-                    <th className="sorting_disabled pointer-style" onClick={handleSortTicker}>
-                        <span className="text-ellipsis">Ticker</span>
-                        {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
-                        {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
-                    </th>
-                    <th className="sorting_disabled text-center pointer-style" onClick={handleSortSide}>
-                        <span className="text-ellipsis">Side</span>
-                        {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
-                        {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
-                    </th>
-                    <th className="sorting_disabled text-center">
-                        <span className="text-ellipsis">Type</span>
-                    </th>
-                    <th className="text-end sorting_disabled pointer-style" onClick={handleSortPrice}>
-                        <span className="text-ellipsis">Price</span>
-                        {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
-                        {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
-                    </th>
-                    <th className="text-end sorting_disabled">
-                        <span className="text-ellipsis">Quantity</span>
-                    </th>
-                    <th className="text-end sorting_disabled">
-                        <span className="text-ellipsis">Pending</span>
-                    </th>
-                    <th className="text-end sorting_disabled pointer-style" onClick={handleSortDateTime}>
-                        <span className="text-ellipsis">Datetime</span>
-                        {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
-                        {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
-                    </th>
-                    <th className="text-end sorting_disabled">
-                        {(selectedList.size > 0) &&
-                            <button className="text-ellipsis btn btn-primary"
-                                disabled={cancelListId.size > 0}
-                                onClick={() => btnCancelAllConfirm()}>Cancel</button>
-                        }
-
-                    </th>
-                </tr>
-            </thead>
-        );
-    }, [triggerRender, isSortDateTime, isSortPrice, isSortSide, isSortTicker, isSideAsc, isTickerAsc, isDateTimeAsc, isPriceAsc])
-
-    const _renderBodyTableListOrder = () => {
+    const _renderTableListOrder = () => {
         return <>
-            <tbody>
-                {listData.map((item, index) => {
-                    const { symbolCode, uid, externalOrderId, side, orderType, price, amount, filledAmount, time, orderId } = item;
-                    return (
-                        <tr key={index} className="odd">
-                            <CheckboxRenderer selectedList={selectedList} index={index} orderId={orderId} handleChecked={(event) => handleChecked(event, item)} />
-                            <UidRenderer teamCode={teamCode} uid={uid} />
-                            <ExternalOrderIdRenderer externalOrderId={externalOrderId} />
-                            <CodeRender getTicker={getTicker} symbolCode={symbolCode} />
-                            <SideRender side={side} tradingModelPb={tradingModelPb} getSideName={getSideName} />
-                            <TypeRender orderType={orderType} />
-                            <PriceRenderer price={price} />
-                            <AmountRenderer amount={amount} filledAmount={filledAmount} />
-                            <TimeRenderer time={time} />
-                            <ActionRenderer orderId={orderId} handleModify={() => handleModify(item)} checkOrderExistListCancelId={checkOrderExistListCancelId} handleCancel={() => handleCancel(item)} />
-                        </tr>
-                    )
-                })}
-            </tbody>
+            <AutoSizer onResize={() => {
+                cache.current.clearAll()
+            }}>{({ width, height }) => {
+                let responseWidth = width
+                // Fix responsive when resize, we set default width to able to see full column
+                if (width < 995) {
+                    responseWidth = 1000
+                }
+                return <Table
+                    width={responseWidth}
+                    height={height}
+                    headerHeight={cache.current.defaultHeight}
+                    rowHeight={35}
+                    rowCount={listData.length}
+                    deferredMeasurementCache={cache.current}
+                    rowGetter={({ index }) => listData[index]}
+                >
+                    <Column
+                        dataKey=""
+                        minWidth={5}
+                        width={5}
+                        flexGrow={0.2}
+                        headerRenderer={() =>
+                            <input type="checkbox" value=""
+                                name="allSelect"
+                                onChange={handleCheckedAll}
+                                checked={selectedList.size === dataOrder.size && dataOrder.size > 0} />
+                        }
+                        cellRenderer={({ rowData }) =>
+                            <input className="" type="checkbox" value=""
+                                checked={selectedList.has(rowData['orderId'])}
+                                name={index.toString()}
+                                onChange={(e) => handleChecked(e, rowData)}
+                                id="all" />
+                        } />
+                    {teamCode && teamCode !== 'null' && (<Column label="Account ID" dataKey="uid" minWidth={50} width={50}
+                        flexGrow={0.8}
+                        headerRenderer={({ label }) =>
+                            <span className="text-ellipsis text-capitalize">{label}</span>
+
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span>{cellData}</span>
+                            </CellMeasurer>
+                        } />)}
+                    <Column minWidth={50} width={50} label="Order No" dataKey="externalOrderId"
+                        flexGrow={1}
+                        headerRenderer={({ label }) =>
+                            <span className="text-ellipsis text-capitalize">{label}</span>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span>{cellData}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={15} width={15} label="Ticker" dataKey="symbolCode"
+                        flexGrow={0.8}
+                        headerRenderer={({ label }) =>
+                            <div className="sorting_disabled pointer-style" onClick={handleSortTicker}>
+                                <span className="text-ellipsis text-capitalize">{label}</span>
+                                {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
+                                {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
+                            </div>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span>{cellData}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={10} width={10} label="Side" dataKey="side"
+                        flexGrow={0.5}
+                        headerRenderer={({ label }) =>
+                            <div className="sorting_disabled pointer-style text-center" onClick={handleSortSide}>
+                                <span className="text-ellipsis text-capitalize">{label}</span>
+                                {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
+                                {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
+                            </div>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className={`d-block text-center ${cellData === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(cellData)}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={10} width={10} label="Type" dataKey="orderType"
+                        flexGrow={0.5}
+                        headerRenderer={({ label }) =>
+                            <span className="d-block text-center text-ellipsis text-capitalize">{label}</span>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-center ">{ORDER_TYPE.get(cellData)}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={20} width={20} label="Price" dataKey="price"
+                        flexGrow={0.8}
+                        headerRenderer={({ label }) =>
+                            <div className="sorting_disabled pointer-style text-end" onClick={handleSortPrice}>
+                                <span className="text-ellipsis text-capitalize">{label}</span>
+                                {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
+                                {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
+                            </div>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-end">{formatCurrency(cellData.toString())}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={20} width={20} label="Quantity" dataKey="amount"
+                        flexGrow={0.8}
+                        headerRenderer={({ label }) =>
+                            <span className="d-block text-end text-ellipsis text-capitalize">{label}</span>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-end">{formatNumber(cellData.toString())}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={20} width={20} label="Pending" dataKey="filledAmount"
+                        flexGrow={0.8}
+                        headerRenderer={({ label }) =>
+                            <span className="d-block text-end text-ellipsis text-capitalize">{label}</span>
+                        }
+                        cellRenderer={({ cellData, rowData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-end">{formatNumber(calcPendingVolume(rowData['amount'], cellData).toString())}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column minWidth={80} width={120} label="Datetime" dataKey="time"
+                        flexGrow={1}
+                        headerRenderer={({ label }) =>
+                            <div className="sorting_disabled pointer-style text-end" onClick={handleSortDateTime}>
+                                <span className="text-ellipsis text-capitalize">{label}</span>
+                                {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
+                                {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
+                            </div>
+                        }
+                        cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-end">{formatOrderTime(cellData)}</span>
+                            </CellMeasurer>
+                        } />
+                    <Column
+                        dataKey=""
+                        minWidth={12}
+                        width={12}
+                        flexGrow={0.6}
+                        headerRenderer={() => {
+                            return (selectedList.size > 0) &&
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end'
+                                }}>
+                                    <button className="btn-primary"
+                                        style={{
+                                            borderRadius: '.25rem',
+                                            border: '1px solid transparent',
+                                            fontSize: "1rem",
+                                            fontWeight: 400,
+                                            lineHeight: 1.5
+                                        }}
+                                        disabled={cancelListId.size > 0}
+                                        onClick={() => btnCancelAllConfirm()}>Cancel</button>
+                                </div>
+                        }
+                        }
+                        cellRenderer={({ rowData, dataKey, parent, rowIndex }) =>
+                            <CellMeasurer
+                                cache={cache.current}
+                                columnIndex={0}
+                                key={dataKey}
+                                parent={parent}
+                                rowIndex={rowIndex}>
+                                <span className="d-block text-end"> {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                                    <a className="btn-edit-order mr-10" onClick={e => handleModify(rowData)}>
+                                        <i className="bi bi-pencil-fill"></i>
+                                    </a>
+                                    {!checkOrderExistListCancelId(rowData["orderId"]) ?
+                                        // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                                        <a onClick={e => handleCancel(rowData)}>
+                                            <i className="bi bi-x-lg"></i>
+                                        </a>
+                                        : <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="sr-only"></span>
+                                        </div>
+                                    }</span>
+                            </CellMeasurer>
+                        } />
+                </Table>
+            }}</AutoSizer>
         </>
     }
+
+    const getRowHeight = useMemo(() => {
+        if (listData.length === 0) {
+            return 35
+        }
+        if (isShowFullData || (!isShowFullData && listData.length < 10)) {
+            return (listData.length * 35) + 40;
+        } else {
+            return 350
+        }
+    }, [listData, isShowFullData]);
 
     return (
         <>
@@ -715,11 +887,8 @@ const ListOrder = (props: IPropsListOrder) => {
                     </div>
                 </div>
                 <div className="card-body p-0">
-                    <div className={`table-responsive ${!isShowFullData ? 'mh-350' : ''} tableFixHead`}>
-                        <table className="table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
-                            {_renderHeaderTableListOrder}
-                            {_renderBodyTableListOrder()}
-                        </table>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight, overflowX: `${getRowHeight === 35 ? 'hidden' : 'scroll'}`, overflowY: 'hidden' }}>
+                        {_renderTableListOrder()}
                     </div>
                 </div>
             </div>
@@ -745,87 +914,5 @@ const ListOrder = (props: IPropsListOrder) => {
         </>
     )
 }
-
-const CheckboxRenderer: React.FC<any> = React.memo(({ selectedList, index, orderId, handleChecked }) => {
-    return <>
-        <td>
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" value=""
-                    checked={selectedList.has(orderId)}
-                    name={index.toString()}
-                    onChange={handleChecked}
-                    id="all" />
-            </div>
-        </td>
-    </>
-})
-
-const UidRenderer: React.FC<any> = React.memo(({ teamCode, uid }) => {
-    return <>
-        {teamCode && teamCode !== 'null' && (
-            <td className="fm">{uid}</td>
-        )}
-    </>
-})
-
-const ExternalOrderIdRenderer: React.FC<any> = React.memo(({ externalOrderId }) => {
-    return <>
-        
-        <td className="fm">{externalOrderId}</td>
-    </>
-})
-
-const CodeRender: React.FC<any> = React.memo(({ getTicker, symbolCode }) => {
-    return <>
-        <td title={getTicker(symbolCode)?.symbolName}>{symbolCode}</td>
-    </>
-})
-const SideRender: React.FC<any> = React.memo(({side, tradingModelPb, getSideName }) => {
-    return <>
-        <td className="text-center "><span className={`${side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(side)}</span></td>
-    </>
-})
-const TypeRender: React.FC<any> = React.memo(({ orderType }) => {
-    return <>
-        <td className="text-center ">{ORDER_TYPE.get(orderType)}</td>
-    </>
-})
-
-const PriceRenderer: React.FC<any> = React.memo(({ price }) => {
-    return <>
-        <td className="text-end ">{formatCurrency(price.toString())}</td>
-    </>
-})
-
-const AmountRenderer: React.FC<any> = React.memo(({amount, filledAmount }) => {
-    return <>
-        <td className="text-end ">{formatNumber(amount.toString())}</td>
-        <td className="text-end">{formatNumber(calcPendingVolume(amount, filledAmount).toString())}</td>
-    </>
-})
-
-const TimeRenderer: React.FC<any> = React.memo(({ time }) => {
-    return <>
-        <td className="text-end">{formatOrderTime(time)}</td>
-    </>
-})
-
-const ActionRenderer: React.FC<any> = React.memo(({ orderId, handleModify, checkOrderExistListCancelId, handleCancel }) => {
-    return <td className="text-end">
-        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        <a className="btn-edit-order mr-10" onClick={handleModify}>
-            <i className="bi bi-pencil-fill"></i>
-        </a>
-        {!checkOrderExistListCancelId(orderId) ?
-            // eslint-disable-next-line jsx-a11y/anchor-is-valid
-            <a onClick={handleCancel}>
-                <i className="bi bi-x-lg"></i>
-            </a>
-            : <div className="spinner-border spinner-border-sm" role="status">
-                <span className="sr-only"></span>
-            </div>
-        }
-    </td>
-})
 
 export default React.memo(ListOrder);
