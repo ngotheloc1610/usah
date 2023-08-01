@@ -89,6 +89,8 @@ const ListOrder = (props: IPropsListOrder) => {
         defaultHeight: 40
     }))
 
+    const tableBodyRef:any = useRef();
+
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
     const myRef: any = useRef();
 
@@ -819,18 +821,8 @@ const ListOrder = (props: IPropsListOrder) => {
                         flexGrow={0.6}
                         headerRenderer={() => {
                             return (selectedList.size > 0) &&
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'flex-end'
-                                }}>
-                                    <button className="btn-primary"
-                                        style={{
-                                            borderRadius: '.25rem',
-                                            border: '1px solid transparent',
-                                            fontSize: "1rem",
-                                            fontWeight: 400,
-                                            lineHeight: 1.5
-                                        }}
+                                <div className="d-flex justify-content-end">
+                                    <button className="btn-primary cancel-btn"
                                         disabled={cancelListId.size > 0}
                                         onClick={() => btnCancelAllConfirm()}>Cancel</button>
                                 </div>
@@ -874,6 +866,15 @@ const ListOrder = (props: IPropsListOrder) => {
         }
     }, [listData, isShowFullData]);
 
+    // This function check to show scrollbar X if screen is small
+    const isMobileScreen = () => {
+        const tableBody = tableBodyRef.current
+        if (tableBody) {
+            return tableBody.offsetWidth < 995
+        }
+        return false
+    }
+
     return (
         <>
             <div className="card order-list">
@@ -886,8 +887,8 @@ const ListOrder = (props: IPropsListOrder) => {
                         </a>
                     </div>
                 </div>
-                <div className="card-body p-0">
-                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight, overflowX: `${getRowHeight === 35 ? 'hidden' : 'scroll'}`, overflowY: 'hidden' }}>
+                <div ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight }}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
