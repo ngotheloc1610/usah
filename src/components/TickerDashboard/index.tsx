@@ -40,6 +40,11 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         symbCodes.push(item?.symbolCode);
                     }
                 })
+
+                // Show dashboard symbols order by symbolCode
+                // Use this array to update quote info in setUpDataDisplay(), avoid sort()
+                symbCodes.sort();
+
                 setSymbol(symbolMap);
                 setSymbolCodes(symbCodes);
             }
@@ -190,7 +195,6 @@ const TickerDashboard = (props: ITickerDashboard) => {
                     data.push(quote);
                 }
             });
-            data = data.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
         }
         setListData(data);
     }

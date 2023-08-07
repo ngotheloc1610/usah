@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { ACCOUNT_ID, LIST_WATCHING_TICKERS, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
 import { IListOrderMonitoring, IParamOrderModifyCancel, IListOrderApiRes } from "../../../interfaces/order.interface";
 import * as tspb from '../../../models/proto/trading_model_pb';
@@ -7,7 +7,7 @@ import './ListOrder.scss';
 import { wsService } from "../../../services/websocket-service";
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
-import * as psbp from "../../../models/proto/pricing_service_pb";
+import * as qmpb from "../../../models/proto/query_model_pb";
 import { formatNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost } from "../../../helper/utils";
 import ConfirmOrder from "../../Modal/ConfirmOrder";
 import { toast } from "react-toastify";
@@ -19,26 +19,43 @@ import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
 import axios from "axios";
 import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
 import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from "../../../constants/general.constant";
+import moment from "moment";
+
 interface IPropsListOrder {
     getMsgSuccess: string;
     setMessageSuccess: (item: string) => void;
 }
 
+const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
+const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
+
+const stateSortDefault = {
+    feild: 'date',
+    sortAsc: false,
+    accountId: accountId
+}
+
+const stateSortList = JSON.parse(localStorage.getItem(SORT_MONITORING_SCREEN) || '[]')
+const index = stateSortList.findIndex(item => item.accountId === accountId)
+const stateSort = index >= 0 ? stateSortList[index] : stateSortDefault
+
 const ListOrder = (props: IPropsListOrder) => {
     const { setMessageSuccess } = props;
     const tradingModelPb: any = tspb;
-    const [dataOrder, setDataOrder] = useState<IListOrderMonitoring[]>([]);
+    const queryModelPb: any = qmpb;
+    const [dataOrder, setDataOrder] = useState<Map<string, IListOrderMonitoring>>(new Map());
+    const [triggerRender, setTriggerRender] = useState(false);
     const [isShowFullData, setShowFullData] = useState(false);
     const [isCancel, setIsCancel] = useState(false);
     const [isModify, setIsModify] = useState(false);
     const [paramModifyCancel, setParamModifyCancel] = useState(DEFAULT_DATA_MODIFY_CANCEL);
     const [statusOrder, setStatusOrder] = useState(0);
-    const [symbolList, setSymbolList] = useState<ISymbolList[]>([]);
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
     const [isCancelAll, setIsCancelAll] = useState<boolean>(false);
     const [totalOrder, setTotalOrder] = useState<number>(0);
     const [dataSelected, setDataSelected] = useState<IListOrderMonitoring[]>([]);
-
-    const [selectedList, setSelectedList] = useState<any[]>([]);
+    const [listData, setListData] = useState<IListOrderMonitoring[]>([])
+    const [selectedList, setSelectedList] = useState<Map<string, string>>(new Map());
 
     const [orderEventList, setOrderEventList] = useState<any[]>([]);
     const [statusModify, setStatusModify] = useState(0);
@@ -47,19 +64,6 @@ const ListOrder = (props: IPropsListOrder) => {
         x: 0,
         y: 0
     })
-
-    const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
-    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
-
-    const stateSortDefault = {
-        feild: 'date',
-        sortAsc: false,
-        accountId: accountId
-    }
-
-    const stateSortList = JSON.parse(localStorage.getItem(SORT_MONITORING_SCREEN) || '[]')
-    const index = stateSortList.findIndex(item => item.accountId === accountId)
-    const stateSort = index >= 0 ? stateSortList[index] : stateSortDefault
 
     // sort ticker
     const [isTickerAsc, setIsTickerAsc] = useState(stateSort.field === 'ticker' ? stateSort.sortAsc : false);
@@ -77,31 +81,32 @@ const ListOrder = (props: IPropsListOrder) => {
     const [isDateTimeAsc, setIsDateTimeAsc] = useState(stateSort.field === 'date' ? stateSort.sortAsc : false);
     const [isSortDateTime, setIsSortDateTime] = useState(stateSort.field ? stateSort.field === 'date' : true);
 
-
-
-    const [cancelListId, setCancelListId] = useState<string[]>([]);
+    const [cancelListId, setCancelListId] = useState<Map<string, string>>(new Map());
 
     // dùng useRef để lấy element nên biến myRef sẽ khai báo any
     const myRef: any = useRef();
 
-    const processSortData = useCallback((listData: IListOrderMonitoring[]) => {
-        if(isSortDateTime) {
-            const listOrderSort: IListOrderMonitoring[] = sortDateTime(listData, isDateTimeAsc)
-            setDataOrder(listOrderSort);
+    const processSortData = (listData: Map<string, IListOrderMonitoring>) => {
+        const convertToArray = Array.from(listData.values());
+        if (isSortDateTime) {
+            const listOrderSort: IListOrderMonitoring[] = sortDateTime(convertToArray, isDateTimeAsc)
+            setListData(listOrderSort);
         }
-        if(isSortPrice) {
-            const listOrderSort: IListOrderMonitoring[] = sortPrice(listData, isPriceAsc)
-            setDataOrder(listOrderSort);
+        if (isSortPrice) {
+            const listOrderSort: IListOrderMonitoring[] = sortPrice(convertToArray, isPriceAsc)
+            setListData(listOrderSort);
         }
-        if(isSortSide) {
-            const listOrderSort: IListOrderMonitoring[] = sortSide(listData, isSideAsc)
-            setDataOrder(listOrderSort);
+        if (isSortSide) {
+            const listOrderSort: IListOrderMonitoring[] = sortSide(convertToArray, isSideAsc)
+            setListData(listOrderSort);
         }
-        if(isSortTicker) {
-            const listOrderSort: IListOrderMonitoring[] = sortTicker(listData, isTickerAsc)
-            setDataOrder(listOrderSort);
+        if (isSortTicker) {
+            const listOrderSort: IListOrderMonitoring[] = sortTicker(convertToArray, isTickerAsc)
+            setListData(listOrderSort);
         }
-    }, [isSortDateTime, isSortPrice, isSortSide, isSortTicker, isSideAsc, isTickerAsc, isDateTimeAsc, isPriceAsc])
+        //Trigger render after sorted data
+        setTriggerRender(!triggerRender);
+    }
 
     useEffect(() => {
         const api_url = window.globalThis.apiUrl;
@@ -115,8 +120,7 @@ const ListOrder = (props: IPropsListOrder) => {
             symbol_code: ''
         }
         axios.post(urlGetPendingOrder, param, defindConfigPost()).then((resp) => {
-            const resData : IListOrderApiRes[] = resp.data.results
-            const tmp: IListOrderMonitoring[] = []
+            const resData: IListOrderApiRes[] = resp.data.results
             resData.forEach((item: IListOrderApiRes) => {
                 const tmpData: IListOrderMonitoring = {
                     externalOrderId: item.external_order_id,
@@ -126,7 +130,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     expireTime: '',
                     fee: '',
                     note: '',
-                    orderFilling: '', 
+                    orderFilling: '',
                     orderId: item.order_id,
                     orderMode: 0,
                     orderTime: 0,
@@ -141,15 +145,15 @@ const ListOrder = (props: IPropsListOrder) => {
                     state: '1',
                     swap: '',
                     symbolCode: item.symbol_code,
-                    time: item.exec_time ,
+                    time: item.exec_time,
                     tp: '',
                     triggerPrice: '',
                     uid: convertNumber(item.account_id),
                     filledAmount: item.exec_volume.toString(),
                 }
-                tmp.push(tmpData)
+                dataOrder.set(item.order_id, tmpData)
             })
-            processSortData(tmp)
+            processSortData(dataOrder)
         })
     }, [])
 
@@ -169,12 +173,12 @@ const ListOrder = (props: IPropsListOrder) => {
             ws.unsubscribe();
             orderEvent.unsubscribe();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         processOrderEvent(orderEventList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderEventList]);
 
     const processOrderEvent = (orderList) => {
@@ -217,68 +221,64 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleOrderPlaced = (order) => {
-        const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
-        if (idx < 0) {
-            tmpList.unshift({
-                ...order,
-                time: convertNumber(order?.executedDatetime)
-            });
-            
-        } else {
-            tmpList[idx] = {
-                ...tmpList[idx],
+        const element = dataOrder.get(order.orderId);
+        if (element) {
+            dataOrder.set(order.orderId, {
+                ...element,
                 time: convertNumber(order?.executedDatetime),
                 price: order?.price
-            }
+            })
+        } else {
+            dataOrder.set(order.orderId, {
+                ...order,
+                time: convertNumber(order?.executedDatetime)
+            })
         }
-        processSortData(tmpList)
+        processSortData(dataOrder);
     }
 
     const handleOrderCanceledAndFilled = (order) => {
         if (order?.state === tradingModelPb.OrderState.ORDER_STATE_CANCELED) {
-            const idx = cancelListId.indexOf(order?.orderId);
-            if (idx >= 0) {
-                cancelListId.splice(idx, 1);
+            const element = cancelListId.get(order?.orderId);
+            if (element) {
+                cancelListId.delete(order?.orderId);
             }
         }
         removeOrder(order);
     }
 
     const handleOrderParital = (order) => {
-        const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
+        const element = dataOrder.get(order.orderId);
         let orderPrice = order?.price;
         if (order?.orderType === tradingModelPb.OrderType.OP_MARKET) {
             orderPrice = order?.entry === tradingModelPb.OrderEntry.ENTRY_IN ? order?.lastPrice : order.price;
         }
-        if (idx >= 0) {
-            tmpList[idx] = {
-                ...tmpList[idx],
+        if (element) {
+            dataOrder.set(order.orderId, {
+                ...element,
                 amount: order?.amount,
                 filledAmount: order?.totalFilledAmount,
                 price: orderPrice
-            }
+            });
         } else {
-            tmpList.unshift({
+            dataOrder.set(order.orderId, {
                 ...order,
                 time: convertNumber(order?.executedDatetime),
             });
         }
-        processSortData(tmpList)
+        processSortData(dataOrder)
     }
 
     const handleOrderModified = (order) => {
-        const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
-        if (idx >= 0) {
-            tmpList[idx] = {
-                ...tmpList[idx],
+        const element = dataOrder.get(order.orderId);
+        if (element) {
+            dataOrder.set(order.orderId, {
+                ...element,
                 time: convertNumber(order?.executedDatetime),
                 amount: order?.filledAmount,
                 filledAmount: '0'
-            }
-            setDataOrder(tmpList);
+            });
+            setTriggerRender(!triggerRender)
         }
     }
 
@@ -287,11 +287,10 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const removeOrder = (order) => {
-        const tmpList = [...dataOrder];
-        const idx = tmpList.findIndex(o => o?.orderId === order.orderId);
-        if (idx >= 0) {
-            tmpList.splice(idx, 1);
-            setDataOrder(tmpList);
+        const element = dataOrder.get(order.orderId);
+        if (element) {
+            dataOrder.delete(order.orderId)
+            setTriggerRender(!triggerRender)
         }
     }
 
@@ -326,7 +325,11 @@ const ListOrder = (props: IPropsListOrder) => {
         });
 
         const renderDataSymbolList = wsService.getSymbolListSubject().subscribe(res => {
-            setSymbolList(res.symbolList)
+            res.symbolList.forEach((item) => {
+                if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                    symbolListMap.set(item.symbolCode, item);
+                }
+            })
         });
 
         return () => {
@@ -340,18 +343,13 @@ const ListOrder = (props: IPropsListOrder) => {
     }, [position])
 
     useEffect(() => {
-        const orderIds = dataOrder.map((order) => order.orderId);
-        const newSelectList = [...selectedList] 
-
-        selectedList.forEach((item) => {
-            if(!orderIds.includes(item)) {
-                newSelectList.splice(newSelectList.indexOf(item), 1);
+        selectedList.forEach((value, key) => {
+            if (!dataOrder.has(key)) {
+                selectedList.delete(key);
             }
         });
-
-        setSelectedList(newSelectList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dataOrder])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [triggerRender])
 
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;
@@ -366,12 +364,12 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const getTicker = (symbolCode: string) => {
-        const ticker = symbolList.find(item => item.symbolCode === symbolCode);
+        const ticker = symbolListMap.get(symbolCode);
         return ticker;
     }
 
     const handleModify = (item: IListOrderMonitoring) => {
-        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
+        const symbolName = symbolListMap.get(item.symbolCode)?.symbolName;
         const param: IParamOrderModifyCancel = {
             orderId: item.orderId.toString(),
             tickerCode: item.symbolCode.split('-')[0]?.trim(),
@@ -389,7 +387,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const handleCancel = (item: IListOrderMonitoring) => {
-        const symbolName = symbolList.find(i => i.symbolCode === item.symbolCode)?.symbolName;
+        const symbolName = symbolListMap.get(item.symbolCode)?.symbolName;
         const param: IParamOrderModifyCancel = {
             orderId: item.orderId.toString(),
             tickerCode: item.symbolCode.split('-')[0]?.trim(),
@@ -462,7 +460,7 @@ const ListOrder = (props: IPropsListOrder) => {
     }
 
     const btnCancelAllConfirm = () => {
-        const dataSelected = dataOrder.filter(item => selectedList.includes(item.orderId));
+        const dataSelected = listData.filter(item => selectedList.has(item.orderId));
         setDataSelected(dataSelected);
         setIsCancelAll(true);
         setTotalOrder(dataSelected.length);
@@ -470,29 +468,29 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const handleChecked = (event: any, item: any) => {
         if (item) {
-            const temps = [...selectedList];
-            const idx = temps.findIndex(o => o === item.orderId);
+            const element = selectedList.get(item.orderId);
             if (event.target.checked) {
-                if (idx < 0) {
-                    temps.push(item.orderId);
+                if (!element) {
+                    selectedList.set(item.orderId, item.orderId);
                 }
             } else {
-                if (idx >= 0) {
-                    temps.splice(idx, 1);
+                if (element) {
+                    selectedList.delete(item.orderId);
                 }
             }
-            setSelectedList(temps);
+            setTriggerRender(!triggerRender)
         }
     }
 
     const handleCheckedAll = (event: any) => {
-        let lst: string[] = [];
         if (event.target.checked) {
-            dataOrder.forEach(item => {
-                lst.push(item.orderId);
+            listData.forEach((item) => {
+                selectedList.set(item.orderId,item.orderId);
             });
+        } else {
+            selectedList.clear()
         }
-        setSelectedList(lst);
+        setTriggerRender(!triggerRender)
     }
 
     const handleSortTicker = () => {
@@ -500,22 +498,21 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsSortPrice(false);
         setIsSortSide(false);
         setIsSortDateTime(false);
-        const temp = [...dataOrder];
         const stateSortTmp = {
             field: 'ticker',
             sortAsc: !isTickerAsc,
             accountId: accountId
         }
 
-        if(index >= 0) {
+        if (index >= 0) {
             stateSortList[index] = stateSortTmp
         } else {
             stateSortList.push(stateSortTmp)
         }
 
         localStorage.setItem(SORT_MONITORING_SCREEN, JSON.stringify(stateSortList))
-        const tmp = sortTicker(temp, !isTickerAsc)
-        setDataOrder(tmp);
+        const tmp = sortTicker(listData, !isTickerAsc)
+        setListData(tmp);
         setIsTickerAsc(isTickerAsc ? false : true);
     }
 
@@ -524,23 +521,21 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsSortPrice(false);
         setIsSortSide(false);
         setIsSortDateTime(true);
-        const temp = [...dataOrder];
         const stateSortTmp = {
             field: 'date',
             sortAsc: !isDateTimeAsc,
             accountId: accountId
         }
 
-        if(index >= 0) {
+        if (index >= 0) {
             stateSortList[index] = stateSortTmp
         } else {
             stateSortList.push(stateSortTmp)
         }
 
         localStorage.setItem(SORT_MONITORING_SCREEN, JSON.stringify(stateSortList))
-
-        const tmp = sortDateTime(temp, !isDateTimeAsc)
-        setDataOrder(tmp);
+        const tmp = sortDateTime(listData, !isDateTimeAsc)
+        setListData(tmp);
         setIsDateTimeAsc(isDateTimeAsc ? false : true);
     }
 
@@ -549,21 +544,20 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsSortPrice(false);
         setIsSortDateTime(false);
         setIsSortSide(true);
-        const temp = [...dataOrder];
         const stateSortTmp = {
             field: 'side',
             sortAsc: !isSideAsc,
             accountId: accountId
         }
-        if(index >= 0) {
+        if (index >= 0) {
             stateSortList[index] = stateSortTmp
         } else {
             stateSortList.push(stateSortTmp)
         }
 
         localStorage.setItem(SORT_MONITORING_SCREEN, JSON.stringify(stateSortList))
-        const tmp = sortSide(temp, !isSideAsc)
-        setDataOrder(tmp);
+        const tmp = sortSide(listData, !isSideAsc)
+        setListData(tmp);
         setIsSideAsc(isSideAsc ? false : true);
     }
 
@@ -572,156 +566,142 @@ const ListOrder = (props: IPropsListOrder) => {
         setIsSortDateTime(false);
         setIsSortSide(false);
         setIsSortPrice(true);
-        const temp = [...dataOrder];
         const stateSortTmp = {
             field: 'price',
             sortAsc: !isPriceAsc,
             accountId: accountId
         }
-        if(index >= 0) {
+        if (index >= 0) {
             stateSortList[index] = stateSortTmp
         } else {
             stateSortList.push(stateSortTmp)
         }
 
         localStorage.setItem(SORT_MONITORING_SCREEN, JSON.stringify(stateSortList))
-        const tmp = sortPrice(temp, !isPriceAsc)
-        setDataOrder(tmp);
+        const tmp = sortPrice(listData, !isPriceAsc)
+        setListData(tmp);
         setIsPriceAsc(isPriceAsc ? false : true);
     }
 
     const getOrderCancelId = (orderId: string) => {
-        const idx = cancelListId.indexOf(orderId);
-        if (orderId !== '' && orderId !== null && orderId !== undefined && idx < 0) {
-            cancelListId.push(orderId);
+        const element = cancelListId.get(orderId);
+        if (orderId !== '' && orderId !== null && orderId !== undefined && !element) {
+            cancelListId.set(orderId, orderId);
         }
-        setCancelListId(cancelListId);
+        setTriggerRender(!triggerRender);
     }
 
     const checkOrderExistListCancelId = (orderId: string) => {
-        return cancelListId.indexOf(orderId) >= 0;
+        return cancelListId.has(orderId);
     }
 
     const getOrderCancelIdResponse = (orderId: string) => {
-        const idx = cancelListId.indexOf(orderId);
-        if (idx >= 0) {
-            cancelListId.splice(idx, 1);
+        const element = cancelListId.get(orderId);
+        if (element) {
+            cancelListId.delete(orderId);
         }
-        setCancelListId(cancelListId);
-        setSelectedList([]);
+        selectedList.clear();
+        setTriggerRender(!triggerRender);
     }
 
-    const _renderTableListOrder = () => {
-        return (
-            <table className="dataTables_scrollBody table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
-                <thead>
-                    <tr>
-                        <th>
-                            <input type="checkbox" value=""
-                                name="allSelect"
-                                onChange={handleCheckedAll}
-                                checked={selectedList.length === dataOrder.length && dataOrder.length > 0}
-                            />
-                        </th>
-                        {teamCode && teamCode !== 'null' && (
-                            <th className="sorting_disabled">
-                                <span className="text-ellipsis">Account ID</span>
-                            </th>
-                        )}
-                        <th className="sorting_disabled">
-                            <span className="text-ellipsis">Order No</span>
-                        </th>
-                        <th className="sorting_disabled pointer-style" onClick={handleSortTicker}>
-                            <span className="text-ellipsis">Ticker</span>
-                            {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
-                            {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
-                        </th>
-                        <th className="sorting_disabled text-center pointer-style" onClick={handleSortSide}>
-                            <span className="text-ellipsis">Side</span>
-                            {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
-                            {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
-                        </th>
-                        <th className="sorting_disabled text-center">
-                            <span className="text-ellipsis">Type</span>
-                        </th>
-                        <th className="text-end sorting_disabled pointer-style" onClick={handleSortPrice}>
-                            <span className="text-ellipsis">Price</span>
-                            {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
-                            {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
-                        </th>
-                        <th className="text-end sorting_disabled">
-                            <span className="text-ellipsis">Quantity</span>
-                        </th>
-                        <th className="text-end sorting_disabled">
-                            <span className="text-ellipsis">Pending</span>
-                        </th>
-                        <th className="text-end sorting_disabled pointer-style" onClick={handleSortDateTime}>
-                            <span className="text-ellipsis">Datetime</span>
-                            {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
-                            {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
-                        </th>
-                        <th className="text-end sorting_disabled">
+    useEffect(() => {
+        setUpDataDisplay();
+    }, [triggerRender])
 
-                            {(selectedList.length > 0) && 
-                                <button className="text-ellipsis btn btn-primary" 
-                                disabled={cancelListId.length > 0}
-                                onClick={() => btnCancelAllConfirm()}>Cancel</button>
-                            }
-
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {getListDataOrder()}
-                </tbody>
-            </table>
-        );
-    }
-    const getListDataOrder = () => (
-        dataOrder.map((item, index) => {
-            return (
-                <tr key={index} className="odd">
-                    <td>
-                        <div className="form-check">
-                            <input className="form-check-input" type="checkbox" value=""
-                                checked={selectedList.includes(item.orderId)}
-                                name={index.toString()}
-                                onChange={(event) => handleChecked(event, item)}
-                                id="all" />
-                        </div>
-                    </td>
-                    {teamCode && teamCode !== 'null' && (
-                        <td className="fm">{item.uid}</td>
-                    )}
-                    <td className="fm">{item.externalOrderId}</td>
-                    <td title={getTicker(item.symbolCode)?.symbolName}>{getTicker(item.symbolCode)?.symbolCode}</td>
-                    <td className="text-center "><span className={`${item.side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(item.side)}</span></td>
-                    <td className="text-center ">{ORDER_TYPE.get(item.orderType)}</td>
-                    <td className="text-end ">{formatCurrency(item.price.toString())}</td>
-                    <td className="text-end ">{formatNumber(item.amount.toString())}</td>
-                    <td className="text-end">{formatNumber(calcPendingVolume(item.amount, item.filledAmount).toString())}</td>
-                    <td className="text-end">{formatOrderTime(item.time)}</td>
-                    <td className="text-end">
-                        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                        <a className="btn-edit-order mr-10" onClick={() => handleModify(item)}>
-                            <i className="bi bi-pencil-fill"></i>
-                        </a>
-                        { !checkOrderExistListCancelId(item?.orderId) &&
-                            // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                            <a onClick={() => handleCancel(item)}>
-                                <i className="bi bi-x-lg"></i>
-                            </a>
-                        }
-                        { checkOrderExistListCancelId(item?.orderId) &&
-                            <div className="spinner-border spinner-border-sm" role="status">
-                                <span className="sr-only"></span>
-                            </div>
-                        }
-                    </td>
-                </tr>
-            )
+    const setUpDataDisplay = () => {
+        const tmp: IListOrderMonitoring[] = [];
+        listData.forEach(ord => {
+            const item = dataOrder.get(ord.orderId);
+            if (item) tmp.push(item);
         })
-    )
+        setListData(tmp);
+    }
+
+    const _renderHeaderTableListOrder = useMemo(() => {
+        return (
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" value=""
+                            name="allSelect"
+                            onChange={handleCheckedAll}
+                            checked={selectedList.size === dataOrder.size && dataOrder.size > 0}
+                        />
+                    </th>
+                    {teamCode && teamCode !== 'null' && (
+                        <th className="sorting_disabled">
+                            <span className="text-ellipsis">Account ID</span>
+                        </th>
+                    )}
+                    <th className="sorting_disabled">
+                        <span className="text-ellipsis">Order No</span>
+                    </th>
+                    <th className="sorting_disabled pointer-style" onClick={handleSortTicker}>
+                        <span className="text-ellipsis">Ticker</span>
+                        {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
+                        {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
+                    </th>
+                    <th className="sorting_disabled text-center pointer-style" onClick={handleSortSide}>
+                        <span className="text-ellipsis">Side</span>
+                        {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
+                        {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
+                    </th>
+                    <th className="sorting_disabled text-center">
+                        <span className="text-ellipsis">Type</span>
+                    </th>
+                    <th className="text-end sorting_disabled pointer-style" onClick={handleSortPrice}>
+                        <span className="text-ellipsis">Price</span>
+                        {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
+                        {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
+                    </th>
+                    <th className="text-end sorting_disabled">
+                        <span className="text-ellipsis">Quantity</span>
+                    </th>
+                    <th className="text-end sorting_disabled">
+                        <span className="text-ellipsis">Pending</span>
+                    </th>
+                    <th className="text-end sorting_disabled pointer-style" onClick={handleSortDateTime}>
+                        <span className="text-ellipsis">Datetime</span>
+                        {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
+                        {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
+                    </th>
+                    <th className="text-end sorting_disabled">
+                        {(selectedList.size > 0) &&
+                            <button className="text-ellipsis btn btn-primary"
+                                disabled={cancelListId.size > 0}
+                                onClick={() => btnCancelAllConfirm()}>Cancel</button>
+                        }
+
+                    </th>
+                </tr>
+            </thead>
+        );
+    }, [triggerRender, isSortDateTime, isSortPrice, isSortSide, isSortTicker, isSideAsc, isTickerAsc, isDateTimeAsc, isPriceAsc])
+
+    const _renderBodyTableListOrder = () => {
+        return <>
+            <tbody>
+                {listData.map((item, index) => {
+                    const { symbolCode, uid, externalOrderId, side, orderType, price, amount, filledAmount, time, orderId } = item;
+                    return (
+                        <tr key={index} className="odd">
+                            <CheckboxRenderer selectedList={selectedList} index={index} orderId={orderId} handleChecked={(event) => handleChecked(event, item)} />
+                            <UidRenderer teamCode={teamCode} uid={uid} />
+                            <ExternalOrderIdRenderer externalOrderId={externalOrderId} />
+                            <CodeRender getTicker={getTicker} symbolCode={symbolCode} />
+                            <SideRender side={side} tradingModelPb={tradingModelPb} getSideName={getSideName} />
+                            <TypeRender orderType={orderType} />
+                            <PriceRenderer price={price} />
+                            <AmountRenderer amount={amount} filledAmount={filledAmount} />
+                            <TimeRenderer time={time} />
+                            <ActionRenderer orderId={orderId} handleModify={() => handleModify(item)} checkOrderExistListCancelId={checkOrderExistListCancelId} handleCancel={() => handleCancel(item)} />
+                        </tr>
+                    )
+                })}
+            </tbody>
+        </>
+    }
+
     return (
         <>
             <div className="card order-list">
@@ -736,7 +716,10 @@ const ListOrder = (props: IPropsListOrder) => {
                 </div>
                 <div className="card-body p-0">
                     <div className={`table-responsive ${!isShowFullData ? 'mh-350' : ''} tableFixHead`}>
-                        {_renderTableListOrder()}
+                        <table className="table table-sm table-hover mb-0 dataTable no-footer" style={{ marginLeft: 0 }}>
+                            {_renderHeaderTableListOrder}
+                            {_renderBodyTableListOrder()}
+                        </table>
                     </div>
                 </div>
             </div>
@@ -747,12 +730,12 @@ const ListOrder = (props: IPropsListOrder) => {
                 params={paramModifyCancel}
                 handleOrderCancelId={getOrderCancelId}
                 handleOrderCancelIdResponse={getOrderCancelIdResponse}
-                />}
+            />}
             {isModify && <ConfirmOrder isModify={isModify}
                 handleCloseConfirmPopup={togglePopup}
                 handleOrderResponse={getStatusOrderResponse}
                 params={paramModifyCancel}
-                />}
+            />}
             {isCancelAll && <PopUpConfirm handleCloseConfirmPopup={togglePopup}
                 totalOrder={totalOrder} listOrder={dataSelected}
                 handleOrderResponse={getStatusOrderResponse}
@@ -763,4 +746,86 @@ const ListOrder = (props: IPropsListOrder) => {
     )
 }
 
-export default ListOrder;
+const CheckboxRenderer: React.FC<any> = React.memo(({ selectedList, index, orderId, handleChecked }) => {
+    return <>
+        <td>
+            <div className="form-check">
+                <input className="form-check-input" type="checkbox" value=""
+                    checked={selectedList.has(orderId)}
+                    name={index.toString()}
+                    onChange={handleChecked}
+                    id="all" />
+            </div>
+        </td>
+    </>
+})
+
+const UidRenderer: React.FC<any> = React.memo(({ teamCode, uid }) => {
+    return <>
+        {teamCode && teamCode !== 'null' && (
+            <td className="fm">{uid}</td>
+        )}
+    </>
+})
+
+const ExternalOrderIdRenderer: React.FC<any> = React.memo(({ externalOrderId }) => {
+    return <>
+        
+        <td className="fm">{externalOrderId}</td>
+    </>
+})
+
+const CodeRender: React.FC<any> = React.memo(({ getTicker, symbolCode }) => {
+    return <>
+        <td title={getTicker(symbolCode)?.symbolName}>{symbolCode}</td>
+    </>
+})
+const SideRender: React.FC<any> = React.memo(({side, tradingModelPb, getSideName }) => {
+    return <>
+        <td className="text-center "><span className={`${side === tradingModelPb.Side.BUY ? 'text-danger' : 'text-success'}`}>{getSideName(side)}</span></td>
+    </>
+})
+const TypeRender: React.FC<any> = React.memo(({ orderType }) => {
+    return <>
+        <td className="text-center ">{ORDER_TYPE.get(orderType)}</td>
+    </>
+})
+
+const PriceRenderer: React.FC<any> = React.memo(({ price }) => {
+    return <>
+        <td className="text-end ">{formatCurrency(price.toString())}</td>
+    </>
+})
+
+const AmountRenderer: React.FC<any> = React.memo(({amount, filledAmount }) => {
+    return <>
+        <td className="text-end ">{formatNumber(amount.toString())}</td>
+        <td className="text-end">{formatNumber(calcPendingVolume(amount, filledAmount).toString())}</td>
+    </>
+})
+
+const TimeRenderer: React.FC<any> = React.memo(({ time }) => {
+    return <>
+        <td className="text-end">{formatOrderTime(time)}</td>
+    </>
+})
+
+const ActionRenderer: React.FC<any> = React.memo(({ orderId, handleModify, checkOrderExistListCancelId, handleCancel }) => {
+    return <td className="text-end">
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+        <a className="btn-edit-order mr-10" onClick={handleModify}>
+            <i className="bi bi-pencil-fill"></i>
+        </a>
+        {!checkOrderExistListCancelId(orderId) ?
+            // eslint-disable-next-line jsx-a11y/anchor-is-valid
+            <a onClick={handleCancel}>
+                <i className="bi bi-x-lg"></i>
+            </a>
+            : <div className="spinner-border spinner-border-sm" role="status">
+                <span className="sr-only"></span>
+            </div>
+        }
+    </td>
+})
+
+export default React.memo(ListOrder);

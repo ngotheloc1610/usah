@@ -178,6 +178,12 @@ const PopUpConfirm = (props: IPropsConfirm) => {
         return checkTeamCode && idx >= 0
     }
 
+    const handleKeyUp = (event: any) => {
+        if (event.key === 'Enter') {
+            sendRes();
+        }
+    }
+
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
@@ -204,6 +210,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
                             value={teamPassword}
                             type={isHiddenPassword ? 'password' : 'text'}
                             onChange={handleTeamPassword}
+                            onKeyUp={handleKeyUp}
                             placeholder='Password' 
                             autoComplete='new-password'
                         />

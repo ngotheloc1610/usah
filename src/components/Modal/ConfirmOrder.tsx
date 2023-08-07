@@ -494,6 +494,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isModifyCancel && checkTeamCode && checkAccId
     }
 
+    const handleKeyUp = (event: any) => {
+        if (event.key === 'Enter') {
+            sendOrder(params);
+        }
+    }
+
     const _renderContentFormConfirm = () => (
         <>
             <div className='row'>
@@ -529,6 +535,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
                                     type={isHiddenPassword ? 'password' : 'text'}
                                     onChange={handleTeamPassword}
+                                    onKeyUp={handleKeyUp}
                                     placeholder='Password' 
                                     autoComplete='new-password'
                                 />
