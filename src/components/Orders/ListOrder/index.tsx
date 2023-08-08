@@ -174,6 +174,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            console.log("Order event:", resp.orderList, `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             setOrderEventList(resp.orderList);
         })
 
@@ -857,7 +858,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const getRowHeight = useMemo(() => {
         if (listData.length === 0) {
-            return 35
+            return 40
         }
         if (isShowFullData || (!isShowFullData && listData.length < 10)) {
             return (listData.length * 35) + 40;
