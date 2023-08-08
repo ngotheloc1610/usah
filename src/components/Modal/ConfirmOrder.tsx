@@ -50,6 +50,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [teamPassword, setTeamPassword] = useState('');
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
     const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+    const [isAllowClickButton, setAllowClickButton] = useState(true);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
@@ -291,17 +292,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = param.uid?.toString() || ''
         let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
+            setAllowClickButton(false);
             prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
                 handleOrderCancelId(params?.orderId || '');
             }
-
             // after timeOutCancelOrder, if don't receive cancel response => auto stop loading
             const timeOutCancelOrder = window.globalThis.timeOutCancelResponse ? 
                             window.globalThis.timeOutCancelResponse : TIME_OUT_CANCEL_RESPONSE_DEFAULT;
             setTimeout(() => {
                 if (handleOrderCancelIdResponse) {
                     handleOrderCancelIdResponse(params?.orderId || '');
+                    handleCloseConfirmPopup(false);
                 }
             }, timeOutCancelOrder)
         }
@@ -313,7 +315,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         } else {
             callSigleOrderRequest(accountId);
         }
-        handleCloseConfirmPopup(false);
         return;
     }
 
@@ -567,11 +568,13 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const onHideModal = () => {
         handleCloseConfirmPopup(false)
+        setAllowClickButton(true);
     }
 
     const onClickDiscard = () => {
         handleCloseConfirmPopup(false);
         setTeamPassword('');
+        setAllowClickButton(true);
     }
 
     const onClickConfirm = () => {
@@ -603,7 +606,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                             DISCARD
                         </Button>
                         <Button variant="primary" onClick={onClickConfirm}
-                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
+                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput || !isAllowClickButton}>
                             CONFIRM
                         </Button>
                     </>
