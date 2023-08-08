@@ -857,7 +857,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const getRowHeight = useMemo(() => {
         if (listData.length === 0) {
-            return 35
+            return 40
         }
         if (isShowFullData || (!isShowFullData && listData.length < 10)) {
             return (listData.length * 35) + 40;
