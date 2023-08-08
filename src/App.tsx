@@ -78,7 +78,6 @@ const App = () => {
       idleEvents.forEach(event => {
         window.removeEventListener(event, () => {
           worker.postMessage('stop')
-          worker.postMessage('start')
         });
       })
     };
