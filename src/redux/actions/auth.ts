@@ -20,4 +20,9 @@ const setRememberKey = (payload: string) => ({
   payload,
 })
 
-export {setLogin, setSplash, setSecretKey, setRememberKey};
+const setTabBlock = (payload: boolean) => ({
+  type: Types.TAB_BLOCK,
+  payload,
+})
+
+export {setLogin, setSplash, setSecretKey, setRememberKey, setTabBlock};

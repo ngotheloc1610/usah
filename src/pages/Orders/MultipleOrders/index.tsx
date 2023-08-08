@@ -5,7 +5,7 @@ import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize } from "../../../helper/utils";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice, calcChange, calcPctChange, checkValue } from "../../../helper/utils";
 import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
@@ -24,6 +24,8 @@ import Decimal from "decimal.js";
 import { Button, Modal } from "react-bootstrap";
 import moment from "moment";
 import LazyLoad from "../../../components/lazy-load";
+import { IQuoteEvent } from "../../../interfaces/quotes.interface";
+import { ISymbolList } from "../../../interfaces/ticker.interface";
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -53,7 +55,10 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
+    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]); 
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
+    const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
+    const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
 
     const [orderType, setOrderType] = useState(tradingModel.OrderType.OP_LIMIT);
     const [limitPrice, setLimitPrice] = useState(0);
@@ -79,6 +84,14 @@ const MultipleOrders = () => {
     const pricingServicePb: any = pspb;
 
     const debugLogFlag = window.globalThis.debugLogFlag;
+
+    useEffect(() => {
+        symbolListActive.forEach((item) => {
+            if (item.symbolStatus !== queryModel.SymbolStatus.SYMBOL_DEACTIVE) {
+                symbolListMap.set(item.symbolCode, item);
+            }
+        })
+    }, [])
 
     useEffect(() => {
         const listOrderDisplay = listOrderDispatch ? listOrderDispatch.filter(item => item.status === undefined) : [];
@@ -150,7 +163,7 @@ const MultipleOrders = () => {
                 setLastQuotes(quote.quotesList);
             }
         });
-
+      
         return () => {
             ws.unsubscribe();
             lastQuote.unsubscribe();
@@ -162,12 +175,14 @@ const MultipleOrders = () => {
     }, [lastQuotes])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
+        const itemQuoteMap = new Map();
         if (quotes.length > 0) {
             let temp: ISymbolQuote[] = [];
             symbols.forEach(symbol => {
                 if (symbol) {
                     const element = quotes.find(o => o?.symbolCode === symbol?.symbolCode);
                     if (element) {
+                        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(element.currentPrice), symbol)
                         const symbolQuote: ISymbolQuote = {
                             symbolCode: symbol.symbolCode,
                             symbolId: symbol.symbolId,
@@ -178,18 +193,20 @@ const MultipleOrders = () => {
                             lastPrice: element.currentPrice,
                             open: element.open || '0',
                             volume: element.volumePerDay,
-                            ceiling: symbol.ceiling,
-                            floor: symbol.floor,
+                            ceiling: formatCurrency(String(ceilingPrice)),
+                            floor: formatCurrency(String(floorPrice)),
                         };
                         const index = temp.findIndex(o => o?.symbolCode === symbolQuote?.symbolCode);
                         if (index < 0) {
                             temp.push(symbolQuote);
                         }
+                        itemQuoteMap.set(symbol?.symbolCode, symbolQuote);
                     }
                 }
             });
             temp = temp.sort((a, b) => a?.symbolCode?.localeCompare(b?.symbolCode));
             setSymbolInfor(temp);
+            setQuoteMap(itemQuoteMap)
         }
     }
 
@@ -221,10 +238,8 @@ const MultipleOrders = () => {
         if (wsConnected) {
             let currentDate = new Date();
             let lastQuotesRequest = new pricingServicePb.GetLastQuotesRequest();
-
-            const symbolCodes: string[] = symbols.map(item => item.symbolCode);
+            const symbolCodes: string[] = symbolListActive.map(item => item.symbolCode);
             lastQuotesRequest.setSymbolCodeList(symbolCodes);
-
             const rpcModel: any = rspb;
             let rpcMsg = new rpcModel.RpcMessage();
             rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.LAST_QUOTE_REQ);
@@ -260,7 +275,7 @@ const MultipleOrders = () => {
                                 ...temps[el],
                                 state: item.state,
                                 msgCode: item.msgCode,
-                                status: checkMessageError(item.note, item.msgCode)
+                                status: checkMessageError(item.comment, item.msgCode)
                             }
                         }
                     });
@@ -391,8 +406,7 @@ const MultipleOrders = () => {
     }
 
     const getLotSize = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const lotSize = lstSymbols.find(o => o?.symbolCode === ticker)?.lotSize;
+        const lotSize = symbolListMap.get(ticker)?.lotSize;
         if (lotSize) {
             return !isNaN(Number(lotSize)) ? Number(lotSize) : 1;
         }
@@ -400,8 +414,7 @@ const MultipleOrders = () => {
     }
 
     const getTickSize = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.tickSize;
+        const tickSize = symbolListMap.get(ticker)?.tickSize;
         if (tickSize) {
             return !isNaN(Number(tickSize)) ? Number(tickSize) : 1;
         }
@@ -409,26 +422,39 @@ const MultipleOrders = () => {
     }
 
     const getCelling = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.ceiling;
-        if (tickSize) {
-            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        const symbol = symbolListMap.get(ticker);
+        let currentPrice;
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {ceilingPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
+        if (ceilingPrice) {
+            return !isNaN(Number(ceilingPrice)) ? Number(ceilingPrice) : 0;
         }
         return 0
     }
 
     const getFloor = (ticker: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickSize = lstSymbols.find(o => o?.symbolCode === ticker)?.floor;
-        if (tickSize) {
-            return !isNaN(Number(tickSize)) ? Number(tickSize) : 0;
+        const symbol = symbolListMap.get(ticker);
+        let currentPrice;
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {floorPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
+        if (floorPrice) {
+            return !isNaN(Number(floorPrice)) ? Number(floorPrice) : 0;
         }
         return 0
     }
 
     const getSymbolDetail = (symbolCode: string) => {
-        const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        return lstSymbols.find(o => o?.symbolCode === symbolCode);
+        return symbolListMap.get(symbolCode);
     }
 
     const decreaseVolume = (itemSymbol: ISymbolMultiOrder, index: number) => {
@@ -634,8 +660,7 @@ const MultipleOrders = () => {
     )
 
     const getTickerName = (ticker: string) => {
-        const listSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-        const tickerName = listSymbols.find(o => o?.symbolCode === ticker)?.symbolName;
+        const tickerName = symbolListMap.get(ticker)?.symbolName;
         return tickerName ? tickerName : '';
     }
 
@@ -766,7 +791,7 @@ const MultipleOrders = () => {
 
     const _renderHearderMultipleOrdersConfirm = () => (
         <tr>
-            <th className="text-center text-nowrap"><span>Ticker Code</span></th>
+            <th className="text-start text-nowrap"><span>Ticker Code</span></th>
             <th className="text-center text-nowrap"><span>Order Type</span></th>
             <th className="text-center text-center text-nowrap"><span>Order Side</span></th>
             <th className="text-center text-nowrap"><span>Quantity</span></th>
@@ -789,8 +814,7 @@ const MultipleOrders = () => {
 
     const callOrderRequest = () => {
         setIsLoading(true);
-        const accountId = localStorage.getItem(ACCOUNT_ID)
-        const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
+        const accountId = sessionStorage.getItem(ACCOUNT_ID)
         const tradingServicePb: any = tdspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -798,7 +822,7 @@ const MultipleOrders = () => {
             let multiOrder = new tradingServicePb.NewOrderMultiRequest();
             multiOrder.setSecretKey('');
             listSelected.forEach((item: ISymbolMultiOrder) => {
-                const symbol = symbols.find(o => o.symbolCode === item.ticker);
+                const symbol = symbolListMap.get(item.ticker);
                 if (symbol) {
                     let order = new tradingModel.Order();
                     order.setAmount(item.volume?.replaceAll(',', ''));
@@ -980,13 +1004,24 @@ const MultipleOrders = () => {
     }
 
     const getStatusOrder = (symbolCode: string, volume: any, price: any) => {
-        const symbol = symbolListActive.find(o => o?.symbolCode === symbolCode);
-        if (convertNumber(symbol?.ceiling) < convertNumber(price) || convertNumber(symbol?.floor) > convertNumber(price)) {
+        const quote = lastQuotes.find(e => e?.symbolCode === symbolCode);
+        const symbol = symbolListMap.get(symbolCode);
+        let currentPrice = quote?.currentPrice;
+        if(quoteMap) {
+            const quote = quoteMap.get(symbolCode);
+            if(quote) {
+                currentPrice = quote.lastPrice
+            }
+        }
+        const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(currentPrice), symbol);
+
+        if (convertNumber(formatCurrency(ceilingPrice.toString())) < convertNumber(price) || convertNumber(formatCurrency(floorPrice.toString())) > convertNumber(price)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE,
                 message: MESSAGE_ERROR.get(systemModelPb.MsgCode.MT_RET_INVALID_PRICE_RANGE)
             };
         }
+        
         if ((convertNumber(price) * convertNumber(volume)) < convertNumber(minOrderValue)) {
             return {
                 msgCode: systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE,
@@ -1089,13 +1124,13 @@ const MultipleOrders = () => {
         const tickSize = getTickSize(symbolCode);
         const price = convertNumber(value);
         setPrice(price);
-        if (ceilingPrice === 0 && floorPrice === 0) {
+        if (convertNumber(formatCurrency(ceilingPrice.toString())) === 0 && convertNumber(formatCurrency(floorPrice.toString())) === 0) {
             setIsShowNotiErrorPrice(false);
             return;
         }
-        if (+price > ceilingPrice) {
+        if (price > convertNumber(formatCurrency(ceilingPrice.toString()))) {
             setIsShowNotiErrorPrice(true);
-        } else if (+price < floorPrice) {
+        } else if (price < convertNumber(formatCurrency(floorPrice.toString()))) {
             setIsShowNotiErrorPrice(true);
         } else {
             setIsShowNotiErrorPrice(false);
@@ -1135,14 +1170,13 @@ const MultipleOrders = () => {
     const handelUpperVolume = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-            if (volume < convertNumber(item?.minLot)) {
-                setVolume(convertNumber(item?.minLot));
+            const symbol = symbolListMap.get(symbolCode);
+            if (volume < convertNumber(symbol?.minLot)) {
+                setVolume(convertNumber(symbol?.minLot));
                 return;
             }
-            if (item) {
-                const lotSize = convertNumber(item?.lotSize) === 0 ? 1 : convertNumber(item?.lotSize);
+            if (symbol) {
+                const lotSize = convertNumber(symbol.lotSize) === 0 ? 1 : convertNumber(symbol.lotSize);
                 const currentVol = Number(volume);
                 let newVol = currentVol + lotSize;
 
@@ -1156,14 +1190,13 @@ const MultipleOrders = () => {
     const handelLowerVolume = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
+            const symbol = symbolListMap.get(symbolCode);
             if (volume > convertNumber(maxOrderVolume)) {
                 setVolume(convertNumber(maxOrderVolume));
                 return;
             }
-            if (item) {
-                const lotSize = convertNumber(item.lotSize) === 0 ? 1 : convertNumber(item.lotSize);
+            if (symbol) {
+                const lotSize = convertNumber(symbol.lotSize) === 0 ? 1 : convertNumber(symbol.lotSize);
                 const currentVol = Number(volume);
                 if (currentVol <= lotSize) {
                     setVolume(lotSize);
@@ -1179,12 +1212,11 @@ const MultipleOrders = () => {
     const handleUpperPrice = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-            if (item) {
-                const floorPrice = item.floor;
-                const ceilingPrice = item.ceiling;
-                const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
+            const symbol = symbolListMap.get(symbolCode);
+            if (symbol) {
+                const floorPrice = getFloor(symbol.symbolCode);
+                const ceilingPrice = getCelling(symbol.symbolCode);
+                const tickSize = convertNumber(symbol.tickSize) !== 0 ? convertNumber(symbol.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 const currentPrice = Number(price);
                 let newPrice = calcPriceIncrease(currentPrice, tickSize, decimalLenght);
@@ -1208,13 +1240,12 @@ const MultipleOrders = () => {
     const handleLowerPrice = () => {
         if (ticker) {
             const symbolCode = ticker.split('-')[0]?.trim();
-            const lstSymbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-            const item = lstSymbols.find(o => o.symbolCode === symbolCode);
-            if (item) {
-                const floorPrice = item.floor;
-                const ceilingPrice = item.ceiling;
+            const symbol = symbolListMap.get(symbolCode);
+            if (symbol) {
+                const floorPrice = getFloor(symbol.symbolCode);
+                const ceilingPrice = getCelling(symbol.symbolCode);
                 const currentPrice = Number(price);
-                const tickSize = item && convertNumber(item.tickSize) !== 0 ? convertNumber(item.tickSize) : 1;
+                const tickSize = convertNumber(symbol.tickSize) !== 0 ? convertNumber(symbol.tickSize) : 1;
                 const decimalLenght = tickSize.toString().split('.')[1] ? tickSize.toString().split('.')[1].length : 0;
                 let newPrice = calcPriceDecrease(currentPrice, tickSize, decimalLenght);
            
@@ -1243,7 +1274,6 @@ const MultipleOrders = () => {
         setSymbolCode(symbolCode ? symbolCode : '');
         if (value) {
             const symbolCode = value?.split('-')[0]?.trim();
-            const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
             const symbolItem = symbolInfor.find(item => item.symbolCode === symbolCode);
 
             const lastQuoteInfo = lastQuotes.find(item => item?.symbolCode === symbolCode);
@@ -1259,15 +1289,15 @@ const MultipleOrders = () => {
                 }
             }
 
-            const item = symbols.find(o => o?.symbolCode === symbolCode);
+            const symbol = symbolListMap.get(symbolCode);
             setIsSave(false)
-            if (item) {
-                setSymbolSelected(item?.symbolCode);
+            if (symbol) {
+                setSymbolSelected(symbol.symbolCode);
                 convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
                 if (orderType === tradingModel.OrderType.OP_LIMIT) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                 }
-                setVolume(convertNumber(calcDefaultVolumeInput(item.minLot, item.lotSize)));
+                setVolume(convertNumber(calcDefaultVolumeInput(symbol.minLot, symbol.lotSize)));
                 setInvalidPrice(false);
                 setInvalidVolume(false);
                 setIsShowNotiErrorPrice(false);
@@ -1277,8 +1307,8 @@ const MultipleOrders = () => {
             setVolume(0);
             setLimitPrice(0);
         }
-        const item = symbols.find(o => o?.symbolCode === symbolCode);
-        if(item) {
+        const symbol = symbolListMap.get(symbolCode);
+        if(symbol) {
             setIsSave(true);
             setIsValidTicker(false);
         } else {

@@ -39,7 +39,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [isErrorDate, setIsErrorDate] = useState(false);
     
-    const currentAccount = localStorage.getItem(ACCOUNT_ID) || '';
+    const currentAccount = sessionStorage.getItem(ACCOUNT_ID) || '';
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const prevParamSearch = useRef<IParamOrderHistory>();
     const [accountId, setAccountId] = useState(currentAccount);

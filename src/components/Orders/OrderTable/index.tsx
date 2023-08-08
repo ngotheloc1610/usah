@@ -36,7 +36,7 @@ function OrderTable(props: IPropListOrderHistory) {
     const [itemPerPage, setItemPerPage] = useState(DEFAULT_ITEM_PER_PAGE);
     const [dataCurrent, setDataCurrent] = useState<IDataOrderHistory[]>([]);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     const api_url = window.globalThis.apiUrl;
     const [isShowProcessModal, setIsShowProcessModal] = useState<boolean>(false);
     const [downloadPercent, setDownloadPercent] = useState<number>(0);

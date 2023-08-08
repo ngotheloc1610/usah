@@ -22,7 +22,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [isErrorDate, setIsErrorDate] = useState(false);
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const currentAccountId = localStorage.getItem(ACCOUNT_ID) || '';
+    const currentAccountId = sessionStorage.getItem(ACCOUNT_ID) || '';
     const [accountId, setAccountId] = useState(currentAccountId);
     
     const {listAccId, isShowAccountId} = useFetchApiAccount();

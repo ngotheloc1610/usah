@@ -26,6 +26,8 @@ interface IConfirmOrder {
     params: IParamOrderModifyCancel;
     isModify?: boolean;
     isCancel?: boolean;
+    ceilingPrice?: number;
+    floorPrice?: number;
 }
 
 const flagMsgCode = window.globalThis.flagMsgCode;
@@ -34,7 +36,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const tradingServicePb: any = tspb;
     const tradingModelPb: any = tmpb;
     const rProtoBuff: any = rpc;
-    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse } = props;
+    const { handleCloseConfirmPopup, params, handleOrderResponse, isModify, isCancel, handleOrderCancelId, handleOrderCancelIdResponse, ceilingPrice, floorPrice } = props;
     const [volumeModify, setVolumeModify] = useState(params.volume);
     const [priceModify, setPriceModify] = useState(params.price);
     const [tickSize, setTickSize] = useState(0);
@@ -56,9 +58,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const debugLogFlag = window.globalThis.debugLogFlag;
 
-    const teamId = localStorage.getItem(TEAM_ID) || '0';
-    const teamCode = localStorage.getItem(TEAM_CODE) || '';
-    const accountId = localStorage.getItem(ACCOUNT_ID) || ''
+    const teamId = sessionStorage.getItem(TEAM_ID) || '0';
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
+    const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
 
     useEffect(() => {
         const tickerList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]');
@@ -287,7 +289,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const sendOrder = (param: IParamOrderModifyCancel) => {
         const uid = param.uid?.toString() || ''
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
             prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
@@ -492,6 +494,12 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         return isModifyCancel && checkTeamCode && checkAccId
     }
 
+    const handleKeyUp = (event: any) => {
+        if (event.key === 'Enter') {
+            sendOrder(params);
+        }
+    }
+
     const _renderContentFormConfirm = () => (
         <>
             <div className='row'>
@@ -527,6 +535,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                                 <input className='d-block w-100 border border-1 rounded-pill py-2 pd-pass' 
                                     type={isHiddenPassword ? 'password' : 'text'}
                                     onChange={handleTeamPassword}
+                                    onKeyUp={handleKeyUp}
                                     placeholder='Password' 
                                     autoComplete='new-password'
                                 />
@@ -541,9 +550,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         </>
     )
 
+    const isValidatePrice = () => {
+        let isValid = true
+        if((convertNumber(ceilingPrice) < convertNumber(params.price)) ||
+        convertNumber(floorPrice) > convertNumber(params.price)) {
+            isValid = false
+        }
+        return isValid
+    }
+
     const disablePlaceOrder = () => {
         return convertNumber(calValue()) === 0 ||
-               convertNumber(calValue()) > convertNumber(maxOrderValue);
+               convertNumber(calValue()) > convertNumber(maxOrderValue) || !isValidatePrice();
     }
 
     const _renderTamplate = () => (

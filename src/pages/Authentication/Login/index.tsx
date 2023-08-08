@@ -81,24 +81,27 @@ const Login = () => {
                 if (resp?.data?.data) {
                     setIsMultiLoginFail(false);
                     const data = resp.data.data;
-                    localStorage.setItem(ACCOUNT_ID, data.account_id.toString());
+                    sessionStorage.setItem(ACCOUNT_ID, data.account_id.toString());
+                    // Using token in sessionStorage to get token for call api
+                    // Using token in LocalStorage to prevent multiple login in the same browser 
+                    sessionStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
                     localStorage.setItem(KEY_LOCAL_STORAGE.AUTHEN, data.access_token.toString());
-                    localStorage.setItem(EXPIRE_TIME, data.expire_time);
-                    localStorage.setItem(ROLE, data.role);
-                    localStorage.setItem(POEM_ID, data.poem_id);
+                    sessionStorage.setItem(EXPIRE_TIME, data.expire_time);
+                    sessionStorage.setItem(ROLE, data.role);
+                    sessionStorage.setItem(POEM_ID, data.poem_id);
                     localStorage.setItem(MIN_ORDER_VALUE, data.min_order_value?.toString());
                     localStorage.setItem(MAX_ORDER_VALUE, data.max_order_value?.toString());
                     localStorage.setItem(MAX_ORDER_VOLUME, data.max_order_volume?.toString());
-                    localStorage.setItem(TEAM_CODE, data.team_code);
-                    localStorage.setItem(TEAM_ID, data.team_id?.toString());
-                    localStorage.setItem(TEAM_ROLE, data.team_role);
+                    sessionStorage.setItem(TEAM_CODE, data.team_code);
+                    sessionStorage.setItem(TEAM_ID, data.team_id?.toString());
+                    sessionStorage.setItem(TEAM_ROLE, data.team_role);
 
                     sessionStorage.setItem(KEY_SESSION_STORAGE.SESSION, data.access_token.toString());
 
                     if (data.sub_accounts) {
-                        localStorage.setItem(SUB_ACCOUNTS, JSON.stringify(data.sub_accounts));
+                        sessionStorage.setItem(SUB_ACCOUNTS, JSON.stringify(data.sub_accounts));
                     } else {
-                        localStorage.removeItem(SUB_ACCOUNTS);
+                        sessionStorage.removeItem(SUB_ACCOUNTS);
                     }
                     window.location.href = process.env.PUBLIC_URL ? process.env.PUBLIC_URL : '/';
                 }

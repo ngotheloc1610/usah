@@ -40,7 +40,7 @@ const ListTicker = (props: IListTickerProps) => {
     const [isDeleteTicker, setIsDeleteTicker] = useState(false);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const currentAccId = localStorage.getItem(ACCOUNT_ID);
+    const currentAccId = sessionStorage.getItem(ACCOUNT_ID);
     const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
     const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
 
@@ -324,16 +324,16 @@ const ListTicker = (props: IListTickerProps) => {
     const _renderSearchForm = useMemo(() => {
         return <div className="row mb-2">
             <div className="col-lg-6 d-flex">
-                <Autocomplete
-                    onChange={onChangeTicker}
-                    onKeyUp={handleKeyUp}
-                    options={listSymbolCode}
-                    sx={{ width: 350 }}
-                    renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
-                />
-
+                <form>
+                    <Autocomplete
+                        onChange={onChangeTicker}
+                        onKeyUp={handleKeyUp}
+                        options={listSymbolCode}
+                        sx={{ width: 350 }}
+                        renderInput={(params) => <TextField {...params} placeholder="Add a ticker" />}
+                    />
+                </form>
                 <button type="button" className="btn btn-primary h-2r pt-3-px" disabled={symbolCodeAdd === ''} onClick={() => btnAddTicker(symbolCodeAdd)} >Add</button>
-
             </div>
         </div>
     }, [listSymbolCode, symbolCodeAdd])

@@ -654,6 +654,7 @@ export interface IOrderListResponse {
     tp: string;
     triggerPrice: string;
     uid: number;
+    comment: string
 }
 
 export interface IDataHistory {

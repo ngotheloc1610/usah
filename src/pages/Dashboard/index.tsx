@@ -186,7 +186,7 @@ const Dashboard = () => {
     }
 
     const sendAccountPortfolio = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         const systemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -203,7 +203,7 @@ const Dashboard = () => {
     }
 
     const sendAccountDetail = () => {
-        let accountId = localStorage.getItem(ACCOUNT_ID) || '';
+        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         const SystemServicePb: any = sspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {
@@ -255,7 +255,7 @@ const Dashboard = () => {
     }
 
     const callSymbolListRequest = () => {
-        const accountId = localStorage.getItem(ACCOUNT_ID);
+        const accountId = sessionStorage.getItem(ACCOUNT_ID);
         const queryServicePb: any = qspb;
         let wsConnected = wsService.getWsConnected();
         if (wsConnected) {

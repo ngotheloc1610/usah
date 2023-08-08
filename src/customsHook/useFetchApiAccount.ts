@@ -1,32 +1,36 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { API_GET_ACCOUNT_BY_TEAM_CODE } from "../constants/api.constant";
+import axios from "axios";
+
 import {  IRespListAccId } from "../interfaces/order.interface";
-import { badRequest, success } from "../constants";
 import { defindConfigPost } from "../helper/utils";
+
+import { success } from "../constants";
+import { API_GET_ACCOUNT_BY_TEAM_CODE } from "../constants/api.constant";
+import { TEAM_CODE } from "../constants/general.constant";
 
 function useFetchApiAccount() {
     const api_url = window.globalThis.apiUrl;
     const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
 
     const [listAccId, setListAccId] = useState<string[]>([]);
-    const [isShowAccountId, setisShowAccountId] = useState<boolean>(false);
+    const [isShowAccountId, setIsShowAccountId] = useState<boolean>(false);
+
+    const teamCode = sessionStorage.getItem(TEAM_CODE) || ''
 
     useEffect(() => {
-        axios.post<IRespListAccId, IRespListAccId>(urlGetAccountId, {}, defindConfigPost())
-            .then((resp: IRespListAccId) => {
-                if(resp.status === success) {
-                    const listAccId = resp?.data?.data?.map(item => item.account_id );
-                    setListAccId(listAccId);
-                    setisShowAccountId(true);
-                }
-            })
-            .catch((error) => {
-                if(error.response.data.meta.code === badRequest){ 
-                    setisShowAccountId(false);
-                    return;
-                };
-            })
+        if(teamCode && teamCode !== 'null') {
+            axios.post<IRespListAccId, IRespListAccId>(urlGetAccountId, {}, defindConfigPost())
+                .then((resp: IRespListAccId) => {
+                    if(resp.status === success) {
+                        const listAccId = resp?.data?.data?.map(item => item.account_id );
+                        setListAccId(listAccId);
+                        if(listAccId.length > 0) setIsShowAccountId(true);
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error Call API List AccountID", error);
+                })
+        }
     }, [])
 
     return { listAccId, isShowAccountId}
