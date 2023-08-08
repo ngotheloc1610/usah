@@ -313,6 +313,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         } else {
             callSigleOrderRequest(accountId);
         }
+        handleCloseConfirmPopup(false);
         return;
     }
 
@@ -564,8 +565,21 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                convertNumber(calValue()) > convertNumber(maxOrderValue) || !isValidatePrice();
     }
 
-    const _renderTamplate = () => (
-        <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
+    const onHideModal = () => {
+        handleCloseConfirmPopup(false)
+    }
+
+    const onClickDiscard = () => {
+        handleCloseConfirmPopup(false);
+        setTeamPassword('');
+    }
+
+    const onClickConfirm = () => {
+        sendOrder(params)
+    }
+
+    return <div className="popup-box">
+        <Modal show={true} onHide={onHideModal}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
                 <Modal.Title>
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
@@ -578,17 +592,17 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={() => sendOrder(params)} disabled={disablePlaceOrder()}>
+                        <Button className='w-px-150' variant="primary" onClick={onClickConfirm} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>
                 }
                 {(isModify || isCancel) &&
                     <>
-                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
+                        <Button variant="secondary" onClick={onClickDiscard}>
                             DISCARD
                         </Button>
-                        <Button variant="primary" onClick={() => sendOrder(params)}
+                        <Button variant="primary" onClick={onClickConfirm}
                             disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
                             CONFIRM
                         </Button>
@@ -596,10 +610,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                 }
             </Modal.Footer>
         </Modal>
-    )
-
-    return <div className="popup-box">
-        {_renderTamplate()}
     </div>
 }
 
