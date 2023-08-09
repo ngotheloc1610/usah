@@ -96,7 +96,7 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
     const teamCode = sessionStorage.getItem(TEAM_CODE) || ''
     
     const api_url = window.globalThis.apiUrl;
-    
+
     const getDataPendingOrder = (param: IParamPendingOrder) => {
         const urlPendingOrder = `${api_url}${API_GET_PENDING_ORDER}`;
         
