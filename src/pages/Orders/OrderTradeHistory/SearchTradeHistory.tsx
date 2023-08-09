@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import * as tmpb from "../../../models/proto/trading_model_pb";
 import '../OrderHistory/orderHistory.scss'
 import { convertDatetoTimeStamp, convertNumber, getSymbolCode,  } from '../../../helper/utils';
-import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, ORDER_TYPE_SEARCH, TO_DATE_TIME, ACCOUNT_ID } from '../../../constants/general.constant';
+import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, ORDER_TYPE_SEARCH, TO_DATE_TIME, ACCOUNT_ID, DEFAULT_TIMESTAMP_GET_ALL } from '../../../constants/general.constant';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
@@ -53,10 +53,11 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handleSearch = () => {
-        // In case from/to time is not selected (clear)
-        // value will be current date time
+          // In case from/to time is not selected (clear)
+        // fromTime -> get all order history in past
+        // toTime -> get current date  
         const currentDate = moment().format(FORMAT_DATE);
-        const fromTime = fromDatetime || convertDatetoTimeStamp(currentDate, FROM_DATE_TIME)
+        const fromTime = fromDatetime ? fromDatetime : DEFAULT_TIMESTAMP_GET_ALL
         const toTime = toDatetime || convertDatetoTimeStamp(currentDate, TO_DATE_TIME)
         fromTime > toTime ? setIsErrorDate(true) : setIsErrorDate(false);
         const param: IParamSearchComponentTradeHistory= {
