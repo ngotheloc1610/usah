@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { IDataOrderHistory, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
 import { wsService } from "../../../services/websocket-service";
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, 
     START_PAGE, 
-    STATE_HISTORY_SEARCH, TEAM_CODE, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, defindConfigPost, getSymbolCode } from '../../../helper/utils';
+    STATE_HISTORY_SEARCH, TO_DATE_TIME } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
 import { toast } from 'react-toastify';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { IAccountID, IParamOrderHistory } from '../../../interfaces';
+import { IParamOrderHistory } from '../../../interfaces';
 import moment from 'moment';
-import axios from 'axios';
-import { success } from '../../../constants';
-import { API_GET_ACCOUNT_BY_TEAM_CODE } from '../../../constants/api.constant';
+import useFetchApiAccount from '../../../customsHook/useFetchApiAccount';
 interface IPropsOrderSearchHistory {
     resetFlagSearch: (isSearch: boolean) => void;
     handleDownLoad: (isDownload: boolean) => void;
@@ -29,7 +27,6 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const { resetFlagSearch, handleDownLoad, paramHistorySearch, setParamHistorySearch, isErrorAccountId, resetListOrder } = props;
 
     const tradingModelPb: any = tmpb;
-    const api_url = window.globalThis.apiUrl;
 
     const [symbolCode, setSymbolCode] = useState('');
     const [orderState, setOrderState] = useState(0);
@@ -41,37 +38,13 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     const [toDatetime, setToDatetime] = useState(0);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [isErrorDate, setIsErrorDate] = useState(false);
-    const [accountId, setAccountId] = useState(sessionStorage.getItem(ACCOUNT_ID) || '');
-    const [listAccountId, setListAccountId] = useState<IAccountID[]>([]);
-    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     
-    const defaultAccountId = useMemo(() => {
-        return {
-            label: accountId,
-            value: accountId
-        }
-    }, [accountId])
-
+    const currentAccount = sessionStorage.getItem(ACCOUNT_ID) || '';
+    const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const prevParamSearch = useRef<IParamOrderHistory>();
+    const [accountId, setAccountId] = useState(currentAccount);
 
-    useEffect(() => {
-        const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
-
-        axios.post(urlGetAccountId, {}, defindConfigPost()).then(resp => {
-            if(resp.status === success) {
-                const listAccId = resp.data.data;
-                const tmpList: IAccountID[] = [];
-                listAccId.forEach(item => {
-                    tmpList.push({
-                        value: item.account_id,
-                        label: item.account_id
-                    })
-                })
-                setListAccountId(tmpList);
-            }
-        })
-    }, [])
+    const {listAccId, isShowAccountId} = useFetchApiAccount();
 
     useEffect(() => {
         prevParamSearch.current = paramHistorySearch;
@@ -161,7 +134,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     }
 
     const handleChangeAccountId = (event:any , values: any) => {
-        values ? setAccountId(values.value) : setAccountId('*');
+        values ? setAccountId(values) : setAccountId('*');
     }
 
     const handleKeyUpAccountId = (event:any) => {
@@ -197,21 +170,21 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <label className="d-block text-secondary mb-1">Account Id</label>
             <Autocomplete
                 className='account-input'
-                options={listAccountId}
+                options={listAccId}
                 onChange={handleChangeAccountId}
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
-                defaultValue={defaultAccountId}
-                value={defaultAccountId}
-                getOptionLabel={(option) => option.value === "*" ? "" : option.value}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
+                defaultValue={accountId}
+                value={accountId}
+                getOptionLabel={(option) => option === "*" ? "" : option}
+                isOptionEqualToValue={(option, value) => option === value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
     )
 
     const _renderTicker = () => (
-        <div className={`${teamCode !== "null" ? "col-xl-6" : "col-xl-9"}`}>
+        <div className={isShowAccountId ? "col-xl-6" : "col-xl-9"}>
             <label className="d-block text-secondary mb-1">Ticker</label>
             <Autocomplete
                 className='ticker-input'
@@ -312,7 +285,7 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
             <div className="card-body bg-gradient-light">
                 <div className="row g-2 d-flex align-items-end me-0">
                     <div className="row col-xxl-5 col-xl-6 pe-xl-0">
-                        {teamCode !== "null" && _renderAccountId()}
+                        {isShowAccountId && _renderAccountId()}
                         {_renderTicker()}
                         {_renderOrderStatus()}
                     </div>

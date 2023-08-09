@@ -107,8 +107,3 @@ export interface IClientHoldingInforData {
   symbolsfx: string;
   ownQty: number;
 }
-
-export interface IAccountID {
-  label: string;
-  value: string;
-}

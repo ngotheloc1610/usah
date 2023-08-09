@@ -1,17 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TEAM_CODE } from "../constants/general.constant";
+import React, { useEffect, useState } from "react";
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT } from "../constants/general.constant";
 import { ISymbolList } from "../interfaces/ticker.interface"
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
 import * as smpb from '../models/proto/system_model_pb';
 import { toast } from "react-toastify";
-import { convertNumber, defindConfigPost, getSymbolCode } from "../helper/utils";
+import { convertNumber, getSymbolCode } from "../helper/utils";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { IAccountID, IParamSearchPendingOrder } from "../interfaces";
-import { API_GET_ACCOUNT_BY_TEAM_CODE } from "../constants/api.constant";
-import axios from "axios";
-import { success } from "../constants";
+import { IParamSearchPendingOrder } from "../interfaces";
+import useFetchApiAccount from "../customsHook/useFetchApiAccount";
 
 interface IPropsContentSearch {
     getParamSearch: (param: IParamSearchPendingOrder) => void;
@@ -21,11 +19,9 @@ interface IPropsContentSearch {
 const ContentSearch = (props: IPropsContentSearch) => {
     const { getParamSearch, isUnAuthorised } = props;
 
-    const api_url = window.globalThis.apiUrl;
     const tradingModelPb: any = tmpb;
     
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-    const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     const currentAccount = sessionStorage.getItem(ACCOUNT_ID) || '';
 
     const [symbolCode, setSymbolCode] = useState('');
@@ -35,32 +31,8 @@ const ContentSearch = (props: IPropsContentSearch) => {
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const [listSymbolName, setListSymbolName] = useState<string[]>([]);
     const [accountId, setAccountId] = useState(currentAccount);
-    const [listAccountId, setListAccountId] = useState<IAccountID[]>([]);
 
-    const defaultAccountId = useMemo(() => {
-        return {
-            label: accountId,
-            value: accountId
-        }
-    }, [accountId])
-
-    useEffect(() => {
-        const urlGetAccountId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
-
-        axios.post(urlGetAccountId, {}, defindConfigPost()).then(resp => {
-            if(resp.status === success) {
-                const listAccId = resp.data.data;
-                const tmpList: IAccountID[] = [];
-                listAccId?.forEach(item => {
-                    tmpList.push({
-                        value: item.account_id,
-                        label: item.account_id
-                    })
-                })
-                setListAccountId(tmpList);
-            }
-        })
-    }, [])
+    const {listAccId , isShowAccountId} = useFetchApiAccount();
 
     useEffect(() => getParamOrderSide(), [orderSideBuy, orderSideSell])
 
@@ -124,7 +96,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
     }
 
     const handleChangeAccountId = (event:any , values: any) => {
-        values ? setAccountId(values.value) : setAccountId('*');
+        values ? setAccountId(values) : setAccountId('*');
     }
 
     const handleKeyUpAccountId = (event:any) => {
@@ -136,13 +108,14 @@ const ContentSearch = (props: IPropsContentSearch) => {
             <label className="d-block text-secondary mb-1">Account Id</label>
             <Autocomplete
                 className='account-input'
-                options={listAccountId}
+                options={listAccId}
                 onChange={handleChangeAccountId}
                 onKeyUp={handleKeyUpAccountId}
                 disablePortal
-                defaultValue={defaultAccountId}
-                value={defaultAccountId}
-                getOptionLabel={(option) => option.value === "*" ? "" : option.value}
+                defaultValue={accountId}
+                value={accountId}
+                getOptionLabel={(option) => option === "*" ? "" : option}
+                isOptionEqualToValue={(option, value) => option === value}
                 renderInput={(params) => <TextField {...params} placeholder="Search"/>}
             />  
         </div>
@@ -200,7 +173,7 @@ const ContentSearch = (props: IPropsContentSearch) => {
         <div>
             <div className="card-body bg-gradient-light mb-3">
                 <div className="row g-2 align-items-end">
-                    {teamCode !== "null" && _renderAccountId()}
+                    {isShowAccountId && _renderAccountId()}
                     {_renderTicker()}
                     {_renderOrderType()}
                     {_renderOrderSide()}
