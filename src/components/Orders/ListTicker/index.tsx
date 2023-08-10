@@ -324,7 +324,7 @@ const ListTicker = (props: IListTickerProps) => {
     const _renderSearchForm = useMemo(() => {
         return <div className="row mb-2">
             <div className="col-lg-6 d-flex">
-                <form>
+                <form onSubmit={(e) => {e.preventDefault();}}>
                     <Autocomplete
                         onChange={onChangeTicker}
                         onKeyUp={handleKeyUp}
