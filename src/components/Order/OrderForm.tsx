@@ -690,12 +690,12 @@ const OrderForm = (props: IOrderForm) => {
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                 <div className='row d-flex align-items-stretch mb-2'>
                     <div className={orderType === tradingModel.OrderType.OP_LIMIT ?
-                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        'col-6 text-center text-uppercase link-btn pointer p-1' : 'col-6 text-center text-uppercase pointer p-1'}
                         onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
                             Limit
                         </div>
                     <div className={orderType === tradingModel.OrderType.OP_MARKET ?
-                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        'col-6 text-center text-uppercase link-btn pointer p-1' : 'col-6 text-center text-uppercase pointer p-1'}
                         onClick={() => {
                             setOrderType(tradingModel.OrderType.OP_MARKET);
                         }} >

@@ -1,39 +1,20 @@
-tbody {
-    background: white;
-}
+
 .z-1 {
     z-index: -1;
 }
 
-.w-20{
-    width: 20%;
+.ReactVirtualized__Table__headerRow {
+    font-weight: 500 !important;
+    text-transform: none !important;
 }
 
-.w-60 {
-    width: 60%;
+.ReactVirtualized__Table__row {
+    border-bottom: none;
 }
 
-.fs-075rem{
-    font-size: 0.75rem;
-}
-
-.p-10px {
-    padding-right: 10px !important;
-}
-
-tbody.table-trade-history {
-    display: block;
-    overflow: auto;
-}
-
-thead.table-trade-history {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-tr.table-trade-history {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
+@media  only screen and (max-width: 1200px)  {
+    .order-form .order-btn-group .btn {
+        background-color: #ccc;
+        line-height: 0.6;
+    }
 }

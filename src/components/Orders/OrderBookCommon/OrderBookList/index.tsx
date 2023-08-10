@@ -573,7 +573,7 @@ const OrderBookList = (props: IPropsListBidsAsk) => {
     )
 
 
-    return <div className="order-block table-responsive mb-2 fz-14 h-100">
+    return <div className="order-block table-responsive fz-14 h-100">
         {(styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet) && _renderTableEarmarkSpreadSheet()}
         {styleListBidsAsk.grid && _renderTableGidBids()}
         {styleListBidsAsk.columns && _renderTableColumns()}
