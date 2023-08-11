@@ -643,6 +643,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     rowCount={listData.length}
                     deferredMeasurementCache={cache.current}
                     rowGetter={({ index }) => listData[index]}
+                    rowClassName="list-order-row"
                 >
                     <Column
                         dataKey=""
