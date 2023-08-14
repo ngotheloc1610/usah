@@ -47,10 +47,10 @@
     line-height: 1.5 !important;
 }
 
-.ReactVirtualized__Table__row {
-    border-bottom: 1px solid #e0e0e0;
+.list-order-row {
+    border-bottom: 1px solid #e0e0e0 !important;
 }
 
-.ReactVirtualized__Table__row:last-child {
+.list-order-row:last-child {
     border-bottom: none;
 }

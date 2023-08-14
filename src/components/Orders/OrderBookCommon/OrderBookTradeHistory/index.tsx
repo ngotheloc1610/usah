@@ -71,6 +71,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                 rowCount={tradeUpdate.length}
                 deferredMeasurementCache={cache.current}
                 rowGetter={({ index }) => tradeUpdate[index]}
+                rowClassName="trade-data-row"
             >
                 <Column
                     dataKey="executedDatetime"
