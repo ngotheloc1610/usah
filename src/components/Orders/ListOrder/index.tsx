@@ -174,6 +174,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
+            console.log("Order event:", resp.orderList, `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             setOrderEventList(resp.orderList);
         })
 
