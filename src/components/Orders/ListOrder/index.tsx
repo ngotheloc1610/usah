@@ -856,16 +856,16 @@ const ListOrder = (props: IPropsListOrder) => {
         </>
     }
 
-    const getRowHeight = useMemo(() => {
+    const getRowHeight = () => {
         if (listData.length === 0) {
-            return 40
+            return 38
         }
         if (isShowFullData || (!isShowFullData && listData.length < 10)) {
             return (listData.length * 35) + 40;
         } else {
             return 350
         }
-    }, [listData, isShowFullData]);
+    };
 
     // This function check to show scrollbar X if screen is small
     const isMobileScreen = () => {
@@ -888,8 +888,8 @@ const ListOrder = (props: IPropsListOrder) => {
                         </a>
                     </div>
                 </div>
-                <div ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
-                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight }}>
+                <div ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
