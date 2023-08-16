@@ -86,7 +86,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const cache = useRef(new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 40
+        defaultHeight: 35
     }))
 
     const tableBodyRef:any = useRef();
@@ -858,10 +858,10 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const getRowHeight = () => {
         if (listData.length === 0) {
-            return 38
+            return 35
         }
         if (isShowFullData || (!isShowFullData && listData.length < 10)) {
-            return (listData.length * 35) + 40;
+            return (listData.length * 35) + 35;
         } else {
             return 350
         }
@@ -888,7 +888,7 @@ const ListOrder = (props: IPropsListOrder) => {
                         </a>
                     </div>
                 </div>
-                <div ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
+                <div key={Math.random()} ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
                     <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
                     </div>
