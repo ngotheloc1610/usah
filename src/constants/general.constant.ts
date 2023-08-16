@@ -337,3 +337,5 @@ export const ITEM_PER_PAGE_SMALL = 10;
 export const PAGE_SIZE_GET_ALL_ORDER_LIST = 0;
 
 export const DEFAULT_TIMESTAMP_GET_ALL = 0;
+
+export const DEFAULT_ROW_HEIGHT = 35;
