@@ -888,6 +888,9 @@ const ListOrder = (props: IPropsListOrder) => {
                         </a>
                     </div>
                 </div>
+                {/* Bug #84529
+                    The key props will force React to re-build the DOM tree every time the view is changed 
+                */}
                 <div key={Math.random().toString(36).slice(2)} ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === DEFAULT_ROW_HEIGHT || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
                     <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
