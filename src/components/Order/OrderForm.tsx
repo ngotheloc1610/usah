@@ -78,6 +78,7 @@ const OrderForm = (props: IOrderForm) => {
 
     const [bestAskPrice, setBestAskPrice] = useState(0);
     const [bestBidPrice, setBestBidPrice] = useState(0);
+    const [receivedLastQuote, setReceivedLastQuote] = useState(false);
 
     // NOTE: When change orderType from Market to Limit, set Price default is LastPrice or ClosePrice
     // so state limitPrice use to set LastPrice or ClosePrice
@@ -151,10 +152,10 @@ const OrderForm = (props: IOrderForm) => {
     useEffect(() => {
         const lastQuote = wsService.getDataLastQuotes().subscribe(lastQuoteResp => {
             if (lastQuoteResp && lastQuoteResp.quotesList) {
+                setReceivedLastQuote(true)
                 for (const quote of lastQuoteResp.quotesList) {
                     lastQuoteMap.set(quote.symbolCode, quote);
                 }
-
                 setFlagUpdateQuote(!flagUpdateQuote);
             }
         })
@@ -289,7 +290,7 @@ const OrderForm = (props: IOrderForm) => {
             const minLot = ticker?.minLot;
             const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(symbolItem?.lastPrice), ticker)
 
-            if (isRenderPrice && symbolItem) {
+            if ((symbolItem && isRenderPrice) || receivedLastQuote) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                     convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
@@ -297,6 +298,7 @@ const OrderForm = (props: IOrderForm) => {
                     setPrice(convertNumber(quoteInfo?.price));
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
+                setReceivedLastQuote(false)
             }
             
             setCeilingPrice(convertNumber(formatCurrency(ceilingPrice.toString())));
