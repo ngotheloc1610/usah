@@ -18,7 +18,7 @@ import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
 import axios from "axios";
 import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
-import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE } from "../../../constants/general.constant";
+import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE, DEFAULT_ROW_HEIGHT } from "../../../constants/general.constant";
 import moment from "moment";
 import { Table, AutoSizer, CellMeasurerCache, CellMeasurer, Column } from 'react-virtualized';
 
@@ -86,7 +86,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const cache = useRef(new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 40
+        defaultHeight: DEFAULT_ROW_HEIGHT
     }))
 
     const tableBodyRef:any = useRef();
@@ -857,16 +857,16 @@ const ListOrder = (props: IPropsListOrder) => {
         </>
     }
 
-    const getRowHeight = useMemo(() => {
+    const getRowHeight = () => {
         if (listData.length === 0) {
-            return 40
+            return DEFAULT_ROW_HEIGHT
         }
         if (isShowFullData || (!isShowFullData && listData.length < 10)) {
-            return (listData.length * 35) + 40;
+            return (listData.length + 1) * DEFAULT_ROW_HEIGHT;
         } else {
             return 350
         }
-    }, [listData, isShowFullData]);
+    };
 
     // This function check to show scrollbar X if screen is small
     const isMobileScreen = () => {
@@ -889,8 +889,11 @@ const ListOrder = (props: IPropsListOrder) => {
                         </a>
                     </div>
                 </div>
-                <div ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight === 35 || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
-                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight }}>
+                {/* Bug #84529
+                    The key props will force React to re-build the DOM tree every time the view is changed 
+                */}
+                <div key={Math.random().toString(36).slice(2)} ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === DEFAULT_ROW_HEIGHT || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
