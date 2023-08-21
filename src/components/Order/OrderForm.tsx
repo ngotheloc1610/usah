@@ -91,14 +91,6 @@ const OrderForm = (props: IOrderForm) => {
         const index = listSymbols.findIndex(item => item.symbolCode === symbolCode);
         return index >= 0;
     }
-
-    useEffect(() => {
-        listSymbols.forEach((item) => {
-            if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                symbolListMap.set(item.symbolCode, item);
-            }
-        })
-    }, [])
     
     useEffect(() => {
         setIsRenderPrice(true);
@@ -159,6 +151,16 @@ const OrderForm = (props: IOrderForm) => {
             }
         })
 
+        const symbolList = wsService.getSymbolListSubject().subscribe(res => {
+            if (res.symbolList && res.symbolList.length > 0) {
+                res.symbolList.forEach(item => {
+                    if(item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                        symbolListMap.set(item.symbolCode, item);
+                    }
+                });
+            }
+        })
+
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
                 setQuoteEvent(quote.quoteList);
@@ -168,6 +170,7 @@ const OrderForm = (props: IOrderForm) => {
         return () => {
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
+            symbolList.unsubscribe();
         }
     }, [])
 
