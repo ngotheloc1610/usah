@@ -88,7 +88,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }, [])
 
     const handleCancelRes = (resp: any) => {
-        debugLogFlag && console.log(90, resp);
         debugLogFlag && console.log("Received cancel response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
         let tmp = 0;
         let msgText = resp[MSG_TEXT];
