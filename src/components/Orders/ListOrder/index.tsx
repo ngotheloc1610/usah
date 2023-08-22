@@ -84,6 +84,8 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const [cancelListId, setCancelListId] = useState<Map<string, string>>(new Map());
 
+    const [scrollToIndex, setScrollToIndex] = useState<number>(0);
+
     const cache = useRef(new CellMeasurerCache({
         fixedWidth: true,
         defaultHeight: DEFAULT_ROW_HEIGHT
@@ -475,7 +477,8 @@ const ListOrder = (props: IPropsListOrder) => {
         setTotalOrder(dataSelected.length);
     }
 
-    const handleChecked = (event: any, item: any) => {
+    const handleChecked = (event: any, item: any, rowIndex: number) => {
+        setScrollToIndex(rowIndex)
         if (item) {
             const element = selectedList.get(item.orderId);
             if (event.target.checked) {
@@ -645,6 +648,8 @@ const ListOrder = (props: IPropsListOrder) => {
                     deferredMeasurementCache={cache.current}
                     rowGetter={({ index }) => listData[index]}
                     rowClassName="list-order-row"
+                    scrollToIndex={scrollToIndex}
+                    scrollToAlignment="center"
                 >
                     <Column
                         dataKey=""
@@ -657,11 +662,11 @@ const ListOrder = (props: IPropsListOrder) => {
                                 onChange={handleCheckedAll}
                                 checked={selectedList.size === dataOrder.size && dataOrder.size > 0} />
                         }
-                        cellRenderer={({ rowData }) =>
+                        cellRenderer={({ rowData, rowIndex }) =>
                             <input className="" type="checkbox" value=""
                                 checked={selectedList.has(rowData['orderId'])}
                                 name={index.toString()}
-                                onChange={(e) => handleChecked(e, rowData)}
+                                onChange={(e) => handleChecked(e, rowData, rowIndex)}
                                 id="all" />
                         } />
                     {teamCode && teamCode !== 'null' && (<Column label="Account ID" dataKey="uid" minWidth={50} width={50}
