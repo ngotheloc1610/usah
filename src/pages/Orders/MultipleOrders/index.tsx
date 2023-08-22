@@ -132,7 +132,7 @@ const MultipleOrders = () => {
 
     useEffect(() => {
         const multiOrderResponse = wsService.getMultiOrderSubject().subscribe(resp => {
-            console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
+            debugLogFlag && console.log(`Received multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
             let tmp = 0;
             if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
                 tmp = RESPONSE_RESULT.success;
@@ -145,7 +145,7 @@ const MultipleOrders = () => {
                 setListSelected([]);
             }
             setIsLoading(false);
-            console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
+            debugLogFlag && console.log(`Finished process multiOrder response with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
         });
 
         return () => {
@@ -848,7 +848,7 @@ const MultipleOrders = () => {
             rpcMsg.setPayloadData(multiOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
-            console.log(`Send multiOrder with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
+            debugLogFlag && console.log(`Send multiOrder with ${listSelected.length} at ${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             setShowModalConfirmMultiOrders(false);
         }
     }

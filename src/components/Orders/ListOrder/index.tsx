@@ -86,6 +86,8 @@ const ListOrder = (props: IPropsListOrder) => {
 
     const [scrollToIndex, setScrollToIndex] = useState<number>(0);
 
+    const debugLogFlag = window.globalThis.debugLogFlag;
+
     const cache = useRef(new CellMeasurerCache({
         fixedWidth: true,
         defaultHeight: DEFAULT_ROW_HEIGHT
@@ -176,7 +178,7 @@ const ListOrder = (props: IPropsListOrder) => {
 
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
-            console.log("Order event:", resp.orderList, `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
+            debugLogFlag && console.log("Order event:", resp.orderList, `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             setOrderEventList(resp.orderList);
         })
 
