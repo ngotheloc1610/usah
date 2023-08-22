@@ -146,6 +146,22 @@ const OrderForm = (props: IOrderForm) => {
     }, [symbolCode, isMonitoring])
 
     useEffect(() => {
+        /*
+            NOTE: Bug 84848 + 84906
+            listSymbols is empty at the first time render cause it's parsed before websocket response
+            => symbolListMap empty => so wrong validate
+            So we add condition to set symbolListMap base on symbolCode (exist after listSymbols is not empty)
+        */
+        if(symbolCode && !symbolListMap.get(symbolCode)) {
+            listSymbols.forEach((item) => {
+                if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                    symbolListMap.set(item.symbolCode, item);
+                }
+            })
+        }
+    }, [symbolCode])
+
+    useEffect(() => {
         const lastQuote = wsService.getDataLastQuotes().subscribe(lastQuoteResp => {
             if (lastQuoteResp && lastQuoteResp.quotesList) {
                 setReceivedLastQuote(true)
@@ -153,16 +169,6 @@ const OrderForm = (props: IOrderForm) => {
                     lastQuoteMap.set(quote.symbolCode, quote);
                 }
                 setFlagUpdateQuote(!flagUpdateQuote);
-            }
-        })
-
-        const symbolList = wsService.getSymbolListSubject().subscribe(res => {
-            if (res.symbolList && res.symbolList.length > 0) {
-                res.symbolList.forEach(item => {
-                    if(item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                        symbolListMap.set(item.symbolCode, item);
-                    }
-                });
             }
         })
 
@@ -175,7 +181,6 @@ const OrderForm = (props: IOrderForm) => {
         return () => {
             quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
-            symbolList.unsubscribe();
         }
     }, [])
 
