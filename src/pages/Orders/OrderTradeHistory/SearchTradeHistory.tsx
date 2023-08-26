@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react'
 import * as tmpb from "../../../models/proto/trading_model_pb";
 import '../OrderHistory/orderHistory.scss'
-import { convertDatetoTimeStamp, convertNumber, getSymbolCode, defindConfigPost } from '../../../helper/utils';
-import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, TO_DATE_TIME, ACCOUNT_ID, GET_DATA_ALL_ACCOUNT, TEAM_CODE } from '../../../constants/general.constant';
+import { convertDatetoTimeStamp, convertNumber, getSymbolCode,  } from '../../../helper/utils';
+import { FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, ORDER_TYPE_SEARCH, TO_DATE_TIME, ACCOUNT_ID, DEFAULT_TIMESTAMP_GET_ALL } from '../../../constants/general.constant';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import moment from 'moment';
-import { IParamSearchComponentTradeHistory, IPropsSearchTradeHistory, IRespListAccId, IDataListAcc } from '../../../interfaces/order.interface';
-import axios from 'axios';
-import { success, notFound } from '../../../constants';
-import { API_GET_ACCOUNT_BY_TEAM_CODE } from '../../../constants/api.constant';
+import { IParamSearchComponentTradeHistory, IPropsSearchTradeHistory} from '../../../interfaces/order.interface';
+import useFetchApiAccount from '../../../customsHook/useFetchApiAccount';
 
 function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const tradingModelPb: any = tmpb;
@@ -24,36 +22,15 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     const [isErrorDate, setIsErrorDate] = useState(false);
     const [orderType, setOrderType] = useState(tradingModelPb.OrderType.OP_NONE);
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
-
-    const currentAccountId = sessionStorage.getItem(ACCOUNT_ID) || ''
+    const currentAccountId = sessionStorage.getItem(ACCOUNT_ID) || '';
+    const [accountId, setAccountId] = useState(currentAccountId);
     
-    const [accountId, setAccountId] = useState(currentAccountId)
-    const [listAccId, setListAccId] = useState<string[]>([])
-    const teamCode = sessionStorage.getItem(TEAM_CODE) || ''
-    
-    const [isShowAccInputBox, setIsShowAccInputBox] = useState(false)
+    const {listAccId, isShowAccountId} = useFetchApiAccount();
 
     useEffect(() => {
         const currentDate = moment().format(FORMAT_DATE);
         setDateTimeFrom(convertDatetoTimeStamp(currentDate, FROM_DATE_TIME));
         setDateTimeTo(convertDatetoTimeStamp(currentDate, TO_DATE_TIME));
-    }, [])
-
-    useEffect(() => {
-        const api_url = window.globalThis.apiUrl;
-        const urlGetAccId = `${api_url}${API_GET_ACCOUNT_BY_TEAM_CODE}`;
-        if(teamCode && teamCode !== 'null') {
-            axios.post<IRespListAccId, IRespListAccId>(urlGetAccId, {}, defindConfigPost()).then((resp: IRespListAccId) => {
-                if(resp.status === success) {
-                    setIsShowAccInputBox(true)
-                    const listAccId = resp?.data?.data?.map(item => item.account_id )
-                    setListAccId(listAccId)
-                }
-                if (resp.status === notFound) {
-                    setIsShowAccInputBox(false)
-                }
-            })
-        }
     }, [])
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,10 +53,11 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const handleSearch = () => {
-        // In case from/to time is not selected (clear)
-        // value will be current date time
+          // In case from/to time is not selected (clear)
+        // fromTime -> get all order history in past
+        // toTime -> get current date  
         const currentDate = moment().format(FORMAT_DATE);
-        const fromTime = fromDatetime || convertDatetoTimeStamp(currentDate, FROM_DATE_TIME)
+        const fromTime = fromDatetime ? fromDatetime : DEFAULT_TIMESTAMP_GET_ALL
         const toTime = toDatetime || convertDatetoTimeStamp(currentDate, TO_DATE_TIME)
         fromTime > toTime ? setIsErrorDate(true) : setIsErrorDate(false);
         const param: IParamSearchComponentTradeHistory= {
@@ -114,7 +92,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderTicker = () => (
-        <div className= {`${isShowAccInputBox ? 'col-xl-6 ps-0 pe-2' : 'col-xl-3'}`}>
+        <div className= {`${isShowAccountId ? 'col-xl-6 ps-0 pe-2' : 'col-xl-3'}`}>
             <label className="d-block text-secondary mb-1">Ticker Code</label>
             <Autocomplete
                 className='ticker-input'
@@ -128,7 +106,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderOrderSide = () => (
-        <div className={`${isShowAccInputBox ? 'col-xl-5 ps-1 pe-0' : 'col-xl-2 pl-30'}`}>
+        <div className={`${isShowAccountId ? 'col-xl-5 ps-1 pe-0' : 'col-xl-2 pl-30'}`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1"> Order Side</label>
             <div className="padding-top-5">
 
@@ -153,7 +131,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     }
 
     const _renderOrderType = () => (
-        <div className={`${isShowAccInputBox ? 'col-xl-3' : 'col-xl-1'} ps-0 pe-2`}>
+        <div className={`${isShowAccountId ? 'col-xl-3' : 'col-xl-1'} ps-0 pe-2`}>
             <label htmlFor="Groups" className="d-block text-secondary mb-1">Order Type</label>
             <select className="form-select form-select-sm input-select" onChange={(e) => handleOrderType(e.target.value)}>
                 {_renderListOrderType()}
@@ -162,7 +140,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
     )
 
     const _renderDateTime = () => (
-        <div className={`${isShowAccInputBox ? 'col-xl-7' : 'col-xl-4'} px-0`}>
+        <div className={`${isShowAccountId ? 'col-xl-7' : 'col-xl-4'} px-0`}>
             <label htmlFor="CreatDateTime" className="d-block text-secondary mb-1"> Datetime</label>
             <div className="row g-2">
                 <div className="col-md-5">
@@ -219,7 +197,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                 <h6 className="card-title fs-6 mb-0">Trade History</h6>
             </div>
             <div className="card-body bg-gradient-light">
-                {isShowAccInputBox ? (
+                {isShowAccountId ? (
                     <div className="row g-2 align-items-end">
                         <div className='row col-xl-6'>
                             {_renderAccId()}
@@ -242,7 +220,7 @@ function SearchTradeHistory(props: IPropsSearchTradeHistory) {
                         {_renderOrderType()}
                         {_renderOrderSide()}
                         {_renderDateTime()}
-                     <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between">
+                    <div className="col-xl-2 mb-2 mb-xl-0 d-flex justify-content-between">
                         <a href="#" className="btn btn-primary text-white ps-3 pe-3" onClick={handleSearch}><i className="bi bi-search"></i> Search</a>
                         <a className="btn btn-success text-white ps- pe-3" onClick={() => handleDownload(true)}><i className="bi bi-cloud-download"></i> Download</a>
                     </div>

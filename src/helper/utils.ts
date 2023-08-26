@@ -528,6 +528,18 @@ export const sortTicker = (listData: IListOrderMonitoring[], isAsc: boolean) => 
     return []
 }
 
+export const calcFloorPrice = (lastPrice: number, tickSize: number, rate: number) => {
+    const floorPriceRaw = lastPrice - (lastPrice * rate)
+    const floorPrice = Math.ceil(floorPriceRaw / tickSize) * tickSize
+    return floorPrice
+}
+
+export const calcCeilingPrice = (lastPrice: number, tickSize: number, rate: number) => {
+    const ceilingPriceRaw = lastPrice + (lastPrice * rate)
+    const ceilingPrice = Math.floor(ceilingPriceRaw / tickSize) * tickSize
+    return ceilingPrice
+}
+
 export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
     const rs = {
         ceilingPrice: 0,
@@ -536,9 +548,10 @@ export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
     const symbolsList = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const ticker = symbolsList.find(e => e?.symbolCode === symbol?.symbolCode)
     if(ticker) {
-        const rate = (convertNumber(ticker?.limitRate) / 100)
-        rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : lastPrice + (lastPrice * rate)
-        rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : lastPrice - (lastPrice * rate)
+        const rate = (convertNumber(ticker.limitRate) / 100)
+        const tickerSize = convertNumber(ticker.tickSize)
+        rs.ceilingPrice = lastPrice === 0 ? convertNumber(symbol.ceiling) : calcCeilingPrice(lastPrice, tickerSize, rate)
+        rs.floorPrice = lastPrice === 0 ? convertNumber(symbol.floor) : calcFloorPrice(lastPrice, tickerSize, rate)
     }
     return rs
 }

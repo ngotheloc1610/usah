@@ -50,6 +50,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     const [teamPassword, setTeamPassword] = useState('');
     const [isInvalidMaxQty, setIsInvalidMaxQty] = useState(false);
     const [isHiddenPassword, setIsHiddenPassword] = useState(true);
+    const [isAllowClickButton, setAllowClickButton] = useState(true);
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const minOrderValue = localStorage.getItem(MIN_ORDER_VALUE) || '0';
@@ -87,6 +88,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
     }, [])
 
     const handleCancelRes = (resp: any) => {
+        debugLogFlag && console.log("Received cancel response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
         let tmp = 0;
         let msgText = resp[MSG_TEXT];
         if (resp?.orderList?.length > 1) {
@@ -107,6 +109,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             }
         })
         handleCloseConfirmPopup(false);
+        debugLogFlag && console.log("Finished process cancel order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
     }
 
     const updateMessageResponse = (statusRes: number, msgCode: number, msgText: string) => {
@@ -176,7 +179,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setContextId(currentDate.getTime());
 
             wsService.sendMessage(rpcMsg.serializeBinary());
+            debugLogFlag && console.log("Send request modify order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             wsService.getModifySubject().subscribe(resp => {
+                debugLogFlag && console.log("Received modify order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
                 let tmp = 0;
                 let msgText = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -191,6 +196,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msgText, TYPE_ORDER_RES.Modify, resp[MSG_CODE]);
+                debugLogFlag && console.log("Finised process modify order response at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             });
             handleCloseConfirmPopup(false);
         }
@@ -231,7 +237,9 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(singleOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            debugLogFlag && console.log("Send request order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
             wsService.getOrderSubject().subscribe(resp => {
+                debugLogFlag && console.log("Received order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`);
                 let tmp = 0;
                 let msg = resp[MSG_TEXT];
                 if (resp[MSG_CODE] === systemModelPb.MsgCode.MT_RET_OK) {
@@ -243,6 +251,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                     tmp = RESPONSE_RESULT.error;
                 }
                 handleOrderResponse(tmp, msg, TYPE_ORDER_RES.Order, resp[MSG_CODE]);
+                debugLogFlag && console.log("Finised process order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`); 
             });
 
             handleCloseConfirmPopup(true);
@@ -284,6 +293,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
             rpcMsg.setPayloadData(cancelOrder.serializeBinary());
             rpcMsg.setContextId(currentDate.getTime());
             wsService.sendMessage(rpcMsg.serializeBinary());
+            debugLogFlag && console.log("Send request cancel order at: ", `${moment().format('YYYY-MM-DD HH:mm:ss')}.${moment().millisecond()}`)
         }
     }
 
@@ -291,17 +301,18 @@ const ConfirmOrder = (props: IConfirmOrder) => {
         const uid = param.uid?.toString() || ''
         let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         if (isCancel) {
+            setAllowClickButton(false);
             prepareMessageCancel(accountId, uid);
             if (handleOrderCancelId) {
                 handleOrderCancelId(params?.orderId || '');
             }
-
             // after timeOutCancelOrder, if don't receive cancel response => auto stop loading
             const timeOutCancelOrder = window.globalThis.timeOutCancelResponse ? 
                             window.globalThis.timeOutCancelResponse : TIME_OUT_CANCEL_RESPONSE_DEFAULT;
             setTimeout(() => {
                 if (handleOrderCancelIdResponse) {
                     handleOrderCancelIdResponse(params?.orderId || '');
+                    handleCloseConfirmPopup(false);
                 }
             }, timeOutCancelOrder)
         }
@@ -564,8 +575,23 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                convertNumber(calValue()) > convertNumber(maxOrderValue) || !isValidatePrice();
     }
 
-    const _renderTamplate = () => (
-        <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
+    const onHideModal = () => {
+        handleCloseConfirmPopup(false)
+        setAllowClickButton(true);
+    }
+
+    const onClickDiscard = () => {
+        handleCloseConfirmPopup(false);
+        setTeamPassword('');
+        setAllowClickButton(true);
+    }
+
+    const onClickConfirm = () => {
+        sendOrder(params)
+    }
+
+    return <div className="popup-box">
+        <Modal show={true} onHide={onHideModal}>
             <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
                 <Modal.Title>
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
@@ -578,28 +604,24 @@ const ConfirmOrder = (props: IConfirmOrder) => {
                         {/* <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false) }}>
                             Close
                         </Button> */}
-                        <Button className='w-px-150' variant="primary" onClick={() => sendOrder(params)} disabled={disablePlaceOrder()}>
+                        <Button className='w-px-150' variant="primary" onClick={onClickConfirm} disabled={disablePlaceOrder()}>
                             <b>Place</b>
                         </Button>
                     </>
                 }
                 {(isModify || isCancel) &&
                     <>
-                        <Button variant="secondary" onClick={() => { handleCloseConfirmPopup(false); setTeamPassword(''); }}>
+                        <Button variant="secondary" onClick={onClickDiscard}>
                             DISCARD
                         </Button>
-                        <Button variant="primary" onClick={() => sendOrder(params)}
-                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput}>
+                        <Button variant="primary" onClick={onClickConfirm}
+                            disabled={!_disableBtnConfirm() || invalidPrice || invalidVolume || outOfPrice || isDisableInput || !isAllowClickButton}>
                             CONFIRM
                         </Button>
                     </>
                 }
             </Modal.Footer>
         </Modal>
-    )
-
-    return <div className="popup-box">
-        {_renderTamplate()}
     </div>
 }
 

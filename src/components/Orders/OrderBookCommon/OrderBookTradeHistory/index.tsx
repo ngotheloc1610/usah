@@ -1,22 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { formatCurrency, formatNumber, formatOrderTime } from '../../../../helper/utils';
 import { IListTradeHistory } from '../../../../interfaces/order.interface';
 import './OrderBookTradeHistory.css';
-import { IStyleBidsAsk } from '../../../../interfaces/order.interface';
 import { wsService } from '../../../../services/websocket-service';
-import { List, AutoSizer, CellMeasurerCache, CellMeasurer } from 'react-virtualized';
+import { Table, AutoSizer, CellMeasurerCache, CellMeasurer, Column } from 'react-virtualized';
 
 interface IPropTradeOrderBook {
     symbolCode: string;
-    styleListBidsAsk: IStyleBidsAsk;
 }
 const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
-    const { symbolCode, styleListBidsAsk } = props;
+    const { symbolCode } = props;
     const [tradeUpdate, setTradeUpdate] = useState<IListTradeHistory[]>([]);
     const [tradeEvent, setTradeEvent] = useState([]);
+    const tableBodyRef: any = useRef();
     const cache = useRef(new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 15
+        defaultHeight: 30
     }))
 
     useEffect(() => {
@@ -56,90 +55,113 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
     }
 
     const _renderTradeData = () => {
-        if (symbolCode) {
-            return (
-                <AutoSizer onResize={() => {
-                    cache.current.clearAll();
-                }}>{({ width, height }) => {
-                    return <List
-                        width={width}
-                        height={height}
-                        rowHeight={cache.current.rowHeight}
-                        rowCount={tradeUpdate.length}
-                        defferedMeasurementCache={cache.current}
-                        rowRenderer={({ key, index, parent, style }) => {
-                            const trade = tradeUpdate[index];
-                            return (
-                                <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
-                                    <tr className="odd p-10px table-trade-history" style={style}>
-                                        <td className='w-60'>{formatOrderTime(Number(trade.executedDatetime))}</td>
-                                        <td className="text-end w-20">{formatNumber(trade.executedVolume)}</td>
-                                        <td className="text-end w-20">{formatCurrency(trade.executedPrice)}</td>
-                                    </tr>
-                                </CellMeasurer>
-                            )
-                        }}
-                    />
-                }}</AutoSizer>
-            )
-        }
+        return <AutoSizer onResize={() => {
+            cache.current.clearAll();
+        }}>{({ width, height }) => {
+            let responseWidth = width
+            // Fix responsive when resize, we set default width to able to see full column
+            if (width < 322) {
+                responseWidth = 322
+            }
+            return <Table
+                width={responseWidth}
+                height={height}
+                headerHeight={30}
+                rowHeight={30}
+                rowCount={tradeUpdate.length}
+                deferredMeasurementCache={cache.current}
+                rowGetter={({ index }) => tradeUpdate[index]}
+                rowClassName="trade-data-row"
+            >
+                <Column
+                    dataKey="executedDatetime"
+                    minWidth={185}
+                    width={185}
+                    flexGrow={0.5}
+                    headerRenderer={() =>
+                        <span>Datetime</span>
+                    }
+                    cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                        <CellMeasurer
+                            cache={cache.current}
+                            columnIndex={0}
+                            key={dataKey}
+                            parent={parent}
+                            rowIndex={rowIndex}>
+                            <span>{formatOrderTime(Number(cellData))}</span>
+
+                        </CellMeasurer>
+                    }
+                />
+                <Column
+                    dataKey="executedVolume"
+                    minWidth={45}
+                    width={45}
+                    flexGrow={0.3}
+                    headerRenderer={() =>
+                        <span>Vol</span>
+                    }
+                    cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                        <CellMeasurer
+                            cache={cache.current}
+                            columnIndex={0}
+                            key={dataKey}
+                            parent={parent}
+                            rowIndex={rowIndex}>
+                            <span title={formatNumber(cellData)}>{formatNumber(cellData)}</span>
+                        </CellMeasurer>
+                    }
+                />
+                <Column
+                    dataKey="executedPrice"
+                    minWidth={48}
+                    width={48}
+                    flexGrow={0.3}
+                    headerRenderer={() =>
+                        <span>Price</span>
+                    }
+                    cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
+                        <CellMeasurer
+                            cache={cache.current}
+                            columnIndex={0}
+                            key={dataKey}
+                            parent={parent}
+                            rowIndex={rowIndex}>
+                            <span title={formatCurrency(cellData)}>{formatCurrency(cellData)}</span>
+                        </CellMeasurer>
+                    }
+                />
+            </Table>
+        }}</AutoSizer>
     }
 
-    const getTableMaxHeight = () => {
-        const isLayoutColums = styleListBidsAsk.columns || styleListBidsAsk.columnsGap;
-        const isLayoutGrid = styleListBidsAsk.grid;
-        const isLayoutSpreadSheet = styleListBidsAsk.earmarkSpreadSheet || styleListBidsAsk.spreadsheet;
-        if (isLayoutGrid) return '995px'
-        if (isLayoutColums) return '964px'
-        if (isLayoutSpreadSheet) return '532px'
+    const getRowHeight = useMemo(() => {
+        if (tradeUpdate.length === 0) {
+            return 30
+        } else {
+            return 530
+        }
+    }, [tradeUpdate]);
+
+    // This function check to show scrollbar X if screen is small
+    const isMobileScreen = () => {
+        const tableBody = tableBodyRef.current
+        if (tableBody) {
+            return tableBody.offsetWidth < 322
+        }
+        return false
     }
+
 
     return <div className="card card-trade-history">
         <div className="card-header">
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
         </div>
-        <div className="card-body p-0">
-            <div id="table_trade_history_wrapper" className="dataTables_wrapper dt-bootstrap5 no-footer">
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="dataTables_scroll">
-                            <div className="dataTables_scrollHead"
-                                style={{ position: "relative", border: "0px", width: "100%" }}>
-                                <div
-                                    style={{
-                                        position: "relative",
-                                        width: "100%",
-                                    }}
-                                >
-                                    <table width="100%" className="table table-sm table-borderless table-hover mb-0 dataTable no-footer"
-
-                                        style={{ boxSizing: "content-box" }}>
-                                        <thead className='table-trade-history'>
-                                            <tr>
-                                                <th className="sorting_disabled w-60">Datetime</th>
-                                                <th className="text-end sorting_disabled w-20">Vol</th>
-                                                <th className="text-end sorting_disabled w-20">
-                                                    <span className='pe-3 fs-075rem'>Price</span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className='d-block table-trade-history' style={{ height: getTableMaxHeight(), overflow: 'inherit' }}>
-                                            {_renderTradeData()}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-12 col-md-5">
-                    </div>
-                    <div className="col-sm-12 col-md-7">
-                    </div>
-                </div>
+        <div ref={tableBodyRef} className="card-body p-0" style={{ overflow: 'hidden', overflowX: `${getRowHeight === 30 || !isMobileScreen() ? 'hidden' : 'scroll'}` }}>
+            <div className='h-100' style={{ minHeight: getRowHeight }}>
+                {_renderTradeData()}
             </div>
         </div>
     </div>
 }
-export default React.memo(OrderBookTradeHistory);
+export default OrderBookTradeHistory;

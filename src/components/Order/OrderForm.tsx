@@ -79,6 +79,11 @@ const OrderForm = (props: IOrderForm) => {
     const [bestAskPrice, setBestAskPrice] = useState(0);
     const [bestBidPrice, setBestBidPrice] = useState(0);
 
+    // Note (bug #84737): when no lastQuote response price = close price
+    // after received lastQuote response re-render price = last price
+    // use state receivedLastQuote to check lastQuote response status
+    const [receivedLastQuote, setReceivedLastQuote] = useState(false);
+
     // NOTE: When change orderType from Market to Limit, set Price default is LastPrice or ClosePrice
     // so state limitPrice use to set LastPrice or ClosePrice
     const [limitPrice, setLimitPrice] = useState(0);
@@ -91,14 +96,6 @@ const OrderForm = (props: IOrderForm) => {
         const index = listSymbols.findIndex(item => item.symbolCode === symbolCode);
         return index >= 0;
     }
-
-    useEffect(() => {
-        listSymbols.forEach((item) => {
-            if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
-                symbolListMap.set(item.symbolCode, item);
-            }
-        })
-    }, [])
     
     useEffect(() => {
         setIsRenderPrice(true);
@@ -149,12 +146,28 @@ const OrderForm = (props: IOrderForm) => {
     }, [symbolCode, isMonitoring])
 
     useEffect(() => {
+        /*
+            NOTE: Bug 84848 + 84906
+            listSymbols is empty at the first time render cause it's parsed before websocket response
+            => symbolListMap empty => so wrong validate
+            So we add condition to set symbolListMap base on symbolCode (exist after listSymbols is not empty)
+        */
+        if(symbolCode && !symbolListMap.get(symbolCode)) {
+            listSymbols.forEach((item) => {
+                if (item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE) {
+                    symbolListMap.set(item.symbolCode, item);
+                }
+            })
+        }
+    }, [symbolCode])
+
+    useEffect(() => {
         const lastQuote = wsService.getDataLastQuotes().subscribe(lastQuoteResp => {
             if (lastQuoteResp && lastQuoteResp.quotesList) {
+                setReceivedLastQuote(true)
                 for (const quote of lastQuoteResp.quotesList) {
                     lastQuoteMap.set(quote.symbolCode, quote);
                 }
-
                 setFlagUpdateQuote(!flagUpdateQuote);
             }
         })
@@ -288,8 +301,8 @@ const OrderForm = (props: IOrderForm) => {
             const lotSize = ticker?.lotSize;
             const minLot = ticker?.minLot;
             const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(symbolItem?.lastPrice), ticker)
-
-            if (isRenderPrice && symbolItem) {
+            // when receivedLastQuote re-render price
+            if ((symbolItem && isRenderPrice) || receivedLastQuote) {
                 if (isNaN(Number(quoteInfo?.price)) || quoteInfo?.symbolCode !== symbolItem?.symbolCode) {
                     convertNumber(symbolItem?.lastPrice) === 0 ? setPrice(convertNumber(symbolItem?.prevClosePrice)) : setPrice(convertNumber(symbolItem?.lastPrice));
                     convertNumber(symbolItem?.lastPrice) === 0 ? setLimitPrice(convertNumber(symbolItem?.prevClosePrice)) : setLimitPrice(convertNumber(symbolItem?.lastPrice));
@@ -297,6 +310,7 @@ const OrderForm = (props: IOrderForm) => {
                     setPrice(convertNumber(quoteInfo?.price));
                     setLimitPrice(convertNumber(quoteInfo?.price));
                 }
+                setReceivedLastQuote(false)
             }
             
             setCeilingPrice(convertNumber(formatCurrency(ceilingPrice.toString())));
@@ -690,12 +704,12 @@ const OrderForm = (props: IOrderForm) => {
             <form action="#" className="order-form p-2 border shadow my-3" noValidate={true}>
                 <div className='row d-flex align-items-stretch mb-2'>
                     <div className={orderType === tradingModel.OrderType.OP_LIMIT ?
-                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        'col-6 text-center text-uppercase link-btn pointer p-1' : 'col-6 text-center text-uppercase pointer p-1'}
                         onClick={() => setOrderType(tradingModel.OrderType.OP_LIMIT)}>
                             Limit
                         </div>
                     <div className={orderType === tradingModel.OrderType.OP_MARKET ?
-                        'col-md-6 text-center text-uppercase link-btn pointer' : 'col-md-6 text-center text-uppercase pointer'}
+                        'col-6 text-center text-uppercase link-btn pointer p-1' : 'col-6 text-center text-uppercase pointer p-1'}
                         onClick={() => {
                             setOrderType(tradingModel.OrderType.OP_MARKET);
                         }} >

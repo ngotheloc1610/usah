@@ -20,12 +20,15 @@ import ResetTeamPassword from './pages/Authentication/reset-team-password';
 import moment from 'moment';
 import 'react-virtualized/styles.css';
 
+import worker_script from './web-worker/worker';
 const App = () => {
   const dispatch = useDispatch()
+  // create a worker, worker work what func is exported in file './web-worker/worker' 
+  // woker run scripts in an other thread
+  const worker = new Worker(worker_script)
   const [isLogin, setIsLogin] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [idleTime, setIdleTime] = useState(0);
   const [isShowIdleTimeOut, setIsShowIdleTimeOut] = useState(false);
   const [isResetTeamPassword, setIsResetTeamPassword] = useState(false);
   const isBlocked = useSelector((state: any) => state.auth.tabBlock);
@@ -46,6 +49,11 @@ const App = () => {
   })
 
   useEffect(() => {
+    // every login success send a message 'start"
+    worker.postMessage('start')
+  }, [])
+
+  useEffect(() => {
     localStorage.open_page = moment().unix();
     window.addEventListener('storage', function (e) {
       if (e.key === "open_page") {
@@ -58,31 +66,31 @@ const App = () => {
     }, false);
   }, [])
 
-  // Increment the checking time counter every 5 seconds.
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIdleTime(prev => prev + 5)
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Set the idle timer to 0 if catch event.
   useEffect(() => {
     idleEvents.forEach(event => {
-      window.addEventListener(event, () => setIdleTime(0));
+      window.addEventListener(event, () => {
+        // every user action send a message "stop", after that send a message "start" to count idle time
+        worker.postMessage('stop')
+        worker.postMessage('start')
+      });
     })
     return () => {
       idleEvents.forEach(event => {
-        window.removeEventListener(event, () => setIdleTime(0));
+        window.removeEventListener(event, () => {
+          worker.postMessage('stop')
+        });
       })
     };
   }, []);
 
   useEffect(() => {
-    if (!window.location.pathname.includes('/login') && window.globalThis.idleTimeOut < (idleTime * 1000)) {
-      setIsShowIdleTimeOut(true);
+    // worker get data from method postMessage 
+    worker.onmessage = (e) => {
+      if (!window.location.pathname.includes('/login') && window.globalThis.idleTimeOut < (e.data * 1000)) {
+        setIsShowIdleTimeOut(true);
+      }
     }
-  }, [idleTime])
+  }, [])
 
   useEffect(() => {
     checkLoginPage();
@@ -201,7 +209,7 @@ const App = () => {
       </div>
     </div>
   )
-
+  
   return (
     <>
       <PersistGate loading={null} persistor={persistor}>

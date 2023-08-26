@@ -386,14 +386,14 @@ const OrderBookCommon = () => {
 
     const _renderTemplateSearchTicker = () => {
         return <div className="row g-2 justify-content-end">
-            <div className="col-md-3">
+            <div className="col-lg-3 col-md-12">
                 <div className="input-group input-group-sm mb-2">
                     <Autocomplete
                         onChange={(event: any) => getTickerSearch(event.target.innerText)}
                         onKeyUp={handleKeyUp}
                         disablePortal
                         options={listSymbolCode}
-                        value={symbolSelected}
+                        defaultValue={symbolSelected}
                         sx={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} placeholder="Search" />}
                     />
@@ -409,11 +409,11 @@ const OrderBookCommon = () => {
     return (
         <div className="site-main">
             <div className="container">
-                <div className="row g-2 align-items-center">
-                    <div className="col-md-9">
+                <div className="row g-2 align-items-center flex-md-row-reverse flex-lg-row">
+                    <div className="col-lg-9 col-md-4">
                         {_renderTemplateSearchTicker()}
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-lg-3 col-md-8">
                         <ul className="idTabs nav align-items-center justify-content-center mb-2">
                             {_renderListStyle(isEarmarkSpreadSheet, STYLE_LIST_BIDS_ASK.earmarkSpreadSheet)}
                             {_renderListStyle(isSpreadsheet, STYLE_LIST_BIDS_ASK.spreadsheet)}
@@ -424,31 +424,29 @@ const OrderBookCommon = () => {
                     </div>
                 </div>
                 <div className="row align-items-stretch g-2">
-                    <div className="col-md-9">
-                        <div className="equal-target">
-                            <div id="layout-1">
-                                <div className="row align-items-stretch g-2">
-                                    <div className="col-md-9">
-                                        <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} handleSide={getSide} getTicerLastQuote={assgnDataFormNewOrder} />
-                                        <div className="card card-ticker w-pr-100">
-                                        </div>
+                    <div className="col-lg-9 col-md-12 mt-md-3">
+                        <div id="layout-1">
+                            <div className="row align-items-stretch g-2">
+                                <div className="col-lg-9 col-md-8">
+                                    <OrderBookList styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} handleSide={getSide} getTicerLastQuote={assgnDataFormNewOrder} />
+                                    <div className="card card-ticker w-pr-100">
                                     </div>
-                                    <div className="col-md-3">
-                                        <div className="card card-new-order d-flex flex-column mb-2 h-100">
-                                            <div className="card-header">
-                                                <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
-                                            </div>
-                                            <div className="card-body">
-                                                <OrderForm isOrderBook={true} quoteInfo={quoteInfo} side={side} isDashboard={false} symbolCode={tickerSelect} messageSuccess={messageSuccess} />
-                                            </div>
+                                </div>
+                                <div className="col-lg-3 col-md-4 col-lg-3 col-md-4 mt-md-2 mt-sm-3">
+                                    <div className="card card-new-order d-flex flex-column mb-2 h-100">
+                                        <div className="card-header">
+                                            <h6 className="card-title mb-0"><i className="icon bi bi-clipboard me-1"></i> New Order</h6>
+                                        </div>
+                                        <div className="card-body p-lg-2 p-1">
+                                            <OrderForm isOrderBook={true} quoteInfo={quoteInfo} side={side} isDashboard={false} symbolCode={tickerSelect} messageSuccess={messageSuccess} />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="col-md-3">
-                        <OrderBookTradeHistory styleListBidsAsk={listStyleBidsAsk} symbolCode={tickerSelect} />
+                    <div className="col-lg-3 col-md-12 mt-md-3 mt-sm-3">
+                        <OrderBookTradeHistory symbolCode={tickerSelect} />
                     </div>
                 </div>
             </div>
