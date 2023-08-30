@@ -21,6 +21,7 @@ import { assignListPrice, checkValue, convertDatetoTimeStamp, getSymbolCode } fr
 import { useDispatch, useSelector } from 'react-redux';
 import { chooseLayoutOrderBook } from '../../../redux/actions/User'
 import moment from 'moment';
+import { MARKET_DATA_UNSTABLE_ERROR } from '../../../constants/message.constant';
 
 const OrderBookCommon = () => {
     // State nhận nhiều kiểu dữ liệu nên sẽ khai báo là any
@@ -61,6 +62,10 @@ const OrderBookCommon = () => {
 
     const [symbolSelected, setSymbolSelected] = useState(`${listTicker[0]?.symbolCode} - ${listTicker[0]?.symbolName}`);
 
+    const [sizeScreen, setSizeScreen] = useState(window.innerWidth);
+
+    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
+
     const defaultData = () => {
         setEarmarkSpreadSheet(false);
         setSpreadsheet(false);
@@ -68,6 +73,13 @@ const OrderBookCommon = () => {
         setColumns(false);
         setColumnsGap(false);
     }
+
+    useEffect(() => {
+        window.addEventListener('resize', () => setSizeScreen(window.innerWidth));
+        return () => {
+             window.removeEventListener('resize', () => setSizeScreen(window.innerWidth));
+        };
+   }, [])
 
     useEffect(() => {
         const listStyleBidsAsk: IStyleBidsAsk = {
@@ -386,7 +398,7 @@ const OrderBookCommon = () => {
 
     const _renderTemplateSearchTicker = () => {
         return <div className="row g-2 justify-content-end">
-            <div className="col-lg-3 col-md-12">
+            <div className="col-12">
                 <div className="input-group input-group-sm mb-2">
                     <Autocomplete
                         onChange={(event: any) => getTickerSearch(event.target.innerText)}
@@ -409,9 +421,19 @@ const OrderBookCommon = () => {
     return (
         <div className="site-main">
             <div className="container">
+                {sizeScreen < 1000 && marketDataWarning && ( <p className="text-danger fz-14 mb-2">{marketDataWarning}</p>)}
                 <div className="row g-2 align-items-center flex-md-row-reverse flex-lg-row">
                     <div className="col-lg-9 col-md-4">
-                        {_renderTemplateSearchTicker()}
+                        {sizeScreen < 1000 ? _renderTemplateSearchTicker() : (
+                            <div className='row g-2 align-items-center'>
+                            <div className="col-9">
+                                <p className="text-danger fz-14 mb-2">{marketDataWarning}</p>
+                            </div>
+                            <div className="col-3">
+                                {_renderTemplateSearchTicker()}
+                            </div>
+                        </div>
+                        )}
                     </div>
                     <div className="col-lg-3 col-md-8">
                         <ul className="idTabs nav align-items-center justify-content-center mb-2">

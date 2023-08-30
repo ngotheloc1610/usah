@@ -13,6 +13,7 @@ import './OrderNew.scss'
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
 import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
 import { IQuoteEvent } from '../../../interfaces/quotes.interface'
+import { MARKET_DATA_UNSTABLE_ERROR } from '../../../constants/message.constant'
 
 const OrderNew = () => {
     const defaultItemSymbol: ISymbolList = {
@@ -40,6 +41,7 @@ const OrderNew = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
+    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
     
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -244,8 +246,10 @@ const OrderNew = () => {
     const getSide = (value: number) => {
         setSide(value);
     }
-    return <div className="site-main mt-3">
+
+    return <div className={marketDataWarning ? "mt-2" : "site-main mt-3"}>
         <div className="container">
+            {marketDataWarning && (<p className="text-danger fz-14 mb-2">{marketDataWarning}</p>)}
             <div className="card shadow mb-3">
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">New Order</h6>

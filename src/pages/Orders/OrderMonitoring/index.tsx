@@ -4,12 +4,15 @@ import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { IAskAndBidPrice } from "../../../interfaces/order.interface";
+import { MARKET_DATA_UNSTABLE_ERROR } from "../../../constants/message.constant";
 
 const OrderMonitoring = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
+
+    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
 
     const handleTicker = (itemTicker: IAskAndBidPrice) => {
         setQuoteInfo(itemTicker);
@@ -32,8 +35,9 @@ const OrderMonitoring = () => {
     }
 
     return (
-        <div className="site-main">
+        <div className={`site-main ${marketDataWarning && "pt-2"}`}>
             <div className="container">
+                {marketDataWarning && <p className="text-danger fz-14 mb-2">{marketDataWarning}</p>}
                 <div className="row align-items-stretch g-2 mb-3">
                     <div className="col-lg-9">
                         <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} getSymbolCodeRemove={handleSymbolCodeRemove} />

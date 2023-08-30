@@ -13,6 +13,7 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import { checkValue, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
+import { MARKET_DATA_UNSTABLE_ERROR } from "../../constants/message.constant";
 
 const Dashboard = () => {
     const isDashboard = true;
@@ -33,6 +34,8 @@ const Dashboard = () => {
     const [isFirstTime, setIsFirstTime] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [volumeTrade, setVolumeTrade] = useState('0');
+
+    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -324,7 +327,7 @@ const Dashboard = () => {
     }
 
     const setGeneralTemplate = () => (
-        <div className="mb-3 row">
+        <div className="mb-2 row">
             <div className="col-md-4">
                 <div className="row d-flex justify-content-center align-items-center">
                     <div className="text-center px-3 border-end col-md-4">
@@ -371,7 +374,8 @@ const Dashboard = () => {
         <div className="site-main">
             <div className="container">
                 {setGeneralTemplate()}
-                <div className="row">
+                {marketDataWarning && <p className="text-danger fz-14">{marketDataWarning}</p>}
+                <div className="row mt-2">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
                         <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />
                     </div>
