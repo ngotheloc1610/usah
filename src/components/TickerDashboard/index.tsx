@@ -24,9 +24,9 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [symbol, setSymbol] = useState<any>();
     const [symbolCodes, setSymbolCodes] = useState<string[]>([]);
-    const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
+    const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>(new Map());
     const [symbolQuoteEvent, setSymbolQuoteEvent] = useState<ISymbolQuote[]>([]);
-
+    const [triggerRender, setTriggerRender] = useState<boolean>(false);
     const queryModelPb: any = qmpb;
 
     useEffect(() => {
@@ -79,34 +79,33 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     useEffect(() => {
         setUpDataDisplay();
-    }, [quoteMap, symbolCodes, JSON.stringify(symbolQuoteEvent)])
+    }, [quoteMap, symbolCodes, JSON.stringify(symbolQuoteEvent), triggerRender])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
-        const itemQuoteMap = new Map();
         if (quotes.length > 0) {
             quotes.forEach(quote => {
                 let symbolInfo: any = null;
                 if (symbol) {
-                    symbolInfo = symbol.get(quote?.symbolCode);
+                    symbolInfo = symbol.get(quote.symbolCode);
                 }
-                const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(quote?.currentPrice), symbolInfo)
+                const {ceilingPrice, floorPrice} = calcCeilFloorPrice(convertNumber(quote.currentPrice), symbolInfo)
 
                 const prepareQuote: ISymbolQuote = {
-                    symbolCode: quote?.symbolCode,
-                    symbolId: symbolInfo?.symbolId || 0,
-                    symbolName: symbolInfo?.symbolName,
-                    prevClosePrice: formatCurrency(symbolInfo?.prevClosePrice),
-                    high: formatCurrency(quote?.high || '0.00'),
-                    low: formatCurrency(quote?.low || '0.00'),
-                    lastPrice: formatCurrency(quote?.currentPrice),
-                    open: formatCurrency(quote?.open || '0.00'),
-                    volume: quote?.volumePerDay,
+                    symbolCode: quote.symbolCode,
+                    symbolId: symbolInfo.symbolId || 0,
+                    symbolName: symbolInfo.symbolName,
+                    prevClosePrice: formatCurrency(symbolInfo.prevClosePrice),
+                    high: formatCurrency(quote.high || '0.00'),
+                    low: formatCurrency(quote.low || '0.00'),
+                    lastPrice: formatCurrency(quote.currentPrice),
+                    open: formatCurrency(quote.open || '0.00'),
+                    volume: quote.volumePerDay,
                     ceiling: formatCurrency(String(ceilingPrice)),
                     floor: formatCurrency(String(floorPrice)),
-                    change: calcChange(quote?.currentPrice, symbolInfo?.prevClosePrice),
-                    pctChange: calcPctChange(quote?.currentPrice, symbolInfo?.prevClosePrice)
+                    change: calcChange(quote.currentPrice, symbolInfo.prevClosePrice),
+                    pctChange: calcPctChange(quote.currentPrice, symbolInfo.prevClosePrice)
                 }
-                itemQuoteMap.set(quote?.symbolCode, prepareQuote);
+                quoteMap.set(quote.symbolCode, prepareQuote);
             });
         } else {
             symbolCodes.forEach(symbolCode => {
@@ -116,22 +115,22 @@ const TickerDashboard = (props: ITickerDashboard) => {
                         symbolCode: symbolInfo.symbolCode,
                         symbolId: symbolInfo.symbolId,
                         symbolName: symbolInfo.symbolName,
-                        prevClosePrice: formatCurrency(symbolInfo?.prevClosePrice),
+                        prevClosePrice: formatCurrency(symbolInfo.prevClosePrice),
                         high: '0.00',
                         low: '0.00',
                         lastPrice: '0.00',
                         open: '0.00',
                         volume: '0',
-                        ceiling: formatCurrency(symbolInfo?.ceiling),
-                        floor: formatCurrency(symbolInfo?.floor),
+                        ceiling: formatCurrency(symbolInfo.ceiling),
+                        floor: formatCurrency(symbolInfo.floor),
                         change: '0.00',
                         pctChange: '0.00'
                     };
-                    itemQuoteMap.set(symbolCode, quote);
+                    quoteMap.set(symbolCode, quote);
                 }
             });
         }
-        setQuoteMap(itemQuoteMap);
+        setTriggerRender(!triggerRender);
     }
 
     const processQuoteEvent = (quotes: IQuoteEvent[]) => {
