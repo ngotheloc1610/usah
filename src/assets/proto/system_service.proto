@@ -221,3 +221,34 @@ message UnlockAfterCloseExternalTradingResponse {
 	MsgCode msg_code		= 1;
 	string msg_text			= 2;
 }
+
+
+// Reset Dashboard End Of Trading Day
+message ResetOHLCRequest {						//Market closed, reset some fields: OHLC, Volume, Change, Change%
+}
+
+// Reset Dashboard End Of Trading Day
+message ResetOHLCResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
+
+// Market data configuration
+message MarketDataConfigRequest {
+	repeated MarketDataSource md_source	= 1;
+}
+
+message MarketDataConfigResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
+
+message WarningMessageRequest {
+	string	content			= 1;
+	bool	enable_flg		= 2;
+}
+
+message WarningMessageResponse {
+	MsgCode msg_code		= 1;
+	string msg_text			= 2;
+}
