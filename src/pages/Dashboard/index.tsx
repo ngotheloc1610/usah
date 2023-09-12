@@ -13,11 +13,13 @@ import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
 import { checkValue, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
-import { MARKET_DATA_UNSTABLE_ERROR } from "../../constants/message.constant";
+import { setWarningMessage } from "../../redux/actions/App";
+import { useDispatch, useSelector } from "react-redux";
 
 const Dashboard = () => {
     const isDashboard = true;
     const queryModelPb: any = qmpb;
+    const dispatch = useDispatch();
     const [symbolCode, setSymbolCode] = useState('');
     const [msgSuccess, setMsgSuccess] = useState<string>('');
 
@@ -34,8 +36,8 @@ const Dashboard = () => {
     const [isFirstTime, setIsFirstTime] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [volumeTrade, setVolumeTrade] = useState('0');
-
-    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
+    
+    const { warningMessage, enableFlag } = useSelector((state: any) => state.app);
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -115,6 +117,15 @@ const Dashboard = () => {
             }
         })
 
+        const warningMessage = wsService.getWarningMessage().subscribe(res => {
+            if (res) {
+                dispatch(setWarningMessage({
+                    warningMessage: res.content,
+                    enableFlag: res.enableFlg
+                }));
+            }
+        })
+
         // const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
         //     if (quote && quote.quoteList) {
         //         setQuoteEvent(quote.quoteList);
@@ -130,6 +141,7 @@ const Dashboard = () => {
             customerInfoDetailRes.unsubscribe();
             orderEvent.unsubscribe();
             unSubscribeQuoteEvent();
+            warningMessage.unsubscribe();
         }
     }, [])
     
@@ -374,7 +386,7 @@ const Dashboard = () => {
         <div className="site-main">
             <div className="container">
                 {setGeneralTemplate()}
-                {marketDataWarning && <p className="text-danger fz-14">{marketDataWarning}</p>}
+                {enableFlag && <p className="text-danger fz-14">{warningMessage}</p>}
                 <div className="row mt-2">
                     <div className="col-xs-12 col-sm-12 col-lg-12 col-xl-7 mb-3">
                         <TickerDashboard handleTickerInfo={getTickerInfo} symbolCode={symbolCode} />

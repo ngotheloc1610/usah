@@ -13,7 +13,8 @@ import './OrderNew.scss'
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
 import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
 import { IQuoteEvent } from '../../../interfaces/quotes.interface'
-import { MARKET_DATA_UNSTABLE_ERROR } from '../../../constants/message.constant'
+import { useDispatch, useSelector } from 'react-redux'
+import { setWarningMessage } from '../../../redux/actions/App'
 
 const OrderNew = () => {
     const defaultItemSymbol: ISymbolList = {
@@ -30,7 +31,7 @@ const OrderNew = () => {
         symbolName: '',
         tickSize: '',
     }
-
+    const dispatch = useDispatch();
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([])
     const [currentTicker, setCurrentTicker] = useState(DEFAULT_CURRENT_TICKER);
     const [msgSuccess, setMsgSuccess] = useState<string>('');
@@ -41,8 +42,8 @@ const OrderNew = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>();
-    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
-    
+    const { warningMessage, enableFlag } = useSelector((state: any) => state.app);
+
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED) {
@@ -50,8 +51,18 @@ const OrderNew = () => {
             }
         });
 
+        const warningMessage = wsService.getWarningMessage().subscribe(res => {
+            if (res) {
+                dispatch(setWarningMessage({
+                    warningMessage: res.content,
+                    enableFlag: res.enableFlg
+                }));
+            }
+        })
+
         return () => {
             ws.unsubscribe();
+            warningMessage.unsubscribe();
         }
     }, [])
 
@@ -247,9 +258,9 @@ const OrderNew = () => {
         setSide(value);
     }
 
-    return <div className={marketDataWarning ? "mt-2" : "site-main mt-3"}>
+    return <div className={enableFlag && warningMessage ? "mt-2" : "site-main mt-3"}>
         <div className="container">
-            {marketDataWarning && (<p className="text-danger fz-14 mb-2">{marketDataWarning}</p>)}
+            {enableFlag && (<p className="text-danger fz-14 mb-2">{warningMessage}</p>)}
             <div className="card shadow mb-3">
                 <div className="card-header">
                     <h6 className="card-title fs-6 mb-0">New Order</h6>

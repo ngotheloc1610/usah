@@ -1,10 +1,12 @@
 import "./orderMonitoring.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
 import { IAskAndBidPrice } from "../../../interfaces/order.interface";
-import { MARKET_DATA_UNSTABLE_ERROR } from "../../../constants/message.constant";
+import { wsService } from "../../../services/websocket-service";
+import { useDispatch, useSelector } from "react-redux";
+import { setWarningMessage } from "../../../redux/actions/App";
 
 const OrderMonitoring = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');
@@ -12,7 +14,8 @@ const OrderMonitoring = () => {
     const [symbolCode, setSymbolCode] = useState('');
     const [side, setSide] = useState(0);
 
-    const [marketDataWarning, setMarketDataWarning] = useState<string>(MARKET_DATA_UNSTABLE_ERROR);
+    const dispatch = useDispatch();
+    const { warningMessage, enableFlag } = useSelector((state: any) => state.app);
 
     const handleTicker = (itemTicker: IAskAndBidPrice) => {
         setQuoteInfo(itemTicker);
@@ -34,10 +37,25 @@ const OrderMonitoring = () => {
         setSide(value);
     }
 
+    useEffect(() => {
+        const warningMessage = wsService.getWarningMessage().subscribe(res => {
+            if (res) {
+                dispatch(setWarningMessage({
+                    warningMessage: res.content,
+                    enableFlag: res.enableFlg
+                }));
+            }
+        })
+
+        return () => {
+            warningMessage.unsubscribe();
+        }
+    }, []);
+
     return (
-        <div className={`site-main ${marketDataWarning && "pt-2"}`}>
+        <div className={`site-main ${enableFlag && "pt-2"}`}>
             <div className="container">
-                {marketDataWarning && <p className="text-danger fz-14 mb-2">{marketDataWarning}</p>}
+                {enableFlag && <p className="text-danger fz-14 mb-2">{warningMessage}</p>}
                 <div className="row align-items-stretch g-2 mb-3">
                     <div className="col-lg-9">
                         <ListTicker getTicerLastQuote={handleTicker} msgSuccess={msgSuccess} handleSide={getSide} getSymbolCodeRemove={handleSymbolCodeRemove} />

@@ -70,5 +70,3 @@ export const MESSAGE_ERROR = new Map([
   export const MESSAGE_ERROR_FILE_UPLOAD = (field: string) => {
     return `Invalid file template. File doesn't have ${field} Field`
   }
-
-  export const MARKET_DATA_UNSTABLE_ERROR = 'Market data from other platform are unstable. Screen shows only true and correct orders. Some hidden orders might be existing. Please trade carefully.';
