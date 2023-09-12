@@ -35,6 +35,7 @@ const subscribeTradeEventSubject = new Subject();
 const unsubscribeTradeEventSubject = new Subject();
 const orderEventSubject = new Subject();
 const tradeSubject = new Subject();
+const warningMessageSubject = new Subject();
 let isRender = true;
 const debugLogFlag = window.globalThis.debugLogFlag;
 const startWs = async () => {
@@ -178,6 +179,10 @@ const startWs = async () => {
             const orderEvent = tradingService.OrderEvent.deserializeBinary(msg.getPayloadData());
             orderEventSubject.next(orderEvent.toObject());
         }
+        if (payloadClass === rpc.RpcMessage.Payload.WARNING_MESSAGE_REQ) {
+            const warningMessageReq = systemService.WarningMessageRequest.deserializeBinary(msg.getPayloadData());
+            warningMessageSubject.next(warningMessageReq.toObject());
+        }
     }
 
     const intervalId = setInterval(() => {
@@ -211,6 +216,6 @@ export const wsService = {
     getSubscribeTradeSubject: () => subscribeTradeEventSubject.asObservable(),
     getUnsubscribeTradeSubject: () => unsubscribeTradeEventSubject.asObservable(),
     getTradeEvent: () => tradeSubject.asObservable(),
-    getOrderEvent: () => orderEventSubject.asObservable()
-
+    getOrderEvent: () => orderEventSubject.asObservable(),
+    getWarningMessage: () => warningMessageSubject.asObservable()
 }
