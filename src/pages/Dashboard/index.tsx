@@ -344,11 +344,11 @@ const Dashboard = () => {
                 <div className="row d-flex justify-content-center align-items-center">
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Matched Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : accountDetail?.numTrades}</div>
+                        <div className="fw-600">{accountDetail ? accountDetail.numTrades : "-"}</div>
                     </div>
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Pending Orders</div>
-                        <div className="fw-600">{isLoading ? '-' : accountDetail?.numPendingOrders}</div>
+                        <div className="fw-600">{accountDetail ? accountDetail.numPendingOrders : "-"}</div>
                     </div>
                     <div className="text-center px-3 col-md-4">
                         <div className="small fw-bold">% P/L</div>
