@@ -9,5 +9,6 @@ window.globalThis = {
     "timeOutMultiOrderResponse": 30000,
     "marketDepthLenghtOrderBook": 15,
     "marketDepthLenghtDashboard": 10,
-    "debugLogFlag": false
+    "debugLogFlag": false,
+    "bigOrderValueInUSD": 100000,
 }

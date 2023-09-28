@@ -11,10 +11,12 @@ import OrderTradeHistory from "../pages/Orders/OrderTradeHistory"
 import SummaryTrading from "../pages/Orders/SummaryTrading"
 import OrderModifyCancel from "../pages/Orders/OrderModifyCancel";
 import MultiTraderControl from "../pages/Orders/MultiTraderControl";
+import BigOrderMonitoring from "../pages/Orders/BigOrderMonitoring";
 const OrderRouter = () => {
     return (
       <div>
         <Routes>
+          <Route path="/big-order-monitoring" element={<BigOrderMonitoring />} />
           <Route path="/monitoring" element={<OrderMonitoring />} />
           <Route path="/history" element={<OrderHistory />} />
           <Route path="/new" element={<OrderNew />} />

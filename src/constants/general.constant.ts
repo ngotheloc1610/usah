@@ -208,6 +208,8 @@ export const MATCH_NOTI_FLAG = 'MATCH_NOTI_FLAG';
 
 export const LIST_WATCHING_TICKERS = 'LIST_WATCHING_TICKERS';
 
+export const LIST_WATCHING_TICKERS_BIG = 'LIST_WATCHING_TICKERS_BIG';
+
 export const ACCOUNT_ID = 'lp_account_id';
 
 export const POEM_ID = 'lp_poem_id';
