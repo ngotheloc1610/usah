@@ -31,7 +31,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const [quoteEvent, setQuoteEvent] = useState([]);
     const [quote, setQuote] = useState<ILastQuote>(DEFAULT_DATA_TICKER);
     const [ticker, setTicker] = useState<string>('');
-    const [quoteMap, setQuoteMap] = useState<Map<string, ILastQuote>>();
+    const [quoteMap, setQuoteMap] = useState<Map<string, ILastQuote>>(new Map());
 
     useEffect(() => {
         const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuote => {
@@ -107,6 +107,8 @@ const OrderBook = (props: IOrderBookProps) => {
                         open: checkValue(quoteUpdate?.open, item?.open)
                     }
                     quoteMap.set(item.symbolCode, quoteUpdate)
+                } else {
+                    quoteMap.set(item.symbolCode, item)
                 }
             }
         })
@@ -115,7 +117,7 @@ const OrderBook = (props: IOrderBookProps) => {
     const processQuoteEvent = (quotes: ILastQuote[]) => {
         if (quote) {
             let temp = { ...quote };
-            const item = quotes.find(o => o?.symbolCode === quote?.symbolCode);
+            const item = quotes.find(o => o?.symbolCode === ticker);
             if (item) {
                 temp = {
                     ...temp,

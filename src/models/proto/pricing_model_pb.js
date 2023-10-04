@@ -1437,7 +1437,8 @@ proto.Chart.prototype.setSymbolCode = function(value) {
 proto.RouteQuote = {
   QUOTE_NONE: 0,
   QUOTE_USAH: 1,
-  QUOTE_REFINITIV: 2
+  QUOTE_REFINITIV: 2,
+  QUOTE_ICE: 3
 };
 
 goog.object.extend(exports, proto);

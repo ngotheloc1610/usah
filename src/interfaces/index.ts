@@ -107,3 +107,8 @@ export interface IClientHoldingInforData {
   symbolsfx: string;
   ownQty: number;
 }
+
+export interface IWarningMessage {
+  warningMessage: string;
+  enableFlag: boolean;
+}

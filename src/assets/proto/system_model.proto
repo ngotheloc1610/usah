@@ -138,6 +138,11 @@ enum SessionStatusCode {
 	SESSION_NOTFOUND    = 4;
 }
 
+message MarketDataSource {
+	string	exchange_name	= 1;
+	bool	enable_flg		= 2;
+} 
+
 //return code
 enum MsgCode {
 	MT_RET_OK_NONE					= 0;
