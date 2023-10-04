@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import OrderBook from "../../components/Order/OrderBook";
 import OrderForm from "../../components/Order/OrderForm";
 import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, LIST_WATCHING_TICKERS_BIG, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../constants/general.constant";
 import { IAskAndBidPrice, ILastQuote, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
 import './Dashboard.scss';
 import { wsService } from "../../services/websocket-service";
@@ -11,7 +11,7 @@ import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
 import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
-import { checkValue, convertNumber, formatCurrency, getClassName } from "../../helper/utils";
+import { checkValue, convertNumber, filterActiveListWatching, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
 import { setWarningMessage } from "../../redux/actions/App";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,15 +72,8 @@ const Dashboard = () => {
                 localStorage.setItem(LIST_TICKER_ALL, JSON.stringify(res.symbolList));
                 if (symbolListActive.length > 0) {
                     const temps: string[] = [];
-                    const newWatchList: any[] = [];
-                    const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
-                    watchList.forEach(item => {
-                        const idx = symbolListActive.findIndex(o => o?.symbolCode === item?.symbolCode);
-                        if (idx >= 0) {
-                            newWatchList.push(item);
-                        }
-                    });
-                    localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(newWatchList));
+                    filterActiveListWatching(LIST_WATCHING_TICKERS, symbolListActive);
+                    filterActiveListWatching(LIST_WATCHING_TICKERS_BIG, symbolListActive)
                     symbolListActive.forEach(item => {
                         if (item) {
                             temps.push(item?.symbolCode);
@@ -89,6 +82,7 @@ const Dashboard = () => {
                     setListTickerSearch(temps);
                 } else {
                     localStorage.removeItem(LIST_WATCHING_TICKERS);
+                    localStorage.removeItem(LIST_WATCHING_TICKERS_BIG);
                 }
                 if (symbolListActive[0] && isFirstTime) {
                     setSymbolCode(symbolListActive[0]?.symbolCode || '');

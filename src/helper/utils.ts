@@ -555,3 +555,15 @@ export const calcCeilFloorPrice = (lastPrice: number, symbol: any) => {
     }
     return rs
 }
+
+export const filterActiveListWatching = (listKey, listActive) => {
+    const newWatchList: any[] = [];
+    const watchList = JSON.parse(localStorage.getItem(listKey) || '[]');
+    watchList.forEach(item => {
+        const idx = listActive.findIndex(o => o?.symbolCode === item?.symbolCode);
+        if (idx >= 0) {
+            newWatchList.push(item);
+        }
+    });
+    localStorage.setItem(listKey, JSON.stringify(newWatchList));
+}

@@ -17,6 +17,12 @@ export const ROUTER_MONITORING = [
         title: 'Order',
         subTab: [
             {
+                navigation: `${process.env.PUBLIC_URL}/orders/big-order-monitoring`,
+                icon: '',
+                title: 'Big Order Monitoring',
+                subTab: []
+            },
+            {
                 navigation: `${process.env.PUBLIC_URL}/orders/monitoring`,
                 icon: '',
                 title: 'Order Monitoring',
@@ -113,6 +119,12 @@ export const ROUTER_TRADER = [
         icon: 'icon bi bi-clipboard me-1',
         title: 'Order',
         subTab: [
+            {
+                navigation: `${process.env.PUBLIC_URL}/orders/big-order-monitoring`,
+                icon: '',
+                title: 'Big Order Monitoring',
+                subTab: []
+            },
             {
                 navigation: `${process.env.PUBLIC_URL}/orders/monitoring`,
                 icon: '',
