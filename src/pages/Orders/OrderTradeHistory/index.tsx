@@ -3,15 +3,13 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState,} from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE, } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { IParamSearchTradeHistory, IParamSearchComponentTradeHistory } from "../../../interfaces/order.interface";
-import moment from "moment";
 
 const OrderTradeHistory = () => {
     const tradingModelPb: any = tmpb;
-    // in firefox not support parse date to timestamp when day and month over 2 number (2023-010-05) 
-    const today = moment().format(FORMAT_DATE);
+    const today = `${new Date().getFullYear()}-0${(new Date().getMonth() + 1)}-${new Date().getDate()}`;
     const fromDateDefault = convertDatetoTimeStamp(today, FROM_DATE_TIME);
     const toDateDefault = convertDatetoTimeStamp(today, TO_DATE_TIME);
 
