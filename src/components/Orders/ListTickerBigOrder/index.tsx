@@ -13,7 +13,7 @@ import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { toast } from "react-toastify";
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
@@ -516,6 +516,9 @@ const ListTickerBigOrder = (props: IListTickerProps) => {
 
                 <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">
                     <div className="row row-monitoring g-2">
+                        {!isEmpty(pageShowCurrentLastQuote) && <p className="fz-14 mb-1 note-text">
+                            {`On this screen, orderbook show the pending orders with value larger than USD${formatNumber(String(bigOrderValue))} only.`}
+                        </p>}
                         {renderListDataTicker()}
                     </div>
                 </div>
