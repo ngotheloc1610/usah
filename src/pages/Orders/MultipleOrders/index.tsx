@@ -890,7 +890,7 @@ const MultipleOrders = () => {
     }
 
     const checkSymbol = (symbolCode: string) => {
-        const idx = symbolListActive.findIndex(o => o?.symbolCode === symbolCode);
+                const idx = symbolListActive.findIndex(o => o?.symbolCode === symbolCode);
         return idx >= 0;
     }
 
@@ -904,16 +904,16 @@ const MultipleOrders = () => {
 
     const processData = (dataString: string) => {
         const dataStringLines = dataString.split(/\r\n|\n/);
-        const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-        if (hasDuplicates(headers)) {
+                const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (hasDuplicates(headers)) {
             toast.error("Invalid file template. File has duplicated fields");
             return;
         }
         const list = [...listTickers];
         for (let i = 1; i < dataStringLines.length; i++) {
             const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-            if (headers && row.length === headers.length) {
-                const obj: any = {};
+                        if (headers && row.length === headers.length) {
+                                const obj: any = {};
                 for (let j = 0; j < headers.length; j++) {
                     let d = row[j];
                     if (d.length > 0) {
@@ -1063,7 +1063,7 @@ const MultipleOrders = () => {
             const wsname = wb.SheetNames[0];
             const ws = wb.Sheets[wsname];
             /* Convert array of arrays */
-            const data = XLSX.utils.sheet_to_csv(ws);
+            const data = XLSX.utils.sheet_to_csv(ws, {blankrows: false});
             processData(data);
         };
         reader.readAsBinaryString(file);
