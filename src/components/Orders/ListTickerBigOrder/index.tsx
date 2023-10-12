@@ -516,8 +516,8 @@ const ListTickerBigOrder = (props: IListTickerProps) => {
 
                 <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">
                     <div className="row row-monitoring g-2">
-                        {!isEmpty(pageShowCurrentLastQuote) && <p className="fz-14 mb-1 note-text">
-                            {`On this screen, orderbook show the pending orders with value larger than USD${formatNumber(String(bigOrderValue))} only.`}
+                        {!isEmpty(pageShowCurrentLastQuote) && <p className="big-order-note text-danger">
+                            {`On this screen, orderbook show only orders with value larger than USD${formatNumber(String(bigOrderValue))} and among 30 best bid & 30 best offer.`}
                         </p>}
                         {renderListDataTicker()}
                     </div>
