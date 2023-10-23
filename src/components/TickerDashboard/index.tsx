@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import {useEffect, useMemo, useState } from "react"
 import { calcCeilFloorPrice, calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
-import { ILastQuote, ISymbolInfo, ISymbolQuote } from "../../interfaces/order.interface";
+import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
 import * as qmpb from "../../models/proto/query_model_pb";
 import { wsService } from "../../services/websocket-service";
 import './TickerDashboard.scss';
@@ -80,6 +80,17 @@ const TickerDashboard = (props: ITickerDashboard) => {
     useEffect(() => {
         setUpDataDisplay();
     }, [quoteMap, symbolCodes, JSON.stringify(symbolQuoteEvent), triggerRender])
+
+    useEffect(() => {
+        const element = document.getElementById(symbolCode);
+        if(element){
+            const box = document.getElementById("ticker-box");
+            if(box){
+                const elementPosition = element.offsetTop - box.offsetTop;
+                box.scrollTo({ behavior: "smooth", top: elementPosition});
+            }
+        }
+    }, [symbolCode])
 
     const processLastQuote = (quotes: ILastQuote[]) => {
         if (quotes.length > 0) {
@@ -225,7 +236,7 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
     const renderDataListCompany = () => {
         return listData.map((item: ISymbolQuote, index) => (
-            <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode ? 'table-active' : ''}`}>
+            <tr key={index} onClick={() => onClickTickerInfo(item)} className={`"pointer_dashboard" ${item.symbolCode === symbolCode ? 'table-active' : ''}`} id={item.symbolCode}>
                 <td className="text-left w-header fw-600" title={item.symbolName}>{item.symbolCode}</td>
                 <td className="text-end w-header fw-600">{item.prevClosePrice}</td>
                 <td className="text-end w-header fw-600">{item.ceiling}</td>
@@ -257,13 +268,13 @@ const TickerDashboard = (props: ITickerDashboard) => {
     const renderDataList = useMemo(() => renderDataListCompany(), [listData, symbolCode])
 
     const _renderTableData = () => (
-        <div className="tableFixHead max-height-72">
+        <div className="tableFixHead max-height-72" id="ticker-box">
             <table id="table" className="table table-sm table-hover mb-0" >
                 <thead>
                     {headerTable()}
                 </thead>
 
-                <tbody className="bt-none fs-14">
+                <tbody className="bt-none fs-14" >
                     {renderDataList}
                 </tbody>
             </table>

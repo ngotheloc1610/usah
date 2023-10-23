@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
+import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS_BIG, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, IListOrderMonitoring, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
 import * as pspb from "../../../models/proto/pricing_service_pb";
@@ -13,11 +13,14 @@ import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { toast } from "react-toastify";
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
+import { cloneDeep, isEmpty } from "lodash";
+
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;
     msgSuccess?: string;
     getSymbolCodeRemove: (item: string) => void;
+    isBigOrderScreen?: boolean;
 }
 
 const defaultProps = {
@@ -26,7 +29,7 @@ const defaultProps = {
 
 const dafaultLastQuotesData: ILastQuote[] = [];
 
-const ListTicker = (props: IListTickerProps) => {
+const ListTickerBigOrder = (props: IListTickerProps) => {
     const { getTicerLastQuote, handleSide, getSymbolCodeRemove } = props;
     const [lastQuotes, setLastQuotes] = useState(dafaultLastQuotesData);
     const tradingModel: any = tdpb;
@@ -41,8 +44,10 @@ const ListTicker = (props: IListTickerProps) => {
 
     const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[]');
     const currentAccId = sessionStorage.getItem(ACCOUNT_ID);
-    const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+    const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS_BIG) || '[]');
     const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
+
+    const bigOrderValue = window.globalThis.bigOrderValueInUSD;
 
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
@@ -53,7 +58,14 @@ const ListTicker = (props: IListTickerProps) => {
         });
 
         const lastQuotesRes = wsService.getDataLastQuotes().subscribe(resp => {
-            setLastQuotes(resp.quotesList);
+            const quotesList = cloneDeep(resp.quotesList);
+            quotesList.forEach(quote => {
+                const bigAsksList = quote.asksList.filter(e => e?.price * e?.volume >= bigOrderValue);
+                const bigBidsList = quote.bidsList.filter(e => e?.price * e?.volume >= bigOrderValue);
+                quote.asksList = bigAsksList;
+                quote.bidsList = bigBidsList;
+            })
+            setLastQuotes(quotesList);
         });
 
         const listOrder = wsService.getListOrder().subscribe(response => {
@@ -62,7 +74,14 @@ const ListTicker = (props: IListTickerProps) => {
 
         const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
             if (quote && quote.quoteList) {
-                setQuoteEvent(quote.quoteList);
+                const quotesList = cloneDeep(quote.quoteList);
+                quotesList.forEach(quote => {
+                    const bigAsksList = quote.asksList.filter(e => e?.price * e?.volume >= bigOrderValue);
+                    const bigBidsList = quote.bidsList.filter(e => e?.price * e?.volume >= bigOrderValue);
+                    quote.asksList = bigAsksList;
+                    quote.bidsList = bigBidsList;
+                })
+                setQuoteEvent(quotesList);
             }
         });
 
@@ -257,7 +276,7 @@ const ListTicker = (props: IListTickerProps) => {
 
     const btnAddTicker = (symbolCodeAdd) => {
         if (symbolCodeAdd) {
-            const currentWactchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+            const currentWactchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS_BIG) || '[]');
             const checkExist = currentWactchList.find(o => o?.symbolCode === symbolCodeAdd && o?.accountId === currentAccId);
             if (!checkExist) {
                 const tempWatchList = {
@@ -266,7 +285,7 @@ const ListTicker = (props: IListTickerProps) => {
                 };
                 currentWactchList.push(tempWatchList);
                 subscribeQuoteEvent([tempWatchList]);
-                localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
+                localStorage.setItem(LIST_WATCHING_TICKERS_BIG, JSON.stringify(currentWactchList));
                 const ownWatchList = currentWactchList.filter(o => o?.accountId === currentAccId);
                 const currentPage = Math.ceil(ownWatchList.length / pageSizeTicker);
                 setCurrentPage(currentPage);
@@ -414,12 +433,12 @@ const ListTicker = (props: IListTickerProps) => {
             unSubscribeQuoteEvent([itemLstQuote]);
         }
         getSymbolCodeRemove(itemLstQuote.symbolCode);
-        const currentWactchList: IWatchList[] = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const currentWactchList: IWatchList[] = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS_BIG) || '[]');
         const idx = currentWactchList.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode && o?.accountId === currentAccId);
         if (idx >= 0) {
             currentWactchList.splice(idx, 1);
         }
-        localStorage.setItem(LIST_WATCHING_TICKERS, JSON.stringify(currentWactchList));
+        localStorage.setItem(LIST_WATCHING_TICKERS_BIG, JSON.stringify(currentWactchList));
         const idxQuote = ownWatchList?.findIndex(o => o?.symbolCode === itemLstQuote?.symbolCode);
         if (idxQuote >= 0) {
             setIsDeleteTicker(true);
@@ -475,7 +494,7 @@ const ListTicker = (props: IListTickerProps) => {
     }
 
     const _renderButtonNext = () => {
-        const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const watchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS_BIG) || '[]');
         const ownWatchList = watchList.filter(o => o?.accountId === currentAccId);
         const totalPage = Math.ceil(ownWatchList.length / pageSizeTicker);
         if (currentPage < totalPage) {
@@ -486,7 +505,7 @@ const ListTicker = (props: IListTickerProps) => {
         return '';
     }
     const handleDisplayPaging = () => {
-        const ownWatchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS) || '[]');
+        const ownWatchList = JSON.parse(localStorage.getItem(LIST_WATCHING_TICKERS_BIG) || '[]');
         return ownWatchList.length > pageSizeTicker;
     }
 
@@ -497,6 +516,9 @@ const ListTicker = (props: IListTickerProps) => {
 
                 <div className="col-xs-11 col-sm-11 col-md-11 col-lg-11 w-99">
                     <div className="row row-monitoring g-2">
+                        {!isEmpty(pageShowCurrentLastQuote) && <p className="big-order-note text-danger">
+                            {`On this screen, orderbook show only orders with value larger than USD${formatNumber(String(bigOrderValue))} and among 30 best bid & 30 best offer.`}
+                        </p>}
                         {renderListDataTicker()}
                     </div>
                 </div>
@@ -520,6 +542,6 @@ const ListTicker = (props: IListTickerProps) => {
     )
 }
 
-ListTicker.defaultProps = defaultProps;
+ListTickerBigOrder.defaultProps = defaultProps;
 
-export default ListTicker;
+export default ListTickerBigOrder;

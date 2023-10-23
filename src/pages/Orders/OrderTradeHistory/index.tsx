@@ -3,7 +3,7 @@ import SearchTradeHistory from './SearchTradeHistory'
 import TableTradeHistory from './TableTradeHistory'
 import '../OrderHistory/orderHistory.scss'
 import { useState,} from 'react';
-import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE, } from '../../../constants/general.constant';
+import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { IParamSearchTradeHistory, IParamSearchComponentTradeHistory } from "../../../interfaces/order.interface";
 
