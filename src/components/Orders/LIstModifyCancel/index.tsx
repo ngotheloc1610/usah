@@ -1,23 +1,26 @@
-import PaginationComponent from "../../../Common/Pagination";
-import "./ListModifyCancel.css";
+import { memo, useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+import { wsService } from "../../../services/websocket-service";
 import * as tspb from "../../../models/proto/trading_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import { wsService } from "../../../services/websocket-service";
-import React, { useEffect, useState } from "react";
-import { IListOrderModifyCancel, IListPendingOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import * as qspb from "../../../models/proto/query_service_pb"
+
+import { IListOrderModifyCancel, IListPendingOrder, IParamOrderModifyCancel } from "../../../interfaces/order.interface";
 import { ACCOUNT_ID, LIST_TICKER_ALL, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, START_PAGE, TITLE_CONFIRM, SORT_MODIFY_CANCEL_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
 import { DEFAULT_ITEM_PER_PAGE } from '../../../constants/order.constant';
 import { calcPendingVolume, formatCurrency, formatNumber, formatOrderTime, checkMessageError, convertNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost, renderCurrentList } from "../../../helper/utils";
-import ConfirmOrder from "../../Modal/ConfirmOrder";
-import { toast } from "react-toastify";
-import PopUpConfirm from "../../Modal/PopUpConfirm";
 import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
-import axios from "axios";
 import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
 import { IParamPendingOrder } from "../../../interfaces";
 import { success, unAuthorised } from "../../../constants";
+
+import PaginationComponent from "../../../Common/Pagination";
+import ConfirmOrder from "../../Modal/ConfirmOrder";
+import PopUpConfirm from "../../Modal/PopUpConfirm";
+import "./ListModifyCancel.css";
 
 interface IPropsListModifyCancel {
     orderSide: number;
@@ -772,4 +775,4 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
         />}
     </div>
 }
-export default React.memo(ListModifyCancel);
+export default memo(ListModifyCancel);

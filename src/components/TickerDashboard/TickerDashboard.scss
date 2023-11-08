@@ -12,8 +12,8 @@
 }
 
 .header-cell {
-    background-color: #DCE7F4 !important;
-    color: #16365C;
+    background: var(--bg-light) !important;
+    color: var(--bg-dark);
     font-size: 0.75rem;
     font-weight: 600;
     padding-top: 0.35rem;
@@ -34,7 +34,7 @@
 
 .w-px-15 {
     width: 17px;
-    background-color: #DCE7F4 !important;
+    background: var(--bg-light) !important;
 }
 
 .fs-14 {
@@ -110,7 +110,7 @@
 
 .card-header-style {
     padding: 0.5rem 0.45rem;
-    background-color: #16365C;
+    background: var(--bg-dark);
     color: #fff;
     border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
 }

@@ -18,7 +18,7 @@
   margin-top: calc(100vh - 85vh - 20px);
   background: #fff;
   color: #fff;
-  background-color: #16365C;
+  background: var(--bg-dark);
   padding: 20px;
   border-bottom: 1px solid #999;
   overflow: auto;
@@ -110,7 +110,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background-color: #16365c;
+  background: var(--bg-dark);
   color: #fff;
 }
 
@@ -124,7 +124,7 @@
   margin-top: 300px;
   left: auto;
   z-index: 99;
-  background-color: #fff;
+  background: #fff;
   border-radius: 3px;
   padding: 0 !important;
 }
@@ -133,7 +133,7 @@
   font-size: 0.85rem;
   outline: none;
   border: none;
-  background-color: #16365c;
+  background: var(--bg-dark);
   color: #fff;
 }
 

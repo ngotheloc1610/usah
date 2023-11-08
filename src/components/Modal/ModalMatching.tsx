@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { LIST_TICKER_INFO, ORDER_TYPE_NAME, SIDE } from "../../constants/general.constant";
 import * as tspb from '../../models/proto/trading_model_pb';
+
+import { ORDER_TYPE_NAME, SIDE } from "../../constants/general.constant";
 import { DATA_MATCHING_DETAIL } from "../../mocks";
-import { formatCurrency, formatNumber, formatOrderTime } from "../../helper/utils";
 
 interface IPropsModalDetail {
     getStatusFromModal: (item: boolean) => void;
@@ -11,15 +10,6 @@ interface IPropsModalDetail {
 const ModalMatching = (props: IPropsModalDetail) => {
     const { getStatusFromModal } = props
     const tradingModelPb: any = tspb;
-    const [listTicker, setListTicker] = useState(JSON.parse(localStorage.getItem(LIST_TICKER_INFO) || '[{}]'))
-
-    const getTickerCode = (symbolId: string) => {
-        return listTicker.find(item => item.symbolId.toString() === symbolId)?.ticker;
-    }
-
-    const getTickerName = (symbolId: string) => {
-        return listTicker.find(item => item.symbolId.toString() === symbolId)?.tickerName;
-    }
 
     const getSideName = (sideId: number) => {
         return SIDE.find(item => item.code === sideId)?.title;

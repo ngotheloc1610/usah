@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+
+import { wsService } from '../../services/websocket-service'
+
 import { LIST_TICKER_INFO } from '../../constants/general.constant'
 import { calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber } from '../../helper/utils'
 import { ILastQuote, ITickerInfo } from '../../interfaces/order.interface'
 import { IQuoteEvent } from '../../interfaces/quotes.interface'
 import { ITickerDetail } from '../../interfaces/ticker.interface'
 import { DEFAULT_TICKER_DATA } from '../../mocks'
+
 import '../../pages/Orders/OrderNew/OrderNew.scss'
-import { wsService } from '../../services/websocket-service'
 
 interface ITickerDetailProps {
     currentTicker: ITickerInfo;
@@ -170,12 +173,12 @@ const TickerDetail = (props: ITickerDetailProps) => {
 
     const _renderLastPrice = () => (
         <tr className="align-middle">
-            <th className='w-precent-15'>
+            <th className='w-precent-15 text-theme'>
                 <div>Last Price</div>
                 <div className='mt-10'>Change</div>
             </th>
             {_renderLastPriceTemplate(tickerInfo.lastPrice)}
-            <th className='w-precent-15'>Open</th>
+            <th className='w-precent-15 text-theme'>Open</th>
             <td className="text-end fw-600">{tickerInfo.open ? formatNumber(tickerInfo.open) : defaultTickerDetails.open}</td>
         </tr>
     )
@@ -183,17 +186,17 @@ const TickerDetail = (props: ITickerDetailProps) => {
     const _renderGeneralTemplate = (title1: string, value1: string, title2: string, value2: string) => (
         <tr className="align-middle">
             <th>
-                <div className="h-50px">{title1}</div>
+                <div className="h-50px text-theme">{title1}</div>
             </th>
             <td className="text-end fw-600 w-precent-41">{value1}</td>
-            <th className='w-precent-15'>{title2}</th>
+            <th className='w-precent-15 text-theme'>{title2}</th>
             <td className="text-end fw-600">{value2}</td>
         </tr>
     )
 
     const _renderMiniumSize = () => (
         <tr className="align-middle">
-            <th className='w-precent-15'>
+            <th className='w-precent-15 text-theme'>
                 <div>Min Lot</div>
                 <div className='mt-10'>Tick Size</div>
             </th>
@@ -201,7 +204,7 @@ const TickerDetail = (props: ITickerDetailProps) => {
                 <div>{formatNumber(tickerInfo?.minLot ? tickerInfo.minLot : '0')}</div>
                 <div>{formatNumber(tickerInfo?.tickSize ? tickerInfo.tickSize : '0')}</div>
             </td>
-            <th className='w-precent-15'>Low</th>
+            <th className='w-precent-15 text-theme'>Low</th>
             <td className="text-end fw-600">{formatNumber(tickerInfo?.low ? tickerInfo?.low : '0')}</td>
         </tr>
     )

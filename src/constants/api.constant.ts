@@ -10,6 +10,10 @@ export const API_GET_TRADING_RESULT = '/v1/market/trading-results';
 
 export const API_GET_TOTAL_UNREAD = '/v1/market/account/summary';
 
+export const API_GET_SUMMARY_ORDERS = '/v1/market/account/orders/summary';
+
+export const API_POST_ACCOUNT_PORTFOLIO = "/v1/market/account/portfolio"
+
 export const API_POST_CHANGE_PASSWORD = '/v1/auth/lp/change-password';
 
 export const API_RESET_PASSWORD = '/v1/auth/lp/reset-password';

@@ -1,16 +1,21 @@
-import "./MultiTrader.scss"
+import { useEffect, useRef, useState } from 'react';
+import axios from "axios";
+
 import { wsService } from "../../../services/websocket-service";
-import * as sspb from "../../../models/proto/system_service_pb"
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rpcpb from "../../../models/proto/rpc_pb";
-import { useEffect, useRef, useState } from 'react';
+
 import { ACCOUNT_ID, FROM_DATE_TIME, LIST_TICKER_ALL, LIST_TICKER_INFO, SOCKET_CONNECTED, SOCKET_RECONNECTED, SUB_ACCOUNTS, TO_DATE_TIME } from '../../../constants/general.constant';
-import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName, calcOwnedVolAccountId } from "../../../helper/utils";
+import { convertDatetoTimeStamp, convertNumber, formatCurrency, formatNumber, getClassName, calcOwnedVolAccountId, defindConfigPost } from "../../../helper/utils";
 import { IPortfolio, ISymbolInfo, ITradingAccountVertical, IOrderPortfolio } from "../../../interfaces/order.interface";
+import { API_POST_ACCOUNT_PORTFOLIO } from "../../../constants/api.constant";
+import { success } from "../../../constants";
+
+import "./MultiTrader.scss"
 
 const MultiTraderTable = () => {
+    const api_url = window.globalThis.apiUrl;
     const [dataTradeHistory, setDataTradeHistory] = useState<any>([]);
-    const [accountId, setAccountId] = useState('');
     const [listTicker, setListTicker] = useState<ISymbolInfo[]>(JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || "[]"));
     const [dataTotalAccount, setDataTotalAccount] = useState<ITradingAccountVertical[]>([]);
     const [dataHasOwnedVolume, setDataHasOwnedVolume] = useState<ITradingAccountVertical[]>([]);
@@ -42,17 +47,9 @@ const MultiTraderTable = () => {
     useEffect(() => {
         const ws = wsService.getSocketSubject().subscribe(resp => {
             if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendMessageMultiTrader(lstId)
                 sendTradeHistoryReq();
             }
         });
-
-        const renderDataToScreen = wsService.getAccountPortfolio().subscribe(res => {
-            if (res && res.accountPortfolioList) {
-                setTotalAccountPortfolio(res.accountPortfolioList);
-            }
-        });
-
 
         const getTradeHistory = wsService.getTradeHistory().subscribe(res => {
             setDataTradeHistory(res.tradeList)
@@ -60,7 +57,6 @@ const MultiTraderTable = () => {
 
         return () => {
             ws.unsubscribe();
-            renderDataToScreen.unsubscribe();
             getTradeHistory.unsubscribe();
         }
     }, [])
@@ -68,6 +64,25 @@ const MultiTraderTable = () => {
     useEffect(() => {
         processPortfolio(totalAccountPortfolio)
     }, [totalAccountPortfolio])
+
+    useEffect(() => {
+        getAccountPortfolio();
+    }, []);
+
+    const getAccountPortfolio = () => {
+        const url = `${api_url}${API_POST_ACCOUNT_PORTFOLIO}`;
+        const payload = {
+            "account_ids": lstId
+        }
+        axios.post(url, payload, defindConfigPost()).then((resp) => {
+            if (resp.data.meta.code === success) {
+                const portfolios = resp.data.data.portfolios;
+                setTotalAccountPortfolio(portfolios);
+            }
+        }).catch((error: any) => {
+            console.log("Failed to get account portfolio", error);
+        });
+    }
 
     const reportWindowSize = () => {
         if (clientWidth.current) {
@@ -181,27 +196,6 @@ const MultiTraderTable = () => {
     const sendTradeHistoryReq = () => {
         let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
         buildMessage(accountId);
-    }
-
-    const sendMessageMultiTrader = (lstAccountIds: string[]) => {
-        setAccountId(accountId)
-        const systemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
-            lstAccountIds.forEach(item => {
-                if (item) {
-                    accountPortfolioRequest.addAccountId(Number(item));
-                }
-            })
-            const rpcModel: any = rpcpb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
-            rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
     }
 
     const _rederMultiTraderInvest = () => {

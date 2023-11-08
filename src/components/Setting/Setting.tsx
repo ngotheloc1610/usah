@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
-import { defindConfigPost, validationPassword } from '../../helper/utils'
-import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
+import axios from 'axios';
+
+import { wsService } from '../../services/websocket-service';
 import * as sspb from '../../models/proto/system_service_pb';
 import * as rspb from "../../models/proto/rpc_pb";
-import { wsService } from '../../services/websocket-service';
+
+import { defindConfigPost, validationPassword } from '../../helper/utils'
+import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
 import { IAccountDetail } from '../../interfaces/customerInfo.interface'
 import { API_POST_CHANGE_PASSWORD } from '../../constants/api.constant';
-import axios from 'axios';
 import { IReqChangePassword } from '../../interfaces';
 import { errorPastPassword, success } from '../../constants';
 
@@ -26,7 +28,7 @@ const Setting = (props: ISetting) => {
     const api_url = window.globalThis.apiUrl;
     const urlPostChangePassword = `${api_url}${API_POST_CHANGE_PASSWORD}`;
 
-    const { isChangePassword, isNotification, customerInfoDetail } = props
+    const { isChangePassword, customerInfoDetail } = props
     const systemServicePb: any = sspb
     const [password, setPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
@@ -36,8 +38,6 @@ const Setting = (props: ISetting) => {
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
     const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
     const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
-    const [customerInfoSetting, setCustomerInfoSetting] = useState([])
-    const [statusOrder, setStatusOrder] = useState(0);
     const [checkPass, setCheckPass] = useState(false)
     const [checkNewPass, setCheckNewPass] = useState(false)
     const [checkConfirm, setCheckConfirm] = useState(false)

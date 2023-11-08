@@ -1,27 +1,30 @@
 import { useEffect, useState } from 'react';
-import OrderForm from '../../../components/Order/OrderForm';
-import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
-import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
-import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
-import { IAskAndBidPrice, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
-import { ILastQuote } from '../../../interfaces/order.interface';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { wsService } from "../../../services/websocket-service";
 import * as pspb from "../../../models/proto/pricing_service_pb";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as rpcpb from '../../../models/proto/rpc_pb';
-import { wsService } from "../../../services/websocket-service";
-import './OrderBookCommon.scss';
 import * as qspb from "../../../models/proto/query_service_pb";
 import * as tspb from "../../../models/proto/trading_service_pb";
+
+import { STYLE_LIST_BIDS_ASK } from '../../../constants/order.constant';
+import { IAskAndBidPrice, IStyleBidsAsk, ISymbolInfo, ITickerInfo } from '../../../interfaces/order.interface';
+import { ILastQuote } from '../../../interfaces/order.interface';
 import { SOCKET_CONNECTED, LIST_TICKER_INFO, LIST_PRICE_TYPE, SOCKET_RECONNECTED, FORMAT_DATE, FROM_DATE_TIME, TO_DATE_TIME } from '../../../constants/general.constant';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER, DEFAULT_STYLE_LAYOUT } from '../../../mocks';
 import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 import { assignListPrice, checkValue, convertDatetoTimeStamp, getSymbolCode } from '../../../helper/utils';
-import { useDispatch, useSelector } from 'react-redux';
 import { chooseLayoutOrderBook } from '../../../redux/actions/User'
-import moment from 'moment';
 import { setWarningMessage } from '../../../redux/actions/App';
+
+import OrderForm from '../../../components/Order/OrderForm';
+import OrderBookList from '../../../components/Orders/OrderBookCommon/OrderBookList';
+import OrderBookTradeHistory from '../../../components/Orders/OrderBookCommon/OrderBookTradeHistory';
+import './OrderBookCommon.scss';
 
 const OrderBookCommon = () => {
     // State nhận nhiều kiểu dữ liệu nên sẽ khai báo là any

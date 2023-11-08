@@ -1,6 +1,8 @@
-import React, { FC } from "react"
+import { FC, memo } from "react"
 import { Modal, Button } from "react-bootstrap"
+
 import { IProgressBarModal } from "../../../interfaces/order.interface"
+
 import './ProgressBarModal.scss';
 
 const ProgressBarModal: FC<IProgressBarModal> = (props) => {
@@ -33,4 +35,4 @@ const ProgressBarModal: FC<IProgressBarModal> = (props) => {
     </Modal>
 }
 
-export default React.memo(ProgressBarModal);
+export default memo(ProgressBarModal);

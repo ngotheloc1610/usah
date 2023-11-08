@@ -244,6 +244,10 @@ export const TEAM_ID = 'team_id';
 
 export const TEAM_ROLE = 'team_role';
 
+export const THEME_TRADE = 'theme_trade';
+
+export const DEFAULT_THEME_TRADE = 'usah';
+
 export const STATUS_ORDER = {
     success: 'SUCCESS',
     rejected: 'REJECTED'

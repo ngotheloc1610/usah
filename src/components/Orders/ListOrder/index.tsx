@@ -1,26 +1,29 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
-import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
-import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
-import { IListOrderMonitoring, IParamOrderModifyCancel, IListOrderApiRes } from "../../../interfaces/order.interface";
-import * as tspb from '../../../models/proto/trading_model_pb';
-import './ListOrder.scss';
+import { memo, useEffect, useRef, useState } from "react";
+import { Table, AutoSizer, CellMeasurerCache, CellMeasurer, Column } from 'react-virtualized';
+import { toast } from "react-toastify";
+import axios from "axios";
+import moment from "moment";
+
 import { wsService } from "../../../services/websocket-service";
+import * as tspb from '../../../models/proto/trading_model_pb';
 import * as qspb from "../../../models/proto/query_service_pb"
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as qmpb from "../../../models/proto/query_model_pb";
+
+import { ACCOUNT_ID, MESSAGE_TOAST, ORDER_TYPE, RESPONSE_RESULT, SIDE, SOCKET_CONNECTED, SOCKET_RECONNECTED, SORT_MONITORING_SCREEN, TEAM_CODE } from "../../../constants/general.constant";
+import { calcPendingVolume, checkMessageError, convertNumber, formatCurrency, formatOrderTime } from "../../../helper/utils";
+import { IListOrderMonitoring, IParamOrderModifyCancel, IListOrderApiRes } from "../../../interfaces/order.interface";
 import { formatNumber, sortDateTime, sortPrice, sortSide, sortTicker, defindConfigPost } from "../../../helper/utils";
-import ConfirmOrder from "../../Modal/ConfirmOrder";
-import { toast } from "react-toastify";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
 import sendMsgSymbolList from "../../../Common/sendMsgSymbolList";
-import PopUpConfirm from "../../Modal/PopUpConfirm";
 import { TYPE_ORDER_RES } from "../../../constants/order.constant";
 import { DEFAULT_DATA_MODIFY_CANCEL } from "../../../mocks";
-import axios from "axios";
 import { API_GET_PENDING_ORDER } from "../../../constants/api.constant";
 import { GET_DATA_ALL_ACCOUNT, PAGE_SIZE_GET_ALL_ORDER_LIST, START_PAGE, DEFAULT_ROW_HEIGHT } from "../../../constants/general.constant";
-import moment from "moment";
-import { Table, AutoSizer, CellMeasurerCache, CellMeasurer, Column } from 'react-virtualized';
+
+import ConfirmOrder from "../../Modal/ConfirmOrder";
+import PopUpConfirm from "../../Modal/PopUpConfirm";
+import './ListOrder.scss';
 
 interface IPropsListOrder {
     getMsgSuccess: string;
@@ -900,7 +903,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     The key props will force React to re-build the DOM tree every time the view is changed 
                 */}
                 <div key={Math.random().toString(36).slice(2)} ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === DEFAULT_ROW_HEIGHT || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
-                    <div className={`${!isShowFullData ? 'mh-350' : ''} `} style={{ minHeight: getRowHeight() }}>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''} theme-header`} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
                     </div>
                 </div>
@@ -928,4 +931,4 @@ const ListOrder = (props: IPropsListOrder) => {
     )
 }
 
-export default React.memo(ListOrder);
+export default memo(ListOrder);

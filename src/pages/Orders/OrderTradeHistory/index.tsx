@@ -1,12 +1,15 @@
+import { useState} from 'react';
+import moment from "moment";
+
 import * as tmpb from "../../../models/proto/trading_model_pb"
-import SearchTradeHistory from './SearchTradeHistory'
-import TableTradeHistory from './TableTradeHistory'
-import '../OrderHistory/orderHistory.scss'
-import { useState,} from 'react';
+
 import { ACCOUNT_ID, FROM_DATE_TIME, TO_DATE_TIME, DEFAULT_ITEM_PER_PAGE, START_PAGE, FORMAT_DATE } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp } from '../../../helper/utils';
 import { IParamSearchTradeHistory, IParamSearchComponentTradeHistory } from "../../../interfaces/order.interface";
-import moment from "moment";
+
+import SearchTradeHistory from './SearchTradeHistory'
+import TableTradeHistory from './TableTradeHistory'
+import '../OrderHistory/orderHistory.scss'
 
 const OrderTradeHistory = () => {
     const tradingModelPb: any = tmpb;

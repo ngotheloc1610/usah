@@ -1,6 +1,7 @@
 import { wsService } from "../services/websocket-service";
 import * as qspb from '../models/proto/query_service_pb'
 import * as rspb from "../models/proto/rpc_pb";
+
 import { ACCOUNT_ID } from '../constants/general.constant';
 
 function sendMsgSymbolList() {

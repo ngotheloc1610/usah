@@ -1,22 +1,24 @@
-import './Modal.scss';
-import '../../pages/Orders/OrderNew/OrderNew.scss';
-import { IParamOrderModifyCancel } from '../../interfaces/order.interface';
 import { useEffect, useState } from 'react';
+import NumberFormat from 'react-number-format';
+import { toast } from 'react-toastify';
+import { Button, Modal } from 'react-bootstrap';
+import Decimal from 'decimal.js';
+import moment from 'moment';
+
 import { wsService } from '../../services/websocket-service';
 import * as tmpb from '../../models/proto/trading_model_pb';
 import * as tspb from '../../models/proto/trading_service_pb';
 import * as rpc from '../../models/proto/rpc_pb';
 import * as smpb from '../../models/proto/system_model_pb';
-import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+
+import { ACCOUNT_ID, CURRENCY, LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, MSG_CODE, MSG_TEXT, ORDER_TYPE, RESPONSE_RESULT, SIDE, SIDE_NAME, TEAM_CODE, TIME_OUT_CANCEL_RESPONSE_DEFAULT, TITLE_CONFIRM, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
 import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, checkVolumeLotSize } from '../../helper/utils';
 import { TYPE_ORDER_RES } from '../../constants/order.constant';
-import NumberFormat from 'react-number-format';
 import { HANDLE_MODIFY_REQUEST, HANDLE_NEW_ORDER_REQUEST, MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../constants/message.constant';
-import { toast } from 'react-toastify';
-import { Button, Modal } from 'react-bootstrap';
-import Decimal from 'decimal.js';
-import moment from 'moment';
-import { Autocomplete } from '@mui/material';
+import { IParamOrderModifyCancel } from '../../interfaces/order.interface';
+
+import './Modal.scss';
+import '../../pages/Orders/OrderNew/OrderNew.scss';
 
 interface IConfirmOrder {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -59,7 +61,6 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     const debugLogFlag = window.globalThis.debugLogFlag;
 
-    const teamId = sessionStorage.getItem(TEAM_ID) || '0';
     const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
 
@@ -592,7 +593,7 @@ const ConfirmOrder = (props: IConfirmOrder) => {
 
     return <div className="popup-box">
         <Modal show={true} onHide={onHideModal}>
-            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header closeButton style={{ background: "var(--bg-dark)", color: "#fff" }}>
                 <Modal.Title>
                     <span className='h5'>{isModify ? TITLE_CONFIRM['modify'] : isCancel ? TITLE_CONFIRM['cancel'] : TITLE_CONFIRM['newOrder']}</span>
                 </Modal.Title>

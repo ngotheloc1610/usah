@@ -1,6 +1,6 @@
 .card .card-header {
     padding: 0.5rem 0.75rem;
-    background-color: #16365C;
+    background: var(--bg-dark);
     color: #fff;
 }
 
@@ -18,12 +18,12 @@
 
 .btn-primary-custom {
     color: #fff !important;
-    background-color: #16365C !important;
-    border-color: #16365C !important;
+    background: var(--bg-dark) !important;
+    border-color: var(--bg-dark) !important;
 }
 
 .color-primary {
-    color: #16365C !important;
+    color: var(--bg-dark) !important;
 }
 
 .border {
@@ -31,15 +31,15 @@
 }
 
 .table.table-i tbody tr th {
-    background-color: #DCE7F4;
-    color: #16365C;
+    background: var(--bg-light);
+    color: var(--bg-dark);
     font-size: 0.8em;
     width: 160px;
 }
 
 .table thead tr th {
-    background-color: #DCE7F4;
-    color: #16365C;
+    background: var(--bg-light);
+    color: var(--text-theme);
     font-size: 0.75rem;
     font-weight: 600;
     padding-top: 0.35rem;
@@ -61,20 +61,20 @@ thead, tbody, tfoot, tr, td, th {
 }
 
 .bg-success-light {
-    background-color: #E5ECE4 !important;
+    background: #E5ECE4 !important;
 }
 
 .bg-light {
     --bs-bg-opacity: 1;
-    background-color: rgba(var(--bs-light-rgb), var(--bs-bg-opacity)) !important;
+    background: rgba(var(--bs-light-rgb), var(--bs-bg-opacity)) !important;
 }
 
 .bg-danger-light {
-    background-color: #F8E5E5 !important;
+    background: #F8E5E5 !important;
 }
 
 .order-form .order-btn-group .btn-buy.selected {
-    background-color: #66B55D;
+    background: #66B55D;
 }
 
 .order-form .order-btn-group .btn:first-of-type {
@@ -83,16 +83,16 @@ thead, tbody, tfoot, tr, td, th {
 }
 
 .order-form .order-btn-group .btn {
-    background-color: #ccc;
+    background: #ccc;
     line-height: 1.2;
 }
 
 .order-form .order-btn-group .btn-sell.selected {
-    background-color: #ED1C24;
+    background: #ED1C24;
 }
 
 .btn-disabled:disabled {
-    background-color: #ccc;
+    background: #ccc;
 }
 
 .fs-17 {

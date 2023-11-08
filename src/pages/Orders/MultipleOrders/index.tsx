@@ -1,31 +1,33 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE, TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT } from "../../../constants/general.constant";
-import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
+import { toast } from "react-toastify";
+import { Autocomplete, TextField } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import NumberFormat from "react-number-format";
+import Decimal from "decimal.js";
+import { Button, Modal } from "react-bootstrap";
+import moment from "moment";
+import * as XLSX from 'xlsx';
+
 import { wsService } from "../../../services/websocket-service";
 import * as rspb from "../../../models/proto/rpc_pb";
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as pspb from '../../../models/proto/pricing_service_pb';
-import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice, calcChange, calcPctChange, checkValue } from "../../../helper/utils";
-import './multipleOrders.scss';
 import * as tdspb from '../../../models/proto/trading_service_pb';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as qmpb from '../../../models/proto/query_model_pb';
-import { toast } from "react-toastify";
-import * as XLSX from 'xlsx';
-import { Autocomplete, TextField } from "@mui/material";
+
+import { ACCOUNT_ID, LIST_TICKER_INFO, MESSAGE_TOAST, MSG_CODE, MSG_TEXT, STATUS_ORDER, RESPONSE_RESULT, SIDE_NAME, START_PAGE, CURRENCY, TITLE_ORDER_CONFIRM, LIST_TICKER_ALL, MIN_ORDER_VALUE, MAX_ORDER_VOLUME, SOCKET_CONNECTED, ORDER_TYPE, MAX_ORDER_VALUE, TIME_OUT_MULTI_ORDER_RESPONSE_DEFAULT } from "../../../constants/general.constant";
+import { ISymbolMultiOrder, IOrderListResponse, ILastQuote, ISymbolQuote } from "../../../interfaces/order.interface";
+import { formatNumber, formatCurrency, calcPriceIncrease, calcPriceDecrease, convertNumber, handleAllowedInput, getSymbolCode, checkMessageError, renderSideText, checkPriceTickSize, calcDefaultVolumeInput, getExtensionFile, hasDuplicates, convertValueIncreaseLostSize, convertValueDecreaseLostSize, convertValueDecreaseTickSize, convertValueIncreaseTickSize, calcCeilFloorPrice } from "../../../helper/utils";
 import { FILE_MULTI_ORDER_SAMPLE, ICON_FILE } from "../../../assets";
-import { useDispatch, useSelector } from "react-redux";
-import { keepListOrder } from '../../../redux/actions/Orders';
 import { ORDER_RESPONSE } from "../../../constants";
-import NumberFormat from "react-number-format";
 import { INSUFFICIENT_QUANTITY_FOR_THIS_TRADE, INVALID_PRICE, INVALID_VOLUME, MESSAGE_ERROR, MESSAGE_ERROR_FILE_UPLOAD } from "../../../constants/message.constant";
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID } from "../../../constants/order.constant";
-import Decimal from "decimal.js";
-import { Button, Modal } from "react-bootstrap";
-import moment from "moment";
 import LazyLoad from "../../../components/lazy-load";
-import { IQuoteEvent } from "../../../interfaces/quotes.interface";
 import { ISymbolList } from "../../../interfaces/ticker.interface";
+import { keepListOrder } from '../../../redux/actions/Orders';
+
+import './multipleOrders.scss';
 
 const MultipleOrders = () => {
     const listOrderDispatch = useSelector((state: any) => state.orders.listOrder);
@@ -55,7 +57,6 @@ const MultipleOrders = () => {
     const [isShowNotiErrorPrice, setIsShowNotiErrorPrice] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
-    const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]); 
     const [symbolInfor, setSymbolInfor] = useState<ISymbolQuote[]>([]);
     const [quoteMap, setQuoteMap] = useState<Map<string, ISymbolQuote>>();
     const [symbolListMap, setSymbolListMap] = useState<Map<string, ISymbolList>>(new Map());
@@ -1435,7 +1436,7 @@ const MultipleOrders = () => {
 
     const _renderOrderForm = () => (
         <Modal show={true} onHide={() => resetOrderForm()}>
-            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header closeButton style={{ background: "var(--bg-dark)", color: "#fff" }}>
                 <Modal.Title>
                     <h5>Add Order</h5>
                 </Modal.Title>
@@ -1504,7 +1505,7 @@ const MultipleOrders = () => {
 
     const _renderPopupConfirm = () => {
         return <Modal className="custom" show={true} onHide={() => setShowModalConfirmMultiOrders(false)}>
-            <Modal.Header style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header style={{ background: "var(--bg-dark)", color: "#fff" }}>
                 <Modal.Title>
                     <h5>Multiple Orders</h5>
                 </Modal.Title>

@@ -1,11 +1,13 @@
-import {useEffect, useMemo, useState } from "react"
+import {memo, useEffect, useMemo, useState } from "react"
+
+import { wsService } from "../../services/websocket-service";
+import * as qmpb from "../../models/proto/query_model_pb";
+
 import { calcCeilFloorPrice, calcChange, calcPctChange, checkValue, convertNumber, formatCurrency, formatNumber, getClassName } from "../../helper/utils"
 import { ILastQuote, ISymbolQuote } from "../../interfaces/order.interface";
-import * as qmpb from "../../models/proto/query_model_pb";
-import { wsService } from "../../services/websocket-service";
-import './TickerDashboard.scss';
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
-import React from "react";
+
+import './TickerDashboard.scss';
 
 interface ITickerDashboard {
     handleTickerInfo: (item: ISymbolQuote) => void;
@@ -301,4 +303,4 @@ const TickerDashboard = (props: ITickerDashboard) => {
 
 TickerDashboard.defaultProps = defaultProps
 
-export default React.memo(TickerDashboard)
+export default memo(TickerDashboard)

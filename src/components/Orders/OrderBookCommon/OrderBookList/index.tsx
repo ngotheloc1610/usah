@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
+
+import { wsService } from '../../../../services/websocket-service';
+import * as tdpb from '../../../../models/proto/trading_model_pb';
+
 import { LIST_PRICE_TYPE, MARKET_DEPTH_LENGTH_ORDER_BOOK_DEFAULT } from '../../../../constants/general.constant';
 import { TITLE_LIST_BID_ASK, TITLE_LIST_BID_ASK_COLUMN, TITLE_LIST_BID_ASK_COLUMN_GAB, TITLE_LIST_BID_ASK_SPREADSHEET } from '../../../../constants/order.constant';
 import { IAskAndBidPrice, IAsksBidsList, ILastQuote, IListAskBid, IPropsListBidsAsk } from '../../../../interfaces/order.interface';
-import './OrderBoolListBidsAsk.scss';
-import * as tdpb from '../../../../models/proto/trading_model_pb';
-import { wsService } from '../../../../services/websocket-service';
 import { IQuoteEvent } from '../../../../interfaces/quotes.interface';
 import { calcVolumeDESC, calcVolumeASC, checkValue, convertNumber, formatCurrency, formatNumber, getListAsksBids } from '../../../../helper/utils';
 import { DEFAULT_ASK_BID_LIST, DEFAULT_ORDER_BOOK } from '../../../../mocks';
+
+import './OrderBoolListBidsAsk.scss';
 
 const defaultAskBidList: IListAskBid[] = [
     {

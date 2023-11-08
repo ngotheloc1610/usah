@@ -6,7 +6,7 @@
 }
 
 .page-nav .nav-item .nav-link.active {
-    background-color: #C5D9F1;
+    background: #C5D9F1;
     color: #2F80ED;
     font-weight: bold;
     border-left-color: #2F80ED;
@@ -41,7 +41,7 @@
     border: 0;
     border-radius: 0;
     border-left: 2px solid #C5D9F1;
-    background-color: #fafcff;
+    background: #fafcff;
     padding-top: 0;
     padding-bottom: 0;
 }
@@ -53,7 +53,7 @@
 }
 
 .page-nav .nav-item .dropdown-menu .dropdown-item.active, .page-nav .nav-item .dropdown-menu .dropdown-item:focus {
-    background-color: #e2e9f1;
+    background: #e2e9f1;
     color: #000;
     font-weight: bold;
 }

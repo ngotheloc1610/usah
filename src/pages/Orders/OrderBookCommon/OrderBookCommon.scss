@@ -8,9 +8,9 @@
     background: rgb(238,238,238);
 }
 .idTabs .btn-outline-secondary.selected {
-    border: 1px solid #16365C;
-    color: #16365C;
-    background-color: #C5D9F1;
+    border: 1px solid var(--bg-dark);
+    color: var(--bg-dark);
+    background: #C5D9F1;
 }
 .table > tbody {
     vertical-align: inherit;
@@ -44,7 +44,7 @@ strong {
     --bs-gray-700: #495057;
     --bs-gray-800: #343a40;
     --bs-gray-900: #212529;
-    --bs-primary: #16365C;
+    --bs-primary: var(--bg-dark);
     --bs-secondary: #6c757d;
     --bs-success: #66B55D;
     --bs-info: #5C9BCA;

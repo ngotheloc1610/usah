@@ -1,7 +1,6 @@
 import { REPORT_LIST } from '../../mocks'
 import { IReportList } from '../../interfaces/report.interface'
 import './Report.scss'
-import Pagination from "../../Common/Pagination"
 
 function Report() {
 

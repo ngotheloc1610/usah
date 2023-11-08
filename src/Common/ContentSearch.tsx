@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT } from "../constants/general.constant";
-import { ISymbolList } from "../interfaces/ticker.interface"
+import { memo, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+
 import { wsService } from "../services/websocket-service";
 import * as tmpb from "../models/proto/trading_model_pb"
 import * as smpb from '../models/proto/system_model_pb';
-import { toast } from "react-toastify";
-import { convertNumber, getSymbolCode } from "../helper/utils";
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
+
+import { ACCOUNT_ID, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT } from "../constants/general.constant";
+import { ISymbolList } from "../interfaces/ticker.interface"
 import { IParamSearchPendingOrder } from "../interfaces";
+import { convertNumber, getSymbolCode } from "../helper/utils";
+
 import useFetchApiAccount from "../customsHook/useFetchApiAccount";
 
 interface IPropsContentSearch {
@@ -194,4 +197,4 @@ const ContentSearch = (props: IPropsContentSearch) => {
 
 
 }
-export default React.memo(ContentSearch)
+export default memo(ContentSearch)

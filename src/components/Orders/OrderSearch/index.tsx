@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { IDataOrderHistory, IHistorySearchStatus } from '../../../interfaces/order.interface'
+import { useState, useEffect, useRef, memo } from 'react'
+import { toast } from 'react-toastify';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import moment from 'moment';
+
+import { wsService } from "../../../services/websocket-service";
 import * as tmpb from "../../../models/proto/trading_model_pb"
 import * as smpb from '../../../models/proto/system_model_pb';
-import { wsService } from "../../../services/websocket-service";
+
+import { IParamOrderHistory } from '../../../interfaces';
+import { IDataOrderHistory, IHistorySearchStatus } from '../../../interfaces/order.interface'
 import { ACCOUNT_ID, FORMAT_DATE, FROM_DATE_TIME, LIST_TICKER_INFO, MSG_CODE, MSG_TEXT, ORDER_TYPE_SEARCH, RESPONSE_RESULT, 
     START_PAGE, 
     STATE_HISTORY_SEARCH, TO_DATE_TIME, DEFAULT_TIMESTAMP_GET_ALL } from '../../../constants/general.constant';
 import { convertDatetoTimeStamp, convertNumber, getSymbolCode } from '../../../helper/utils';
 import { ISymbolList } from '../../../interfaces/ticker.interface';
-import { toast } from 'react-toastify';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import { IParamOrderHistory } from '../../../interfaces';
-import moment from 'moment';
+
 import useFetchApiAccount from '../../../customsHook/useFetchApiAccount';
 interface IPropsOrderSearchHistory {
     resetFlagSearch: (isSearch: boolean) => void;
@@ -319,4 +322,4 @@ function OrderHistorySearch(props: IPropsOrderSearchHistory) {
     )
 }
 
-export default React.memo(OrderHistorySearch)
+export default memo(OrderHistorySearch)

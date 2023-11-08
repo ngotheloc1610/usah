@@ -1,24 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
-import OrderBook from "../../components/Order/OrderBook";
-import OrderForm from "../../components/Order/OrderForm";
-import TickerDashboard from "../../components/TickerDashboard";
-import { ACCOUNT_ID, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, LIST_WATCHING_TICKERS_BIG, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../constants/general.constant";
-import { IAskAndBidPrice, ILastQuote, IPortfolio, ISymbolInfo, ISymbolQuote, ITickerInfo, IAccountDetail } from "../../interfaces/order.interface";
-import './Dashboard.scss';
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+
 import { wsService } from "../../services/websocket-service";
 import * as rspb from "../../models/proto/rpc_pb";
 import * as pspb from '../../models/proto/pricing_service_pb';
 import * as qspb from '../../models/proto/query_service_pb';
-import * as sspb from "../../models/proto/system_service_pb";
 import * as qmpb from "../../models/proto/query_model_pb";
-import { checkValue, convertNumber, filterActiveListWatching, formatCurrency, getClassName } from "../../helper/utils";
+
+import { ACCOUNT_ID, LIST_TICKER_ALL, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, LIST_WATCHING_TICKERS_BIG, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../constants/general.constant";
+import { IAskAndBidPrice, ILastQuote, IPortfolio, ISymbolQuote, ITickerInfo, ISummaryOrder } from "../../interfaces/order.interface";
+import { checkValue, convertNumber, defindConfigPost, filterActiveListWatching, formatCurrency, getClassName } from "../../helper/utils";
 import { IQuoteEvent } from "../../interfaces/quotes.interface";
+import { API_GET_SUMMARY_ORDERS, API_POST_ACCOUNT_PORTFOLIO } from "../../constants/api.constant";
+import { success } from "../../constants";
 import { setWarningMessage } from "../../redux/actions/App";
-import { useDispatch, useSelector } from "react-redux";
+
+import OrderBook from "../../components/Order/OrderBook";
+import OrderForm from "../../components/Order/OrderForm";
+import TickerDashboard from "../../components/TickerDashboard";
+import './Dashboard.scss';
 
 const Dashboard = () => {
     const isDashboard = true;
     const queryModelPb: any = qmpb;
+    const api_url = window.globalThis.apiUrl;
+
     const dispatch = useDispatch();
     const [symbolCode, setSymbolCode] = useState('');
     const [msgSuccess, setMsgSuccess] = useState<string>('');
@@ -30,7 +37,7 @@ const Dashboard = () => {
     const [symbolQuote, setSymbolQuote] = useState<ISymbolQuote>();
     const [quoteInfo, setQuoteInfo] = useState<IAskAndBidPrice>()
     const [portfolio, setPortfolio] = useState<IPortfolio[]>([]);
-    const [accountDetail, setAccountDetail] = useState<IAccountDetail>();
+    const [accountDetail, setAccountDetail] = useState<ISummaryOrder>();
     const [lastQuotes, setLastQuotes] = useState<ILastQuote[]>([]);
     const [quoteEvent, setQuoteEvent] = useState<IQuoteEvent[]>([]);
     const [isFirstTime, setIsFirstTime] = useState(true);
@@ -45,11 +52,6 @@ const Dashboard = () => {
                 callSymbolListRequest();
             }
 
-            if (resp === SOCKET_CONNECTED || resp === SOCKET_RECONNECTED) {
-                sendAccountPortfolio();
-                sendAccountDetail();
-            }
-
             if (resp === SOCKET_RECONNECTED) {
                 const symbols = JSON.parse(localStorage.getItem(LIST_TICKER_ALL) || '[]');
                 const symbolListActive = symbols.filter(item => item.symbolStatus !== queryModelPb.SymbolStatus.SYMBOL_DEACTIVE);
@@ -60,7 +62,8 @@ const Dashboard = () => {
 
         const orderEvent = wsService.getOrderEvent().subscribe(resp => {
             if (resp && resp.orderList) {
-                sendAccountDetail();
+                 //TODO: check if have many OrderEvent in 1 time -> lattency 
+                getSummaryOrders();
             }
         })
 
@@ -93,18 +96,6 @@ const Dashboard = () => {
             }
         });
 
-        const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
-            if (res && res.accountPortfolioList) {
-                setPortfolio(res.accountPortfolioList);
-            }
-        });
-
-        const customerInfoDetailRes = wsService.getCustomerInfoDetail().subscribe(res => {   
-            if (res && res.account) {
-                setAccountDetail(res.account);
-            }
-        });
-
         const lastQuote = wsService.getDataLastQuotes().subscribe(quote => {
             if (quote && quote.quotesList) {
                 setLastQuotes(quote.quotesList);
@@ -120,19 +111,10 @@ const Dashboard = () => {
             }
         })
 
-        // const quoteEvent = wsService.getQuoteSubject().subscribe(quote => {
-        //     if (quote && quote.quoteList) {
-        //         setQuoteEvent(quote.quoteList);
-        //     }
-        // });
-
         return () => {
             ws.unsubscribe();
             renderDataSymbolList.unsubscribe();
-            portfolioRes.unsubscribe();
-            // quoteEvent.unsubscribe();
             lastQuote.unsubscribe();
-            customerInfoDetailRes.unsubscribe();
             orderEvent.unsubscribe();
             unSubscribeQuoteEvent();
             warningMessage.unsubscribe();
@@ -150,6 +132,41 @@ const Dashboard = () => {
     useEffect(() => {
         setQuoteInfo(undefined)
     },[symbolCode]);
+
+    useEffect(() => {
+        getSummaryOrders();
+        getAccountPortfolio();
+    }, [])
+    
+    const getSummaryOrders = () => {
+        const url = `${api_url}${API_GET_SUMMARY_ORDERS}`;
+        
+        axios.get(url, defindConfigPost()).then((resp) => {
+            if(resp.data.meta.code === success){
+                setAccountDetail(resp.data.data);
+            }
+        }).catch((error: any) => {
+            console.log("error", error);
+        });
+    }
+
+    const getAccountPortfolio = () => {
+        const url = `${api_url}${API_POST_ACCOUNT_PORTFOLIO}`;
+        const listAccountId: String[] = [];
+        if (sessionStorage.getItem(ACCOUNT_ID)) {
+            listAccountId.push(sessionStorage.getItem(ACCOUNT_ID) || "");
+        }
+        const payload = {
+            "account_ids": listAccountId
+        }
+        axios.post(url, payload, defindConfigPost()).then((resp) => {
+            if (resp.data.meta.code === success) {
+                setPortfolio(resp.data.data.portfolios);
+            }
+        }).catch((error: any) => {
+            console.log("Failed to get account portfolio", error);
+        });
+    }
     
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {
@@ -191,41 +208,6 @@ const Dashboard = () => {
                 }
             })
             setPortfolio(temp);
-        }
-    }
-
-    const sendAccountPortfolio = () => {
-        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
-        const systemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let accountPortfolioRequest = new systemServicePb.AccountPortfolioRequest();
-            accountPortfolioRequest.addAccountId(Number(accountId));
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_PORTFOLIO_REQ);
-            rpcMsg.setPayloadData(accountPortfolioRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendAccountDetail = () => {
-        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let infoDetailRequest = new SystemServicePb.AccountDetailRequest();
-            infoDetailRequest.setAccountId(Number(accountId));
-
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_DETAIL_REQ);
-            rpcMsg.setPayloadData(infoDetailRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
         }
     }
 
@@ -338,11 +320,11 @@ const Dashboard = () => {
                 <div className="row d-flex justify-content-center align-items-center">
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Matched Orders</div>
-                        <div className="fw-600">{accountDetail ? accountDetail.numTrades : "-"}</div>
+                        <div className="fw-600">{accountDetail ? accountDetail.num_trades : "-"}</div>
                     </div>
                     <div className="text-center px-3 border-end col-md-4">
                         <div className="small fw-bold">Pending Orders</div>
-                        <div className="fw-600">{accountDetail ? accountDetail.numPendingOrders : "-"}</div>
+                        <div className="fw-600">{accountDetail ? accountDetail.num_pending_orders : "-"}</div>
                     </div>
                     <div className="text-center px-3 col-md-4">
                         <div className="small fw-bold">% P/L</div>

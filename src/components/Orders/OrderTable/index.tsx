@@ -1,18 +1,21 @@
-import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, MAX_ITEM_REQUEST, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
-import { formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
-import * as tspb from '../../../models/proto/trading_model_pb';
-import PaginationComponent from '../../../Common/Pagination'
-import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
-import React, { useEffect, useState } from "react";
-import ModalMatching from "../../Modal/ModalMatching";
+import { memo, useEffect, useState } from "react";
 import moment from "moment";
-import * as stpb from '../../../models/proto/system_model_pb';
-import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
 import { toast } from "react-toastify";
 import axios from "axios";
+
+import * as tspb from '../../../models/proto/trading_model_pb';
+import * as stpb from '../../../models/proto/system_model_pb';
+
+import { DEFAULT_ITEM_PER_PAGE, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL, MAX_ITEM_REQUEST, ORDER_TYPE, SIDE, START_PAGE, STATE, TEAM_CODE } from "../../../constants/general.constant";
+import { formatOrderTime, formatCurrency, formatNumber, exportCSV, convertNumber, defindConfigPost } from "../../../helper/utils";
+import { IPropListOrderHistory, IDataHistoryDownload, IDataOrderHistory } from "../../../interfaces/order.interface";
+import { MESSAGE_ERROR, MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY } from "../../../constants/message.constant";
 import { API_GET_ORDER_HISTORY } from "../../../constants/api.constant";
-import ProgressBarModal from "../../Modal/ProgressBarModal";
 import { badRequest, success, unAuthorised } from "../../../constants";
+
+import PaginationComponent from '../../../Common/Pagination'
+import ModalMatching from "../../Modal/ModalMatching";
+import ProgressBarModal from "../../Modal/ProgressBarModal";
 
 function OrderTable(props: IPropListOrderHistory) {
     const { listOrderHistory,
@@ -352,4 +355,4 @@ function OrderTable(props: IPropListOrderHistory) {
     )
 }
 
-export default React.memo(OrderTable)
+export default memo(OrderTable)

@@ -1,20 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IAskAndBidPrice, ISymbolQuote } from '../../interfaces/order.interface';
-import '../../pages/Orders/OrderNew/OrderNew.scss';
-import ConfirmOrder from '../Modal/ConfirmOrder';
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM, MIN_ORDER_VALUE } from '../../constants/general.constant';
+import Decimal from 'decimal.js';
+import NumberFormat from 'react-number-format';
+
+import { wsService } from '../../services/websocket-service';
 import * as tdpb from '../../models/proto/trading_model_pb';
+import * as qmpb from '../../models/proto/query_model_pb';
+
+import { LIST_TICKER_INFO, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MESSAGE_TOAST, RESPONSE_RESULT, TITLE_ORDER_CONFIRM } from '../../constants/general.constant';
+import { IAskAndBidPrice, ISymbolQuote } from '../../interfaces/order.interface';
 import { calcCeilFloorPrice, calcDefaultVolumeInput, calcPriceDecrease, calcPriceIncrease, checkMessageError, checkPriceTickSize, checkValue, checkVolumeLotSize, convertNumber, formatCurrency, formatNumber, handleAllowedInput } from '../../helper/utils';
 import { MESSAGE_EMPTY_ASK, MESSAGE_EMPTY_BID, TYPE_ORDER_RES } from '../../constants/order.constant';
-import NumberFormat from 'react-number-format';
-import { wsService } from '../../services/websocket-service';
 import { IQuoteEvent } from '../../interfaces/quotes.interface';
-import { DEFAULT_DATA_MODIFY_CANCEL } from '../../mocks';
-import Decimal from 'decimal.js';
 import { ISymbolList } from '../../interfaces/ticker.interface';
-import * as qmpb from '../../models/proto/query_model_pb';
+import { DEFAULT_DATA_MODIFY_CANCEL } from '../../mocks';
+
+import ConfirmOrder from '../Modal/ConfirmOrder';
+import '../../pages/Orders/OrderNew/OrderNew.scss';
+import 'react-toastify/dist/ReactToastify.css';
 
 toast.configure()
 interface IOrderForm {
