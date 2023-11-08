@@ -1,17 +1,19 @@
-import { DEFAULT_DETAIL_NEWS } from '../../mocks'
-import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
-import './New.scss'
 import { useEffect, useState } from 'react'
-import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
-import axios from 'axios';
-import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, NEWS_STATUS, TAB_NEWS } from '../../constants/news.constant'
-import { success } from '../../constants';
-import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, SIDE, START_PAGE } from '../../constants/general.constant'
-import parse from "html-react-parser";
-import { convertNumber, defindConfigGet, defindConfigPost, formatDate, stripHtmlTagsFromString } from '../../helper/utils';
 import Pagination from "react-js-pagination";
 import moment from 'moment';
 import queryString from 'query-string';
+import parse from "html-react-parser";
+import axios from 'axios';
+
+import { IReqNews, INews, ITradingResult, IReqTradingResult } from '../../interfaces/news.interface'
+import { API_GET_NEWS, API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_NEWS, API_POST_TRADING_RESULT } from '../../constants/api.constant'
+import { DEFAULT_PAGE_SIZE_FOR_NEWS, FIRST_PAGE, ItemsPage, NEWS_STATUS, TAB_NEWS } from '../../constants/news.constant'
+import { success } from '../../constants';
+import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, SIDE, START_PAGE } from '../../constants/general.constant'
+import { convertNumber, defindConfigGet, defindConfigPost, formatDate, stripHtmlTagsFromString } from '../../helper/utils';
+import { DEFAULT_DETAIL_NEWS } from '../../mocks'
+
+import './New.scss'
 
 interface IParamPagination {
     page_size: number;

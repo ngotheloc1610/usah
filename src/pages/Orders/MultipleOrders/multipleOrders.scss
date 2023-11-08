@@ -23,7 +23,7 @@
 .btn {
     border: 2px solid gray;
     color: gray;
-    background-color: white;
+    background: white;
     padding: 8px 20px;
     border-radius: 8px;
     font-size: 20px;
@@ -40,7 +40,7 @@
 
 .btn-upload {
     color: #fff !important;
-    background-color: #16365c !important;
+    background: var(--bg-dark) !important;
     cursor: pointer;
     margin-left: 5px;
 }
@@ -50,7 +50,7 @@
 }
 
 .header-import {
-    background: #16365c;
+    background: var(--bg-dark);
     color: white;
     height: 30px;
     width: 100%;

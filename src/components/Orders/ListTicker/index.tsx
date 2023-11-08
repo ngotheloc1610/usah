@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { Autocomplete, TextField } from '@mui/material';
+
+import { wsService } from "../../../services/websocket-service";
+import * as pspb from "../../../models/proto/pricing_service_pb";
+import * as rpcpb from '../../../models/proto/rpc_pb';
+import * as tdpb from '../../../models/proto/trading_model_pb';
+import * as psbp from "../../../models/proto/pricing_service_pb";
+
 import { ACCOUNT_ID, LIST_TICKER_INFO, LIST_WATCHING_TICKERS, MARKET_DEPTH_LENGTH, MESSAGE_TOAST, SOCKET_CONNECTED, SOCKET_RECONNECTED } from "../../../constants/general.constant";
 import { formatCurrency, formatNumber } from "../../../helper/utils";
 import { IAskAndBidPrice, ILastQuote, IListOrderMonitoring, ISymbolInfo, IWatchList } from "../../../interfaces/order.interface";
-import * as pspb from "../../../models/proto/pricing_service_pb";
-import * as rpcpb from '../../../models/proto/rpc_pb';
-import { wsService } from "../../../services/websocket-service";
-import './listTicker.scss';
-import * as tdpb from '../../../models/proto/trading_model_pb';
-import * as psbp from "../../../models/proto/pricing_service_pb";
-import { Autocomplete, TextField } from '@mui/material';
 import { pageFirst, pageSizeTicker } from "../../../constants";
 import { IQuoteEvent } from "../../../interfaces/quotes.interface";
-import { toast } from "react-toastify";
 import { DEFAULT_DATA_TICKER } from "../../../mocks";
+
+import './listTicker.scss';
 interface IListTickerProps {
     getTicerLastQuote: (item: IAskAndBidPrice) => void;
     handleSide: (side: number) => void;

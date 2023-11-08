@@ -1,9 +1,11 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { toast } from 'react-toastify';
+
 import { success } from '../../../constants';
 import { API_FORGOT_PASSWORD } from '../../../constants/api.constant';
 import { MESSAGE_ERROR_API } from '../../../constants/message.constant';
+
 import '../Login/Login.scss';
 
 const ForgotPassword = () => {

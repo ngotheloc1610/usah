@@ -1,4 +1,5 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+
 import { IOrderDropdownModel } from '../../constants/route.interface';
 import OrderDropdownItem from './OrderDropdownItem';
 
@@ -10,9 +11,9 @@ export interface ITabBarItem {
 
 const TabBarItem = (props: ITabBarItem) => {
     const { itemDropDown, itemData } = props;
-    const [activeElement, setActiveElement] = React.useState('');
+    const [activeElement, setActiveElement] = useState('');
 
-    React.useEffect(() => {
+    useEffect(() => {
         handleActive();
     }, [])
 

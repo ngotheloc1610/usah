@@ -1,14 +1,15 @@
+import { useEffect, useMemo, useState } from "react";
+import { Autocomplete, TextField } from "@mui/material";
+
+import { wsService } from "../../services/websocket-service";
+import * as tdpb from '../../models/proto/trading_model_pb';
+
 import { LIST_TICKER_INFO, MARKET_DEPTH_LENGTH_DASHBOARD, MARKET_DEPTH_LENGTH } from "../../constants/general.constant"
 import { IAskAndBidPrice, ILastQuote, ITickerInfo } from "../../interfaces/order.interface"
 import { DEFAULT_DATA_TICKER, ORDER_BOOK_HEADER } from "../../mocks"
-import '../TickerDashboard/TickerDashboard.scss';
-import * as tdpb from '../../models/proto/trading_model_pb';
 import { checkValue, formatCurrency, formatNumber } from "../../helper/utils";
-import { useEffect, useMemo, useState } from "react";
-import { Autocomplete, TextField } from "@mui/material";
-import { wsService } from "../../services/websocket-service";
 
-
+import '../TickerDashboard/TickerDashboard.scss';
 interface IOrderBookProps {
     isDashboard: boolean;
     listDataTicker?: ITickerInfo[];

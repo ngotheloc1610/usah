@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types'
-import { useState } from 'react'
 import { IOrderDropdownModel } from '../../constants/route.interface'
 
 interface IOrderDropdownItem {

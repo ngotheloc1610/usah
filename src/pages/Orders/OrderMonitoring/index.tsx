@@ -1,12 +1,14 @@
-import "./orderMonitoring.css";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { wsService } from "../../../services/websocket-service";
+import { IAskAndBidPrice } from "../../../interfaces/order.interface";
+import { setWarningMessage } from "../../../redux/actions/App";
+
 import ListTicker from "../../../components/Orders/ListTicker";
 import ListOrder from "../../../components/Orders/ListOrder";
 import OrderForm from "../../../components/Order/OrderForm";
-import { IAskAndBidPrice } from "../../../interfaces/order.interface";
-import { wsService } from "../../../services/websocket-service";
-import { useDispatch, useSelector } from "react-redux";
-import { setWarningMessage } from "../../../redux/actions/App";
+import "./orderMonitoring.css";
 
 const OrderMonitoring = () => {
     const [msgSuccess, setMsgSuccess] = useState<string>('');

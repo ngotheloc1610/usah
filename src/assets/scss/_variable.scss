@@ -1,0 +1,29 @@
+:root{
+    --bg-light: #c5d9f1 !important;
+    --bg-dark: #16365c !important;
+    --text-theme: #16365c !important;
+}
+
+[data-theme="post-market"] {
+    --bg-light: #44a7a7 !important;
+    --bg-dark: #0c7272 !important;
+    --text-theme: #ffffffe4 !important;
+}
+
+[data-theme="usah"] {
+    --bg-light: #c5d9f1 !important;
+    --bg-dark: #16365c !important;
+    --text-theme: #16365c !important;
+}
+
+[data-theme="pre-market"] {
+    --bg-light: #9acf76 !important;
+    --bg-dark: #609c62 !important;
+    --text-theme: #ffffffe4 !important;
+}
+
+[data-theme="us"] {
+    --bg-light: #e4a378 !important;
+    --bg-dark: #ED7D31 !important;
+    --text-theme: #ffffffe4 !important;
+}

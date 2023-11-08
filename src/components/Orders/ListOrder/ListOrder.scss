@@ -35,8 +35,8 @@
 }
 
 .ReactVirtualized__Table__headerRow {
-    background-color: #dce7f4;
-    color: #16365c;
+    background: var(--bg-light);
+    color: var(--bg-dark);
 }
 
 .cancel-btn {
@@ -53,4 +53,10 @@
 
 .list-order-row:last-child {
     border-bottom: none;
+}
+
+.theme-header{
+    span, i {
+        color: var(--text-theme) !important;
+    }
 }

@@ -1,17 +1,19 @@
+import { useEffect, useState } from 'react';
+import moment from 'moment';
+import { Button, Modal } from 'react-bootstrap';
 
-import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TEAM_CODE, TEAM_ID, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
 import { wsService } from '../../../services/websocket-service';
 import * as smpb from '../../../models/proto/system_model_pb';
 import * as tmpb from '../../../models/proto/trading_model_pb';
 import * as tspb from '../../../models/proto/trading_service_pb';
-import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import * as rpc from '../../../models/proto/rpc_pb';
+
+import { ACCOUNT_ID, MSG_CODE, MSG_TEXT, RESPONSE_RESULT, TEAM_CODE, TIME_OUT_CANCEL_RESPONSE_DEFAULT } from '../../../constants/general.constant';
+import { IListOrderModifyCancel } from '../../../interfaces/order.interface';
 import { TYPE_ORDER_RES } from '../../../constants/order.constant';
-import { useEffect, useState } from 'react';
-import './PopUpConfirm.scss';
-import { Button, Modal } from 'react-bootstrap';
-import moment from 'moment';
 import { MESSAGE_ERROR, CANCEL_SUCCESSFULLY } from '../../../constants/message.constant';
+
+import './PopUpConfirm.scss';
 
 interface IPropsConfirm {
     handleCloseConfirmPopup: (value: boolean) => void;
@@ -38,7 +40,6 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     const debugLogFlag = window.globalThis.debugLogFlag;
 
-    const teamId = sessionStorage.getItem(TEAM_ID) || '0';
     const teamCode = sessionStorage.getItem(TEAM_CODE) || '';
     const accountId = sessionStorage.getItem(ACCOUNT_ID) || ''
 
@@ -188,7 +189,7 @@ const PopUpConfirm = (props: IPropsConfirm) => {
 
     return <>
         <Modal show={true} onHide={() => { handleCloseConfirmPopup(false) }}>
-            <Modal.Header closeButton style={{ background: "#16365c", color: "#fff" }}>
+            <Modal.Header closeButton style={{ background: "var(--bg-dark)", color: "#fff" }}>
                 <Modal.Title>
                     <span className='h5'>Cancel All Confirmation</span>
                 </Modal.Title>

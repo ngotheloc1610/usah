@@ -1,10 +1,12 @@
-import { ISymbolList } from '../../interfaces/ticker.interface'
-import '../../pages/Orders/OrderNew/OrderNew.scss'
 import { useEffect, useState } from "react";
 import { Autocomplete, TextField } from '@mui/material';
+
+import { ISymbolList } from '../../interfaces/ticker.interface'
 import { LIST_TICKER_INFO, SYMBOL_LIST } from '../../constants/general.constant';
+import { ITickerBindingOrder } from '../../interfaces/order.interface';
 import ReduxPersist from '../../config/ReduxPersist';
-import { ITickerBindingOrder, ITickerInfo } from '../../interfaces/order.interface';
+
+import '../../pages/Orders/OrderNew/OrderNew.scss'
 interface ITickerSearch {
     handleTicker: (event: any) => void;
     listTicker: ISymbolList[];

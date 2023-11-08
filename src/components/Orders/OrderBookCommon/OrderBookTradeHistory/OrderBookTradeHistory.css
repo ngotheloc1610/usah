@@ -14,7 +14,11 @@
 
 @media  only screen and (max-width: 1200px)  {
     .order-form .order-btn-group .btn {
-        background-color: #ccc;
+        background: #ccc;
         line-height: 0.6;
     }
+}
+
+.theme-header span{
+    color: var(--text-theme) !important;
 }

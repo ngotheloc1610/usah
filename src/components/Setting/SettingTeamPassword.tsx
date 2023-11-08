@@ -1,9 +1,10 @@
 import {useState } from 'react'
-import { defindConfigPost, validationPassword } from '../../helper/utils'
-import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
 import { toast } from 'react-toastify'
-import { API_CHANGE_TEAM_PASSWORD } from '../../constants/api.constant';
 import axios from 'axios';
+
+import { defindConfigPost, validationPassword } from '../../helper/utils'
+import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
+import { API_CHANGE_TEAM_PASSWORD } from '../../constants/api.constant';
 import { errorPastPassword, success } from '../../constants';
 import { _renderMsgError } from '../../helper/utils-ui';
 

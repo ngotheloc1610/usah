@@ -4,7 +4,7 @@
   
   .card .card-header {
     padding: 0.5rem 0.75rem;
-    background-color: #16365C;
+    background: var(--bg-dark);
     color: #fff;
   }
   
@@ -19,8 +19,8 @@
   }
   
   .table thead tr th {
-    background-color: #DCE7F4;
-    color: #16365C;
+    background: var(--bg-light);
+    color: var(--text-theme);
     font-size: 0.75rem;
     font-weight: 600;
     padding-top: 0.35rem;
@@ -32,8 +32,8 @@
   }
   
   .table.table-i tbody tr th {
-    background-color: #DCE7F4;
-    color: #16365C;
+    background: var(--bg-light);
+    color: var(--bg-dark);
     font-size: 0.75rem;
   }
   
@@ -48,7 +48,7 @@
   }
   
   .dataTables_scroll .dataTables_scrollHead .dataTables_scrollHeadInner {
-    background-color: #DCE7F4;
+    background: var(--bg-light);
   }
   
   .dataTables_info {

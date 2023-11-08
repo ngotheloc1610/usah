@@ -1,13 +1,14 @@
-import Setting from '../../components/Setting/Setting';
-import './Setting.scss';
+import { useState, useEffect } from 'react';
+
 import { wsService } from '../../services/websocket-service';
-import queryString from 'query-string';
 import * as sspb from '../../models/proto/system_service_pb'
 import * as rspb from "../../models/proto/rpc_pb";
-import ReduxPersist from '../../config/ReduxPersist';
+
 import { ACCOUNT_ID, SOCKET_CONNECTED, TEAM_ROLE, ROLE_TEAM_LEAD } from '../../constants/general.constant';
-import { useState, useEffect } from 'react';
+
 import SettingTeamPassword from '../../components/Setting/SettingTeamPassword';
+import Setting from '../../components/Setting/Setting';
+import './Setting.scss';
 
 const SettingScreen = () => {
     const systemServicePb: any = sspb
@@ -81,12 +82,6 @@ const SettingScreen = () => {
         setIsNotification(false);
         setIsChangePassword(true);
         setIsSettingTeamPw(false)
-    }
-
-    const handleDisplayNotification = () => {
-        setIsSetting(true);
-        setIsNotification(true);
-        setIsChangePassword(false);
     }
 
     const _renderNavSettingActive = () => (

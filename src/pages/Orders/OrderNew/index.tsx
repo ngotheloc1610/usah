@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { wsService } from "../../../services/websocket-service"
+import * as pspb from '../../../models/proto/pricing_service_pb'
+import * as rpcpb from "../../../models/proto/rpc_pb";
+
+import { LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
+import { IAskAndBidPrice, ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
+import { ISymbolList } from '../../../interfaces/ticker.interface'
+import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
+import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
+import { IQuoteEvent } from '../../../interfaces/quotes.interface'
+import { setWarningMessage } from '../../../redux/actions/App'
+
 import OrderBook from '../../../components/Order/OrderBook'
 import OrderForm from '../../../components/Order/OrderForm'
 import TickerDetail from '../../../components/Order/TickerDetail'
 import TickerSearch from '../../../components/Order/TickerSearch'
-import { LIST_PRICE_TYPE, LIST_TICKER_INFO, SOCKET_CONNECTED } from '../../../constants/general.constant'
-import { IAskAndBidPrice, ILastQuote, ITickerInfo } from '../../../interfaces/order.interface'
-import { ISymbolList } from '../../../interfaces/ticker.interface'
-import { wsService } from "../../../services/websocket-service"
-import * as pspb from '../../../models/proto/pricing_service_pb'
-import * as rpcpb from "../../../models/proto/rpc_pb";
 import './OrderNew.scss'
-import { DEFAULT_CURRENT_TICKER, DEFAULT_DATA_TICKER } from '../../../mocks'
-import { assignListPrice, calcPctChange, checkValue } from '../../../helper/utils'
-import { IQuoteEvent } from '../../../interfaces/quotes.interface'
-import { useDispatch, useSelector } from 'react-redux'
-import { setWarningMessage } from '../../../redux/actions/App'
 
 const OrderNew = () => {
     const defaultItemSymbol: ISymbolList = {

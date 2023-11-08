@@ -23,10 +23,8 @@ const listOrderSubject = new Subject();
 const dataLastQuotes = new Subject();
 const orderHistorySubject = new Subject();
 const tradeHistorySubject = new Subject();
-const accountPortfolioSubject = new Subject();
 const modifySubject = new Subject();
 const cancelSubject = new Subject();
-const customerInfoDetailSubject = new Subject();
 const customerSettingSubject = new Subject();
 const socketSubject = new Subject();
 const unsubscribeQuoteSubject = new Subject();
@@ -139,14 +137,6 @@ const startWs = async () => {
             const tradeHistory = queryService.GetTradeHistoryResponse.deserializeBinary(msg.getPayloadData());
             tradeHistorySubject.next(tradeHistory.toObject());
         }
-        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_PORTFOLIO_RES) {
-            const accountPortfolio = systemService.AccountPortfolioResponse.deserializeBinary(msg.getPayloadData());
-            accountPortfolioSubject.next(accountPortfolio.toObject());
-        }
-        if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_DETAIL_RES) {
-            const customerInfoDetail = systemService.AccountDetailResponse.deserializeBinary(msg.getPayloadData());
-            customerInfoDetailSubject.next(customerInfoDetail.toObject());
-        }
         if (payloadClass === rpc.RpcMessage.Payload.ACCOUNT_UPDATE_RES) {
             const customerSetting = systemService.AccountUpdateResponse.deserializeBinary(msg.getPayloadData());
             customerSettingSubject.next(customerSetting.toObject());
@@ -201,10 +191,8 @@ export const wsService = {
     getListOrder: () => listOrderSubject.asObservable(),
     getListOrderHistory: () => orderHistorySubject.asObservable(),
     getTradeHistory: () => tradeHistorySubject.asObservable(),
-    getAccountPortfolio: () => accountPortfolioSubject.asObservable(),
     getModifySubject: () => modifySubject.asObservable(),
     getCancelSubject: () => cancelSubject.asObservable(),
-    getCustomerInfoDetail: () => customerInfoDetailSubject.asObservable(),
     getCustomerSettingSubject: () => customerSettingSubject.asObservable(),
     sendMessage: message => socket.send(message),
     getWsConnected: () => wsConnected,

@@ -1,15 +1,17 @@
-import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
-import { checkValue, convertNumber, roundingNumber, defindConfigGet, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
-import { wsService } from "../../../services/websocket-service";
-import { FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
 import { useEffect, useState } from 'react';
-import * as pspb from '../../../models/proto/pricing_service_pb';
-import * as rspb from '../../../models/proto/rpc_pb';
-import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 import moment from 'moment';
 import axios from 'axios';
+
+import { wsService } from "../../../services/websocket-service";
+import * as pspb from '../../../models/proto/pricing_service_pb';
+import * as rspb from '../../../models/proto/rpc_pb';
+
+import { ILastQuote, IPortfolio, IPortfolioDownLoad, ISymbolInfo } from '../../../interfaces/order.interface'
+import { checkValue, convertNumber, roundingNumber, defindConfigPost, exportCSV, formatCurrency, formatNumber, getClassName } from '../../../helper/utils'
+import { ACCOUNT_ID, FORMAT_DATE_DOWLOAD, LIST_TICKER_ALL } from '../../../constants/general.constant';
+import { IQuoteEvent } from '../../../interfaces/quotes.interface';
 import { IClientHoldingInforData, IClientHoldingInfoReq } from '../../../interfaces';
-import { API_CLIENT_HOLDING_INFO } from '../../../constants/api.constant';
+import { API_CLIENT_HOLDING_INFO, API_POST_ACCOUNT_PORTFOLIO } from '../../../constants/api.constant';
 import { success } from '../../../constants';
 import { MARKET } from '../../../constants/general.constant';
 
@@ -38,15 +40,6 @@ function SummaryTradingTable() {
             });
         }
 
-        const portfolioRes = wsService.getAccountPortfolio().subscribe(res => {
-            if (res && res.accountPortfolioList) {
-                const portfolioInday = res.accountPortfolioList.filter(o => o.totalVolume !== 0);
-                setPortfolio(portfolioInday);
-                callLastQuoteReq(res.accountPortfolioList);
-                subscribeQuoteEvent(res.accountPortfolioList);
-            }
-        });
-
         const getLastQuote = wsService.getDataLastQuotes().subscribe(lastQuotes => {
             if (lastQuotes && lastQuotes.quotesList) {
                 setLastQuotes(lastQuotes.quotesList);
@@ -63,7 +56,6 @@ function SummaryTradingTable() {
             if (portfolio) {
                 unsubscribeQuoteEvent(portfolio);
             }
-            portfolioRes.unsubscribe();
             getLastQuote.unsubscribe();
             getQuoteEvent.unsubscribe();
         }
@@ -76,6 +68,32 @@ function SummaryTradingTable() {
     useEffect(() => {
         processQuoteEvent(quoteEvent, portfolio);
     }, [quoteEvent]);
+
+    useEffect(() => {
+        getAccountPortfolio();
+    }, []);
+
+    const getAccountPortfolio = () => {
+        const url = `${api_url}${API_POST_ACCOUNT_PORTFOLIO}`;
+        const listAccountId: String[] = [];
+        if (sessionStorage.getItem(ACCOUNT_ID)) {
+            listAccountId.push(sessionStorage.getItem(ACCOUNT_ID) || "");
+        }
+        const payload = {
+            "account_ids": listAccountId
+        }
+        axios.post(url, payload, defindConfigPost()).then((resp) => {
+            if (resp.data.meta.code === success) {
+                const portfolios = resp.data.data.portfolios;
+                const portfolioInday = portfolios.filter((e: IPortfolio) => e.totalVolume !== 0);
+                setPortfolio(portfolioInday);
+                callLastQuoteReq(portfolios);
+                subscribeQuoteEvent(portfolios);
+            }
+        }).catch((error: any) => {
+            console.log("Failed to get account portfolio", error);
+        });
+    }
 
     const processLastQuote = (lastQuotes: ILastQuote[] = [], portfolio: IPortfolio[] = []) => {
         if (portfolio) {

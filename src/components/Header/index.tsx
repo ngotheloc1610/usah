@@ -1,26 +1,21 @@
-import { Colors } from '../../themes';
-import './Header.scss'
-import { IOrderDropdownModel } from '../../constants/route.interface';
-import TabBarItem, { ITabBarItem } from './TabBarItem';
-import { useEffect, useRef, useState } from 'react';
-import queryString from 'query-string';
-import ReduxPersist from '../../config/ReduxPersist';
-import { IAuthen } from '../../interfaces';
-import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, TIME_ZONE } from '../../constants/general.constant';
-
-import { LOGO } from '../../assets';
-import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
-import PopUpNotification from '../Modal/PopUpNotification';
+import { memo, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
-import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
-import { defindConfigGet, defindConfigPost } from '../../helper/utils';
-import { success } from '../../constants';
-import { FIRST_PAGE } from '../../constants/news.constant';
-import { Link } from 'react-router-dom';
 import moment from 'moment-timezone';
-import React from 'react';
 import { useSelector } from 'react-redux';
+
+import { IOrderDropdownModel } from '../../constants/route.interface';
+import { ACCOUNT_ID, DEFAULT_THEME_TRADE, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, THEME_TRADE, TIME_ZONE } from '../../constants/general.constant';
+import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
+import { success } from '../../constants';
+import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
+import { IReqTradingResult, ITradingResult } from '../../interfaces/news.interface';
+import { defindConfigGet, defindConfigPost } from '../../helper/utils';
+
+import { Colors } from '../../themes';
+import TabBarItem, { ITabBarItem } from './TabBarItem';
+import PopUpNotification from '../Modal/PopUpNotification';
+
+import './Header.scss'
 
 const Header = () => {
   const [accountId, setAccountId] = useState('');
@@ -33,9 +28,6 @@ const Header = () => {
 
   const pageSizeTrading = PAGE_SIZE;
   const pageCurrentTrading = START_PAGE;
-
-  const [paramTrading, setParamTrading] = useState({ page_size: PAGE_SIZE, page: 1 });
-
 
   const api_url = window.globalThis.apiUrl;
   const urlGetTradingResult = `${api_url}${API_GET_TRADING_RESULT}`;
@@ -51,6 +43,8 @@ const Header = () => {
   const usTime: any = useRef();
   const zoneTime: any = useRef();
   const isBlocked = useSelector((state: any) => state.auth.tabBlock);
+
+  const [themeTrade, setThemeTrade] = useState<any>(localStorage.getItem(THEME_TRADE) ? localStorage.getItem(THEME_TRADE) : DEFAULT_THEME_TRADE);
 
   useEffect(() => {
     _renderAccountId()
@@ -88,6 +82,10 @@ const Header = () => {
     getDataTradingResult(paramTrading);
     getTotalTradingResultsUnread();
   }, []);
+
+  useEffect(() => {
+		document.documentElement.setAttribute("data-theme", themeTrade)
+	}, [themeTrade]);
 
 
   const _renderAccountId = () => {
@@ -185,6 +183,15 @@ const Header = () => {
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
+          <div>
+            <select value={themeTrade ? themeTrade : ''} className="form-select form-select-sm lh-1 me-2" onChange={(e) => { setThemeTrade(e.target.value); localStorage.setItem(THEME_TRADE, e.target.value) }}>
+              <option value="usah">USAH</option>
+              <option value="pre-market" >Pre Trade</option>
+              <option value="post-market">Post Trade</option>
+              <option value="us">US</option>
+            </select>
+          </div>
+
         <div className="small text-end mr-px-20">
           <div>US <span className="ms-2" ref={usTime}></span></div>
           <div className="d-flex align-items-center justify-content-end">
@@ -200,7 +207,7 @@ const Header = () => {
             <a onClick={(e) => showPopupNotification(e)}
               href="#" className="nav-link pl-0 d-content" role="button"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i className="bi bi-bell-fill"></i>
+              <i className="bi bi-bell-fill text-theme"></i>
               {totalItemUnread > 0 && showNotificationUnread && <sup className="count">{totalItemUnread}</sup>}
             </a>
 
@@ -298,4 +305,4 @@ const Header = () => {
     <div>{_renderHeaderTemplate()}</div>
   </>
 };
-export default React.memo(Header);
+export default memo(Header);

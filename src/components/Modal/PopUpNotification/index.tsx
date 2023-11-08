@@ -1,13 +1,15 @@
-import './PopUpNotification.css';
-import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FORMAT_DATE_NEW_OR_RESULT, FORMAT_DATE_TIME_MILLIS, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
+import { Dispatch, SetStateAction, useState } from 'react';
 import moment from 'moment';
 import axios from 'axios';
-import { success } from '../../../constants';
+
+import { IReqTradingResult, ITradingResult } from '../../../interfaces/news.interface';
 import { defindConfigGet } from '../../../helper/utils';
+import { FORMAT_DATE_NEW_OR_RESULT, PAGE_SIZE, SIDE } from '../../../constants/general.constant';
+import { success } from '../../../constants';
 import { API_GET_TRADING_RESULT } from '../../../constants/api.constant';
 import { FIRST_PAGE } from '../../../constants/news.constant';
+
+import './PopUpNotification.css';
 interface IPopsNotification {
      listTradingResults: ITradingResult[],
      handleReaded: (item: number) => void,
@@ -32,9 +34,7 @@ const PopUpNotification = (props: IPopsNotification) => {
      const getSideName = (side: number) => {
           return SIDE.find(item => item.code === side)?.title;
      }
-     const convertTime = (item: string) => {
-          return moment(item).format(FORMAT_DATE_TIME_MILLIS)
-     }
+    
      const _renderTradingResultsItem = () => (
           listTradingResults?.map((item: ITradingResult, idx: number) => (
                <div className={!item.readFlg ? "notification-item unread" : "notification-item"

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import './Login.scss';
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE } from '../../../constants/general.constant';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE } from '../../../constants/general.constant';
 import { IReqLogin } from '../../../interfaces';
 import { deactiveAccount, multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
 import { getRandomNumbers } from '../../../helper/utils';
-import { useDispatch, useSelector } from 'react-redux';
 import { setRememberKey, setSecretKey } from '../../../redux/actions/auth';
+
+import './Login.scss';
 
 const api_url = window.globalThis.apiUrl;
 

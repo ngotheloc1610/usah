@@ -6,7 +6,7 @@
 }
 
 .dark .bg-light {
-    background-color: #204168 !important;
+    background: #204168 !important;
 }
 
 .dark .form-control::placeholder {
@@ -14,27 +14,27 @@
 }
 
 .bg-light {
-    background-color: #DCE7F4;
+    background: var(--bg-light);
 }
 
 .bg-success-light {
-    background-color: #E5ECE4 !important;
+    background: #E5ECE4 !important;
 }
 
 .bg-primary-light {
-    background-color: #e8eff8 !important;
+    background: #e8eff8 !important;
 }
 
 .bg-danger-light {
-    background-color: #F8E5E5 !important;
+    background: #F8E5E5 !important;
 }
 
 .btn-outline-secondary {
     border-color: #ddd;
     &:hover {
-        background-color: #eee;
+        background: #eee;
         border-color: #eee;
-        color: #16365C;
+        color: var(--bg-dark);
     }
 }
 
@@ -55,7 +55,7 @@
         line-height: 1;
     }
     .btn:hover {
-        background-color: #eee;
+        background: #eee;
     }
     .form-control:focus {
         box-shadow: none;
@@ -71,13 +71,13 @@
         border: 1px solid #666 !important;
     }
     &.disabled {
-        background-color: #eee;
+        background: #eee;
         input:disabled {
-            background-color: rgba(255, 255, 255, 0);
+            background: rgba(255, 255, 255, 0);
             color: rgba(0, 0, 0, 0.5);
         }
         button:disabled {
-            background-color: rgba(255, 255, 255, 0);
+            background: rgba(255, 255, 255, 0);
         }
     }
 }
@@ -98,7 +98,7 @@
             &.active {
                 color: #1e376d;
                 border: 1px solid #eee;
-                border-top-color: #16365C;
+                border-top-color: var(--bg-dark);
                 border-bottom: 1px solid rgba(255, 255, 255, 0);
             }
         }
@@ -128,7 +128,7 @@
     .order-btn-group {
         position: relative;
         .btn {
-            background-color: #ccc;
+            background: #ccc;
             line-height: 1.2;
             &:first-of-type {
                 border-top-right-radius: 0;
@@ -141,12 +141,12 @@
         }
         .btn-sell {
             &.selected {
-                background-color: #ED1C24;
+                background: #ED1C24;
             }
         }
         .btn-buy {
             &.selected {
-                background-color: #66B55D;
+                background: #66B55D;
             }
         }
     }
@@ -188,7 +188,7 @@ HEADER
 --------------*/
 
 .site-header {
-    background-color: #C5D9F1;
+    background: #C5D9F1;
     .header-top {
         height: 2rem;
         .header-top-nav {
@@ -198,7 +198,7 @@ HEADER
                     line-height: 2rem;
                     .count {
                         font-size: 0.625rem;
-                        background-color: #F08122;
+                        background: #F08122;
                         padding: 0 0.25rem;
                         border-radius: 2rem;
                         color: #fff;
@@ -217,6 +217,10 @@ HEADER
             display: flex;
             align-items: center;
             .site-title {
+                span{
+                    color: var(--text-theme);
+                }
+
                 .site-logo {
                     max-height: 5rem !important;
                     margin-top: 10px;
@@ -226,7 +230,7 @@ HEADER
             }
         }
         .header-nav {
-            background-color: #16365C;
+            background: var(--bg-dark);
             flex-grow: 1;
             position: relative;
             border-top-left-radius: 0.5rem;
@@ -234,7 +238,7 @@ HEADER
                 content: '';
                 width: 100%;
                 height: 100%;
-                background-color: #16365C;
+                background: var(--bg-dark);
                 position: absolute;
                 right: -100%;
                 bottom: 0;
@@ -249,11 +253,11 @@ HEADER
                     border-right: 1px solid rgba(255, 255, 255, 0.1);
                     &:hover {
                         color: rgba(255, 255, 255, 1);
-                        background-color: rgba(255, 255, 255, 0.1);
+                        background: rgba(255, 255, 255, 0.1);
                     }
                     &.active {
                         color: #2F80ED;
-                        background-color: #fff;
+                        background: #fff;
                     }
                 }
                 &:first-child {
@@ -275,7 +279,7 @@ SITE MAIN
     border: 0 !important;
     .card-header {
         padding: 0.5rem 0.75rem;
-        background-color: #16365C;
+        background: var(--bg-dark);
         color: #fff;
         .card-title {
             font-size: 0.85rem;
@@ -292,8 +296,8 @@ SITE MAIN
     thead {
         tr {
             th {
-                background-color: #DCE7F4;
-                color: #16365C;
+                background: var(--bg-light);
+                color: var(--bg-dark);
                 font-size: 0.75rem;
                 font-weight: 600;
                 padding-top: 0.35rem;
@@ -312,8 +316,8 @@ SITE MAIN
         tbody {
             tr {
                 th {
-                    background-color: #DCE7F4;
-                    color: #16365C;
+                    background: var(--bg-light);
+                    color: var(--bg-dark);
                     font-size: 0.75rem;
                 }
             }
@@ -344,7 +348,7 @@ SITE MAIN
 }
 
 .dataTables_scroll .dataTables_scrollHead .dataTables_scrollHeadInner {
-    background-color: #DCE7F4;
+    background: var(--bg-light);
 }
 
 .dataTables_info {
@@ -386,23 +390,23 @@ SITE MAIN
         }
     }
     &:hover {
-        background-color: #e8edf3;
+        background: #e8edf3;
     }
     &.active {
-        background-color: #C5D9F1;
+        background: #C5D9F1;
         .item-icon {
-            color: #16365C;
+            color: var(--bg-dark);
         }
     }
     &.unread {
-        background-color: #f0f7f5;
+        background: #f0f7f5;
         .item-icon {
             position: relative;
             &:after {
                 content: '';
                 right: 0;
                 top: 0.35rem;
-                background-color: red;
+                background: red;
                 position: absolute;
                 width: 0.35rem;
                 height: 0.35rem;
@@ -435,7 +439,7 @@ SITE MAIN
         .nav-link {
             border-left: 2px solid #C5D9F1;
             &.active {
-                background-color: #C5D9F1;
+                background: #C5D9F1;
                 color: #2F80ED;
                 font-weight: bold;
                 border-left-color: #2F80ED;
@@ -462,17 +466,17 @@ SITE MAIN
             border: 0;
             border-radius: 0;
             border-left: 2px solid #C5D9F1;
-            background-color: #fafcff;
+            background: #fafcff;
             padding-top: 0;
             padding-bottom: 0;
             .dropdown-item {
                 border-top: 1px solid rgba(255, 255, 255, 0.5);
                 &:hover {
-                    background-color: #e2e9f1;
+                    background: #e2e9f1;
                 }
                 &.active,
                 &:focus {
-                    background-color: #e2e9f1;
+                    background: #e2e9f1;
                     color: #000;
                     font-weight: bold;
                 }
@@ -510,23 +514,23 @@ SITE FOOTER
 .page-item.active .page-link {
     z-index: 3;
     color: #fff !important;
-    background-color: #16365C !important;
-    border-color: #16365C !important;
+    background: var(--bg-dark) !important;
+    border-color: var(--bg-dark) !important;
 }
 
 .form-check-input:checked {
-    background-color: #16365C;
-    border-color: #16365C;
+    background: var(--bg-dark);
+    border-color: var(--bg-dark);
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #16365C;
-    border-color: #16365C;
+    background: var(--bg-dark);
+    border-color: var(--bg-dark);
 }
 
 .page-link {
-    color: #16365C !important;
+    color: var(--bg-dark) !important;
 }
 
 ul {
@@ -551,7 +555,7 @@ ul {
     vertical-align: middle;
 }
 a{
-    color: #16365C!important;
+    color: var(--bg-dark)!important;
 }
 .ml_-2{
     margin-left: -2px;
@@ -628,7 +632,7 @@ table.tableBodyScroll tbody {
 
 .ticker-input,
 .account-input{
-    background-color: #fff !important;
+    background: #fff !important;
     input{
         margin-right: 15%;
     }

@@ -10,6 +10,7 @@ import 'bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Provider } from 'react-redux';
 import { store } from './redux/store/configureStore';
+import "./assets/scss/index.scss"
 
 ReactDOM.render(
   <React.StrictMode>

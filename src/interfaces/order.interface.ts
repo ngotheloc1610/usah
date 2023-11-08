@@ -556,6 +556,12 @@ export interface IAccountDetail {
     tradingRights: number;
 }
 
+export interface ISummaryOrder {
+    account_id: string;
+    num_pending_orders: number;
+    num_trades: number
+}
+
 export interface IPortfolioDownLoad {
     tickerCode: string;
     ownedVol: number;

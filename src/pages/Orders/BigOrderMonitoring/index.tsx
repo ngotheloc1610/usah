@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import ListOrder from "../../../components/Orders/ListOrder";
-import OrderForm from "../../../components/Order/OrderForm";
+import { useDispatch, useSelector } from "react-redux";
+
 import { IAskAndBidPrice } from "../../../interfaces/order.interface";
 import { wsService } from "../../../services/websocket-service";
-import { useDispatch, useSelector } from "react-redux";
 import { setWarningMessage } from "../../../redux/actions/App";
+
+import ListOrder from "../../../components/Orders/ListOrder";
+import OrderForm from "../../../components/Order/OrderForm";
 import ListTickerBigOrder from "../../../components/Orders/ListTickerBigOrder";
 
 const BigOrderMonitoring = () => {

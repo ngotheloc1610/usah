@@ -1,13 +1,15 @@
-import './ResetTeamPassword.scss';
 import { useEffect, useState } from 'react';
-import { API_RESET_TEAM_PASSWORD } from '../../../constants/api.constant';
 import axios from 'axios';
+import queryString from 'query-string';
+import { toast } from 'react-toastify';
+
+import { API_RESET_TEAM_PASSWORD } from '../../../constants/api.constant';
 import { RETURN_LOGIN_TIME, LENGTH_PASSWORD, MAX_LENGTH_PASSWORD, NOT_MATCH_PASSWORD, MESSAGE_TOAST, KEY_LOCAL_STORAGE } from '../../../constants/general.constant';
 import { validationPassword } from '../../../helper/utils';
-import queryString from 'query-string';
 import { errorPastPassword, RESET_PASSWORD_SUCCESS, success, unAuthorised } from '../../../constants';
-import { toast } from 'react-toastify';
 import { _renderMsgError, _renderResetTokenErrorMessage } from '../../../helper/utils-ui';
+
+import './ResetTeamPassword.scss';
 
 const ResetTeamPassword = () => {
 

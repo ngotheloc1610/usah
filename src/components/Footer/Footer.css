@@ -40,3 +40,7 @@
     line-height: 22px;
     padding: 5px 0;
 }
+
+.logo-site span{
+    color: var(--text-theme) !important;
+}
