@@ -244,9 +244,9 @@ export const TEAM_ID = 'team_id';
 
 export const TEAM_ROLE = 'team_role';
 
-export const THEME_TRADE = 'theme_trade';
+export const THEME_MARKET_SESSION = 'theme_market_session';
 
-export const DEFAULT_THEME_TRADE = 'usah';
+export const USAH = "US Asian Hours";
 
 export const STATUS_ORDER = {
     success: 'SUCCESS',
@@ -334,6 +334,17 @@ export const LIST_OPTION_PAGINATION = [
         value: 100
     },
 ]
+
+export const DEFAULT_TIME_MAP_VALUE = {
+    "0": [],
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": [],
+}
+
 export const ROLE_TEAM_LEAD = 'leader';
 
 export const GET_DATA_ALL_ACCOUNT = '*';
@@ -345,3 +356,5 @@ export const PAGE_SIZE_GET_ALL_ORDER_LIST = 0;
 export const DEFAULT_TIMESTAMP_GET_ALL = 0;
 
 export const DEFAULT_ROW_HEIGHT = 35;
+
+

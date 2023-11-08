@@ -567,3 +567,95 @@ export const filterActiveListWatching = (listKey, listActive) => {
     });
     localStorage.setItem(listKey, JSON.stringify(newWatchList));
 }
+
+export const isCurrentTimeInRange = (timeRangeString: string) => {
+    const now = convertToSingaporeTime(new Date());
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentTime = currentHours * 60 + currentMinutes; // Convert time to minute
+  
+    let ranges = timeRangeString.split(','); // Split time periods with commas
+    if(ranges.length === 0) {
+        ranges = [timeRangeString];
+    }
+
+    for (const range of ranges) {
+        const [startStr, endStr] = range.split('~'); // Split the time period into start and end times
+        const [startHours, startMinutes] = startStr.split(':').map(Number);
+        const [endHours, endMinutes] = endStr.split(':').map(Number);
+    
+        const startTime = startHours * 60 + startMinutes;
+        let endTime = endHours * 60 + endMinutes;
+
+        if(endTime < startTime) {
+            endTime = endTime + (24* 60);
+        }
+  
+        if ((currentTime >= startTime && currentTime <= endTime) && currentTime !== endTime) {
+            return true;
+        }
+    }
+  
+    return false;
+}
+
+export const getCurrentDayAbbreviation = () => {
+    const days = ['0', '1', '2', '3', '4', '5', '6'];
+    const currentDate = convertToSingaporeTime(new Date());
+    const currentDayIndex = currentDate.getDay();
+    const currentDayAbbreviation = days[currentDayIndex];
+    return currentDayAbbreviation;
+} 
+
+export const getEndTimeTrading = (timeRangeString: string) => {
+    if(!timeRangeString) {
+        return "";
+    }
+
+    const now = convertToSingaporeTime(new Date());
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentTime = currentHours * 60 + currentMinutes; // Convert time to minute
+
+    let ranges = timeRangeString.split(','); // Split time periods with commas
+    if(ranges.length === 0) {
+        ranges = [timeRangeString];
+    }
+
+    //get end time each ranges [10:00~15:00,15:00~21:00]
+    for (const range of ranges) {
+        const [startStr, endStr] = range.split('~'); // Split the time period into start and end times
+        const [startHours, startMinutes] = startStr.split(':').map(Number);
+        const [endHours, endMinutes] = endStr.split(':').map(Number);
+    
+        const startTime = startHours * 60 + startMinutes;
+        let endTime = endHours * 60 + endMinutes;
+        if(endTime < startTime) {
+            endTime = endTime + (24 * 60);
+        }
+    
+        if ((currentTime >= startTime && currentTime <= endTime) && currentTime !== endTime) {
+            return endStr;
+        }
+    }
+
+    return ""
+}
+
+export const setTimeFromTimeString = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+  
+    const time = convertToSingaporeTime(new Date());
+    time.setHours(hours);
+    time.setMinutes(minutes);
+    time.setSeconds(0);
+    time.setMilliseconds(0);
+  
+    return time;
+}
+
+export const convertToSingaporeTime = (date: any) => {
+    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
+    const singaporeOffset = 8 * 60 * 60000; // Singapore UTC offset in milliseconds
+    return new Date(utcTime + singaporeOffset);
+}

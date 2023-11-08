@@ -562,6 +562,19 @@ export interface ISummaryOrder {
     num_trades: number
 }
 
+export interface IMarketSessions {
+    marketCode: string,
+    marketName: string,
+    marketStatus: string,
+    sessions: ISession[],
+}
+
+export interface ISession {
+    dayOfWeek: string,
+    mdTime: string,
+    tradingTime: string,
+}
+
 export interface IPortfolioDownLoad {
     tickerCode: string;
     ownedVol: number;

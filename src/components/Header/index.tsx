@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { useSelector } from 'react-redux';
 
 import { IOrderDropdownModel } from '../../constants/route.interface';
-import { ACCOUNT_ID, DEFAULT_THEME_TRADE, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, THEME_TRADE, TIME_ZONE } from '../../constants/general.constant';
+import { ACCOUNT_ID, DEFAULT_TIME_ZONE, EXPIRE_TIME, KEY_LOCAL_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, PAGE_SIZE, POEM_ID, ROLE, ROLE_ACCOUNT_DETAIL, START_PAGE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, TIME_ZONE, USAH } from '../../constants/general.constant';
 import { ROUTER_MONITORING, ROUTER_TRADER } from '../../constants/route.constant';
 import { success } from '../../constants';
 import { API_GET_TOTAL_UNREAD, API_GET_TRADING_RESULT, API_POST_TRADING_RESULT } from '../../constants/api.constant';
@@ -44,7 +44,7 @@ const Header = () => {
   const zoneTime: any = useRef();
   const isBlocked = useSelector((state: any) => state.auth.tabBlock);
 
-  const [themeTrade, setThemeTrade] = useState<any>(localStorage.getItem(THEME_TRADE) ? localStorage.getItem(THEME_TRADE) : DEFAULT_THEME_TRADE);
+  const { marketName } = useSelector((state: any) => state.orders);
 
   useEffect(() => {
     _renderAccountId()
@@ -82,11 +82,6 @@ const Header = () => {
     getDataTradingResult(paramTrading);
     getTotalTradingResultsUnread();
   }, []);
-
-  useEffect(() => {
-		document.documentElement.setAttribute("data-theme", themeTrade)
-	}, [themeTrade]);
-
 
   const _renderAccountId = () => {
     const poemIdCurrent = sessionStorage.getItem(POEM_ID);
@@ -183,15 +178,6 @@ const Header = () => {
   const _renderHeaderTop = () => (
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
-          <div>
-            <select value={themeTrade ? themeTrade : ''} className="form-select form-select-sm lh-1 me-2" onChange={(e) => { setThemeTrade(e.target.value); localStorage.setItem(THEME_TRADE, e.target.value) }}>
-              <option value="usah">USAH</option>
-              <option value="pre-market" >Pre Trade</option>
-              <option value="post-market">Post Trade</option>
-              <option value="us">US</option>
-            </select>
-          </div>
-
         <div className="small text-end mr-px-20">
           <div>US <span className="ms-2" ref={usTime}></span></div>
           <div className="d-flex align-items-center justify-content-end">
@@ -281,9 +267,9 @@ const Header = () => {
         <div className="site-brand" style={{ marginRight: '1.5rem' }}>
           <h1 className="site-title mb-0 text-center">
             <a href="" className="site-link text-decoration-none">
-              <strong style={{ fontSize: '22px', display: 'grid' }}>
-                <span>US Market Trading</span>
-                <span>(Asian Hrs)</span>
+              <strong style={{ fontSize: '28px', display: 'grid'}} className='fw-bolder'>
+                <span>US24</span>
+                <span>({marketName === USAH ? "Asian Hours" : marketName})</span>
               </strong>
             </a>
           </h1>

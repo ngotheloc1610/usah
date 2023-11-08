@@ -1,6 +1,8 @@
 import { memo } from 'react';
+import { useSelector } from 'react-redux';
 
 import { Colors } from '../../themes';
+import { USAH } from '../../constants/general.constant';
 
 import './Footer.css';
 
@@ -27,17 +29,20 @@ const _renderContactUs = () => (
         </div>
     </div>
 )
-const _renderElementFooter = () => (
-    <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
+const _renderElementFooter = () => {
+    const { marketName } = useSelector((state: any) => state.orders);
+
+    return (
+        <div className="site-header" style={{ backgroundColor: Colors.lightBlue }}>
         <div className="container">
             <div className="copyright width_common d-flex justify-content-between mb20">
                 <a href="" className="site-link text-decoration-none text-center">
                 <strong className='logo-site'>
-                    <span>US Market Trading</span>
-                    <span>
-                (Asian Hrs)
-                    </span>
-                </strong>
+                        <span>US24</span>
+                        <span>
+                            ({marketName === USAH ? "Asian Hours" : marketName})
+                        </span>
+                    </strong>
                 </a>
                 
             </div>
@@ -48,8 +53,10 @@ const _renderElementFooter = () => (
             </div>
         </div>
     </div>
-)
+    )
+}
 const Footer = () => {
+
     return <>{_renderElementFooter()}</>
 }
 export default memo(Footer);
