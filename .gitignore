@@ -11,6 +11,7 @@
 # production
 /build
 /build-lp
+/build-us24-lp
 
 # misc
 .DS_Store
