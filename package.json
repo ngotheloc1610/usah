@@ -53,7 +53,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build && (rd /s /q build-lp && move build build-lp) || move build build-lp",
+    "build": "react-app-rewired build && (rd /s /q build-us24-lp && move build build-us24-lp) || move build build-us24-lp",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
@@ -81,5 +81,5 @@
     "react-app-rewired": "^2.2.1",
     "react-virtualized": "^9.22.5"
   },
-  "homepage": "/lp"
+  "homepage": "/us24-lp"
 }
