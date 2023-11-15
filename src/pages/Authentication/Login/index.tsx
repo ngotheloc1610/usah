@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
-import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, REMEMBER_KEY, ROLE, SECRET_KEY, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE } from '../../../constants/general.constant';
+import { ACCOUNT_ID, EXPIRE_TIME, IS_REMEMBER_ME, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, POEM_ID, ROLE, SUB_ACCOUNTS, TEAM_CODE, TEAM_ID, TEAM_ROLE, USAH } from '../../../constants/general.constant';
 import { IReqLogin } from '../../../interfaces';
 import { deactiveAccount, multipleLoginFail, success } from '../../../constants';
 import { API_LOGIN } from '../../../constants/api.constant';
@@ -25,6 +25,8 @@ const Login = () => {
     const isRememberMe = localStorage.getItem(IS_REMEMBER_ME);
     const cryptoJS = require("crypto-js");
     const dispatch = useDispatch();
+
+    const { marketName } = useSelector((state: any) => state.orders);
 
     useEffect(() => {
         setIsRemeber(isRememberMe === 'true');
@@ -154,8 +156,8 @@ const Login = () => {
                             {/* <h3 className="text-center text-primary mb-3"><img src={LOGO} alt="" style={{ maxHeight: "7rem" }} /></h3> */}
                             <h3 className="text-center text-primary mb-3 fs-px-30">
                                 <strong className="text-center logo-style">
-                                    <span>US Market Trading</span>
-                                    <span>(Asian Hrs)</span>
+                                    <span>US24</span>
+                                    <span>({marketName === USAH ? "Asian Hours" : marketName})</span>
                                 </strong>
                             </h3>
                             <div className="card card-login shadow">

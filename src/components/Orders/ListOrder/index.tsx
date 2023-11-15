@@ -677,7 +677,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     {teamCode && teamCode !== 'null' && (<Column label="Account ID" dataKey="uid" minWidth={50} width={50}
                         flexGrow={0.8}
                         headerRenderer={({ label }) =>
-                            <span className="text-ellipsis text-capitalize">{label}</span>
+                            <span className="text-ellipsis text-capitalize theme-header">{label}</span>
 
                         }
                         cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
@@ -693,7 +693,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={50} width={50} label="Order No" dataKey="externalOrderId"
                         flexGrow={1}
                         headerRenderer={({ label }) =>
-                            <span className="text-ellipsis text-capitalize">{label}</span>
+                            <span className="text-ellipsis text-capitalize theme-header">{label}</span>
                         }
                         cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                             <CellMeasurer
@@ -708,7 +708,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={15} width={15} label="Ticker" dataKey="symbolCode"
                         flexGrow={0.8}
                         headerRenderer={({ label }) =>
-                            <div className="sorting_disabled pointer-style" onClick={handleSortTicker}>
+                            <div className="sorting_disabled pointer-style theme-header" onClick={handleSortTicker}>
                                 <span className="text-ellipsis text-capitalize">{label}</span>
                                 {!isTickerAsc && isSortTicker && <i className="bi bi-caret-down"></i>}
                                 {isTickerAsc && isSortTicker && <i className="bi bi-caret-up"></i>}
@@ -727,7 +727,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={10} width={10} label="Side" dataKey="side"
                         flexGrow={0.5}
                         headerRenderer={({ label }) =>
-                            <div className="sorting_disabled pointer-style text-center" onClick={handleSortSide}>
+                            <div className="sorting_disabled pointer-style text-center theme-header" onClick={handleSortSide}>
                                 <span className="text-ellipsis text-capitalize">{label}</span>
                                 {!isSideAsc && isSortSide && <i className="bi bi-caret-down"></i>}
                                 {isSideAsc && isSortSide && <i className="bi bi-caret-up"></i>}
@@ -746,7 +746,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={10} width={10} label="Type" dataKey="orderType"
                         flexGrow={0.5}
                         headerRenderer={({ label }) =>
-                            <span className="d-block text-center text-ellipsis text-capitalize">{label}</span>
+                            <span className="d-block text-center text-ellipsis text-capitalize theme-header">{label}</span>
                         }
                         cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                             <CellMeasurer
@@ -761,7 +761,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={20} width={20} label="Price" dataKey="price"
                         flexGrow={0.8}
                         headerRenderer={({ label }) =>
-                            <div className="sorting_disabled pointer-style text-end" onClick={handleSortPrice}>
+                            <div className="sorting_disabled pointer-style text-end theme-header" onClick={handleSortPrice}>
                                 <span className="text-ellipsis text-capitalize">{label}</span>
                                 {!isPriceAsc && isSortPrice && <i className="bi bi-caret-down"></i>}
                                 {isPriceAsc && isSortPrice && <i className="bi bi-caret-up"></i>}
@@ -780,7 +780,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={20} width={20} label="Quantity" dataKey="amount"
                         flexGrow={0.8}
                         headerRenderer={({ label }) =>
-                            <span className="d-block text-end text-ellipsis text-capitalize">{label}</span>
+                            <span className="d-block text-end text-ellipsis text-capitalize theme-header">{label}</span>
                         }
                         cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                             <CellMeasurer
@@ -795,7 +795,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={20} width={20} label="Pending" dataKey="filledAmount"
                         flexGrow={0.8}
                         headerRenderer={({ label }) =>
-                            <span className="d-block text-end text-ellipsis text-capitalize">{label}</span>
+                            <span className="d-block text-end text-ellipsis text-capitalize theme-header">{label}</span>
                         }
                         cellRenderer={({ cellData, rowData, dataKey, parent, rowIndex }) =>
                             <CellMeasurer
@@ -810,7 +810,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     <Column minWidth={80} width={120} label="Datetime" dataKey="time"
                         flexGrow={1}
                         headerRenderer={({ label }) =>
-                            <div className="sorting_disabled pointer-style text-end" onClick={handleSortDateTime}>
+                            <div className="sorting_disabled pointer-style text-end theme-header" onClick={handleSortDateTime}>
                                 <span className="text-ellipsis text-capitalize">{label}</span>
                                 {!isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-down"></i>}
                                 {isDateTimeAsc && isSortDateTime && <i className="bi bi-caret-up"></i>}
@@ -903,7 +903,7 @@ const ListOrder = (props: IPropsListOrder) => {
                     The key props will force React to re-build the DOM tree every time the view is changed 
                 */}
                 <div key={Math.random().toString(36).slice(2)} ref={tableBodyRef} className="card-body p-0" style={{overflow: 'hidden', overflowX: `${getRowHeight() === DEFAULT_ROW_HEIGHT || !isMobileScreen() ? 'hidden' : 'scroll'}`}}>
-                    <div className={`${!isShowFullData ? 'mh-350' : ''} theme-header`} style={{ minHeight: getRowHeight() }}>
+                    <div className={`${!isShowFullData ? 'mh-350' : ''}`} style={{ minHeight: getRowHeight() }}>
                         {_renderTableListOrder()}
                     </div>
                 </div>

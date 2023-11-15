@@ -8,20 +8,27 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import Login from './pages/Authentication/Login';
 import ReduxPersist from './config/ReduxPersist';
-import { KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE, TEAM_CODE, TEAM_ID, TEAM_ROLE } from './constants/general.constant';
+import { DEFAULT_TIME_MAP_VALUE, KEY_LOCAL_STORAGE, KEY_SESSION_STORAGE, MAX_ORDER_VALUE, MAX_ORDER_VOLUME, MIN_ORDER_VALUE, NOTE_RISK, POEM_ID, ROLE, TEAM_CODE, TEAM_ID, TEAM_ROLE, THEME_MARKET_SESSION } from './constants/general.constant';
 import Footer from './components/Footer';
 import { ACCOUNT_ID, EXPIRE_TIME } from './../src/constants/general.constant';
 import ResetPassword from './pages/Authentication/reset-password';
 import ForgotPassword from './pages/Authentication/forgot-password';
 import Blocked from './pages/Blocked';
-import { convertNumber } from './helper/utils';
+import { convertNumber, convertToSingaporeTime, defindConfigPost, getCurrentDayAbbreviation, getEndTimeTrading, isCurrentTimeInRange, setTimeFromTimeString } from './helper/utils';
 import { setTabBlock } from './redux/actions/auth';
 import ResetTeamPassword from './pages/Authentication/reset-team-password';
 import moment from 'moment';
 import 'react-virtualized/styles.css';
 
 import worker_script from './web-worker/worker';
+import { API_GET_MARKET_SESSIONS } from './constants/api.constant';
+import { IMarketSessions, ISession } from './interfaces/order.interface';
+import axios from 'axios';
+import { success } from './constants';
+import { setMarketName, setTimeMapSessions } from './redux/actions/Orders';
+
 const App = () => {
+  const api_url = window.globalThis.apiUrl;
   const dispatch = useDispatch()
   // create a worker, worker work what func is exported in file './web-worker/worker' 
   // woker run scripts in an other thread
@@ -33,6 +40,10 @@ const App = () => {
   const [isResetTeamPassword, setIsResetTeamPassword] = useState(false);
   const isBlocked = useSelector((state: any) => state.auth.tabBlock);
   const idleEvents = ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'];
+
+  const [themeMarket, setThemeMarket] = useState(localStorage.getItem(THEME_MARKET_SESSION) || "");
+
+  const { timMapSession } = useSelector((state: any) => state.orders);
 
   useEffect(() => {
     const token = sessionStorage.getItem(KEY_LOCAL_STORAGE.AUTHEN);
@@ -89,6 +100,18 @@ const App = () => {
       if (!window.location.pathname.includes('/login') && window.globalThis.idleTimeOut < (e.data * 1000)) {
         setIsShowIdleTimeOut(true);
       }
+
+      if (e.data === "change_sessions") {
+        const { name, theme } = getMarketInfo(timMapSession);
+        localStorage.setItem(THEME_MARKET_SESSION, theme);
+        setThemeMarket(theme);
+        dispatch(setMarketName(name));
+
+        worker.postMessage({
+          title: "market_sessions",
+          nextTime: calcNextTimeSessions(timMapSession),
+        });
+      }
     }
   }, [])
 
@@ -104,6 +127,105 @@ const App = () => {
       dispatch(setTabBlock(true))
     }
   }, [isLogin])
+
+  useEffect(() => {
+		document.documentElement.setAttribute("data-theme", themeMarket )
+	}, [themeMarket]);
+
+  useEffect(() => {
+    getMarketSessions();
+  }, [])
+
+  const calcNextTimeSessions = (timMapSession: any) => {
+    let endTime = "";
+    const currentDay = getCurrentDayAbbreviation();
+
+    if (timMapSession) {
+      timMapSession[currentDay].forEach((time: any) => {
+        //time[0]: marketCode, time[1]: marketName, time[2]: mdTime
+        if (isCurrentTimeInRange(time[2])) {
+          endTime = getEndTimeTrading(time[2]);
+        }
+      });
+    }
+
+    const now = convertToSingaporeTime(new Date());
+    let endTimeTrading: any = setTimeFromTimeString(endTime);
+
+    if (endTimeTrading < now) {
+      endTimeTrading = endTimeTrading.setDate(endTimeTrading.getDate() + 1);
+    } else {
+      endTimeTrading = endTimeTrading.getTime();
+    }
+
+    const nextTime = endTimeTrading - now.getTime();
+
+    return nextTime;
+  };
+
+  const getMarketInfo = (timMapSession: any) => {
+    let market = {
+      name: "",
+      theme: "",
+    };
+
+    const currentDay = getCurrentDayAbbreviation();
+
+    if (timMapSession) {
+      //time[0]: marketCode, time[1]: marketName, time[2]: mdTime
+      timMapSession[currentDay].forEach((time: any) => {
+        if (isCurrentTimeInRange(time[2])) {
+          market = {
+            name: time[1],
+            theme: time[0],
+          };
+        }
+      });
+    }
+
+    return market;
+  };
+
+  const getMarketSessions = () => {
+    const url = `${api_url}${API_GET_MARKET_SESSIONS}`;
+
+    const timeMap = DEFAULT_TIME_MAP_VALUE;
+
+    axios
+      .get(url, defindConfigPost())
+      .then((resp: any) => {
+        if (resp.data.meta.code === success) {
+          const markets = resp.data.data.markets;
+
+          markets.forEach((market: IMarketSessions) => {
+            market.sessions.forEach((session: ISession) => {
+              timeMap[`${session.dayOfWeek}`].push([
+                market.marketCode,
+                market.marketName,
+                session.mdTime,
+              ]);
+            });
+          });
+
+          dispatch(setTimeMapSessions(timeMap));
+        }
+      })
+      .catch((error: any) => {
+        console.log("Failed to get market sessions", error);
+      })
+      .finally(() => {
+        const { name, theme } = getMarketInfo(timeMap);
+
+        localStorage.setItem(THEME_MARKET_SESSION, theme);
+        setThemeMarket(theme);
+        dispatch(setMarketName(name));
+
+        worker.postMessage({
+          title: "market_sessions",
+          nextTime: calcNextTimeSessions(timeMap),
+        });
+      });
+  };
 
   const checkLoginPage = () => {
     const path = window.location.pathname;

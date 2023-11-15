@@ -82,7 +82,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                     width={185}
                     flexGrow={0.5}
                     headerRenderer={() =>
-                        <span>Datetime</span>
+                        <span className='theme-header'>Datetime</span>
                     }
                     cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                         <CellMeasurer
@@ -102,7 +102,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                     width={45}
                     flexGrow={0.3}
                     headerRenderer={() =>
-                        <span>Vol</span>
+                        <span className='theme-header'>Vol</span>
                     }
                     cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                         <CellMeasurer
@@ -121,7 +121,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
                     width={48}
                     flexGrow={0.3}
                     headerRenderer={() =>
-                        <span>Price</span>
+                        <span className='theme-header'>Price</span>
                     }
                     cellRenderer={({ cellData, dataKey, parent, rowIndex }) =>
                         <CellMeasurer
@@ -161,7 +161,7 @@ const OrderBookTradeHistory = (props: IPropTradeOrderBook) => {
             <h6 className="card-title mb-0"><i className="icon bi bi-clock me-1"></i> Trade History</h6>
         </div>
         <div ref={tableBodyRef} className="card-body p-0" style={{ overflow: 'hidden', overflowX: `${getRowHeight === 30 || !isMobileScreen() ? 'hidden' : 'scroll'}` }}>
-            <div className='h-100 theme-header' style={{ minHeight: getRowHeight }}>
+            <div className='h-100' style={{ minHeight: getRowHeight }}>
                 {_renderTradeData()}
             </div>
         </div>
