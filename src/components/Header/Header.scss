@@ -186,3 +186,7 @@
 .mw-px-50 {
     min-width: 50px !important;
 }
+
+.dropdown-item:active{
+    background: var(--bg-light) !important;
+}
