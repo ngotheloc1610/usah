@@ -165,7 +165,7 @@ const SettingTeamPassword = () => {
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <h6 className="c-title text-primary mb-3">Change Password</h6>
+                <h6 className="c-title mb-3">Change Password</h6>
                 <div className="mb-4 trading-pin-form">
                     {_renderChanngePassword()}
                     {_renderNewPassword()}
