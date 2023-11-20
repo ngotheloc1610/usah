@@ -157,7 +157,7 @@ const Login = () => {
                             <h3 className="text-center text-primary mb-3 fs-px-30">
                                 <strong className="text-center logo-style">
                                     <span>US24</span>
-                                    <span>({marketName === USAH ? "Asian Hours" : marketName})</span>
+                                    {marketName && <span>({marketName})</span>}
                                 </strong>
                             </h3>
                             <div className="card card-login shadow">

@@ -269,7 +269,7 @@ const Header = () => {
             <a href="" className="site-link text-decoration-none">
               <strong style={{ fontSize: '28px', display: 'grid'}} className='fw-bolder'>
                 <span>US24</span>
-                <span>({marketName === USAH ? "Asian Hours" : marketName})</span>
+                {marketName && <span>({marketName})</span>}
               </strong>
             </a>
           </h1>

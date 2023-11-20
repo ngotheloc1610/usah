@@ -39,9 +39,7 @@ const _renderElementFooter = () => {
                 <a href="" className="site-link text-decoration-none text-center">
                 <strong className='logo-site'>
                         <span>US24</span>
-                        <span>
-                            ({marketName === USAH ? "Asian Hours" : marketName})
-                        </span>
+                        {marketName && <span>({marketName})</span>}
                     </strong>
                 </a>
                 
