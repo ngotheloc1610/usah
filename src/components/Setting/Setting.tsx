@@ -2,48 +2,35 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import axios from 'axios';
 
-import { wsService } from '../../services/websocket-service';
-import * as sspb from '../../models/proto/system_service_pb';
-import * as rspb from "../../models/proto/rpc_pb";
-
 import { defindConfigPost, validationPassword } from '../../helper/utils'
-import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, ADMIN_NEWS_FLAG, MATCH_NOTI_FLAG, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD, ACCOUNT_ID } from '../../constants/general.constant'
-import { IAccountDetail } from '../../interfaces/customerInfo.interface'
+import { ERROR_MSG_VALIDATE, MESSAGE_TOAST, MAX_LENGTH_PASSWORD, LENGTH_PASSWORD } from '../../constants/general.constant'
 import { API_POST_CHANGE_PASSWORD } from '../../constants/api.constant';
 import { IReqChangePassword } from '../../interfaces';
 import { errorPastPassword, success } from '../../constants';
 
 interface ISetting {
     isChangePassword: boolean;
-    isNotification: boolean;
-    customerInfoDetail: IAccountDetail;
 }
 
 const defaultProps = {
     isChangePassword: false,
-    isNotification: false,
 }
 
 const Setting = (props: ISetting) => {
     const api_url = window.globalThis.apiUrl;
     const urlPostChangePassword = `${api_url}${API_POST_CHANGE_PASSWORD}`;
 
-    const { isChangePassword, customerInfoDetail } = props
-    const systemServicePb: any = sspb
+    const { isChangePassword } = props
     const [password, setPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [isOpenEye, setIsOpenEye] = useState(true)
     const [isOpenEyeNew, setIsOpenEyeNew] = useState(true)
     const [isOpenEyeConfirm, setIsOpenEyeConfirm] = useState(true)
-    const [recvAdminNewsFlg, setRecvAdminNewsFlg] = useState(customerInfoDetail.recvAdminNewsFlg)
-    const [recvMatchNotiFlg, setRecvMatchNotiFlg] = useState(customerInfoDetail.recvMatchNotiFlg)
     const [checkPass, setCheckPass] = useState(false)
     const [checkNewPass, setCheckNewPass] = useState(false)
     const [checkConfirm, setCheckConfirm] = useState(false)
 
-    localStorage.setItem(ADMIN_NEWS_FLAG, JSON.stringify(recvAdminNewsFlg))
-    localStorage.setItem(MATCH_NOTI_FLAG, JSON.stringify(recvMatchNotiFlg))
 
     useEffect(() => {
         if (!isChangePassword) {
@@ -61,50 +48,6 @@ const Setting = (props: ISetting) => {
         setCheckNewPass(false)
         setCheckConfirm(false)
     }, [isChangePassword])
-
-    const buildMessageAdNewsNoti = (accountId: string, newsAdmin: number) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setRecvAdminNewsFlg(newsAdmin);
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const buildMessageMatchNoti = (accountId: string, matchNoti: number) => {
-        const SystemServicePb: any = sspb;
-        let wsConnected = wsService.getWsConnected();
-        if (wsConnected) {
-            let currentDate = new Date();
-            let customerInfoRequest = new SystemServicePb.AccountUpdateRequest();
-            customerInfoRequest.setAccountId(Number(accountId));
-            customerInfoRequest.setRecvMatchNotiFlg(matchNoti);
-            const rpcModel: any = rspb;
-            let rpcMsg = new rpcModel.RpcMessage();
-            rpcMsg.setPayloadClass(rpcModel.RpcMessage.Payload.ACCOUNT_UPDATE_REQ);
-            rpcMsg.setPayloadData(customerInfoRequest.serializeBinary());
-            rpcMsg.setContextId(currentDate.getTime());
-            wsService.sendMessage(rpcMsg.serializeBinary());
-        }
-    }
-
-    const sendMessageAdNewsNoti = (newsAdmin: number) => {
-        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
-        buildMessageAdNewsNoti(accountId, newsAdmin);
-    }
-
-    const sendMessageMatchNoti = (matchNoti: number) => {
-        let accountId = sessionStorage.getItem(ACCOUNT_ID) || '';
-        buildMessageMatchNoti(accountId, matchNoti);
-    }
 
     const _renderMsgError = () => (
         <>
@@ -150,19 +93,6 @@ const Setting = (props: ISetting) => {
                 toast.error(MESSAGE_TOAST.ERROR_PASSWORD_UPDATE);
             }  
         });
-    }
-    const changeNewsAdmin = (checked: boolean) => {
-        let newsAdmin: number = 0
-        checked ? newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : newsAdmin = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
-        setRecvAdminNewsFlg(newsAdmin)
-        sendMessageAdNewsNoti(newsAdmin)
-    }
-
-    const changeNewsNotication = (checked: boolean) => {
-        let matchNoti: number = 0
-        checked ? matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_ON : matchNoti = systemServicePb.AccountUpdateRequest.BoolFlag.BOOL_FLAG_OFF
-        setRecvMatchNotiFlg(matchNoti)
-        sendMessageMatchNoti(matchNoti)
     }
 
     const _renderChanngePassword = () => (
@@ -273,7 +203,7 @@ const Setting = (props: ISetting) => {
         <div className="card">
             <div className="card-body border-top shadow-sm">
                 <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-                <h6 className="c-title text-primary mb-3">Change Password</h6>
+                <h6 className="c-title mb-3">Change Password</h6>
                 <div className="mb-4 trading-pin-form">
                     {_renderChanngePassword()}
                     {_renderNewPassword()}
@@ -290,35 +220,9 @@ const Setting = (props: ISetting) => {
             </div>
         </div>
     )
-    // Bug 55562 Delete the Notification Setting screen
-    // const _renderSettingNotification = () => (
-    //     <div className="card">
-    //         <div className="card-body border-top shadow-sm">
-    //             <h4 className="border-bottom pb-1 mb-3"><i className="bi bi-gear-fill opacity-50"></i> <strong>Setting</strong></h4>
-    //             <div className="mb-4">
-    //                 <h6 className="c-title text-primary mb-3">Notification</h6>
-    //                 <div className="form-check form-switch mb-2">
-    //                     <input className="form-check-input" type="checkbox" role="switch" id="news_admin"
-    //                         checked={recvAdminNewsFlg === 1 ? true : false}
-    //                         onChange={(event) => changeNewsAdmin(event.target.checked)}
-    //                     />
-    //                     <label className="form-check-label" htmlFor="news_admin">Receive admin news</label>
-    //                 </div>
-    //                 <div className="form-check form-switch mb-2">
-    //                     <input className="form-check-input" type="checkbox" role="switch" id="news_notication"
-    //                         checked={recvMatchNotiFlg === 1 ? true : false}
-    //                         onChange={(event) => changeNewsNotication(event.target.checked)}
-    //                     />
-    //                     <label className="form-check-label" htmlFor="news_notication">Receive matched results notification</label>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     </div>
-    // )
 
     return <>
         {isChangePassword && _renderSettingTemplate()}
-        {/* {isNotification && _renderSettingNotification()} */}
     </>
 }
 
