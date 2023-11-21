@@ -573,29 +573,33 @@ export const isCurrentTimeInRange = (timeRangeString: string) => {
     const currentHours = now.getHours();
     const currentMinutes = now.getMinutes();
     const currentTime = currentHours * 60 + currentMinutes; // Convert time to minute
-  
-    let ranges = timeRangeString.split(','); // Split time periods with commas
-    if(ranges.length === 0) {
-        ranges = [timeRangeString];
-    }
 
-    for (const range of ranges) {
-        const [startStr, endStr] = range.split('~'); // Split the time period into start and end times
-        const [startHours, startMinutes] = startStr.split(':').map(Number);
-        const [endHours, endMinutes] = endStr.split(':').map(Number);
+    if(timeRangeString) {
+        let ranges = timeRangeString.split(','); // Split time periods with commas
+        if(ranges.length === 0) {
+            ranges = [timeRangeString];
+        }
     
-        const startTime = startHours * 60 + startMinutes;
-        let endTime = endHours * 60 + endMinutes;
-
-        if(endTime < startTime) {
-            endTime = endTime + (24* 60);
+        for (const range of ranges) {
+            const [startStr, endStr] = range.split('~'); // Split the time period into start and end times
+            const [startHours, startMinutes] = startStr.split(':').map(Number);
+            const [endHours, endMinutes] = endStr.split(':').map(Number);
+        
+            const startTime = startHours * 60 + startMinutes;
+            let endTime = endHours * 60 + endMinutes;
+    
+            if(endTime < startTime) {
+                endTime = endTime + (24* 60);
+            }
+      
+            if ((currentTime >= startTime && currentTime <= endTime) && currentTime !== endTime) {
+                return true;
+            }
         }
-  
-        if ((currentTime >= startTime && currentTime <= endTime) && currentTime !== endTime) {
-            return true;
-        }
+      
+        return false;
     }
-  
+
     return false;
 }
 
