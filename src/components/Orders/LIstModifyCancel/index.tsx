@@ -299,7 +299,14 @@ const ListModifyCancel = (props: IPropsListModifyCancel) => {
                 price: order?.price
             }
         }
-        setListOrderFull(tmpList);
+
+        if(paramSearch.account_id !== "*") {
+            const accountId = convertNumber(paramSearch.account_id);
+            const listFilter = tmpList.filter((order: IListOrderModifyCancel) => order.uid === accountId);
+            setListOrderFull(listFilter);
+        } else {
+            setListOrderFull(tmpList);
+        }
     }
 
     const handleOrderCanceledAndFilled = (order) => {
