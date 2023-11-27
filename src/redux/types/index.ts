@@ -11,6 +11,7 @@ const Types = {
   WARNING_MESSAGE: 'WARNING_MESSAGE',
   MARKET_NAME: "MARKET_NAME",
   TIME_MAP_SESSIONS: "TIME_MAP_SESSIONS",
+  DST_TIME: "DST_TIME",
 };
 
 export default Types;
