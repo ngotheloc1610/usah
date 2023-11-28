@@ -25,7 +25,7 @@ import { API_GET_MARKET_SESSIONS } from './constants/api.constant';
 import { IMarketSessions, ISession } from './interfaces/order.interface';
 import axios from 'axios';
 import { success } from './constants';
-import { setMarketName, setTimeMapSessions } from './redux/actions/Orders';
+import { setDstTime, setMarketName, setTimeMapSessions } from './redux/actions/Orders';
 
 const App = () => {
   const api_url = window.globalThis.apiUrl;
@@ -102,10 +102,11 @@ const App = () => {
       }
 
       if (e.data === "change_sessions") {
-        const { name, theme } = getMarketInfo(timMapSession);
+        const { name, theme, dstTime } = getMarketInfo(timMapSession);
         localStorage.setItem(THEME_MARKET_SESSION, theme);
         setThemeMarket(theme);
         dispatch(setMarketName(name));
+        dispatch(setDstTime(dstTime));
 
         worker.postMessage({
           title: "market_sessions",
@@ -167,17 +168,19 @@ const App = () => {
     let market = {
       name: "",
       theme: "",
+      dstTime: "",
     };
 
     const currentDay = getCurrentDayAbbreviation();
 
     if (timMapSession) {
-      //time[0]: marketCode, time[1]: marketName, time[2]: mdTime
+      //time[0]: marketCode, time[1]: marketName, time[2]: mdTime, time[3]: dstTime
       timMapSession[currentDay].forEach((time: any) => {
         if (isCurrentTimeInRange(time[2])) {
           market = {
             name: time[1],
             theme: time[0],
+            dstTime: time[3]
           };
         }
       });
@@ -203,6 +206,7 @@ const App = () => {
                 market.marketCode,
                 market.marketName,
                 session.mdTime,
+                market.dstTime
               ]);
             });
           });
@@ -214,11 +218,12 @@ const App = () => {
         console.log("Failed to get market sessions", error);
       })
       .finally(() => {
-        const { name, theme } = getMarketInfo(timeMap);
+        const { name, theme, dstTime } = getMarketInfo(timeMap);
 
         localStorage.setItem(THEME_MARKET_SESSION, theme);
         setThemeMarket(theme);
         dispatch(setMarketName(name));
+        dispatch(setDstTime(dstTime));
 
         worker.postMessage({
           title: "market_sessions",

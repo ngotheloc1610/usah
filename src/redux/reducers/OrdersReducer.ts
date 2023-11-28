@@ -6,6 +6,7 @@ const initState = {
     listOrder: [],
     marketName: "",
     timMapSession: DEFAULT_TIME_MAP_VALUE,
+    dstTime: "",
 };
 
 const OrdersReducer = (state = initState, action: AnyAction) => {
@@ -29,6 +30,13 @@ const OrdersReducer = (state = initState, action: AnyAction) => {
             return {
                 ...state,
                 timMapSession: payload
+            }
+        }
+
+        case Types.DST_TIME: {
+            return {
+                ...state,
+                dstTime: payload
             }
         }
 

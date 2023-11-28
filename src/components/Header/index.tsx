@@ -44,7 +44,7 @@ const Header = () => {
   const zoneTime: any = useRef();
   const isBlocked = useSelector((state: any) => state.auth.tabBlock);
 
-  const { marketName } = useSelector((state: any) => state.orders);
+  const { marketName, dstTime } = useSelector((state: any) => state.orders);
 
   useEffect(() => {
     _renderAccountId()
@@ -179,7 +179,11 @@ const Header = () => {
     <div className="header-top">
       <div className="container-fluid d-flex justify-content-end">
         <div className="small text-end mr-px-20">
-          <div>US <span className="ms-2" ref={usTime}></span></div>
+          <div>
+            <span className='fw-bold text-capitalize'>{dstTime}</span><span className='fw-bold me-2'> time</span>
+            <span>US</span> 
+            <span className="ms-2" ref={usTime}></span>
+          </div>
           <div className="d-flex align-items-center justify-content-end">
             <select value={timeZone ? timeZone : ''} className="form-select form-select-sm lh-1 me-2 w-4" onChange={(e) => { setTimeZone(e.target.value); localStorage.setItem(TIME_ZONE, e.target.value) }}>
               <option value="SG" >SG</option>

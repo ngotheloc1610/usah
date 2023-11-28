@@ -566,6 +566,7 @@ export interface IMarketSessions {
     marketCode: string,
     marketName: string,
     marketStatus: string,
+    dstTime: string,
     sessions: ISession[],
 }
 

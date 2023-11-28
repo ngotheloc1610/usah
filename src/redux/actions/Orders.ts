@@ -15,3 +15,8 @@ export const setTimeMapSessions = (payload: any) => ({
     type: Types.TIME_MAP_SESSIONS,
     payload
 })
+
+export const setDstTime = (payload: string) => ({
+    type: Types.DST_TIME,
+    payload
+})
