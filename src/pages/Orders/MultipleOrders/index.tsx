@@ -856,8 +856,9 @@ const MultipleOrders = () => {
     const getStatusOrderResponse = (value: number, content: string, lstResponse: IOrderListResponse[], msgCode: number) => {
         if (statusOrder === 0) {
             setStatusOrder(value);
+            console.log("lstResponse:", lstResponse)
             if (lstResponse && lstResponse?.length > 0) {
-                const lstRecordsSuccess = lstResponse?.filter(item => item?.state === tradingModel.OrderState.ORDER_STATE_PLACED);
+                const lstRecordsSuccess = lstResponse?.filter(item => item?.state === tradingModel.OrderState.ORDER_STATE_PLACED || item?.state === tradingModel.OrderState.ORDER_STATE_STARTED );
                 lstResponse.forEach(item => {
                     if (item?.msgCode === systemModelPb.MsgCode.MT_RET_FORWARD_EXT_SYSTEM) {
                         lstRecordsSuccess.push(item);
