@@ -225,7 +225,7 @@ function OrderTable(props: IPropListOrderHistory) {
         if (msgCode === systemModelPb.MsgCode.MT_RET_NOT_ENOUGH_MIN_ORDER_VALUE) {
             return MESSAGE_ERROR_MIN_ORDER_VALUE_HISTORY;
         }
-        if (msgCode === systemModelPb.MsgCode.MT_RET_ERROR_FROM_BO) {
+        if (msgCode === systemModelPb.MsgCode.MT_RET_ERROR_FROM_BO || msgCode === systemModelPb.MsgCode.MT_RET_ERROR) {
             return comment
         }
         return MESSAGE_ERROR.get(msgCode) || '-';
