@@ -26,8 +26,6 @@ const Login = () => {
     const cryptoJS = require("crypto-js");
     const dispatch = useDispatch();
 
-    const { marketName } = useSelector((state: any) => state.orders);
-
     useEffect(() => {
         setIsRemeber(isRememberMe === 'true');
         if (isRememberMe && isRememberMe === 'true') {
@@ -157,7 +155,6 @@ const Login = () => {
                             <h3 className="text-center text-primary mb-3 fs-px-30">
                                 <strong className="text-center logo-style">
                                     <span>US24</span>
-                                    {marketName && <span>({marketName})</span>}
                                 </strong>
                             </h3>
                             <div className="card card-login shadow">
@@ -197,8 +194,8 @@ const Login = () => {
                                         </div>
                                     </div>
                                     <div className="mt-1">
-                                        <button disabled={email?.trim() === '' || password?.trim() === ''} className="btn btn-primary w-100 text-uppercase btn-login mb-2 pt-2 pb-2" onClick={handleSubmit}><strong>Login</strong></button>
-                                        <p className="text-center"><a href={`${process.env.PUBLIC_URL}/forgot-password`}>Forgot Password</a></p>
+                                        <button disabled={email?.trim() === '' || password?.trim() === ''} className="btn btn-primary w-100 text-uppercase btn-login mb-2 pt-2 pb-2 btn-default" onClick={handleSubmit}><strong>Login</strong></button>
+                                        <p className="text-center"><a href={`${process.env.PUBLIC_URL}/forgot-password`} className='text-forgot'>Forgot Password</a></p>
                                     </div>
                                 </div>
                             </div>

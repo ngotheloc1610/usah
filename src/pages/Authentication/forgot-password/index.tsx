@@ -66,8 +66,7 @@ const ForgotPassword = () => {
                         <div className="col-lg-4">
                             <h3 className="text-center text-primary mb-3 fs-px-30">
                                 <strong className="text-center logo-style">
-                                    <span>US Market Trading</span>
-                                    <span>(Asian Hrs)</span>
+                                    <span>US24</span>
                                 </strong>
                             </h3>
                             <div className="card card-login shadow">
@@ -93,13 +92,13 @@ const ForgotPassword = () => {
                                         <div className='d-flex'>
                                             <button disabled={disabledSubmitButton()} style={{marginRight: '10px'}}
                                             onClick={handleForgotPassword}
-                                            className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase  mb-2">
+                                            className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase  mb-2 btn-default">
                                                 <strong>Submit</strong>
                                             </button>
                                             <button onClick={() => {
                                                 window.location.href = `${process.env.PUBLIC_URL}/login`
                                             }}
-                                            className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase  mb-2">
+                                            className="btn btn-primary pt-2 pb-2 text-white d-block text-uppercase  mb-2 btn-default">
                                                 <strong>Cancel</strong>
                                             </button>
                                         </div>
