@@ -279,7 +279,7 @@ export const IS_REMEMBER_ME = 'isRememberMe';
 
 export const MARKET = 'US';
 
-export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as principal and is the contractual counterparty with investors in the trades.';
+export const NOTE_RISK = 'Phillip Securities Pte Ltd. acts as agency and is the contractual counterparty with investors in the trades.';
 
 export const NOT_MATCH_PASSWORD = "Passwords don't match";
 

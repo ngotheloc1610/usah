@@ -45,12 +45,12 @@
 }
 
 .text-primary-custom {
-    color: var(--bg-dark);
+    color: #16365c;
 }
 
 .form-check-input-custom:checked {
-    background: var(--bg-dark);
-    border-color: var(--bg-dark);
+    background: #16365c;
+    border-color: #16365c;
 }
 .unclick{
     opacity: 0.5;
@@ -64,6 +64,14 @@
 .logo-style {
     display: grid;
     font-size: 36px;
-    color: var(--text-theme) !important;
+    color: #16365c !important;
 }
 
+.text-forgot{
+    color: #16365c !important;
+}
+
+.btn-default{
+    background: #16365c !important;
+    border-color: #16365c !important;
+}
