@@ -298,7 +298,7 @@ function OrderTable(props: IPropListOrderHistory) {
 
                 <td className="text-ellipsis text-end w-120">
                     <div className="">{formatCurrency(item.price.toString())}</div>
-                    <div>{(item?.exec_price > 0 && item?.exec_volume) ? formatCurrency(item?.exec_price.toString()) : '-'}</div>
+                    <div>{(item?.exec_price > 0 && item?.exec_volume && convertNumber(item?.order_status) !== tradingModelPb.OrderState.ORDER_STATE_REJECTED) ? formatCurrency(item?.exec_price.toString()) : '-'}</div>
                 </td>
                 <td className="text-end w-100p">{convertNumber(item.order_status) === tradingModelPb.OrderState.ORDER_STATE_CANCELED ? formatNumber(item.withdraw_amount.toString()) : '-'}</td>
                 <td className="td w-200 text-center">
